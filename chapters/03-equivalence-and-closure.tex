@@ -1,0 +1,91 @@
+\chapter{Equivalence Proofs and Closure Properties}
+
+\section{Equivalence of Automata and Regular Expressions}
+
+In the previous chapter, we introduced regular expressions and stated their equivalence to finite state automata. We now provide the constructive proofs for both directions of this fundamental result (often known as Kleene's Theorem).
+
+\begin{theorem}
+For every finite state automaton $\mathcal{A}$, there exists a restricted regular expression that defines the same language, and vice-versa.
+\end{theorem}
+
+\subsection{From DFA to Regular Expressions}
+
+To convert an automaton to a regular expression, it is most convenient to start with a Deterministic Finite Automaton (DFA) where the states are ordered and indexed: $Q = \{q_1, q_2, \dots, q_n\}$, with $q_1$ as the initial state.
+
+We define a family of languages $R_{i,j}^k$, which represents the set of all words that transition the automaton from state $q_i$ to state $q_j$ subject to a specific constraint: the intermediate states visited during the transition (excluding $q_i$ and $q_j$) must have indices strictly less than or equal to $k$.
+
+We define these languages recursively on $k$:
+
+\paragraph{Base Case ($k=0$):} Since no intermediate states are allowed to have an index greater than $0$, and our states are indexed starting from $1$, no intermediate states can be visited. Thus, the transition must be a direct single step:
+\[
+R_{i,j}^0 = \{ a \in \mathcal{A} \mid \delta(q_i, a) = q_j \}
+\]
+If $i = j$, we must also include the empty word $\varepsilon$, since we can transition from $q_i$ to $q_i$ by reading nothing.
+
+\paragraph{Inductive Step:} For $k > 0$, a path from $q_i$ to $q_j$ whose highest intermediate state is at most $q_k$ can either:
+\begin{enumerate}
+    \item Never visit $q_k$ at all, meaning it is in $R_{i,j}^{k-1}$.
+    \item Visit $q_k$ one or more times. In this case, the path can be decomposed into:
+    \begin{itemize}
+        \item A path from $q_i$ to the \emph{first} visit of $q_k$ (in $R_{i,k}^{k-1}$).
+        \item Zero or more loops from $q_k$ back to $q_k$ (in $(R_{k,k}^{k-1})^*$).
+        \item A path from the \emph{last} visit of $q_k$ to $q_j$ (in $R_{k,j}^{k-1}$).
+    \end{itemize}
+\end{enumerate}
+
+Combining these possibilities using union, concatenation, and the Kleene star, we get:
+\[
+R_{i,j}^k = R_{i,j}^{k-1} \cup \left( R_{i,k}^{k-1} \cdot (R_{k,k}^{k-1})^* \cdot R_{k,j}^{k-1} \right)
+\]
+
+The final regular expression for the entire language recognized by the DFA is simply the union of all paths from the initial state $q_1$ to any final state $q_j$, with no restrictions on the intermediate states (meaning $k = n$):
+\[
+\bigcup_{q_j \in F} R_{1,j}^n
+\]
+
+\subsection{From Regular Expressions to NFA}
+
+For the reverse direction, we construct an NFA with $\varepsilon$-moves for any given restricted regular expression using structural induction. We ensure that our constructed automata always have exactly one initial state, exactly one final state, and no transitions exiting the final state.
+
+\paragraph{Base Cases:}
+\begin{itemize}
+    \item \textbf{Empty Language ($\emptyset$)}: An automaton with an initial state and no final states.
+    \item \textbf{Language $\{\varepsilon\}$}: An automaton where the initial state is also the final state, and no other transitions exist.
+    \item \textbf{Language $\{a\}$}: An automaton with an initial state $q_1$ and a final state $q_2$, with a single transition labeled $a$ from $q_1$ to $q_2$.
+\end{itemize}
+
+\paragraph{Inductive Steps:}
+Let $\mathcal{A}_1$ and $\mathcal{A}_2$ be the automata for expressions $r_1$ and $r_2$.
+\begin{itemize}
+    \item \textbf{Union ($r_1 \cup r_2$)}: Create a new initial state $q_0$ with $\varepsilon$-moves to the initial states of $\mathcal{A}_1$ and $\mathcal{A}_2$. Create a new final state $f_0$, and add $\varepsilon$-moves from the final states of $\mathcal{A}_1$ and $\mathcal{A}_2$ to $f_0$.
+    \item \textbf{Concatenation ($r_1 \cdot r_2$)}: Add an $\varepsilon$-move from the final state of $\mathcal{A}_1$ to the initial state of $\mathcal{A}_2$. The initial state of $\mathcal{A}_1$ becomes the new initial state, and the final state of $\mathcal{A}_2$ becomes the new final state.
+    \item \textbf{Kleene Star ($r_1^*$)}: Add an $\varepsilon$-move from the new initial state to the new final state (to accept $\varepsilon$). Add an $\varepsilon$-move from the final state of $\mathcal{A}_1$ back to its initial state to allow repetitions. Finally, add $\varepsilon$-moves linking the new initial state to $\mathcal{A}_1$, and from $\mathcal{A}_1$ to the new final state.
+\end{itemize}
+
+\section{Closure Properties}
+
+A class of languages is said to be \textbf{closed} under an operation if applying that operation to languages within the class always results in a language that is also within the class. 
+
+The class of regular languages is closed under the following operations:
+\begin{itemize}
+    \item \textbf{Union}, \textbf{Concatenation}, and \textbf{Kleene Star}: Demonstrated by the inductive step in constructing NFA from regular expressions.
+    \item \textbf{Complementation ($\sim$)}: To complement a regular language, we start with its complete DFA. We swap the final and non-final states ($F' = Q \setminus F$). The requirements that the automaton be \emph{deterministic} and \emph{complete} are crucial here: nondeterminism would allow words to be accepted by both the original and complement automaton, and incompleteness would cause words rejected by missing transitions to also be rejected by the complement automaton.
+    \item \textbf{Intersection ($\cap$)}: Given two DFA, we construct the \textbf{product automaton}. Its states are pairs of states from the two original automata ($Q_1 \times Q_2$). The transitions are simulated component-wise: $\delta'((q_1, q_2), a) = (\delta_1(q_1, a), \delta_2(q_2, a))$. The final states are pairs where both components are final states in their respective automata.
+\end{itemize}
+
+Because we can construct automata for intersection and complementation, we can directly convert any General Regular Expression into a DFA, proving that General Regular Expressions are no more expressive than Restricted Regular Expressions.
+
+\section{Decision Problems}
+
+Closure properties are instrumental in proving the decidability of fundamental problems regarding regular languages:
+\begin{enumerate}
+    \item \textbf{Membership Problem}: Given an automaton $\mathcal{A}$ and a word $w$, does $w \in \mathcal{L}(\mathcal{A})$?
+    \item \textbf{Emptiness Problem}: Is $\mathcal{L}(\mathcal{A}) = \emptyset$?
+    \item \textbf{Inclusion (Model Checking) Problem}: Given $\mathcal{A}$ and $\mathcal{A}'$, is $\mathcal{L}(\mathcal{A}) \subseteq \mathcal{L}(\mathcal{A}')$?
+    \item \textbf{Equivalence Problem}: Is $\mathcal{L}(\mathcal{A}) = \mathcal{L}(\mathcal{A}')$?
+\end{enumerate}
+
+Thanks to closure properties, we can reduce these complex problems to the simpler \textbf{Emptiness Problem}.
+For example, the inclusion problem $\mathcal{L}(\mathcal{A}) \subseteq \mathcal{L}(\mathcal{A}')$ is mathematically equivalent to showing that $\mathcal{L}(\mathcal{A}) \cap \sim\mathcal{L}(\mathcal{A}') = \emptyset$. Because regular languages are closed under intersection and complementation, we can algorithmically construct the automaton for $\mathcal{L}(\mathcal{A}) \cap \sim\mathcal{L}(\mathcal{A}')$ and simply check it for emptiness.
+
+Likewise, the equivalence problem $\mathcal{L}(\mathcal{A}) = \mathcal{L}(\mathcal{A}')$ reduces to checking mutual inclusion. Thus, showing that the emptiness problem is decidable (which will be done via a "small model theorem") is sufficient to prove that all four problems are decidable for regular languages.

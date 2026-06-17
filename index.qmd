@@ -1,0 +1,51 @@
+---
+title: "Verification and Validation Techniques"
+format:
+  html:
+    toc: false
+    page-layout: full
+    title-block-style: none
+---
+
+```{=html}
+<div class="landing">
+
+  <!-- Hero -->
+  <div class="landing-hero">
+    <div class="uni-label">Università degli Studi di Udine · A.A. 2025–2026</div>
+    <h1>Verification and Validation Techniques</h1>
+    <p class="desc">
+      Lecture notes and interactive companions for Verification and Validation Techniques.
+    </p>
+  </div>
+
+  <!-- Canvas — card grid -->
+  <div class="landing-canvas">
+  
+    <div class="chapter-label">Course Materials</div>
+    <div class="card-grid">
+      <a class="algo-card" href="chapters/01-intro.qmd">
+        <span class="card-num">Ch 1</span>
+        <span class="card-title">Introduction</span>
+        <span class="card-desc">Overview of V&V techniques</span>
+      </a>
+      <a class="algo-card" href="notebooks/01-intro.qmd">
+        <span class="card-num">NB 1</span>
+        <span class="card-title">Interactive Intro</span>
+        <span class="card-desc">Interactive notebook for Chapter 1</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="landing-bottom">
+    <div class="bot-left">
+      <span class="bot-pill">Verification &amp; Validation</span>
+      <span>UniUD</span>
+    </div>
+    <div class="bot-right">Runs completely in-browser via Pyodide</div>
+  </div>
+
+</div>
+```

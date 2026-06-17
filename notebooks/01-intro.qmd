@@ -1,0 +1,7 @@
+---
+title: "Notebook 1: Introduction"
+---
+
+# Introduction Notebook
+
+Interactive components for Chapter 1.
