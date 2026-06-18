@@ -23,28 +23,32 @@ This part focuses on the theoretical foundations of automata, infinite words,
 and game-theoretic techniques used in verification.
 
 - **Chapter 1: Finite-State Automata and Regular Languages**
-  - Sources: L01-L03, with later references from L06 where needed.
-  - DFA/NFA definitions, words and languages, runs, acceptance, regular
-    expressions, and automata-language correspondence.
-- **Chapter 2: Equivalence and Closure for Regular Languages**
-  - Sources: L03-L04.
-  - Kleene-style constructions, NFA-to-DFA determinization, closure properties,
-    and decision problems such as emptiness, inclusion, and equivalence.
+  - Sources: L01-L02.
+  - Words and languages, DFA/NFA definitions, runs, acceptance, finite-memory
+    examples, subset construction, and the regular-language viewpoint.
+- **Chapter 2: Regular Languages and Decision Problems**
+  - Sources: L02-L03 and L06.
+  - Regular expressions, epsilon-NFAs, Kleene equivalence, closure properties,
+    emptiness/inclusion/equivalence reductions, and Myhill--Nerode minimality.
 - **Chapter 3: Automata over Infinite Words**
-  - Sources: L04-L08.
+  - Sources: L04-L05.
   - Omega-words, Büchi automata, omega-regular languages, acceptance over
-    infinite runs, closure properties, and complementation.
-- **Chapter 4: Formal Verification in Practice**
-  - Source: L09.
-  - Guest/practical material on industrial formal verification and model
-    checking applications.
-- **Chapter 5: Two-Player Games for Verification**
-  - Sources: L10-L11.
-  - Arenas, plays, strategies, winning regions, Muller/parity objectives, and
-    verification games.
-- **Appendix A: Review and Exam Preparation**
+    infinite runs, closure properties, omega-regular expressions, lasso
+    emptiness, and ultimately periodic witnesses.
+- **Chapter 4: Complementation of Omega-Regular Languages**
+  - Sources: L07-L08, with supporting material from L05.
+  - Finite-index congruences, transition profiles, saturation, Ramsey
+    decomposition, Büchi complementation, and inclusion.
+- **Chapter 5: Synthesis and Infinite Games**
+  - Sources: L09-L11.
+  - Church synthesis, arenas, strategies, winning regions, attractors,
+    Muller/parity objectives, finite-state strategy memory, and the railway
+    interlocking verification case study.
+- **Chapter 6: Planning as Model Checking**
   - Source: L12.
-  - Wrap-up, exercises, recurring constructions, and exam-oriented synthesis.
+  - Action-based and timeline-based planning, planning domains, weak/strong
+    and strong-cyclic plans, execution structures, symbolic preimages, and
+    action description languages.
 
 ## Part II: Model Checking, Temporal Logic, and Verification Tools
 

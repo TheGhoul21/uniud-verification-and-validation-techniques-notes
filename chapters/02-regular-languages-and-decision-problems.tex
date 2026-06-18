@@ -60,6 +60,22 @@ This is the same language recognized by the DFA in
 \cref{fig:even-a-dfa}.  The expression describes the structure of the
 word; the automaton describes how to scan it.
 
+\begin{formaldetails}[Restricted, general, and star-free expressions]
+The word \emph{restricted} is used because the syntax above contains
+only union, concatenation, and Kleene star.  A more liberal syntax may
+also include Boolean operations such as intersection and complement.
+This does not add expressive power: once we can translate expressions to
+automata, closure under intersection and complement lets us compile the
+Boolean operations away and return to a restricted expression.
+
+There is, however, an important smaller fragment.  A \textbf{star-free}
+expression may use union, concatenation, complement, and intersection,
+but not Kleene star.  Star-free languages are regular, but not every
+regular language is star-free.  Later, when logic enters the course,
+this fragment becomes visible as the finite-word shadow of first-order
+definability.
+\end{formaldetails}
+
 \begin{theorem}[Kleene equivalence]
 \label{thm:kleene}
 A language $L\subseteq\Sigma^*$ is recognized by a finite automaton if
@@ -190,6 +206,38 @@ increase expressive power: every $\varepsilon$-NFA can be transformed
 into an equivalent NFA by replacing each state with its
 $\varepsilon$-closure.
 
+\begin{definition}[$\varepsilon$-closure]
+\label{def:epsilon-closure}
+For a state $q$, let $\mathsf{ECl}(q)$ be the set of states reachable
+from $q$ by taking zero or more $\varepsilon$-moves.  For a set of states
+$S$, write
+\[
+  \mathsf{ECl}(S)=\bigcup_{q\in S}\mathsf{ECl}(q).
+\]
+\end{definition}
+
+If $A=(Q,\Sigma,\Delta,q_0,F)$ is an $\varepsilon$-NFA, an equivalent
+ordinary NFA has the same states and alphabet, and transition function
+\[
+  \Delta'(q,a)
+  =
+  \mathsf{ECl}\!\left(
+    \bigcup_{p\in \mathsf{ECl}(q)} \Delta(p,a)
+  \right).
+\]
+In words: before reading $a$, take all possible free moves; read $a$;
+then again take all possible free moves.  The accepting set also needs a
+small correction:
+\[
+  F'=
+  \begin{cases}
+    F\cup\{q_0\}, & \mathsf{ECl}(q_0)\cap F\neq\emptyset,\\
+    F, & \text{otherwise.}
+  \end{cases}
+\]
+This accounts for the empty word, which may be accepted by following
+only $\varepsilon$-moves from the initial state to an accepting state.
+
 
 % ============================================================
 \section{Closure Properties}
@@ -256,6 +304,14 @@ intersection is the DFA with:
 The first component remembers where $A_1$ is; the second remembers where
 $A_2$ is.  A word is accepted exactly when both components end in
 accepting states.
+
+The word \emph{end} is doing real work here.  For finite words, both
+automata consume exactly the same input positions and there is one final
+moment at which acceptance is tested.  This is why the simple accepting
+set $F_1\times F_2$ is correct.  In \cref{ch:omega-automata}, the same
+idea must be modified: two B\"uchi automata may visit their accepting
+states at different times, so simultaneous final-state membership is no
+longer enough.
 
 \begin{figure}[ht]
 \centering
@@ -413,6 +469,16 @@ The other problems reduce to emptiness by using closure.
 \]
 \end{formaldetails}
 
+For universality, we build the complement and ask whether any rejected
+word exists.  For inclusion, we search for a counterexample:
+\[
+  w\in L(A_1)\setminus L(A_2).
+\]
+If the intersection $L(A_1)\cap\overline{L(A_2)}$ is empty, then no such
+counterexample exists.  Equivalence is just two inclusions, because two
+sets are equal precisely when neither contains an element missing from
+the other.
+
 This is the finite-word prototype of model checking.  The system
 automaton describes possible behaviours; the specification automaton
 describes allowed behaviours.  Verification asks for language inclusion.
@@ -440,6 +506,33 @@ Two prefixes are equivalent when no future suffix can separate them.
 After reading either prefix, the automaton needs exactly the same
 information to decide all possible continuations.
 
+\begin{definition}[Right-invariant equivalence]
+\label{def:right-invariant-equivalence}
+An equivalence relation $\sim$ on $\Sigma^*$ is \textbf{right-invariant}
+if
+\[
+  x\sim y \quad\Longrightarrow\quad xz\sim yz
+  \quad\text{for every }z\in\Sigma^*.
+\]
+\end{definition}
+
+The relation $\equiv_L$ is right-invariant by definition: if no
+continuation separates $x$ and $y$, then no longer continuation can
+separate $xz$ and $yz$ either.
+
+\begin{example}[The automaton relation]
+\label{ex:automaton-right-congruence}
+Let $A=(Q,\Sigma,\delta,q_0,F)$ be a DFA.  Define
+\[
+  x\equiv_A y
+  \quad\Longleftrightarrow\quad
+  \widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y).
+\]
+This relation has at most $|Q|$ classes.  It is right-invariant because
+once two prefixes put the automaton in the same state, appending the
+same suffix makes the two future computations identical.
+\end{example}
+
 \begin{theorem}[Myhill--Nerode theorem]
 \label{thm:myhill-nerode}
 A language $L\subseteq\Sigma^*$ is regular if and only if
@@ -448,19 +541,58 @@ finitely many equivalence classes.
 \end{theorem}
 
 \begin{proof}
-If $L$ is recognized by a DFA, every word leads to a state.  Two words
-that lead to the same state cannot be distinguished by any continuation,
-so there are at most as many $\equiv_L$-classes as states.
+Assume first that $L$ is recognized by a DFA
+$A=(Q,\Sigma,\delta,q_0,F)$.  If two words reach the same state, then
+every continuation has the same fate from that state.  Formally, if
+$\widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y)$, then for every
+$z\in\Sigma^*$,
+\[
+  \widehat{\delta}(q_0,xz)=\widehat{\delta}(q_0,yz).
+\]
+Therefore $xz\in L$ if and only if $yz\in L$, so $x\equiv_L y$.  The
+automaton relation $\equiv_A$ has at most $|Q|$ classes, and each
+$\equiv_A$-class sits inside one $\equiv_L$-class.  Hence $\equiv_L$ has
+finite index.
 
-Conversely, if $\equiv_L$ has finitely many classes, use the classes as
-states.  The transition on symbol $a$ sends the class of $w$ to the class
-of $wa$.  The accepting classes are exactly those containing words of
-$L$.  The congruence property ensures this is well-defined.
+Conversely, assume $\equiv_L$ has finite index.  Build the quotient DFA
+\[
+  A_L=(\Sigma^*/{\equiv_L},\Sigma,\delta,[\varepsilon],F_L)
+\]
+where
+\[
+  \delta([w],a)=[wa]
+  \quad\text{and}\quad
+  F_L=\{[w]:w\in L\}.
+\]
+The transition is well-defined because $\equiv_L$ is right-invariant:
+if $w\equiv_L w'$, then $wa\equiv_L w'a$.  The accepting set is
+well-defined because taking the empty continuation $z=\varepsilon$ in
+the definition of $\equiv_L$ shows that equivalent words are either both
+in $L$ or both outside $L$.
+
+After reading a word $w$, the quotient automaton is in state $[w]$.
+Thus it accepts exactly the words whose equivalence class belongs to
+$F_L$, which is exactly $L$.
 \end{proof}
 
-The minimal DFA for $L$ is obtained by merging exactly the states that
-represent the same continuation behaviour.  This gives a canonical
-finite-state representation of the language.
+\begin{proposition}[Minimality]
+\label{prop:myhill-nerode-minimality}
+The quotient automaton built from $\equiv_L$ has the minimum possible
+number of states among all DFAs recognizing $L$.
+\end{proposition}
+
+\begin{proof}
+Let $A$ be any DFA recognizing $L$.  If two words reach the same state
+in $A$, then they are $\equiv_L$-equivalent by the first half of the
+previous proof.  Therefore a single state of $A$ can represent only one
+Myhill--Nerode class.  Since every class is reached by some word, $A$
+must have at least as many states as there are $\equiv_L$-classes.  The
+quotient automaton has exactly that many states, so it is minimal.
+\end{proof}
+
+The minimal DFA for $L$ is therefore canonical up to renaming of states:
+merge exactly the prefixes with the same continuation behaviour, and no
+more.
 
 \begin{summarybox}
 \begin{itemize}[nosep]

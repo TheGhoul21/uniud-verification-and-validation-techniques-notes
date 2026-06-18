@@ -33,26 +33,30 @@ ORDER BY c.id, l.id, a.id;
 ### Course 88 - Part I Source
 
 Status: complete for the current plan, 12 lectures with one text/markdown
-attachment each. The current Part I draft covers all 12 lectures and has been
-deepened with the main technical points that were initially under-extracted:
-small-model emptiness, reachability fixpoints, the double-tilde congruence
-index bound, idempotent Ramsey decomposition, weak/full Muller games, LAR
-memory, and action-based vs timeline-based planning.
+attachment each. The Part I draft has now been re-audited lecture by lecture
+against the full transcripts. The current chapters cover all 12 lectures and
+have been deepened with the main technical points that were initially
+under-extracted: language concatenation and epsilon distinctions, epsilon-NFA
+closure elimination, restricted/general/star-free regular expressions,
+Myhill-Nerode quotient minimality, asynchronous Buchi intersection,
+non-ultimately-periodic examples, transition-profile saturation,
+ultimately-periodic fingerprints, railway interlocking verification, finite
+strategy memory for Muller games, and weak/strong/strong-cyclic planning.
 
 | Lecture | DB lecture id | Attachment status | Notes |
 | --- | ---: | --- | --- |
-| L01 | 651 | present | finite-state automata, systems as states/transitions |
-| L02 | 652 | present | DFA/NFA recap and transition functions |
-| L03 | 653 | present | regular expressions/equivalence material |
-| L04 | 654 | present | closure/decision material and transition toward omega-words |
-| L05 | 655 | present | omega-word and Buchi material |
-| L06 | 656 | present | automata constructions and later finite-state material |
-| L07 | 657 | present | omega-regular/Buchi continuation |
-| L08 | 658 | present | complementation/inclusion/emptiness material |
-| L09 | 659 | present | practical/guest verification material |
-| L10 | 660 | present | games for verification |
-| L11 | 661 | present | games continuation |
-| L12 | 662 | present | review/exam preparation |
+| L01 | 651 | present | finite-state systems, words/languages, concatenation, Kleene star, DFA examples |
+| L02 | 652 | present | NFA semantics, epsilon-closure, determinization, restricted/general/star-free regex |
+| L03 | 653 | present | Kleene equivalence, closure constructions, decision reductions |
+| L04 | 654 | present | omega-words, Buchi acceptance, closure, asynchronous intersection |
+| L05 | 655 | present | omega-regular expressions, non-ultimately-periodic examples, congruence motivation |
+| L06 | 656 | present | Myhill-Nerode, right-invariant equivalences, quotient/minimal DFA |
+| L07 | 657 | present | transition profiles, accepting-path profiles, saturation, Ramsey setup |
+| L08 | 658 | present | Buchi complementation, inclusion, ultimately-periodic fingerprint |
+| L09 | 659 | present | railway interlocking case study, model-based verification, synthesis motivation |
+| L10 | 660 | present | game arenas, strategies, winning regions, automata-to-game construction |
+| L11 | 661 | present | weak/full Muller games, appearance records, LAR memory, parity reduction |
+| L12 | 662 | present | planning as model checking, preimages, weak/strong/strong-cyclic plans |
 
 ### Course 89 - Part II Source
 

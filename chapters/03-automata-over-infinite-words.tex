@@ -158,6 +158,12 @@ For finite words, we ask where the run ends.  For infinite words, there
 is no end.  B\"uchi acceptance instead asks whether the run visits some
 accepting state infinitely many times.
 
+This is also why ``membership'' changes character.  For a finite word we
+can simulate the automaton to the last symbol and inspect the final
+state.  For an $\omega$-word there is no last symbol to wait for.  The
+decision procedures therefore reason about the finite graph of the
+automaton, looking for a finite pattern that can repeat forever.
+
 \begin{definition}[$\omega$-regular language]
 \label{def:omega-regular-language}
 A language $L\subseteq\Sigma^\omega$ is \textbf{$\omega$-regular} if it
@@ -214,6 +220,50 @@ acceptance is about visiting final states infinitely often.  In product
 constructions, we must ensure that both automata satisfy their B\"uchi
 conditions, not just that both components are accepting at the same
 single time.
+
+\begin{formaldetails}[Construction ideas]
+For $U\cdot L$, first run a finite-word automaton for $U$.  Whenever it
+reaches an accepting state, nondeterministically switch to a B\"uchi
+automaton for $L$.  The switch consumes no future symbols; it only marks
+where the finite prefix ends.
+
+For $V^\omega$, start from an automaton for the finite language $V$.
+Assume, after the standard harmless normalization, that it has no
+$\varepsilon$-moves and that no transition enters its initial state.
+Whenever a transition would enter an accepting state after reading a
+symbol $a$, duplicate that effect by sending the same $a$-transition
+back to the initial state of the $V$-automaton, passing through a
+B\"uchi accepting marker.  Each visit to the marker means that one
+finite block from $V$ has just been completed.  Infinitely many marker
+visits mean infinitely many completed $V$-blocks.
+
+For intersection of two B\"uchi automata, the naive product with
+$F_1\times F_2$ is too strict: one run may visit $F_1$ at even times and
+the other may visit $F_2$ at odd times.  The correct product stores a
+phase bit.  In phase $1$ it waits until the first component visits
+$F_1$, then switches to phase $2$; in phase $2$ it waits until the
+second component visits $F_2$, then switches back to phase $1$.  The
+accepting states are the states that complete one of these obligations.
+An accepting run must therefore complete both obligations infinitely
+often.
+\end{formaldetails}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  phase/.style={draw, rounded corners=3pt, minimum width=25mm, minimum height=10mm, align=center},
+  arr/.style={-Stealth, thick},
+]
+  \node[phase, fill=orange!10] (p1) {phase 1\\wait for $F_1$};
+  \node[phase, fill=teal!10, right=32mm of p1] (p2) {phase 2\\wait for $F_2$};
+  \draw[arr, bend left=18] (p1) to node[above] {hit $F_1$} (p2);
+  \draw[arr, bend left=18] (p2) to node[below] {hit $F_2$} (p1);
+  \node[below=10mm of p1, xshift=28mm, font=\small, align=center]
+    {The product accepts only if both phases are completed infinitely often.};
+\end{tikzpicture}
+\caption{Asynchronous B\"uchi intersection is handled by alternating obligations.}
+\label{fig:buchi-intersection-phases}
+\end{figure}
 
 \begin{definition}[$\omega$-regular expression]
 \label{def:omega-regular-expression}
@@ -339,6 +389,23 @@ Every non-empty $\omega$-regular language contains an ultimately periodic
 word.  The graph-theoretic lasso in \cref{prop:buchi-emptiness} is the
 automata reason: a finite path gives $u$, and the repeated cycle gives
 $v^\omega$.
+
+\begin{example}[A singleton that is not $\omega$-regular]
+\label{ex:non-omega-regular-singleton}
+Consider
+\[
+  \beta=a\,b\,a\,b^2\,a\,b^3\,a\,b^4\cdots .
+\]
+Both $a$ and $b$ occur infinitely often, but the gaps between consecutive
+$a$'s keep growing.  The word is not ultimately periodic: in an
+ultimately periodic word, the distances between repeated occurrences are
+eventually governed by one fixed period.
+
+The singleton language $\{\beta\}$ is therefore not $\omega$-regular.
+If it were non-empty and $\omega$-regular, it would contain an
+ultimately periodic word.  But its only word is $\beta$, which is not
+ultimately periodic.
+\end{example}
 
 \begin{summarybox}
 \begin{itemize}[nosep]

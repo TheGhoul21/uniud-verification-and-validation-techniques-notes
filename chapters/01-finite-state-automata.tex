@@ -83,6 +83,20 @@ The empty word behaves like a neutral element:
 This small fact is useful because many constructions need to handle the
 case where no input has been consumed yet.
 
+The same operation extends from words to languages.  If
+$L_1,L_2\subseteq\Sigma^*$, then
+\[
+  L_1L_2=\{uv:u\in L_1,\ v\in L_2\}.
+\]
+There is a small but important distinction here:
+\[
+  L\{\varepsilon\}=L,
+  \qquad
+  L\emptyset=\emptyset.
+\]
+The singleton $\{\varepsilon\}$ contains one word, namely the empty
+word.  The empty language $\emptyset$ contains no word at all.
+
 \begin{definition}[Kleene star]
 \label{def:kleene-star}
 If $W \subseteq \Sigma^*$ is a language, then
@@ -96,6 +110,17 @@ is the \textbf{Kleene closure} of $W$.
 In plain language, $W^*$ contains every word that can be built by
 concatenating finitely many blocks from $W$.  The case $k=0$ gives
 $\varepsilon$, so $\varepsilon\in W^*$ for every $W$.
+
+It is often useful to name the finite powers explicitly:
+\[
+  W^0=\{\varepsilon\},
+  \qquad
+  W^{n+1}=WW^n,
+  \qquad
+  W^*=\bigcup_{n\geq 0}W^n.
+\]
+The positive closure is $W^+=\bigcup_{n\geq 1}W^n$.  It contains the
+non-empty concatenations of blocks from $W$.
 
 
 % ============================================================
@@ -163,6 +188,44 @@ $q_{\mathrm{even}}$.
 In \cref{fig:even-a-dfa}, the state records only the information that
 matters for the property: parity.  It forgets the exact number of $a$'s,
 because the language does not need that much detail.
+
+\begin{example}[Every $a$ is eventually followed by a $b$]
+\label{ex:a-eventually-followed-by-b}
+Over $\Sigma=\{a,b\}$, consider the language
+\[
+  L=\{w : \text{every occurrence of }a\text{ is followed later by some }b\}.
+\]
+This does not require matching each $a$ with a distinct $b$.  The word
+$aaab$ belongs to $L$, because the final $b$ witnesses all three pending
+$a$'s at once.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.2cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[accepting] (ok) {$q_{\mathrm{ok}}$};
+  \node[state, right=of ok] (wait) {$q_{\mathrm{wait}}$};
+  \draw[arr] ([xshift=-1.0cm]ok.west) -- (ok);
+  \draw[arr] (ok) edge[loop above] node {$b$} (ok);
+  \draw[arr, bend left=18] (ok) to node[above] {$a$} (wait);
+  \draw[arr] (wait) edge[loop above] node {$a$} (wait);
+  \draw[arr, bend left=18] (wait) to node[below] {$b$} (ok);
+\end{tikzpicture}
+\caption{A DFA that remembers only whether there is an unresolved $a$.}
+\label{fig:a-eventually-followed-by-b}
+\end{figure}
+
+The state $q_{\mathrm{wait}}$ means ``some $a$ has been seen and no
+later $b$ has appeared yet''.  The automaton does not count how many
+$a$'s are waiting.  This is exactly the finite-memory point: requiring
+one distinct later $b$ for each earlier $a$ would be a matching problem,
+like balanced parentheses, and would need unbounded memory rather than a
+finite automaton.
 
 \begin{definition}[Extended transition function]
 \label{def:extended-delta}
@@ -238,6 +301,20 @@ Equivalently, we can view the transition structure as a function
 The value $\Delta(q,a)$ is the set of all states that the automaton may
 move to after reading $a$ in state $q$.
 
+For computations it is convenient to extend this to sets of states.  If
+$S\subseteq Q$, define
+\[
+  \widehat{\Delta}(S,\varepsilon)=S,
+  \qquad
+  \widehat{\Delta}(S,wa)=
+    \bigcup_{p\in\widehat{\Delta}(S,w)}\Delta(p,a).
+\]
+Starting from a single state $q$, we write
+$\widehat{\Delta}(q,w)$ for
+$\widehat{\Delta}(\{q\},w)$.  The set
+$\widehat{\Delta}(q_0,w)$ contains exactly the states reachable by some
+run on $w$.
+
 \begin{definition}[Run and acceptance for an NFA]
 \label{def:nfa-run}
 Let $w=a_0a_1\cdots a_{n-1}$.  A \textbf{run} of an NFA on $w$ is a
@@ -255,6 +332,12 @@ $r_n\in F$.
 The key word is \emph{exists}.  An NFA may have many failing runs on the
 same input.  The word is accepted as soon as one run reaches an accepting
 state after consuming the whole word.
+Equivalently,
+\[
+  w\in L(A)
+  \quad\Longleftrightarrow\quad
+  \widehat{\Delta}(q_0,w)\cap F\neq\emptyset.
+\]
 
 \begin{example}[Guessing the last symbol]
 \label{ex:nfa-last-a}

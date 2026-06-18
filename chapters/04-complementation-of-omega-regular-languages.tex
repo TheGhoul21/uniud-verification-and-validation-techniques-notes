@@ -91,6 +91,20 @@ This is a strong finiteness property.  It says that once we know the
 class of a finite prefix and the class repeated forever, the membership
 of the resulting infinite word is fixed.
 
+\begin{proposition}[Saturation and complement]
+\label{prop:saturation-complement}
+If a language $L$ is saturated by a finite-index congruence $\equiv$,
+then its complement $\overline{L}$ is saturated by the same congruence.
+\end{proposition}
+
+\begin{proof}
+Fix two equivalence classes $U,V$.  Since $L$ is saturated,
+$UV^\omega$ is either contained in $L$ or disjoint from $L$.  In the
+first case $UV^\omega$ is disjoint from $\overline{L}$; in the second it
+is contained in $\overline{L}$.  Thus the same all-or-nothing condition
+holds for the complement.
+\end{proof}
+
 \begin{lemma}[Complement from saturation]
 \label{lem:complement-from-saturation}
 If $L$ is saturated by a finite-index congruence $\equiv$, then
@@ -128,6 +142,24 @@ the language of a B\"uchi automaton.
 
 Let $A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  A finite word
 can be summarized by what it does to pairs of states.
+
+\begin{definition}[Path profile notation]
+\label{def:path-profile-notation}
+For $p,q\in Q$ and $u\in\Sigma^*$, write
+\[
+  p \xrightarrow{u} q
+\]
+when there is a path from $p$ to $q$ labelled $u$.  Write
+\[
+  p \xrightarrow{u}_{F} q
+\]
+when there is such a path that visits at least one accepting state in
+$F$.
+\end{definition}
+
+The second relation is the one that finite-word automata do not need.
+For B\"uchi acceptance, a repeated block is useful only if it can be
+traversed while seeing acceptance.
 
 \begin{definition}[Transition profile]
 \label{def:transition-profile}
@@ -180,6 +212,20 @@ state was seen along the way.
 This is exactly the information needed to reason about repeating finite
 blocks inside an infinite run.
 
+\begin{formaldetails}[Replacement principle]
+If $u\approx_A v$, then every finite path fact about $u$ that matters
+for B\"uchi acceptance also holds for $v$ with the same endpoints:
+\[
+  p\xrightarrow{u}q \Longleftrightarrow p\xrightarrow{v}q,
+  \qquad
+  p\xrightarrow{u}_{F}q \Longleftrightarrow p\xrightarrow{v}_{F}q.
+\]
+Thus a run built from $u$-blocks can be imitated block by block with
+$v$-blocks, preserving the accepting visits that make the infinite run
+B\"uchi-accepting.  This is the local reason why transition profiles
+saturate $\omega$-regular languages.
+\end{formaldetails}
+
 
 % ============================================================
 \section{Ramsey Decomposition}
@@ -189,6 +235,27 @@ blocks inside an infinite run.
 The remaining difficulty is that an arbitrary infinite word need not be
 literally of the form $uv^\omega$.  Ramsey's theorem lets us cut it into
 blocks that are equivalent to each other.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  cut/.style={circle, fill=teal!65!black, inner sep=1.8pt},
+  arr/.style={-Stealth, thick},
+]
+  \draw[thick] (0,0) -- (8.6,0);
+  \foreach \x/\lab in {0.5/$i_0$,2.4/$i_1$,4.3/$i_2$,6.2/$i_3$,8.1/$i_4$} {
+    \node[cut] at (\x,0) {};
+    \node[below=3mm] at (\x,0) {\lab};
+  }
+  \draw[arr, orange!80!black] (0.5,0.35) to[bend left=22] node[above] {$V$} (2.4,0.35);
+  \draw[arr, orange!80!black] (2.4,0.35) to[bend left=22] node[above] {$V$} (4.3,0.35);
+  \draw[arr, violet!75!black] (0.5,0.95) to[bend left=22] node[above] {$V$} (4.3,0.95);
+  \node[font=\small, align=center] at (4.4,-0.9)
+    {Homogeneity makes both adjacent blocks and their merge have the same class.};
+\end{tikzpicture}
+\caption{Ramsey homogeneity: all selected segments carry the same congruence class.}
+\label{fig:ramsey-homogeneous-cuts}
+\end{figure}
 
 \begin{lemma}[Homogeneous decomposition]
 \label{lem:homogeneous-decomposition}
@@ -254,25 +321,31 @@ $\approx_A$-class.
 It remains to justify saturation.  Consider a class product $UV^\omega$
 that intersects $L$.  Choose an accepted word in it and cut it into
 $u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$.  In an
-accepting run, look at the states reached at the block boundaries.
-Because $Q$ is finite and some accepting state is visited infinitely
-often, we can select infinitely many block boundaries with the same state
-$p$, and with an accepting state visited between consecutive selected
-boundaries.
+accepting run, write
+\[
+  q_0=s_0 \xrightarrow{u_0} s_1
+      \xrightarrow{u_1} s_2
+      \xrightarrow{u_2} \cdots
+\]
+for the states at the block boundaries.  Infinitely many of these block
+segments visit an accepting state; otherwise the whole run would not be
+B\"uchi-accepting.
 
-The block from one selected boundary to the next belongs to some product
-of words from $V$, hence to a class determined by $V$ under the
-congruence.  Its transition profile says: from $p$ back to $p$ there is
-a path that visits $F$.  Since all words in the same class have the same
-profile, the same accepting-cycle information is available for every
-choice of blocks from $V$.  Similarly, every prefix from $U$ has the same
-relevant reachability profile from $q_0$ into the selected state.
+Now take any other word
+\[
+  \beta=v_0v_1v_2\cdots\in UV^\omega,
+\]
+with $v_0\in U$ and $v_i\in V$ for $i\geq 1$.  Since $u_0$ and $v_0$
+have the same transition profile, $v_0$ can take $q_0$ to the same
+boundary state $s_1$.  Since each $u_i$ and $v_i$ have the same profile,
+each segment $v_i$ can take $s_i$ to $s_{i+1}$, and whenever the
+original $u_i$-segment visited $F$, the replacement $v_i$-segment can be
+chosen to visit $F$ as well.  Stitching these replacement paths together
+gives an accepting run of $A$ on $\beta$.
 
-Therefore any word in $UV^\omega$ can follow a prefix path to $p$ and
-then repeat accepting $p$-to-$p$ segments forever.  It is accepted by
-$A$.  Thus $UV^\omega\subseteq L$.  We have shown that every class
-product either misses $L$ or is contained in $L$, so $L$ is saturated by
-$\approx_A$.
+Therefore every word in $UV^\omega$ is accepted.  We have shown that
+each class product either misses $L$ or is contained in $L$, so $L$ is
+saturated by $\approx_A$.
 
 By \cref{lem:complement-from-saturation}, the complement is a finite
 union of class products $UV^\omega$, hence it is $\omega$-regular.
@@ -285,6 +358,35 @@ union of $\omega$-regular components.  Practical complementation
 constructions are intricate and can be expensive, but the closure result
 is enough for decidability of inclusion.
 \end{remark}
+
+\begin{formaldetails}[Effective complement construction]
+The proof suggests a finite procedure.  Enumerate the finitely many
+transition-profile classes of $\approx_A$.  For each pair of classes
+$(U,V)$, decide whether
+\[
+  UV^\omega\cap L(A)=\emptyset.
+\]
+This is a B\"uchi emptiness question, because $U$ and $V$ are regular
+finite-word languages and $UV^\omega$ is $\omega$-regular.  The
+complement is the finite union of exactly those products whose
+intersection with $L(A)$ is empty.
+\end{formaldetails}
+
+\begin{proposition}[Ultimately periodic fingerprint]
+\label{prop:ultimately-periodic-fingerprint}
+Let $L_1,L_2\subseteq\Sigma^\omega$ be $\omega$-regular languages.  If
+$L_1$ and $L_2$ contain the same ultimately periodic words, then
+$L_1=L_2$.
+\end{proposition}
+
+\begin{proof}
+Suppose not.  Then either $L_1\setminus L_2$ or $L_2\setminus L_1$ is
+non-empty.  By closure under complement and intersection, that
+difference is $\omega$-regular.  Every non-empty $\omega$-regular
+language contains an ultimately periodic word, so the difference
+contains an ultimately periodic word.  This contradicts the assumption
+that $L_1$ and $L_2$ agree on all ultimately periodic words.
+\end{proof}
 
 
 % ============================================================

@@ -93,6 +93,18 @@ $\mathit{green}$, then a state records whether each of these facts is
 currently true.  With $n$ Boolean fluents, the explicit state space may
 contain up to $2^n$ states.
 
+\begin{definition}[Inertial and non-inertial fluents]
+\label{def:inertial-fluents}
+An \textbf{inertial fluent} keeps its value unless some action or event
+changes it.  A \textbf{non-inertial fluent} is recomputed or controlled
+by the environment at each step.
+\end{definition}
+
+For example, the parcel location is usually inertial: if no action moves
+the parcel, it stays where it is.  A traffic light may be modelled as
+non-inertial from the robot's point of view, because the planner does
+not control when it changes.
+
 \begin{definition}[Action-based planning domain]
 \label{def:planning-domain}
 An action-based planning domain consists of:
@@ -109,6 +121,20 @@ The transition relation may be non-deterministic: the same action in the
 same state can have several possible successor states.  This is where
 planning begins to look like a game against the environment.
 
+\begin{formaldetails}[Modelling dimensions]
+Planning domains are often classified along three independent axes.
+\begin{itemize}[nosep]
+  \item \textbf{Deterministic vs. non-deterministic effects}: an action
+        has one successor, or several possible successors.
+  \item \textbf{Complete vs. partial observability}: the planner sees
+        the exact current state, or only an observation compatible with
+        several states.
+  \item \textbf{Reachability vs. extended goals}: the goal is simply to
+        reach $G$, or to satisfy temporal requirements such as always
+        avoiding unsafe states until the goal is reached.
+\end{itemize}
+\end{formaldetails}
+
 \begin{example}[Parcel and traffic light]
 \label{ex:parcel-traffic}
 A robot must move a parcel across a crossing.  Fluents may record the
@@ -116,6 +142,22 @@ robot location, whether the parcel is loaded, and whether the traffic
 light is green.  An action such as \texttt{cross} may succeed only when
 the light is green; the light itself may change independently.
 \end{example}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+State fact & Action & Possible successor fact \\
+\midrule
+$\mathit{atLeft}\wedge\mathit{green}$ & \texttt{cross} & $\mathit{atRight}$ \\
+$\mathit{atLeft}\wedge\neg\mathit{green}$ & \texttt{cross} & $\mathit{atLeft}$ \\
+$\mathit{atLeft}$ & \texttt{wait} & $\mathit{atLeft}$ with either light value \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The table is not meant as a full domain description.  It shows the
+state-action view: a row describes when an action can be applied and
+which next states may result.
 
 
 % ============================================================
@@ -138,6 +180,19 @@ sequence
 \]
 may fail after an unlucky outcome.  A policy can branch and recover.
 
+\begin{definition}[Execution structure]
+\label{def:execution-structure}
+Given a domain and a plan, the \textbf{execution structure} is the graph
+obtained by keeping only the action choices allowed by the plan and all
+outcomes that the domain permits for those choices.  An execution path
+is a path in this graph.  A terminal state is a state with no outgoing
+planned transition.
+\end{definition}
+
+This definition separates the planner's choices from nature's choices.
+The plan may choose one action, but the execution structure still
+contains every possible successor of that action.
+
 \begin{definition}[Weak and strong solution]
 \label{def:weak-strong-plan}
 A \textbf{weak plan} has at least one execution that reaches the goal.
@@ -148,6 +203,28 @@ the goal.
 Weak planning is existential.  Strong planning is universal.  Verification
 and synthesis care deeply about this difference: a safety-critical
 controller needs strong guarantees, not just one lucky successful run.
+
+\begin{definition}[Situated, universal, and conformant plans]
+\label{def:planning-plan-types}
+A \textbf{situated plan} assumes a known initial state.  A
+\textbf{universal plan} gives an action choice for every reachable state
+in a set of possible states.  A \textbf{conformant plan} must work
+without observing which of several possible initial states is the real
+one.
+\end{definition}
+
+\begin{definition}[Strong cyclic solution]
+\label{def:strong-cyclic-plan}
+A \textbf{strong cyclic plan} guarantees that every fair execution
+eventually reaches the goal, where fairness means that an outcome that
+remains continuously possible cannot be postponed forever.
+\end{definition}
+
+Strong cyclic planning is useful when recovery loops are acceptable.  If
+the robot repeatedly tries to cross while the light may nondeterministically
+be red or green, a strong plan may be impossible because the red outcome
+can keep it stuck forever.  A strong cyclic plan can still be reasonable
+under the fairness assumption that the green outcome eventually occurs.
 
 
 % ============================================================
@@ -306,6 +383,16 @@ can then be written logically as
 This formula says: choose an action with at least one possible successor,
 and require every possible successor to satisfy $X$.
 
+The weak preimage has the existential version of the same shape:
+\[
+  \mathsf{Pre}_w(X)(x)
+  =
+  \exists a\,\exists x'\,
+  \big(T(x,a,x')\wedge X(x')\big).
+\]
+The strong preimage replaces the existential choice of outcome with a
+universal requirement over all outcomes of the chosen action.
+
 \begin{intermezzo}{Why Symbolic Methods Matter}
 If a domain has 40 Boolean fluents, the explicit state space may contain
 $2^{40}$ states.  Symbolic methods do not make the problem magically
@@ -333,6 +420,36 @@ For example, an action \texttt{load} may require the robot and parcel to
 be at the same location, and its effect is that the fluent
 $\mathit{loaded}$ becomes true.  The semantics of the action language is
 then compiled into the symbolic transition relation $T(x,a,x')$.
+
+A typical rule has the form
+\[
+  A \text{ causes } P \text{ if } Q,
+\]
+meaning that when action $A$ is executed in a state satisfying $Q$, the
+next state must satisfy effect $P$.  Executability conditions say when
+an action is allowed; frame or inertia constraints say that inertial
+fluents keep their current value unless some rule changes them.
+
+\begin{example}[Compiling one action rule]
+\label{ex:compile-action-rule}
+The rule
+\[
+  \texttt{load}\text{ causes }\mathit{loaded}
+  \text{ if }\mathit{robotAtParcel}
+\]
+contributes the implication
+\[
+  \texttt{load}(a)\wedge \mathit{robotAtParcel}(x)
+  \;\Longrightarrow\;
+  \mathit{loaded}(x')
+\]
+to the transition relation.  Inertia contributes, for example,
+\[
+  \neg\textsf{changesLoaded}(x,a)
+  \;\Longrightarrow\;
+  \big(\mathit{loaded}(x')\leftrightarrow \mathit{loaded}(x)\big).
+\]
+\end{example}
 
 The course connection is now visible:
 \[

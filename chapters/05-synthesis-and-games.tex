@@ -103,6 +103,24 @@ Strategies may use memory.  A \textbf{positional} strategy depends only
 on the current vertex.  A \textbf{finite-state} strategy depends on the
 current vertex plus a finite memory state.
 
+A strategy for the system is \textbf{winning} from a vertex $v$ if
+every infinite play that starts in $v$ and is consistent with that
+strategy satisfies the winning condition, no matter how the environment
+resolves its own choices.  This universal quantification is the game
+version of realizability: a controller is correct only if it survives
+all legal environment behaviours.
+
+\begin{definition}[Winning region]
+\label{def:winning-region}
+The \textbf{winning region} of a player is the set of vertices from
+which that player has a winning strategy.
+\end{definition}
+
+For the finite games used here, the winning regions of the two players
+partition the arena.  This determinacy fact is what lets synthesis
+return a sharp answer: either the system has an implementation, or the
+environment has a counter-strategy.
+
 \begin{example}[Request-grant game]
 \label{ex:request-grant-game}
 The environment may raise a request.  The system may grant.  The
@@ -114,6 +132,19 @@ This is not a finite-prefix property.  A finite play cannot prove that a
 request will never be granted.  The game must be evaluated over infinite
 plays.
 \end{example}
+
+\begin{definition}[Finite-state strategy]
+\label{def:finite-state-strategy}
+A \textbf{finite-state strategy} is implemented by a finite memory
+machine.  It updates its memory after each move and chooses the next
+system move from the current arena vertex and current memory value.
+\end{definition}
+
+The strategy machine is not the arena itself.  The arena describes all
+possible interactions between system and environment.  A strategy
+selects one outgoing system edge at each system-controlled situation,
+while environment edges remain possible because the controller does not
+control them.
 
 
 % ============================================================
@@ -141,6 +172,33 @@ The B\"uchi--Landweber solution connects logic, automata, and games.
 The pipeline differs from model checking in one crucial way.  Model
 checking takes a system automaton as input.  Synthesis constructs the
 system from a winning strategy.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  env/.style={circle, draw, thick, fill=orange!12, minimum size=10mm},
+  sys/.style={rectangle, draw, thick, rounded corners=2pt, fill=teal!12, minimum size=10mm},
+  arr/.style={-Stealth, thick},
+]
+  \node[env] (e) {$q$};
+  \node[sys, right=23mm of e, yshift=8mm] (s0) {$q,i=0$};
+  \node[sys, right=23mm of e, yshift=-8mm] (s1) {$q,i=1$};
+  \node[env, right=56mm of e] (q0) {$q'$};
+  \draw[arr] (e) -- node[above left, font=\small] {input $0$} (s0);
+  \draw[arr] (e) -- node[below left, font=\small] {input $1$} (s1);
+  \draw[arr] (s0) -- node[above right, font=\small] {output} (q0);
+  \draw[arr] (s1) -- node[below right, font=\small] {output} (q0);
+  \node[below=17mm of q0, xshift=-29mm, font=\small, align=center]
+    {One automaton transition labelled by an input/output pair becomes\\
+     an environment choice followed by a system choice.};
+\end{tikzpicture}
+\caption{Splitting automaton labels into game moves.}
+\label{fig:automaton-to-game-split}
+\end{figure}
+
+This game graph is an arena, not yet the synthesized controller.  The
+controller is extracted only after solving the game: at system vertices,
+the winning strategy tells us which output move to choose.
 
 \begin{definition}[M\"uller condition]
 \label{def:muller-condition}
@@ -179,6 +237,18 @@ $\inf(\rho)=\{r\}$.  A weak condition can remember that $p$ and $q$
 appeared once.  A M\"uller condition ignores them because they do not
 appear infinitely often.
 \end{example}
+
+\begin{formaldetails}[Memory for weak M\"uller]
+For a weak M\"uller objective, finite memory can record the set $R$ of
+states visited so far.  Initially $R=\{v_0\}$, and after visiting $v$ we
+update $R:=R\cup\{v\}$.  There are at most $2^{|V|}$ such memory values.
+
+This memory turns the weak M\"uller game into a weak parity game.  One
+convenient coloring is: assign color $2|R|$ when the currently recorded
+set $R$ is winning, and color $2|R|-1$ otherwise.  Since $R$ only grows,
+the play eventually stabilizes on one recorded set, and the parity
+condition reads whether that final recorded set is winning.
+\end{formaldetails}
 
 
 % ============================================================
@@ -265,6 +335,20 @@ visited again, it is moved to the front.
 The LAR lets a parity condition detect which set of states is seen
 infinitely often.  It is a finite-memory encoding of a long-run set.
 
+For a full M\"uller condition, remembering only the unordered set of
+states seen so far is not enough: states that appeared once in the past
+must eventually be forgotten.  The latest appearance record keeps an
+ordered list by recency.  When a state already in the list is visited,
+the position at which it was found identifies the suffix of the list
+that has appeared since its previous visit.  That suffix is the current
+candidate for the set of states seen infinitely often.
+
+With $n$ arena states, the LAR memory has order $n!\cdot n$ possible
+records: an ordering of states, plus the position hit by the latest
+update.  The resulting parity game can be solved positionally, and the
+positional strategy in the expanded game becomes a finite-state strategy
+in the original game.
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
@@ -304,6 +388,18 @@ Determinacy is what makes synthesis a decision problem.  If the system
 does not have a winning strategy, then the environment has a strategy to
 force a violation.
 
+\begin{formaldetails}[Simulating memory in the arena]
+Let $G$ be the original arena and let $M$ be a finite memory update
+machine.  The expanded arena has states $(v,m)$, where $v$ is an arena
+vertex and $m$ is a memory value.  Each edge updates both components:
+the arena component follows the chosen move, and the memory component is
+updated according to $M$.
+
+A positional strategy in this expanded arena is exactly a finite-state
+strategy in the original arena.  The controller stores $m$ internally
+and uses the positional choice prescribed for $(v,m)$.
+\end{formaldetails}
+
 
 % ============================================================
 \section{Formal Verification in Practice}
@@ -325,6 +421,42 @@ reverse engineering of relay logic all fit the same pattern: extract a
 finite model, state the property precisely, and use an automated method
 to rule out bad behaviours.
 \end{intermezzo}
+
+In an interlocking system, a \emph{route} reserves a portion of track for
+a train.  Two routes may be incompatible because they share a track
+segment, cross at a junction, or require conflicting switch positions.
+The core safety requirement is mutual exclusion: incompatible routes
+must never be cleared at the same time.  Other requirements connect
+signals, points, level crossings, and train-detection circuits.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=24mm, minimum height=9mm, align=center, fill=gray!8},
+  good/.style={box, fill=teal!10},
+  warn/.style={box, fill=orange!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[warn] (req) {controlled\\requirements};
+  \node[box, right=13mm of req] (model) {SysML/state\\machine model};
+  \node[box, right=13mm of model] (code) {generated\\controller};
+  \node[good, below=11mm of model] (checks) {model checking\\and tests};
+  \draw[arr] (req) -- (model);
+  \draw[arr] (model) -- (code);
+  \draw[arr] (model) -- (checks);
+  \draw[arr] (checks) -- (code);
+  \node[below=7mm of checks, font=\small, align=center]
+    {Traceability links each generated artifact back to an explicit safety requirement.};
+\end{tikzpicture}
+\caption{A typical model-based verification flow for interlocking software.}
+\label{fig:railway-verification-flow}
+\end{figure}
+
+The verification difficulty is scale.  A station layout with many track
+circuits and switches induces a large Boolean transition system.  Tools
+therefore use symbolic representations, SAT/SMT solving, abstraction,
+and model-based testing to search for unsafe states without enumerating
+every concrete configuration by hand.
 
 Synthesis pushes this idea further.  Instead of verifying code after it
 has been written, we try to generate a correct-by-construction
