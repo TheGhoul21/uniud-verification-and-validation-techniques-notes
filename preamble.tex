@@ -35,12 +35,17 @@
 \definecolor{codekw}{RGB}{0,0,200}
 \definecolor{codestr}{RGB}{163,21,21}
 
-% accent palette — lime based used throughout headings, rules, cover
-\definecolor{accent}{RGB}{130,200,40}       % main: lime
-\definecolor{accentgold}{RGB}{170,220,60}  % yellowish lime
-\colorlet{accentdark}{accent!85!black}     % darker variant for cover band
-\colorlet{accentmid}{accent!55!white}      % mid tint for labels / section numbers
-\colorlet{accentlight}{accent!18!white}    % very light tint for subtle rules
+% accent palette — bright-sky / graphite / tomato
+\definecolor{brightsky}{RGB}{48,188,237}
+\definecolor{graphite}{RGB}{48,48,54}
+\definecolor{ghostwhite}{RGB}{255,250,255}
+\definecolor{tomato}{RGB}{252,81,48}
+\definecolor{blackcolor}{RGB}{5,4,1}
+\colorlet{accent}{brightsky}
+\colorlet{accentgold}{tomato}
+\colorlet{accentdark}{graphite}
+\colorlet{accentmid}{brightsky!55!white}
+\colorlet{accentlight}{brightsky!18!white}
 
 \lstset{
   backgroundcolor=\color{codebg},
@@ -76,7 +81,7 @@
 
 % --- hyperlinks ---
 \usepackage[colorlinks=true, linkcolor=accent,
-            citecolor=teal!55!black, urlcolor=accent]{hyperref}
+            citecolor=graphite, urlcolor=accent]{hyperref}
 
 % --- misc ---
 \raggedbottom
@@ -90,7 +95,7 @@
 \newmdenv[
   skipabove=\bigskipamount,
   skipbelow=\bigskipamount,
-  backgroundcolor=orange!4,
+  backgroundcolor=tomato!4,
   hidealllines=true,
   innertopmargin=12pt,
   innerbottommargin=12pt,
@@ -101,7 +106,7 @@
   \booltrue{infullwidth}%
   \begin{adjustwidth}{-5mm}{-35mm}%
   \begin{intermezzoframe}%
-  \noindent{\small\sffamily\bfseries\color{orange!60!black}%
+  \noindent{\small\sffamily\bfseries\color{tomato!80!black}%
     \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
     Intermezzo\enspace---\enspace#1}%
   \par\vspace{6pt}%
@@ -118,7 +123,7 @@
 \newmdenv[
   skipabove=\bigskipamount,
   skipbelow=\bigskipamount,
-  backgroundcolor=teal!4,
+  backgroundcolor=graphite!4,
   hidealllines=true,
   innertopmargin=12pt,
   innerbottommargin=12pt,
@@ -129,7 +134,7 @@
   \booltrue{infullwidth}%
   \begin{adjustwidth}{-5mm}{-35mm}%
   \begin{formaldetailsframe}%
-  \noindent{\small\sffamily\bfseries\color{teal!60!black}%
+  \noindent{\small\sffamily\bfseries\color{graphite!80!black}%
     \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
     Formal details%
     \if\relax\detokenize{#1}\relax\else
@@ -210,13 +215,13 @@
 \surroundwithmdframed[style=thmbar,
   linecolor=accent, backgroundcolor=accent!6]{proposition}
 \surroundwithmdframed[style=thmbar,
-  linecolor=teal!55!black, backgroundcolor=teal!5]{definition}
+  linecolor=graphite!70!black, backgroundcolor=graphite!4]{definition}
 \surroundwithmdframed[style=thmbar,
-  linecolor=orange!70!black, backgroundcolor=orange!5]{example}
+  linecolor=tomato!80!black, backgroundcolor=tomato!5]{example}
 \surroundwithmdframed[style=thmbar,
-  linecolor=violet!60!black, backgroundcolor=violet!4]{exercise}
+  linecolor=brightsky!70!black, backgroundcolor=brightsky!4]{exercise}
 \surroundwithmdframed[style=thmbar,
-  linecolor=violet!60!black, backgroundcolor=violet!4]{problem}
+  linecolor=brightsky!70!black, backgroundcolor=brightsky!4]{problem}
 \surroundwithmdframed[style=thmbar,
   linecolor=gray!50, backgroundcolor=gray!4]{remark}
 \surroundwithmdframed[style=thmbar,
@@ -312,11 +317,11 @@
 % ═══════════════════════════════ (accent rule, after-code)
 \titleformat{\chapter}[display]
   {\normalfont\sffamily\bfseries}
-  {\small\color{accentmid}\MakeUppercase{\chaptertitlename}\ \thechapter}
+    {\small\color{accentmid}\MakeUppercase{\chaptertitlename}\ \thechapter}
   {6pt}
   {%
     {\color{accentlight}\rule{\linewidth}{0.5pt}}\\[6pt]%
-    \Huge\color{black!88}%
+    \Huge\color{graphite}%
   }
   [\vspace{6pt}{\color{accent}\rule{\linewidth}{2.5pt}}]
 \titlespacing*{\chapter}{0pt}{28pt}{28pt}
@@ -341,7 +346,7 @@
         (current page.north west)
         rectangle
         ([yshift=-0.44\paperheight] current page.north east);
-      % thin gold accent strip at bottom of band
+      % thin tomato accent strip at bottom of band
       \fill[accentgold]
         ([yshift=-0.440\paperheight] current page.north west)
         rectangle
@@ -380,13 +385,13 @@
 \newmdenv[
   skipabove=\bigskipamount,
   skipbelow=\bigskipamount,
-  backgroundcolor=accent!6,
+  backgroundcolor=brightsky!6,
   topline=false,
   rightline=false,
   bottomline=false,
   leftline=true,
   linewidth=3pt,
-  linecolor=accent,
+  linecolor=brightsky,
   innertopmargin=10pt,
   innerbottommargin=10pt,
   innerleftmargin=12pt,
