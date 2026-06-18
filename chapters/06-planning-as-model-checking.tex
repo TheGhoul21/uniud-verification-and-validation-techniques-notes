@@ -33,7 +33,12 @@ verification flavour: existential reachability, universal reachability,
 and reachability under fairness.  This recasting of planning as model
 checking is what gives the chapter its name and what ties Part~I
 together before we turn, in Part~II, to the temporal logics and
-symbolic tooling that make these computations scale.
+symbolic tooling that make these computations scale.  Model checking
+is not the only view: as the professor pointed out, modern planning
+also translates into satisfiability checking (SAT), controller synthesis
+(building the state-machine that implements the plan), and execution
+monitoring (detecting when the environment deviates from assumptions
+and dynamically re-planning).
 
 
 % ============================================================
@@ -170,8 +175,12 @@ Planning domains are often classified along three independent axes.
         the exact current state, or only an observation compatible with
         several states.
   \item \textbf{Reachability vs. extended goals}: the goal is simply to
-        reach $G$, or to satisfy temporal requirements such as always
-        avoiding unsafe states until the goal is reached.
+        reach $G$, or to satisfy temporal requirements along the way.
+        \aside{The professor's intuition: ``You have to move from one
+        place to another with a vehicle. The destination is the goal
+        state, but you want to put a threshold on the velocity of your
+        vehicle. This constraint must be satisfied \emph{during} the
+        trip.''}
 \end{itemize}
 Throughout this chapter we work in the fully observable,
 reachability-goal case, where the differences between weak, strong, and
@@ -618,6 +627,16 @@ relation is a Boolean formula
 \]
 that is true exactly for valid transitions.
 \end{definition}
+
+Why represent the chosen action with a vector of Boolean variables $a$
+rather than a single scalar?  As the professor noted, assigning an
+independent Boolean variable to each action naturally models
+\textbf{concurrent actions}: multiple action variables can be true at
+once.  If the domain forbids concurrent execution, the modeller must
+explicitly add a mutual-exclusion constraint (e.g., $\sum a_i \le 1$) to
+the transition relation.  When concurrency is ruled out structurally, a
+more compact scalar encoding (using $\lceil\log_2|A|\rceil$ bits)
+suffices.
 
 A set of states is represented by a formula $X(x)$.  The strong preimage
 can then be written logically as
