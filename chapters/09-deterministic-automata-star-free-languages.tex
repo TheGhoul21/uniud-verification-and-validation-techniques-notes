@@ -156,7 +156,11 @@ We prove both directions of the equivalence.
 \end{proof}
 
 \begin{formaldetails}[Where Determinism is Crucial]
-Observe that the proof of the converse ($\Longleftarrow$) relies entirely on the uniqueness of the run. In a non-deterministic Büchi automaton (NBA), different prefixes of an infinite word $\alpha$ can be accepted by different finite runs that do not compile into a single, infinite run. For instance, an NBA could accept a set of prefixes by guessing different branchings, but none of these guesses might extend to an infinite accepting run on the entire word.
+Observe that the proof of the converse ($\Longleftarrow$) relies entirely on the uniqueness of the run. In a non-deterministic Büchi automaton (NBA), different prefixes of an infinite word $\alpha$ can be accepted by different finite runs that do not compile into a single, infinite run.
+
+Consider the NFA for $L_{fin\_a}$ (words with finitely many $a$'s). Over finite words, this NFA recognizes $W = \Sigma^* b$ (any word ending in $b$, after making the transition to $q_1$). Let's evaluate the infinite word $(ab)^\omega$. This word has infinitely many prefixes in $\Sigma^* b$ (namely, $ab$, $abab$, $ababab$, etc.). So $(ab)^\omega \in W^\delta$. However, $(ab)^\omega$ has infinitely many $a$'s, so $(ab)^\omega \notin L_{fin\_a}$.
+
+Why did $W^\delta$ incorrectly include $(ab)^\omega$? Because the non-deterministic automaton "guessed" the last $a$ correctly for each finite prefix independently, but those different successful finite runs cannot be stitched together into a single valid infinite run. Determinism prevents this cheating.
 \end{formaldetails}
 
 \subsection{The Limit of DBAs: The Finitely Many $a$'s Language}
@@ -259,6 +263,15 @@ $$\text{inf}(\sigma) \in \mathcal{F}$$
 The family $\mathcal{F}$ is the heart of the model. Where the Büchi condition $F \subseteq Q$ can only ask ``is some accepting state visited infinitely often?'', the Muller condition can pin down the \emph{entire} recurrent set: which states are visited infinitely often, and (by omission) which states must be visited only finitely often. This is what lets us express ``finitely many $a$'s'' deterministically: in the 2-state DMA with $q_a$ reached on $a$ and $q_b$ reached on $b$, we accept iff $\mathrm{inf}(\sigma) = \{q_b\}$, ruling out $q_a$ from the limit. Notice that the size of $\mathcal{F}$ can in principle be exponential in $|Q|$---a practical annoyance we will address in \cref{sec:dra-safra} with the Rabin and parity conditions.
 
 \aside{Unlike the Büchi condition, which only requires \emph{some} accepting state to be visited infinitely often, the Muller condition specifies the \emph{exact set} of states that the run must cycle through in the limit.}
+
+\begin{example}[DMA for Finitely Many $a$'s]
+Recall the language $L_{fin\_a}$ (words with finitely many $a$'s) that defeated the DBA. Let's see how the Muller condition effortlessly captures it deterministically.
+Consider a 2-state deterministic transition structure where reading $a$ always goes to $q_a$, and reading $b$ always goes to $q_b$. 
+If a word has finitely many $a$'s, it must eventually consist entirely of $b$'s. This means the unique infinite run will eventually get stuck in $q_b$ and never visit $q_a$ again. Thus, the set of states visited infinitely often will be exactly $\{q_b\}$.
+We define the Muller acceptance family as:
+$$\mathcal{F} = \{ \{q_b\} \}$$
+If a word has infinitely many $a$'s, the run will visit $q_a$ infinitely often, yielding $\text{inf}(\sigma) = \{q_a, q_b\} \notin \mathcal{F}$, which is correctly rejected. The Muller condition simply filters out the invalid runs by explicitly stating what the limit cycle must look like.
+\end{example}
 
 \begin{example}[DMA for Infinitely Many $a$'s and $b$'s]
 Let $\Sigma = \{a, b\}$. We want to recognize the language $L_{inf\_a\_and\_b}$ of words containing infinitely many $a$'s and infinitely many $b$'s. This is a natural ``both signals keep arriving'' property of the request/acknowledgement pattern: $a$ plays the role of a request, $b$ the role of an acknowledgement, and we require that both keep happening forever.
@@ -523,17 +536,20 @@ Having characterized the deterministic variants of $\omega$-automata on the oper
 
 What happens if we restrict S1S by forbidding second-order variables, allowing only first-order quantification over individual positions? This syntactic restriction brings us to a fundamental class in formal language theory: the \emph{star-free} languages. The bridge back to \cref{ch:regular-decision} is direct---there we met star-free regular expressions as extended regular expressions in which the Kleene star is forbidden, and we observed that, surprisingly, $(ab)^*$ is still star-free even though it is written with a star. The deep theorem of this section, due to McNaughton and Papert, says that the star-free class is exactly the first-order fragment of S1S over words---and that, under infinite words, this same class corresponds to Linear Temporal Logic (LTL). The chain of equivalences star-free $\equiv$ first-order $\equiv$ aperiodic $\equiv$ counter-free $\equiv$ LTL is one of the crown jewels of automata-theoretic verification, and we lay its foundation here.
 
-\subsection{The Signature $\text{FO-S1S}[<]$}
+\subsection{The Signature \text{FO-S1S}[<]}
 \label{subsec:signature-fo}
 
-In full S1S, the successor relation $+1$ and the ordering relation $<$ are inter-definable. In first-order S1S, this symmetry breaks.
-\begin{itemize}
-    \item We can define $+1$ using $<$:
-    $$y = x + 1 \iff x < y \land \neg \exists z (x < z \land z < y)$$
-    This formula uses only first-order variables and is therefore valid in $\text{FO-S1S}[<]$.
-    \item We cannot define $<$ using only $+1$ in first-order logic. Defining $x < y$ requires computing the transitive closure of $+1$, which is equivalent to induction. Induction inherently requires quantifying over sets (second-order variables).
-\end{itemize}
-Thus, to study the first-order fragment, we must explicitly include the ordering relation in the signature, yielding the logic $\text{FO-S1S}[<]$.
+In full S1S, the successor relation $+1$ and the ordering relation $<$ are inter-definable. But in the first-order fragment, this symmetry breaks. Why? Let's ask this at the whiteboard:
+
+\textbf{Can $+1$ be defined by $<$ in FO?}
+Yes! We can say $y = x+1$ by saying that $y$ is strictly greater than $x$, and there is no element strictly between them:
+$$y = x + 1 \iff x < y \land \neg \exists z (x < z \land z < y)$$
+This formula uses only first-order position variables and is perfectly valid in $\text{FO-S1S}[<]$.
+
+\textbf{Can $<$ be defined by $+1$ in FO?}
+No! If we only have $+1$, defining $x < y$ means saying $y = x+1 \lor y = x+1+1 \lor \dots$ To write this for an arbitrary distance, we need to compute the transitive closure of the $+1$ relation. Computing a transitive closure requires induction (saying "the set of all elements reachable by $+1$"), which inherently demands second-order quantification over sets.
+
+Thus, if we restrict ourselves to first-order variables and only provide $+1$, the logic becomes too weak to even express $<$. To study the correct first-order fragment of S1S, we must explicitly include the ordering relation in the signature, yielding the logic $\text{FO-S1S}[<]$.
 
 \subsection{Star-Free Languages}
 \label{subsec:star-free-def}
@@ -618,10 +634,12 @@ The quantifier depth $qd(\phi)$ of a formula $\phi$ is the maximum nesting level
 
 Think of quantifier depth as the number of nested ``let me pick a position'' moves available to the formula. A depth-$0$ formula only inspects a fixed finite window of positions; a depth-$1$ formula can name one position and reason about it; a depth-$2$ formula can play two such moves in sequence. This intuition is what makes the equivalences $\equiv_n$ below work: two words are indistinguishable at depth $n$ exactly when no depth-$n$ formula can tell them apart.
 
+Crucially, these equivalence classes have a \emph{finite index}. Syntactically, you can write infinitely many formulas of depth $n$ (for example, by repeating $\land$ over and over). But modulo logical equivalence, they collapse into finitely many distinct properties. This means that depth $n$ formulas partition the infinite universe of all possible words into a finite number of buckets.
+
 We define two equivalence relations of rank $n$:
 \begin{description}
     \item[Standard congruence $\equiv_n$] For $u, v \in \Sigma^*$, $u \equiv_n v$ iff they satisfy the same sentences of quantifier depth $\le n$.
-    \item[Extended congruence $\equiv_n^1$] For $(u, r), (v, s)$ where $u,v \in \Sigma^*$ and $r \in [1, |u|]$, $s \in [1, |v|]$ are distinguished positions, $(u, r) \equiv_n^1 (v, s)$ iff they satisfy the same formulas $\phi(x)$ with one free variable $x$ of quantifier depth $\le n$.
+    \item[Extended congruence $\equiv_n^1$] For $(u, r), (v, s)$ where $u,v \in \Sigma^*$ and $r \in [1, |u|]$, $s \in [1, |v|]$ are distinguished positions, $(u, r) \equiv_n^1 (v, s)$ iff they satisfy the same formulas $\phi(x)$ with one free variable $x$ of quantifier depth $\le n$. Because we are evaluating formulas with one free variable $\phi(x)$, a plain word is not enough; we need a "pointer" (the distinguished position $r$) to indicate exactly where the variable $x$ is instantiated.
 \end{description}
 
 \begin{lemma}[Properties of $\equiv_n$ and $\equiv_n^1$]
