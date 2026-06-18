@@ -64,10 +64,22 @@ A \textbf{language} over $\Sigma$ is any set of finite words:
 \]
 \end{definition}
 
-So a language is a property of words.  For instance, over
-$\Sigma=\{a,b\}$, the set of all words ending in $a$ is a language.  In
-verification terms, a language is often the set of behaviours that a
-model allows, or the set of behaviours that a specification permits.
+A language can be understood as a way of assigning a property to words:
+some words satisfy the property, while others do not. For example, over
+the alphabet \(\Sigma=\{a,b\}\), we can form words such as \(a\), \(b\),
+\(ab\), \(ba\), and \(abba\). The property ``ends in \(a\)'' selects
+exactly those words whose last symbol is \(a\). Thus, the corresponding
+language is the set of all and only the words satisfying that property:
+\[
+L = \{ w \in \Sigma^* \mid w \text{ ends in } a \}.
+\]
+
+In verification, this viewpoint is useful because a word can represent a
+behaviour, that is, a sequence of states, events, or actions. A language
+can therefore describe the set of behaviours allowed by a model, or the
+set of behaviours permitted by a specification. Saying that a behaviour
+belongs to the language means that it satisfies the property described by
+that language.
 
 \begin{definition}[Basic operations on words]
 \label{def:word-ops}
@@ -256,9 +268,17 @@ the language.
 \subsection{Completeness and Sink States}
 \label{subsec:sink-state}
 
-Some automata are drawn with missing transitions.  Formally, a DFA has a
-total transition function, so every state-symbol pair must have a next
-state.  Missing transitions can always be repaired by adding a sink.
+Sometimes automata are drawn with some transitions omitted. This is often
+done to keep the picture simple, but formally a DFA must have a
+\emph{total} transition function. This means that for every state \(q\)
+and every input symbol \(a \in \Sigma\), the transition \(\delta(q,a)\)
+must be defined.
+
+An omitted transition should therefore be understood as a transition that
+goes to a rejecting ``dead'' or ``sink'' state. Once the automaton enters
+this sink state, it stays there forever, no matter which input symbol is
+read. Thus, any partially drawn DFA can be made into a formally correct
+DFA by adding a sink state and redirecting all missing transitions to it.
 
 \begin{definition}[Sink completion]
 \label{def:sink-completion}
