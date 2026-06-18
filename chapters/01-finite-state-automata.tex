@@ -2,7 +2,7 @@
 %  Chapter 1 -- Finite-State Automata and Regular Languages
 % ============================================================
 
-\chapter{Finite Automata and Regular Languages}
+\chapter{Finite-State Automata and Regular Languages}
 \label{ch:fsa}
 
 \aside{Automata are the first modelling
@@ -141,7 +141,50 @@ non-empty concatenations of blocks from $W$.
 % ============================================================
 
 A deterministic automaton has no choices.  Once we know the current
-state and the next input symbol, the next state is fixed.
+state and the next input symbol, the next state is fixed.  Before
+writing the general definition, let us build one concretely.
+
+\begin{example}[Words with an even number of $a$'s]
+\label{ex:even-a-dfa}
+Over $\Sigma=\{a,b\}$, consider the language of words containing an
+even number of occurrences of $a$.  To decide membership we only need
+to track the parity of the number of $a$'s seen so far.  This suggests
+two states,
+\[
+  Q=\{q_{\mathrm{even}},q_{\mathrm{odd}}\},
+\]
+with $a$ toggling between them and $b$ leaving the state unchanged.
+The initial state is $q_{\mathrm{even}}$, and it is also the only
+accepting state, because zero is even.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.2cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[accepting] (e) {$q_e$};
+  \node[state, right=of e] (o) {$q_o$};
+  \draw[arr] ([xshift=-1.0cm]e.west) -- (e);
+  \draw[arr, bend left=18] (e) to node[above] {$a$} (o);
+  \draw[arr, bend left=18] (o) to node[below] {$a$} (e);
+  \draw[arr] (e) edge[loop above] node {$b$} (e);
+  \draw[arr] (o) edge[loop above] node {$b$} (o);
+\end{tikzpicture}
+\caption{A DFA for words with an even number of $a$'s.}
+\label{fig:even-a-dfa}
+\end{figure}
+
+In \cref{fig:even-a-dfa}, the state records only the information that
+matters for the property: parity.  It forgets the exact number of $a$'s,
+because the language does not need that much detail.  The picture
+already contains every ingredient of a deterministic automaton: a finite
+set of states, an alphabet of inputs, a rule that gives the next state,
+a designated starting state, and a set of accepting states.  We now
+formalize them.
 
 \begin{definition}[Deterministic finite automaton]
 \label{def:dfa}
@@ -164,42 +207,6 @@ behaviour.  The set $Q$ tells us which configurations exist.  The
 transition function $\delta$ tells us how the configuration evolves
 while reading a word.  The accepting set $F$ tells us which final states
 count as success.
-
-\begin{example}[Words with an even number of $a$'s]
-\label{ex:even-a-dfa}
-Over $\Sigma=\{a,b\}$, consider the language of words containing an
-even number of occurrences of $a$.  A DFA needs only two states:
-\[
-  Q=\{q_{\mathrm{even}},q_{\mathrm{odd}}\}.
-\]
-Reading $a$ toggles the state; reading $b$ leaves the state unchanged.
-The initial state is $q_{\mathrm{even}}$, and the only accepting state is
-$q_{\mathrm{even}}$.
-\end{example}
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=3.2cm,
-  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
-  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=blue!10},
-  arr/.style={-Stealth, thick},
-]
-  \node[accepting] (e) {$q_e$};
-  \node[state, right=of e] (o) {$q_o$};
-  \draw[arr] ([xshift=-1.0cm]e.west) -- (e);
-  \draw[arr, bend left=18] (e) to node[above] {$a$} (o);
-  \draw[arr, bend left=18] (o) to node[below] {$a$} (e);
-  \draw[arr] (e) edge[loop above] node {$b$} (e);
-  \draw[arr] (o) edge[loop above] node {$b$} (o);
-\end{tikzpicture}
-\caption{A DFA for words with an even number of $a$'s.}
-\label{fig:even-a-dfa}
-\end{figure}
-
-In \cref{fig:even-a-dfa}, the state records only the information that
-matters for the property: parity.  It forgets the exact number of $a$'s,
-because the language does not need that much detail.
 
 \begin{example}[Every $a$ is eventually followed by a $b$]
 \label{ex:a-eventually-followed-by-b}
@@ -465,6 +472,57 @@ The NFA accepts $w$ exactly when the reachable set contains some final
 state, which is exactly the definition of $F_D$.
 \end{proof}
 
+% ============================================================
+\subsection{Regular Languages}
+\label{subsec:regular-languages}
+% ============================================================
+
+The equivalence between DFA and NFA lets us name the class of languages
+that finite automata recognize.
+
+\begin{definition}[Regular language]
+\label{def:regular-language}
+A language $L \subseteq \Sigma^*$ is \textbf{regular} if there exists a
+DFA $A$ with $L(A)=L$.
+\end{definition}
+
+\cref{thm:subset-construction} makes this definition robust to the
+choice of model: a language is regular if and only if it is recognized
+by some NFA.  We may therefore use DFA and NFA interchangeably when
+reasoning about regularity --- typically NFAs when designing an
+automaton, DFAs when we need a single run on each input, for example to
+complement the language by swapping accepting and non-accepting states.
+
+The class of regular languages is a \emph{strict} subset of all
+languages over $\Sigma$.  This boundary is exactly what the theory is
+about: regular languages are the properties that a finite agent can
+check by reading the input once, using only a bounded amount of memory.
+The next example shows a natural language that slips through this net.
+
+\begin{example}[A non-regular language: $a^n b^n$]
+\label{ex:anbn-non-regular}
+Over $\Sigma=\{a,b\}$, consider
+\[
+  L_{=}=\{a^n b^n : n\geq 0\},
+\]
+the words consisting of a block of $a$'s followed by a block with the
+same number of $b$'s.  This is precisely the matching problem that
+\cref{ex:a-eventually-followed-by-b} deliberately avoided: there, a
+single $b$ could discharge any number of pending $a$'s, whereas here
+each $a$ demands a \emph{distinct} later $b$.
+
+Suppose a DFA with $k$ states reads the unary block $a^i$ for
+$i=0,1,\ldots,k$.  By the pigeonhole principle two of these prefixes,
+say $a^i$ and $a^j$ with $i<j$, must lead to the same state.  From that
+shared state, the same continuation $b^i$ must produce the same verdict
+for both $a^i b^i$ and $a^j b^i$.  But $a^i b^i\in L_{=}$ while
+$a^j b^i\notin L_{=}$, a contradiction.  Hence no DFA recognizes
+$L_{=}$, and $L_{=}$ is not regular.
+
+We will turn this pigeonhole sketch into a clean characterization ---
+the Myhill--Nerode theorem --- in \cref{ch:regular-decision}.
+\end{example}
+
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item A language is a set of finite words over an alphabet.
@@ -472,6 +530,9 @@ state, which is exactly the definition of $F_D$.
   \item An NFA may have many runs, and accepts if at least one succeeds.
   \item Every NFA can be determinized by tracking sets of possible states.
   \item The price of determinization can be exponential.
+  \item The languages recognized by finite automata (DFA or NFA) are the
+    \emph{regular} languages; not every language is regular, as
+    $\{a^n b^n:n\geq 0\}$ shows.
 \end{itemize}
 \end{summarybox}
 

@@ -10,14 +10,35 @@ behaviours recognized by finite automata.
 The point of the theory is not only
 recognition, but effective verification.}
 
-In \cref{ch:fsa} we described behaviours operationally, using automata.
-This chapter adds two complementary viewpoints.  First, regular
-expressions describe the same languages algebraically.  Second, closure
-properties let us solve verification questions by constructing new
-automata.
+In \cref{ch:fsa} we built finite automata to recognize finite-word
+behaviours: a turnstile event sequence, a parity check over $\{a,b\}$,
+and so on.  Automata are an \emph{operational} description---they tell
+us how to scan a word.  But they are not the only way to describe the
+same languages, and they are not always the most convenient one.
 
-The guiding theme is reduction.  We reduce inclusion, equivalence, and
-universality questions to reachability-style emptiness checks.
+This chapter adds three complementary viewpoints, each answering a
+different question that the operational model alone leaves open.
+\begin{itemize}[nosep]
+  \item \emph{Can we describe a language algebraically, without drawing
+  a graph?}  Regular expressions (\cref{sec:regular-expressions}) give
+  such a syntax, and Kleene's theorem shows they define exactly the
+  regular languages.
+  \item \emph{If we are given a property built from simpler ones by
+  union, intersection, complement, can we still build an automaton for
+  it?}  Closure properties (\cref{sec:regular-closure}) answer yes, and
+  the constructions are the backbone of every verification algorithm
+  in the rest of the book.
+  \item \emph{Once automata encode properties, can we decide inclusion,
+  equivalence, universality?}  The decision problems of
+  \cref{sec:finite-decision-problems} all reduce to a single
+  reachability check---a finite-word prototype of model checking.
+\end{itemize}
+The chapter closes with the Myhill--Nerode theorem
+(\cref{sec:myhill-nerode}), which explains \emph{why} some languages
+admit a finite-state description at all and yields the canonical minimal
+DFA.  The guiding theme throughout is \emph{reduction}: we reduce the
+hard-looking semantic questions to reachability-style emptiness checks
+that we actually know how to perform.
 
 
 % ============================================================
@@ -25,8 +46,11 @@ universality questions to reachability-style emptiness checks.
 \label{sec:regular-expressions}
 % ============================================================
 
-Regular expressions give a syntax for building languages from small
-pieces.
+Drawing a DFA is an operational act: we specify how the machine moves.
+For many purposes---communicating a property, composing specifications,
+searching text---a more algebraic syntax is preferable, one that builds
+the language out of pieces using a few combinators.  This is what
+regular expressions provide.
 
 \begin{definition}[Restricted regular expressions]
 \label{def:restricted-regex}
@@ -76,6 +100,100 @@ this fragment becomes visible as the finite-word shadow of first-order
 definability.
 \end{formaldetails}
 
+Before proving the equivalence between expressions and automata, we
+need a more flexible automaton model that lets us wire pieces together
+without consuming input.  The wiring device is the
+\emph{$\varepsilon$-move}: a transition that changes state while the
+reading head stays put.  Without it, splicing two automata for
+concatenation would force us to merge states by hand and keep track of
+spurious symbols; with it, we simply add free edges and let a later
+clean-up pass dissolve them.
+
+\begin{definition}[$\varepsilon$-NFA]
+\label{def:epsilon-nfa}
+An \textbf{$\varepsilon$-NFA} is an NFA whose transition function may
+also use the empty word $\varepsilon$ as a label.  Formally, the
+transition function has the shape
+\[
+  \Delta : Q\times(\Sigma\cup\{\varepsilon\})\to 2^Q,
+\]
+so a transition in $\Delta(q,\varepsilon)$ changes state without
+consuming any input symbol.
+\end{definition}
+
+Operationally, an $\varepsilon$-NFA behaves like an NFA with one extra
+freedom: at any moment it may follow an $\varepsilon$-labelled edge and
+jump to another state, while the input pointer does not move.  This is
+purely a construction device---it gives us the wiring freedom needed to
+compose automata for union, concatenation, and Kleene star---but, as we
+show next, it does not add any expressive power.
+
+To short-circuit every chain of free moves, we need to know, for each
+state, where it can reach by following only $\varepsilon$-edges.  This
+is the $\varepsilon$-closure.
+
+\begin{definition}[$\varepsilon$-closure]
+\label{def:epsilon-closure}
+For a state $q$, the \textbf{$\varepsilon$-closure}
+$\mathsf{ECl}(q)$ is the set of states reachable from $q$ by taking
+zero or more $\varepsilon$-moves.  For a set of states $S$,
+\[
+  \mathsf{ECl}(S)=\bigcup_{q\in S}\mathsf{ECl}(q).
+\]
+\end{definition}
+
+Because $Q$ is finite, $\mathsf{ECl}(q)$ is the least fixpoint of the
+monotone operator $X\mapsto\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$.
+This is the same fixpoint flavour that will return, scaled up, in the
+symbolic reachability algorithms of \cref{subsec:reachability-fixpoint}.
+
+\begin{theorem}[$\varepsilon$-removal]
+\label{thm:epsilon-removal}
+For every $\varepsilon$-NFA $A$ there exists an NFA $A'$ without
+$\varepsilon$-moves such that $L(A)=L(A')$.
+\end{theorem}
+
+\begin{proof}
+Let $A=(Q,\Sigma,\Delta,q_0,F)$.  We define an ordinary NFA
+$A'=(Q,\Sigma,\Delta',q_0,F')$ on the same states and alphabet.  The
+construction encodes the slogan \emph{take all free moves, read one
+symbol, take all free moves again} directly into the transition
+function:
+\[
+  \Delta'(q,a)
+  =
+  \mathsf{ECl}\!\left(
+    \bigcup_{p\in \mathsf{ECl}(q)} \Delta(p,a)
+  \right).
+\]
+This is the best possible one-step simulation of $A$: starting from
+$q$, the run in $A$ may first wander through $\varepsilon$-moves,
+arrive at some state $p$, consume $a$, and then again wander through
+$\varepsilon$-moves; $\Delta'(q,a)$ collects exactly the destinations
+reachable that way.
+
+There is one boundary case.  In $A$, the empty word is accepted if and
+only if some accepting state is reachable from $q_0$ by $\varepsilon$-moves
+alone, since the input pointer never moves.  The new automaton would
+otherwise miss this case, because every transition of $A'$ consumes a
+real symbol.  We correct the final set:
+\[
+  F'=
+  \begin{cases}
+    F\cup\{q_0\}, & \mathsf{ECl}(q_0)\cap F\neq\emptyset,\\
+    F, & \text{otherwise.}
+  \end{cases}
+\]
+A straightforward induction on the length of the input word $w$ now
+shows that the set of states reached by $A'$ on $w$ from $q_0$ equals
+the $\varepsilon$-closure of the set of states reached by $A$ on $w$.
+Intersecting with $F'$ then yields exactly the same accepting verdict as
+intersecting with $F$ in $A$.
+\end{proof}
+
+With $\varepsilon$-NFAs as a flexible intermediate model, we can equate
+the syntactic and operational views of regularity.
+
 \begin{theorem}[Kleene equivalence]
 \label{thm:kleene}
 A language $L\subseteq\Sigma^*$ is recognized by a finite automaton if
@@ -88,155 +206,129 @@ We prove both directions constructively.
 \medskip
 \noindent\textbf{Regular expression to automaton.}
 We build an $\varepsilon$-NFA by structural induction on the expression.
-For $\emptyset$, use an automaton with no accepting path.  For
-$\varepsilon$, use an initial state that is already accepting.  For a
-symbol $a$, use one transition labelled $a$ from the initial state to an
-accepting state.
+For $\emptyset$, use a single non-accepting state with no transitions.
+For $\varepsilon$, use an initial state that is already accepting.  For
+a symbol $a$, use one transition labelled $a$ from the initial state to
+a fresh accepting state.
 
-Assume automata have already been built for $r$ and $s$.  For $r+s$,
-create a fresh initial state with $\varepsilon$-moves to the initial
-states of the two automata.  For $rs$, connect each accepting state of
-the automaton for $r$ to the initial state of the automaton for $s$ by an
-$\varepsilon$-move, and make the accepting states of $s$ the accepting
-states of the combined automaton.  For $r^*$, add a fresh initial state
-that is accepting, add an $\varepsilon$-move to the automaton for $r$,
-and add $\varepsilon$-moves from the accepting states of $r$ back to the
-initial state of $r$.
-
-Each construction matches exactly the semantic operation: choose a
+Assume $\varepsilon$-NFAs have already been built for $r$ and $s$, with
+disjoint state sets and a single accepting state each (this is without
+loss of generality, since we can always redirect outgoing edges through
+a fresh accepting sink via $\varepsilon$-moves).
+\begin{itemize}[nosep]
+  \item For $r+s$, create a fresh initial state with $\varepsilon$-moves
+  to the initial states of the two automata, and $\varepsilon$-moves
+  from each of their accepting states to a fresh accepting state.
+  \item For $rs$, connect the accepting state of the automaton for $r$
+  to the initial state of the automaton for $s$ by an $\varepsilon$-move;
+  the accepting state of $s$ becomes the accepting state of the combined
+  automaton.  \Cref{fig:regex-concat} shows the wiring.
+  \item For $r^*$, add a fresh initial state that is already accepting,
+  add an $\varepsilon$-move to the initial state of the automaton for
+  $r$, and add an $\varepsilon$-move from the accepting state of $r$
+  back to that initial state.
+\end{itemize}
+Each construction mirrors exactly the semantic operation: choose a
 branch for union, run one machine after the other for concatenation, and
-repeat any finite number of times for star.  Since $\varepsilon$-NFAs can
-be converted to NFAs and then DFAs, every regular expression denotes an
-automaton-recognizable language.
+repeat any finite number of times for star.  By
+\cref{thm:epsilon-removal} we can then eliminate $\varepsilon$-moves,
+determinize, and obtain a DFA.  Hence every regular expression denotes
+an automaton-recognizable language.
 
 \medskip
 \noindent\textbf{Automaton to regular expression.}
-Let $A$ be a DFA with states $q_1,\ldots,q_n$.  Define $R_{i,j}^k$ as in
-the construction below: it is the language of all words that take the
-automaton from $q_i$ to $q_j$ while using only intermediate states among
-$q_1,\ldots,q_k$.
+Let $A$ be a DFA with states $q_1,\ldots,q_n$, with $q_1$ initial.  For
+$0\leq k\leq n$, define $R_{i,j}^k$ to be the language of all words that
+take the automaton from $q_i$ to $q_j$ using only intermediate states
+among $q_1,\ldots,q_k$.
 
 We prove by induction on $k$ that each $R_{i,j}^k$ is denoted by a
-regular expression.  For $k=0$, a path from $q_i$ to $q_j$ has no
-intermediate states, so it is either the empty path when $i=j$, or a
-single transition labelled by some $a\in\Sigma$.  This is a finite union
-of symbols, possibly plus $\varepsilon$, hence regular.
+regular expression.  For $k=0$, no intermediate state is allowed, so a
+path from $q_i$ to $q_j$ is either the empty path (when $i=j$) or a
+single transition labelled by some $a\in\Sigma$.  Hence $R_{i,j}^0$ is a
+finite union of symbols, together with $\varepsilon$ when $i=j$; this is
+regular.
 
-For the induction step, a path counted by $R_{i,j}^k$ either never visits
-$q_k$ as an intermediate state, in which case it lies in
-$R_{i,j}^{k-1}$, or it visits $q_k$.  In the latter case, split the path
-at the first visit to $q_k$, then at each complete return to $q_k$, and
-finally at the last departure toward $q_j$.  This yields
-\[
-  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}.
-\]
-Thus
+For the induction step, a path counted by $R_{i,j}^k$ either never
+visits $q_k$ as an intermediate state---in which case it lies in
+$R_{i,j}^{k-1}$---or it visits $q_k$ at least once.  In the latter case,
+split the path at the first visit to $q_k$, then at each complete return
+to $q_k$, and finally at the last departure toward $q_j$.  This yields
+the recurrence
 \[
   R_{i,j}^k =
   R_{i,j}^{k-1}
   +
-  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1},
+  R_{i,k}^{k-1}\,(R_{k,k}^{k-1})^*\,R_{k,j}^{k-1},
 \]
 which is regular by the induction hypothesis.
 
 Finally, the language of the automaton is
 \[
-  \bigcup_{q_j\in F} R_{1,j}^n,
+  L(A)=\bigcup_{q_j\in F} R_{1,j}^n,
 \]
 again a regular expression.
 \end{proof}
 
-\begin{formaldetails}[Automata to expressions]
-Let a DFA have states $q_1,\ldots,q_n$, with $q_1$ initial.  Define
-$R_{i,j}^k$ to be the language of all words that take the automaton from
-$q_i$ to $q_j$ while using only intermediate states among
-$q_1,\ldots,q_k$.
-
-The base case $R_{i,j}^0$ contains exactly the one-symbol transitions
-from $q_i$ to $q_j$, and also $\varepsilon$ when $i=j$.  The recurrence
-is
-\[
-  R_{i,j}^k =
-  R_{i,j}^{k-1}
-  +
-  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}.
-\]
-The first term contains paths that do not pass through $q_k$.  The
-second term contains paths that enter $q_k$, loop there any number of
-times, and then leave.
-\end{formaldetails}
-
-The other direction is structural.  We build automata for
-$\emptyset$, $\varepsilon$, and each symbol, and then combine them using
-union, concatenation, and Kleene star.  It is often convenient to use
-$\varepsilon$-moves in this construction.
-
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
-  node distance=1.8cm,
-  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  node distance=1.9cm,
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
   arr/.style={-Stealth, thick},
 ]
-  \node[state] (i) {$i$};
-  \node[state, right=of i] (r) {$r$};
-  \node[state, right=of r] (s) {$s$};
-  \node[state, right=of s] (f) {$f$};
-  \draw[arr] (i) -- node[above] {$\varepsilon$} (r);
-  \draw[arr] (r) -- node[above] {$r$} (s);
-  \draw[arr] (s) -- node[above] {$s$} (f);
-  \node[below=7mm of s, font=\small, align=center]
-    {Concatenation wires the accepting exits of the first automaton\\
-     to the entry of the second by $\varepsilon$-moves.};
+  \node[state] (ir) {$i_r$};
+  \node[acc, right=of ir] (fr) {$f_r$};
+  \node[state, right=of fr] (is) {$i_s$};
+  \node[acc, right=of is] (fs) {$f_s$};
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, thick] (fr) -- node[above, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \node[below=8mm of fr, font=\small, align=center]
+    {The accepting exit of the first automaton is spliced to the\\
+     entry of the second by a single $\varepsilon$-move (in orange).};
 \end{tikzpicture}
-\caption{The intuition behind the $\varepsilon$-NFA construction for concatenation.}
+\caption{The $\varepsilon$-NFA construction for concatenation in the
+regex-to-automaton direction of \cref{thm:kleene}: the accepting state
+of $r$ and the initial state of $s$ are wired together by an
+$\varepsilon$-move, and the fresh accepting state $f_s$ inherits
+acceptance.  The other two operators (union, Kleene star) follow the
+same splicing idea.}
 \label{fig:regex-concat}
 \end{figure}
 
-\begin{definition}[$\varepsilon$-NFA]
-\label{def:epsilon-nfa}
-An \textbf{$\varepsilon$-NFA} is an NFA that may also contain transitions
-labelled $\varepsilon$, which change state without consuming an input
-symbol.
-\end{definition}
+A useful consequence of \cref{thm:kleene}, combined with the closure
+constructions we are about to develop in \cref{sec:regular-closure}, is
+that the two syntactic classes introduced above---restricted and
+general---recognize exactly the same languages.
 
-$\varepsilon$-moves are a construction device.  They let us wire
-automata together without adding artificial input symbols.  They do not
-increase expressive power: every $\varepsilon$-NFA can be transformed
-into an equivalent NFA by replacing each state with its
-$\varepsilon$-closure.
+\begin{corollary}[Restricted and general expressions coincide]
+\label{cor:regex-classes}
+Restricted and general regular expressions denote the same class of
+languages.
+\end{corollary}
 
-\begin{definition}[$\varepsilon$-closure]
-\label{def:epsilon-closure}
-For a state $q$, let $\mathsf{ECl}(q)$ be the set of states reachable
-from $q$ by taking zero or more $\varepsilon$-moves.  For a set of states
-$S$, write
-\[
-  \mathsf{ECl}(S)=\bigcup_{q\in S}\mathsf{ECl}(q).
-\]
-\end{definition}
+\begin{proof}
+Every restricted expression is, by definition, a general one.  Conversely,
+given a general expression, we translate each Boolean operator into an
+automaton construction: complementation becomes final-state swapping on
+a complete DFA, and intersection becomes the product construction of
+\cref{def:product-automaton}.  This produces a finite automaton, which
+\cref{thm:kleene} converts back into a restricted expression.
+\end{proof}
 
-If $A=(Q,\Sigma,\Delta,q_0,F)$ is an $\varepsilon$-NFA, an equivalent
-ordinary NFA has the same states and alphabet, and transition function
-\[
-  \Delta'(q,a)
-  =
-  \mathsf{ECl}\!\left(
-    \bigcup_{p\in \mathsf{ECl}(q)} \Delta(p,a)
-  \right).
-\]
-In words: before reading $a$, take all possible free moves; read $a$;
-then again take all possible free moves.  The accepting set also needs a
-small correction:
-\[
-  F'=
-  \begin{cases}
-    F\cup\{q_0\}, & \mathsf{ECl}(q_0)\cap F\neq\emptyset,\\
-    F, & \text{otherwise.}
-  \end{cases}
-\]
-This accounts for the empty word, which may be accepted by following
-only $\varepsilon$-moves from the initial state to an accepting state.
+The star-free fragment is more subtle.  Removing Kleene star does cost
+expressive power: there are regular languages that no star-free
+expression can denote.  Our running example
+\cref{ex:regex-even-a}---words with an even number of $a$'s---is the
+canonical witness.  Its minimal DFA cycles between two states and is
+not \emph{aperiodic}; by Sch\"utzenberger's theorem, which we will meet
+in \cref{ch:deterministic-automata-star-free}, this is exactly the
+obstruction that keeps it out of the star-free fragment.  Star-free
+languages are therefore a \emph{strictly weaker} subclass of the regular
+languages, and they will reappear later as the finite-word shadow of
+first-order definability.
 
 
 % ============================================================

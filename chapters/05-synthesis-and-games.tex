@@ -10,14 +10,28 @@ system is correct.  Synthesis asks for a
 correct system to be constructed
 automatically.}
 
-So far, the system has been part of the input.  We model its behaviours,
-compare them with a specification, and look for counterexamples.  The
-synthesis problem is more ambitious: given a specification, construct a
-finite-state system that satisfies it against every possible behaviour of
-the environment.
+Chapters~\ref{ch:fsa}--\ref{ch:omega-complementation} worked in
+one direction: we were \emph{given} a system, modelled its behaviours as
+finite or infinite words, and asked whether those behaviours satisfied a
+specification.  The system was part of the input.  Synthesis flips the
+arrow.  We are \emph{given} only the specification, and we must
+\emph{construct} a finite-state system that satisfies it against every
+behaviour the environment may produce.
 
-This chapter presents the game-theoretic view behind Church's synthesis
-problem and the B\"uchi--Landweber solution pipeline.
+The flip has practical teeth.  Later in this chapter we will meet the
+railway interlocking problem studied at FBK for the Italian railway
+network: starting from safety requirements written in temporal logic, we
+want a controller whose correctness is guaranteed by construction, not
+merely tested after the fact.  Synthesis is the most ambitious form of
+this idea.
+
+The right mathematical framework for the flip is \emph{infinite games}.
+The environment and the system take turns forever; a play is an infinite
+sequence of moves; the specification decides who wins.  This chapter
+presents the game-theoretic view behind Church's synthesis problem and
+the B\"uchi--Landweber solution pipeline: from a logical specification
+to an automaton, from an automaton to a game arena, and from a winning
+strategy to a synthesized transducer.
 
 
 % ============================================================
@@ -69,15 +83,45 @@ that for every input stream $x$, the output stream $M(x)$ satisfies
 If such an $M$ exists, construct it.
 \end{definition}
 
+Read the quantifier carefully: it is $\forall x\,\Phi(x,M(x))$, not
+$\exists x\,\Phi(x,M(x))$.  The controller cannot pick a friendly
+environment.  This universal quantifier is what makes synthesis harder
+than satisfiability: a satisfying witness is a single pair $(x,y)$, but
+a realizing transducer must defend against every $x$.  In the rest of
+the chapter we will turn this universal quantifier into a game in which
+the environment is an adversary.
+
 
 % ============================================================
 \section{The Game View}
 \label{sec:game-view}
 % ============================================================
 
-Synthesis is naturally a game.  The environment chooses inputs, the
-system responds with outputs, and the infinite play must satisfy the
-specification.
+The universal quantifier over environment inputs is naturally read as an
+adversary.  Two players take turns forever: the environment picks an
+input bit, the system replies with an output bit, the environment picks
+again, and so on.  After infinitely many rounds the joint input/output
+stream either satisfies $\Phi$ or violates it.  If it satisfies it, the
+system wins; if it violates it, the environment wins.  This is the
+game-theoretic reading of realizability.
+
+Before defining the arena formally, consider the running example we will
+carry through the chapter.
+
+\begin{example}[Request-grant game, informally]
+\label{ex:request-grant-informal}
+The environment may, at any round, raise a request $r$.  The system may,
+at any round, emit a grant $g$.  The specification is
+\[
+  \text{every request is eventually granted.}
+\]
+Think of the environment as a client and the system as a server.  The
+client is free to ask whenever it wants; the server must answer
+eventually, no matter how aggressive the client becomes.  This is
+exactly the request/acknowledgement trace shape of
+\cref{ch:omega-automata}, but now viewed as a confrontation rather than
+as a single trace to be checked.
+\end{example}
 
 \begin{definition}[Game arena]
 \label{def:game-arena}
@@ -121,16 +165,21 @@ partition the arena.  This determinacy fact is what lets synthesis
 return a sharp answer: either the system has an implementation, or the
 environment has a counter-strategy.
 
-\begin{example}[Request-grant game]
+\begin{example}[Request-grant game, formalized]
 \label{ex:request-grant-game}
-The environment may raise a request.  The system may grant.  The
-specification is:
+Return to \cref{ex:request-grant-informal}.  Concretely, the arena
+vertices are pairs $(\textit{state},\textit{last input})$: the
+environment vertex records whether $r$ was just raised, and the system
+vertex records the input plus whether the system has yet to grant.  The
+specification
 \[
-  \text{every request is eventually granted.}
+  \text{every request is eventually granted}
 \]
-This is not a finite-prefix property.  A finite play cannot prove that a
-request will never be granted.  The game must be evaluated over infinite
-plays.
+is not a finite-prefix property.  A finite play cannot prove that a
+request \emph{will never} be granted; only the infinite continuation
+can.  The game must therefore be evaluated over infinite plays, which is
+exactly why we need the machinery of this chapter rather than the
+finite-word automata of \cref{ch:fsa}.
 \end{example}
 
 \begin{definition}[Finite-state strategy]
@@ -152,7 +201,11 @@ control them.
 \label{sec:synthesis-pipeline}
 % ============================================================
 
-The B\"uchi--Landweber solution connects logic, automata, and games.
+The last section gave us arenas, strategies, and winning regions in the
+abstract.  But where does the arena come from?  In synthesis the arena
+is not handed to us: we have to build it from the specification.  The
+B\"uchi--Landweber solution is the pipeline that turns a logical
+specification into a solved game, and ultimately into a transducer.
 
 \begin{formaldetails}[Pipeline]
 \begin{enumerate}[label=\textbf{Step \arabic*.}, leftmargin=2cm]
@@ -169,9 +222,39 @@ The B\"uchi--Landweber solution connects logic, automata, and games.
 \end{enumerate}
 \end{formaldetails}
 
+Step~2 reuses the automata constructions of
+\cref{ch:omega-automata,ch:omega-complementation}: by B\"uchi's theorem
+every S1S-definable specification has an equivalent deterministic
+M\"uller automaton.  Step~3, the focus of this section, is the bridge
+from automata to games.  Steps~4 and~5 occupy the rest of the chapter.
+
 The pipeline differs from model checking in one crucial way.  Model
 checking takes a system automaton as input.  Synthesis constructs the
 system from a winning strategy.
+
+\begin{definition}[Automaton-to-game construction]
+\label{def:automaton-to-game}
+Let $\mathcal{A}=(Q,\Sigma\times\Gamma,q_0,\delta,\mathcal{F})$ be a
+deterministic M\"uller automaton over input/output pairs
+$(i,o)\in\Sigma\times\Gamma$.  The \textbf{game arena induced by}
+$\mathcal{A}$ has vertex set $Q\cup(Q\times\Sigma)$, with $Q$ owned by
+the environment and $Q\times\Sigma$ owned by the system, and edges
+\[
+  q \xrightarrow{i} (q,i) \xrightarrow{o} q'
+  \quad\text{whenever}\quad
+  \delta(q,(i,o))=q'.
+\]
+The M\"uller winning condition of $\mathcal{A}$ becomes the system's
+winning condition, applied to the projection of a play onto its $Q$-vertices.
+\end{definition}
+
+The construction unwraps each transition of $\mathcal{A}$ into two
+moves: the environment first reveals the input bit $i$, taking us to
+$(q,i)$, and then the system picks the output bit $o$, taking us to the
+successor state $q'=\delta(q,(i,o))$.  \cref{fig:automaton-to-game-split}
+shows one such unwrapped transition.  Note that several output choices
+may lead to the same $q'$: in that case only the bit label differs, and
+the system is free to pick any of them.
 
 \begin{figure}[ht]
 \centering
@@ -196,9 +279,10 @@ system from a winning strategy.
 \label{fig:automaton-to-game-split}
 \end{figure}
 
-This game graph is an arena, not yet the synthesized controller.  The
-controller is extracted only after solving the game: at system vertices,
-the winning strategy tells us which output move to choose.
+The induced arena is not yet the synthesized controller.  The controller
+is extracted only after solving the game: at each system vertex
+$(q,i)$, the winning strategy tells us which output move to choose, and
+that choice is precisely the bit produced by the transducer.
 
 \begin{definition}[M\"uller condition]
 \label{def:muller-condition}
@@ -256,7 +340,11 @@ condition reads whether that final recorded set is winning.
 \label{sec:reachability-games}
 % ============================================================
 
-The simplest game-solving pattern is reachability.
+Step~4 of the synthesis pipeline is ``solve the infinite game''.  Before
+tackling M\"uller or parity objectives, let's solve the simplest
+non-trivial case: reachability.  The construction we develop
+here---the \emph{attractor}---will reappear inside the parity-game
+solver of \cref{sec:muller-parity-games}, so it earns its own section.
 
 \begin{definition}[Reachability game]
 \label{def:reachability-game}
@@ -264,7 +352,15 @@ In a reachability game, the system wins a play if the play eventually
 visits a target set $T\subseteq V$.
 \end{definition}
 
-The winning region is computed by an attractor construction.
+The system does not care what happens after the first visit to $T$; it
+only needs to force the play there.  The request-grant specification of
+\cref{ex:request-grant-game} is \emph{not} a reachability property
+(grants must keep happening forever), but its bounded variant ``grant
+within $N$ steps'' is, and that bounded variant is exactly what the
+attractor construction below reasons about, one bound at a time.
+
+The winning region is computed by a least-fixed-point recursion called
+the attractor.
 
 \begin{definition}[Attractor]
 \label{def:attractor}
@@ -281,28 +377,96 @@ that:
 
 The two predecessor clauses reflect control.  At a system vertex, one
 good successor is enough because the system chooses.  At an environment
-vertex, all successors must be good because the environment chooses.
+vertex, all successors must be good because the environment chooses and
+the system must survive every alternative.  Because $V$ is finite, the
+least fixed point is reached after at most $|V|$ predecessor sweeps, and
+each sweep adds at least one vertex or terminates.
 
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
   env/.style={circle, draw, thick, fill=orange!12, minimum size=9mm},
   sys/.style={rectangle, draw, thick, rounded corners=2pt, fill=teal!12, minimum size=9mm},
-  target/.style={draw, double, thick, fill=accent!16},
+  target/.style={draw, double, thick, fill=teal!22},
+  bad/.style={circle, draw, thick, fill=gray!18, minimum size=9mm},
   arr/.style={-Stealth, thick},
 ]
   \node[sys] (s0) {$s_0$};
   \node[env, right=2.2cm of s0] (e1) {$e_1$};
   \node[sys, target, right=2.2cm of e1] (t) {$T$};
-  \node[env, below=1.4cm of e1] (bad) {$e_2$};
+  \node[bad, below=1.4cm of e1] (bad) {$e_2$};
   \draw[arr] (s0) -- (e1);
   \draw[arr] (e1) -- (t);
   \draw[arr] (e1) -- (bad);
   \draw[arr] (bad) edge[loop right] node {\small stay} (bad);
 \end{tikzpicture}
-\caption{At environment vertices, every possible successor must be safe for attractor membership.}
+\caption{At environment vertices, every possible successor must lie in
+the attractor for the vertex itself to qualify.  Here $e_1$ fails the
+test because the environment can escape to the gray sink $e_2$.}
 \label{fig:attractor-control}
 \end{figure}
+
+\cref{fig:attractor-control} shows why environment vertices are the
+hard case: even if one successor leads to $T$, the environment will
+simply choose the other successor and escape.  That is why we demand
+\emph{all} successors to be in the attractor.
+
+\begin{theorem}[Attractor correctness]
+\label{thm:attractor-correctness}
+Let $G=(V_E,V_S,E)$ be a finite game arena with target $T\subseteq V$.
+A vertex $v$ belongs to $\mathsf{Attr}(T)$ if and only if the system has
+a winning strategy for the reachability objective from $v$.
+\end{theorem}
+
+\begin{proof}
+The two directions are proved separately.
+
+\smallskip
+\noindent\textit{Winning strategy from the attractor.}
+Define the \emph{rank} $r(v)$ of a vertex $v\in\mathsf{Attr}(T)$ as the
+least $k$ such that $v$ enters $\mathsf{Attr}_k(T)$, where
+$\mathsf{Attr}_0(T)=T$ and
+\[
+  \mathsf{Attr}_{k+1}(T)
+  \;=\;\mathsf{Attr}_k(T)\;\cup\;
+  \textit{Pre}_S(\mathsf{Attr}_k(T))\;\cup\;
+  \textit{Pre}_E(\mathsf{Attr}_k(T)),
+\]
+with $\textit{Pre}_S$ (resp.\ $\textit{Pre}_E$) the existential
+(resp.\ universal) predecessor operator from \cref{def:attractor}.  We
+exhibit a strategy that strictly decreases the rank at every system
+move and never increases it at an environment move.
+
+Induction on $r(v)$.  If $r(v)=0$ then $v\in T$ and the system has
+already won.  If $r(v)=k+1>0$ and $v\in V_S$, the existential clause
+gives a successor $w\in\mathsf{Attr}_k(T)$; the strategy picks $w$, and
+by induction the system wins from $w$.  If $v\in V_E$, the universal
+clause forces \emph{every} successor $w$ to satisfy
+$w\in\mathsf{Attr}_k(T)$; whichever move the environment picks, the
+induction hypothesis applies at $w$.  In both cases the rank strictly
+decreases at each step, so after at most $r(v)$ steps the play reaches
+$T$.
+
+\smallskip
+\noindent\textit{No winning strategy outside the attractor.}
+Let $U=V\setminus\mathsf{Attr}(T)$.  By definition of the least fixed
+point, $U$ is \emph{closed under the dual predecessor}: every
+$v\in U\cap V_E$ has at least one successor in $U$, and every
+$v\in U\cap V_S$ has \emph{all} successors in $U$.  (Otherwise $v$
+would have entered the attractor on the next sweep.)  The environment
+exploits this by always moving into $U$ when it is its turn, and it is
+free to do so at every environment vertex.  From a system vertex in
+$U$, every system move stays in $U$.  So whatever the system does, the
+play remains in $U$ forever and never visits $T$.  Hence no system
+strategy wins from any $v\in U$.
+\end{proof}
+
+The proof shows more than the statement: it gives a \emph{positional}
+winning strategy for the system inside the attractor (always move to a
+successor of strictly smaller rank), and a \emph{positional}
+counter-strategy for the environment outside it (always move to a
+successor that stays in $U$).  Reachability games are therefore
+\emph{positionally determined}.
 
 
 % ============================================================
@@ -310,8 +474,12 @@ vertex, all successors must be good because the environment chooses.
 \label{sec:muller-parity-games}
 % ============================================================
 
-Reachability is not enough for full synthesis.  Specifications often
-depend on what happens infinitely often.
+Reachability asks only ``will we get there?''.  Most synthesis
+specifications are sharper: they care about what happens \emph{forever},
+not just about the first visit.  ``Every request is eventually granted''
+must hold infinitely often; ``the system must not stay in error mode
+forever'' forbids an infinite suffix.  These are M\"uller-style
+objectives, and they need richer winning conditions than reachability.
 
 \begin{definition}[Parity condition]
 \label{def:parity-condition}
@@ -320,84 +488,200 @@ winner is determined by the highest priority seen infinitely often:
 one player wins when that priority is even, the other when it is odd.
 \end{definition}
 
-Parity games are central because many acceptance conditions can be
-reduced to them, and they admit memoryless winning strategies.  M\"uller
-games can be reduced to parity games by recording enough finite memory
-about the latest appearance of states.
+Parity games are central to synthesis for two reasons.  First, every
+M\"uller objective can be encoded as a parity objective over a finite
+memory expansion of the arena, which we now construct via latest
+appearance records.  Second, parity games admit \emph{positional}
+winning strategies, so the resulting controller is finite-state.
 
 \begin{definition}[Latest appearance record]
 \label{def:lar}
 The \textbf{latest appearance record} (LAR) is a finite memory structure
-that keeps the states seen so far ordered by recency.  When a state is
-visited again, it is moved to the front.
+that keeps the arena states seen so far ordered by recency.  When a
+state is visited again, it is moved to the front of the list.  The
+\textbf{hit position} is the position in the old list where the
+revisited state was found, or $0$ if it was not in the list yet.  The
+\textbf{hit set} is the prefix of the old list ending at that hit
+position (empty when the hit position is $0$).
 \end{definition}
 
-The LAR lets a parity condition detect which set of states is seen
-infinitely often.  It is a finite-memory encoding of a long-run set.
+The hit set is the key invention.  After the play stabilises (every
+state that ever appears again has appeared at least once), the hit set
+is exactly the set of states seen since the previous visit of the
+current state---a finite-window proxy for the set of states visited
+infinitely often.
 
-For a full M\"uller condition, remembering only the unordered set of
-states seen so far is not enough: states that appeared once in the past
-must eventually be forgotten.  The latest appearance record keeps an
-ordered list by recency.  When a state already in the list is visited,
-the position at which it was found identifies the suffix of the list
-that has appeared since its previous visit.  That suffix is the current
-candidate for the set of states seen infinitely often.
-
-With $n$ arena states, the LAR memory has order $n!\cdot n$ possible
-records: an ordering of states, plus the position hit by the latest
-update.  The resulting parity game can be solved positionally, and the
-positional strategy in the expanded game becomes a finite-state strategy
-in the original game.
+\cref{fig:lar-update} shows a single update step: visiting $b$ when the
+LAR is $[a,b,c]$ moves $b$ to the front, leaving the new list
+$[b,a,c]$.  The hit position was $2$ (counting from $1$), so the hit
+set is $\{a,b\}$---the part of the recency list visited since the
+previous occurrence of $b$, plus $b$ itself.
 
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
   box/.style={draw, rounded corners=3pt, minimum width=11mm, minimum height=8mm, fill=teal!8},
+  fresh/.style={box, fill=teal!22},
   arr/.style={-Stealth, thick},
 ]
   \node[box] (a) {$a$};
   \node[box, right=1mm of a] (b) {$b$};
   \node[box, right=1mm of b] (c) {$c$};
-  \node[right=9mm of c] (arrow) {};
-  \node[box, right=18mm of c, fill=orange!12] (b2) {$b$};
+  \node[box, right=18mm of c, fill=teal!22] (b2) {$b$};
   \node[box, right=1mm of b2] (a2) {$a$};
   \node[box, right=1mm of a2] (c2) {$c$};
   \draw[arr] ([xshift=2mm]c.east) -- node[above, font=\small] {visit $b$} (b2.west);
   \node[below=6mm of b, font=\small] {old LAR};
   \node[below=6mm of a2, font=\small] {new LAR};
 \end{tikzpicture}
-\caption{Latest appearance record: when $b$ is visited, it moves to the front of the recency list.}
+\caption{Latest appearance record: when $b$ is visited, it moves to the
+front of the recency list.  With a most-recent-first convention, the hit
+set is the prefix of the old list up to $b$, here $\{a,b\}$.}
 \label{fig:lar-update}
 \end{figure}
 
-\begin{formaldetails}[Determinacy fact]
-For the finite infinite-duration games used in the synthesis pipeline,
-from every vertex one of the two players has a winning strategy.  For
-reachability games, this follows directly from the attractor
-construction: vertices inside the attractor are winning for the system,
-and vertices outside are winning for the environment by avoiding the
-attractor forever.
+\begin{example}[Walking through an LAR]
+\label{ex:lar-walk}
+Take an arena on four states $\{a,c,d\}$ plus a starting sentinel.  The
+first few states of a play are $a,c,c,d,d$.  Let's track the LAR, the
+hit position, and the hit set:
+\begin{center}
+\begin{tabular}{c|c|c|c}
+visit & LAR after & hit pos. & hit set \\ \hline
+$a$ & $[a]$            & $0$ & $\emptyset$ \\
+$c$ & $[c,a]$          & $0$ & $\emptyset$ \\
+$c$ & $[c,a]$          & $1$ & $\{c\}$ \\
+$d$ & $[d,c,a]$        & $0$ & $\emptyset$ \\
+$d$ & $[d,c,a]$        & $1$ & $\{d\}$
+\end{tabular}
+\end{center}
+The first visit to each state has hit position $0$ and empty hit set:
+the state was not yet in the list.  From the third visit onward every
+state is already known, so the hit position is at least $1$.  The short
+prefixes above do not yet reveal the limit behaviour; they only show the
+update rule.  Once the play has stabilised, recurring visits to states
+inside the eventual loop produce hit sets whose largest recurring
+records identify exactly the set of states appearing infinitely often.
+\end{example}
 
-For parity and M\"uller games the proof is deeper.  The course uses the
-result as the game-theoretic foundation that makes synthesis decidable:
-if the system does not have a winning strategy, then the environment has
-a counter-strategy.
+The LAR turns a M\"uller condition into a parity condition.  Given a
+M\"uller family $\mathcal{F}\subseteq 2^Q$, colour each LAR by
+\[
+  \textit{color}(\text{LAR}) \;=\;
+  \begin{cases}
+    2\cdot|\text{hit set}|   & \text{if the hit set is in } \mathcal{F},\\
+    2\cdot|\text{hit set}|-1 & \text{otherwise.}
+  \end{cases}
+\]
+With $n$ arena states, the LAR memory has at most $n!\cdot n$ records:
+an ordering of states, plus the hit position.  The construction is an
+\emph{exponential blow-up}, but it stays finite.
+
+\begin{theorem}[B\"uchi--Landweber; positional determinacy of parity games]
+\label{thm:buchi-landweber}
+Every parity game on a finite arena is determined, and the winner has a
+\emph{positional} winning strategy from every vertex in their winning
+region.
+\end{theorem}
+
+\begin{formaldetails}[Proof roadmap]
+The proof is by induction on the number of distinct priorities.  Let
+$c$ be the greatest priority, on a vertex $q$.
+
+If $c$ is even, the system tries to attract the play to $q$
+infinitely often.  Let $A=\mathsf{Attr}_S(\{q\})$ be the system
+attractor of $q$.  Inside $A$ the system uses the attractor strategy of
+\cref{thm:attractor-correctness} to force visits to $q$, whose even
+priority wins.  Outside $A$, the environment is trapped in the subgame
+$G\setminus A$, which has strictly fewer priorities; the induction
+hypothesis gives the answer there.  Combining the two regions gives
+the system's winning region.
+
+If $c$ is odd, the same attractor argument is run with the roles
+swapped, this time for the environment.  In both cases the winning
+strategy is positional: the attractor strategy is positional, the
+induction hypothesis is positional, and the two combine without extra
+memory.
+
+The full argument carefully treats the case where one player cannot
+force the play back into the top-priority vertex; we then recurse on
+the residual subarena where the top priority is absent.
 \end{formaldetails}
 
+\begin{corollary}[M\"uller games are finite-state determined]
+\label{cor:muller-finite-state}
+Every M\"uller game on a finite arena is determined, and the winner has
+a \emph{finite-state} winning strategy from every vertex in their
+winning region.  The strategy uses at most $n!\cdot n$ memory states.
+\end{corollary}
+
+\begin{proof}
+By the LAR construction above, the M\"uller game $G$ is simulated by a
+parity game $G'$ on the expanded state space $V\times\mathrm{LAR}$.
+\cref{thm:buchi-landweber} gives a positional winning strategy in $G'$.
+By the simulation correspondence of \cref{def:game-simulation} below,
+that positional strategy is a finite-state strategy in $G$, with the
+LAR as memory.  The number of memory values is bounded by
+$n!\cdot n$.
+\end{proof}
+
 Determinacy is what makes synthesis a decision problem.  If the system
-does not have a winning strategy, then the environment has a strategy to
-force a violation.
+does not have a winning strategy from the initial vertex $q_0$, then by
+determinacy the environment has a counter-strategy, and the
+specification is not realizable.  The pipeline of
+\cref{sec:synthesis-pipeline} therefore returns a sharp yes/no answer,
+plus a witnessing transducer when the answer is yes.
 
-\begin{formaldetails}[Simulating memory in the arena]
-Let $G$ be the original arena and let $M$ be a finite memory update
-machine.  The expanded arena has states $(v,m)$, where $v$ is an arena
-vertex and $m$ is a memory value.  Each edge updates both components:
-the arena component follows the chosen move, and the memory component is
-updated according to $M$.
+At this point we are using one automata-theoretic result as a black box.
+The logic-to-automaton translation for S1S gives an automaton over
+infinite words, and McNaughton's theorem lets us take it in deterministic
+M\"uller form.  The details belong to Part~II
+(\cref{ch:s1s-buchi,ch:deterministic-automata-star-free}); here we only
+need the interface: a finite deterministic monitor whose set of states
+visited infinitely often decides whether the play satisfies the
+specification.
 
-A positional strategy in this expanded arena is exactly a finite-state
-strategy in the original arena.  The controller stores $m$ internally
-and uses the positional choice prescribed for $(v,m)$.
+\begin{definition}[Game simulation]
+\label{def:game-simulation}
+A game $G=(V_E,V_S,E,W)$ is \textbf{simulated} by a game
+$G'=(V'_E,V'_S,E',W')$ via a finite-state transducer
+$S=(S,s_0,\delta)$ when:
+\begin{enumerate}[nosep]
+  \item $V'_E\subseteq S\times V_E$ and $V'_S\subseteq S\times V_S$;
+  \item $(r,p)\to(s,q)$ is an edge of $G'$ iff $p\to q$ is an edge of
+        $G$ and $s=\delta(r,q)$;
+  \item the projection $(r_0,p_0)(r_1,p_1)\cdots\mapsto p_0p_1\cdots$
+        sends winning plays for $G'$ bijectively onto winning plays
+        for $G$.
+\end{enumerate}
+\end{definition}
+
+Game simulation is the formal analogue of ``solving one game by
+reducing it to another''.  A positional strategy in $G'$ projects to a
+finite-state strategy in $G$: the controller maintains $r\in S$
+internally and consults the positional choice prescribed for $(r,p)$.
+This is exactly the mechanism by which the LAR parity game delivers a
+finite-state strategy for the original M\"uller game.
+
+\begin{formaldetails}[Closing the synthesis loop]
+\label{formal:mealy-from-strategy}
+Combining the pieces of this chapter end-to-end:
+\begin{enumerate}[nosep]
+  \item the S1S specification $\Phi(X,Y)$ becomes a deterministic
+        M\"uller automaton (B\"uchi plus McNaughton; see
+        \cref{ch:s1s-buchi,ch:deterministic-automata-star-free});
+  \item the automaton becomes an arena (\cref{def:automaton-to-game})
+        with the M\"uller objective as winning condition;
+  \item the arena game is solved by reduction to parity
+        (\cref{cor:muller-finite-state});
+  \item the resulting positional strategy in the expanded arena is a
+        finite-state strategy in the original arena;
+  \item the system component of that strategy is a Mealy transducer
+        realizing $\Phi$, i.e.\ a solution to \cref{def:church-synthesis}.
+\end{enumerate}
+If the initial vertex $q_0$ lies outside the system's winning region,
+the specification is not realizable, and the environment's winning
+strategy is a counterexample showing why.
 \end{formaldetails}
 
 

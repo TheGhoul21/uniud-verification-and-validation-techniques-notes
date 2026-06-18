@@ -10,16 +10,30 @@ controller-synthesis problem: find a
 strategy that drives the system to a
 goal despite uncertainty.}
 
-The last lecture of Course 88 connects the verification machinery with
-automated planning.  A planning problem describes a world, a set of
-actions, and a goal.  The task is to construct a plan that reaches the
-goal.  When actions are non-deterministic or the environment can
-interfere, a plan is no longer just a finite sequence of actions; it is a
-strategy.
+Part~I has built a toolbox: finite automata to recognise behaviours,
+omega-automata for infinite traces, congruences to compare languages,
+and games with attractors to synthesise controllers.  This closing
+chapter changes lens.  We step outside verification for a moment and
+look at \emph{automated planning}, the classical AI problem of choosing
+actions that drive a world from an initial situation to a goal.  The
+surprise, and the reason this chapter belongs here, is that planning
+\emph{is} the same problem in disguise.  A planning domain is a finite
+transition system, a goal is a target set of states, and a plan under
+uncertainty is exactly a strategy in a game against nature.  The
+preimage operator that defined the system attractor in \cref{ch:synthesis-games}
+will reappear verbatim as the one-step engine of backward planning.
 
-This chapter explains how planning can be formulated using the same
-state-transition and preimage ideas that underlie symbolic model
-checking.
+A planning problem describes a world, a set of actions, and a goal.
+The task is to construct a plan that reaches the goal.  When actions
+are non-deterministic or the environment can interfere, a plan is no
+longer just a finite sequence of actions; it is a strategy.  We will
+classify the strength of such strategies --- weak, strong, and
+strong-cyclic --- and show that each corresponds to a familiar
+verification flavour: existential reachability, universal reachability,
+and reachability under fairness.  This recasting of planning as model
+checking is what gives the chapter its name and what ties Part~I
+together before we turn, in Part~II, to the temporal logics and
+symbolic tooling that make these computations scale.
 
 
 % ============================================================
@@ -27,7 +41,13 @@ checking.
 \label{sec:action-vs-timeline-planning}
 % ============================================================
 
-There are two common ways to model planning problems.
+Before formalising anything, we have to choose how to describe the
+world that is being controlled.  Two families of models have emerged
+from decades of practice, and they emphasise different things.  One
+looks at the world through the actions an agent performs; the other
+looks at it through the values that state variables take over time.
+The choice is not cosmetic: it shapes which kinds of constraint feel
+natural to write and which algorithms fit.
 
 \begin{definition}[Action-based planning]
 \label{def:action-based-planning}
@@ -37,7 +57,9 @@ actions.  A plan is built from operations such as \texttt{load},
 \end{definition}
 
 This is the graph view: states are nodes, actions are labelled
-transitions, and a plan is a path or policy leading to a goal.
+transitions, and a plan is a path or policy leading to a goal.  It is
+the view that connects directly to the automata and games of the
+previous chapters.
 
 \begin{definition}[Timeline-based planning]
 \label{def:timeline-based-planning}
@@ -51,7 +73,9 @@ Timeline planning is natural for scheduling and control domains.  For a
 spacecraft, for instance, an instrument may be \emph{off}, then
 \emph{warming up}, then \emph{collecting data}; another component, such
 as a battery or data buffer, evolves on its own timeline but must remain
-compatible with the instrument timeline.
+compatible with the instrument timeline.  This style was used for
+real NASA missions and is closer in spirit to control theory than to
+graph search.
 
 \begin{figure}[ht]
 \centering
@@ -82,6 +106,14 @@ temporal constraints.
 \label{sec:planning-domains}
 % ============================================================
 
+We now commit to the action-based view and build the formal model.
+Just as a finite automaton is a finite set of states with a labelled
+transition relation, an action-based planning domain is a finite set
+of states equipped with actions that take a state to one or more
+successors.  The two ingredients we add beyond pure automata are an
+\emph{initial} set (where the world might start) and a \emph{goal} set
+(where we want it to end up).
+
 \begin{definition}[Fluent and state]
 \label{def:fluent-state}
 A \textbf{fluent} is a Boolean variable describing a property of the
@@ -91,7 +123,8 @@ world.  A \textbf{state} is a valuation of all fluents.
 If the fluents are $\mathit{atA}$, $\mathit{loaded}$, and
 $\mathit{green}$, then a state records whether each of these facts is
 currently true.  With $n$ Boolean fluents, the explicit state space may
-contain up to $2^n$ states.
+contain up to $2^n$ states --- our first hint that symbolic methods
+will eventually be needed.
 
 \begin{definition}[Inertial and non-inertial fluents]
 \label{def:inertial-fluents}
@@ -100,10 +133,12 @@ changes it.  A \textbf{non-inertial fluent} is recomputed or controlled
 by the environment at each step.
 \end{definition}
 
-For example, the parcel location is usually inertial: if no action moves
-the parcel, it stays where it is.  A traffic light may be modelled as
-non-inertial from the robot's point of view, because the planner does
-not control when it changes.
+The split between inertial and non-inertial fluents is the planning
+analogue of the system/environment split in \cref{ch:synthesis-games}.
+The planner controls inertial fluents through its actions; non-inertial
+fluents are decided by nature.  For the parcel domain below, the
+robot's location is inertial, while the colour of the traffic light is
+non-inertial from the robot's point of view.
 
 \begin{definition}[Action-based planning domain]
 \label{def:planning-domain}
@@ -115,11 +150,16 @@ An action-based planning domain consists of:
   \item a finite set of actions $A$;
   \item a transition relation $T\subseteq S\times A\times S$.
 \end{itemize}
+An action $a$ is \textbf{enabled} at $s$ when there exists at least one
+$s'$ with $(s,a,s')\in T$.  The set of possible successors of $(s,a)$
+is $\mathrm{Post}(s,a)=\{s'\in S:(s,a,s')\in T\}$.
 \end{definition}
 
-The transition relation may be non-deterministic: the same action in the
-same state can have several possible successor states.  This is where
-planning begins to look like a game against the environment.
+The transition relation may be non-deterministic: the same action in
+the same state can have several possible successors.  This is where
+planning begins to look like a game against the environment.  The
+domain by itself fixes only the rules; the planner must still pick a
+move at each turn, and nature resolves the residual non-determinism.
 
 \begin{formaldetails}[Modelling dimensions]
 Planning domains are often classified along three independent axes.
@@ -133,31 +173,92 @@ Planning domains are often classified along three independent axes.
         reach $G$, or to satisfy temporal requirements such as always
         avoiding unsafe states until the goal is reached.
 \end{itemize}
+Throughout this chapter we work in the fully observable,
+reachability-goal case, where the differences between weak, strong, and
+strong-cyclic plans are already visible.  richer combinations are
+tackled by the same symbolic machinery, just with more expressive
+logics --- exactly the logics we will meet in Part~II.
 \end{formaldetails}
 
-\begin{example}[Parcel and traffic light]
+\begin{example}[Parcel delivery with a traffic light]
 \label{ex:parcel-traffic}
-A robot must move a parcel across a crossing.  Fluents may record the
-robot location, whether the parcel is loaded, and whether the traffic
-light is green.  An action such as \texttt{cross} may succeed only when
-the light is green; the light itself may change independently.
+We adopt the parcel-delivery domain used throughout the book.  A robot
+must move a parcel from the train \emph{station} to the \emph{airport}.
+Between them sits a traffic light, which may be \emph{green} or
+\emph{red}.  The fluent $\mathit{pos}\in\{\mathit{station},\mathit{light},\mathit{airport}\}$
+records where the robot is; the fluent $\mathit{color}\in\{\mathit{green},\mathit{red}\}$
+records the light.  The actions are $\texttt{transport}$ (advance one
+step along the route) and $\texttt{wait}$ (do nothing for one tick).
+The position is inertial; the colour is non-inertial.  Crucially,
+\texttt{transport} is allowed at the light only when the colour is
+green, and a $\texttt{transport}$ from the station may land at the light
+with either colour.  \cref{fig:parcel-domain} shows the resulting six
+states.
 \end{example}
 
-\begin{center}
-\begin{tabular}{@{}lll@{}}
-\toprule
-State fact & Action & Possible successor fact \\
-\midrule
-$\mathit{atLeft}\wedge\mathit{green}$ & \texttt{cross} & $\mathit{atRight}$ \\
-$\mathit{atLeft}\wedge\neg\mathit{green}$ & \texttt{cross} & $\mathit{atLeft}$ \\
-$\mathit{atLeft}$ & \texttt{wait} & $\mathit{atLeft}$ with either light value \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  >={Stealth[length=2.2mm]},
+  st/.style={circle, draw, thick, minimum size=13mm, inner sep=0pt,
+             font=\footnotesize, align=center},
+  init/.style={st, fill=teal!10},
+  plain/.style={st, fill=gray!8},
+  goal/.style={st, draw, double, thick, fill=teal!16},
+  nondet/.style={->, thick, draw=orange!75!black},
+  det/.style={->, thick, draw=graphite!70},
+]
 
-The table is not meant as a full domain description.  It shows the
-state-action view: a row describes when an action can be applied and
-which next states may result.
+  \node[init] (sg) at (0,1.3)  {$\mathsf{S}$\\$\mathit{green}$};
+  \node[init] (sr) at (0,-1.3) {$\mathsf{S}$\\$\mathit{red}$};
+
+  \node[plain] (lg) at (5,1.3)  {$\mathsf{L}$\\$\mathit{green}$};
+  \node[plain] (lr) at (5,-1.3) {$\mathsf{L}$\\$\mathit{red}$};
+
+  \node[goal] (ag) at (10,1.3)  {$\mathsf{A}$\\$\mathit{green}$};
+  \node[goal] (ar) at (10,-1.3) {$\mathsf{A}$\\$\mathit{red}$};
+
+
+  \draw[nondet, bend left=15]  (sg) to node[above, font=\scriptsize]{$\texttt{transport}$} (lg);
+  \draw[nondet, bend right=15] (sg) to node[below, font=\scriptsize, yshift=-1mm]{$\texttt{transport}$} (lr);
+  \draw[nondet, bend left=15]  (sr) to (lg);
+  \draw[nondet, bend right=15] (sr) to (lr);
+
+
+
+  \draw[det, bend left=18] (lr.north) to[bend left=18]
+        node[right, font=\scriptsize, xshift=1mm]{$\texttt{wait}$} (lg.south);
+  \draw[det, bend left=18] (lg.south) to[bend left=18]
+        node[left, font=\scriptsize, xshift=-1mm]{$\texttt{wait}$} (lr.north);
+
+
+  \draw[det] (lg) -- node[above, font=\scriptsize]{$\texttt{transport}$} (ag);
+  \draw[det] (lg) to[bend left=22] (ar);
+
+
+  \node[draw=graphite!30, dashed, rounded corners,
+        fit=(ag) (ar), inner sep=3mm,
+        label={[font=\scriptsize, color=graphite!70]above:goal $G$}] {};
+  \node[draw=graphite!30, dashed, rounded corners,
+        fit=(sg) (sr), inner sep=3mm,
+        label={[font=\scriptsize, color=graphite!70]left:$I$}] {};
+\end{tikzpicture}
+\caption{The parcel-delivery domain.  Initial states $\mathsf{S}_\mathit{green},\mathsf{S}_\mathit{red}$
+are shown in teal, goal states $\mathsf{A}_\mathit{green},\mathsf{A}_\mathit{red}$ are double-circled in teal.
+The orange $\texttt{transport}$ edges from the station are non-deterministic: the environment
+chooses the colour on arrival.  The grey $\texttt{wait}$ loop between $\mathsf{L}_\mathit{red}$ and
+$\mathsf{L}_\mathit{green}$ is what will force us to consider strong-cyclic plans.}
+\label{fig:parcel-domain}
+\end{figure}
+
+This little domain already contains every complication we need.  The
+two initial states reflect uncertainty about the colour at the start.
+The transition from the station is non-deterministic, because the
+environment picks the colour on arrival.  And the wait-loop between
+$\mathsf{L}_\mathit{red}$ and $\mathsf{L}_\mathit{green}$ means a naive
+``try to cross, then wait, then try again'' policy can in principle
+loop forever.  Each plan type in \cref{sec:plans-execution-structures}
+will be defined so that it copes with one of these complications.
 
 
 % ============================================================
@@ -165,44 +266,93 @@ which next states may result.
 \label{sec:plans-execution-structures}
 % ============================================================
 
-\begin{definition}[Plan]
+A domain tells us what \emph{could} happen; a plan tells us what the
+planner \emph{chooses} to do.  The two together generate an execution
+structure, a subgraph of the domain in which only the chosen actions
+survive but every environmental outcome of each chosen action is kept.
+
+\begin{definition}[Plan as a state-action table]
 \label{def:plan}
-In a deterministic domain, a \textbf{plan} may be a finite sequence of
-actions.  In a non-deterministic domain, a plan is more generally a
-policy that chooses an action based on the current state or on the
-history observed so far.
+A \textbf{plan} (or \textbf{state-action table}) for a domain is a
+relation $\pi\subseteq S\times A$ with $(s,a)\in\pi$ only when $a$ is
+enabled at $s$.  The plan is \textbf{deterministic} if for every $s$
+there is at most one $a$ with $(s,a)\in\pi$; it is \textbf{universal}
+if for every $s\in S$ there is at least one such $a$.
 \end{definition}
 
-The distinction matters.  If action outcomes are uncertain, the fixed
-sequence
-\[
-  a_1,a_2,\ldots,a_k
-\]
-may fail after an unlucky outcome.  A policy can branch and recover.
+In a fully deterministic domain, a plan collapses to the familiar
+object: a finite sequence $a_1,a_2,\ldots,a_k$ of actions, since at
+each step there is only one enabled action and only one possible
+successor.  In a non-deterministic domain this is no longer enough.
+The fixed sequence may fail after an unlucky outcome, so the plan must
+be allowed to branch and react --- exactly like a strategy in a game.
 
 \begin{definition}[Execution structure]
 \label{def:execution-structure}
-Given a domain and a plan, the \textbf{execution structure} is the graph
-obtained by keeping only the action choices allowed by the plan and all
-outcomes that the domain permits for those choices.  An execution path
-is a path in this graph.  A terminal state is a state with no outgoing
-planned transition.
+Let $\pi$ be a plan and $I\subseteq S$ a set of initial states.  The
+\textbf{execution structure} induced by $\pi$ from $I$ is the directed
+graph $K_\pi=(Q,T_\pi)$ where $Q\subseteq S$ and $T_\pi\subseteq
+Q\times Q$ are the minimal sets satisfying:
+\begin{itemize}[nosep]
+  \item $I\subseteq Q$;
+  \item if $s\in Q$ and $(s,a)\in\pi$ and $(s,a,s')\in T$, then
+        $s'\in Q$ and $(s,s')\in T_\pi$.
+\end{itemize}
+A node $s\in Q$ is \textbf{terminal} if it has no outgoing edge in
+$T_\pi$.  An \textbf{execution path} from $s_0\in I$ is a finite or
+infinite sequence $s_0,s_1,s_2,\ldots$ with $(s_i,s_{i+1})\in T_\pi$
+for every $i$, ending in a terminal state if it is finite.  The
+structure is \textbf{acyclic} if every execution path is finite.
 \end{definition}
 
-This definition separates the planner's choices from nature's choices.
-The plan may choose one action, but the execution structure still
-contains every possible successor of that action.
+The definition makes a subtle but crucial move.  The plan $\pi$ lives
+in the world of state-action pairs; the execution structure lives in
+the world of state-state pairs.  Closing $\pi$ under all environmental
+outcomes produces a graph that contains every future the planner cannot
+rule out.  Terminal states are where this graph stops: either because
+the planner reached its target, or because it reached a dead end with
+no enabled action.
 
-\begin{definition}[Weak and strong solution]
+\begin{definition}[Weak, strong, and strong-cyclic solutions]
 \label{def:weak-strong-plan}
-A \textbf{weak plan} has at least one execution that reaches the goal.
-A \textbf{strong plan} guarantees that every possible execution reaches
-the goal.
+\label{def:strong-cyclic-plan}
+Let $K_\pi=(Q,T_\pi)$ be the execution structure induced by $\pi$ from
+$I$, and let $G$ be the goal set.
+\begin{itemize}[nosep]
+  \item $\pi$ is a \textbf{weak solution} if, for every $s_0\in I$,
+        there \emph{exists} an execution path from $s_0$ that ends in a
+        terminal state belonging to $G$.
+  \item $\pi$ is a \textbf{strong solution} if $K_\pi$ is acyclic and
+        \emph{every} terminal state of $K_\pi$ belongs to $G$.
+  \item $\pi$ is a \textbf{strong-cyclic solution} if from every state
+        of $Q$ some terminal state of $K_\pi$ is reachable, and every
+        terminal state of $K_\pi$ belongs to $G$.
+\end{itemize}
 \end{definition}
 
-Weak planning is existential.  Strong planning is universal.  Verification
-and synthesis care deeply about this difference: a safety-critical
-controller needs strong guarantees, not just one lucky successful run.
+These three notions increase in strength.  Weak planning is
+\emph{existential}: one lucky path suffices.  Strong planning is
+\emph{universal and acyclic}: every path terminates, and every
+termination is a goal.  Strong-cyclic planning sits between the two:
+cycles are tolerated, but only if from every state along them a goal
+remains reachable, and a fairness assumption rules out the run that
+loops forever while postponing the exit.
+
+\begin{example}[Weak, strong, and strong-cyclic on the parcel domain]
+\label{ex:parcel-plan-types}
+In \cref{fig:parcel-domain} no strong plan can exist.  Whatever the
+planner does at $\mathsf{L}_\mathit{red}$, the environmental outcome
+``stay red'' is always available, so any execution structure retains
+the cycle $\mathsf{L}_\mathit{red}\to\mathsf{L}_\mathit{green}\to\mathsf{L}_\mathit{red}$.
+A weak plan exists trivially: a path that crosses only when green
+\emph{can} reach the airport in finitely many steps.  A strong-cyclic
+plan also exists, because from every state in the structure an airport
+state remains reachable, and under the fairness assumption that the
+green outcome cannot be postponed forever, the robot eventually crosses.
+This is exactly the situation safety-critical AI planning cares about:
+we cannot \emph{force} success, but we can guarantee it under fair
+scheduling.
+\end{example}
 
 \begin{definition}[Situated, universal, and conformant plans]
 \label{def:planning-plan-types}
@@ -213,18 +363,38 @@ without observing which of several possible initial states is the real
 one.
 \end{definition}
 
-\begin{definition}[Strong cyclic solution]
-\label{def:strong-cyclic-plan}
-A \textbf{strong cyclic plan} guarantees that every fair execution
-eventually reaches the goal, where fairness means that an outcome that
-remains continuously possible cannot be postponed forever.
-\end{definition}
+\begin{remark}[Determinization]
+\label{rem:determinization}
+A non-deterministic plan $\pi$ is a weak (respectively strong,
+strong-cyclic) solution if and only if \emph{every} deterministic
+sub-plan $\pi'\subseteq\pi$ that still covers all states of $\pi$ is
+also a weak (respectively strong, strong-cyclic) solution.  This
+universal quantifier over determinizations is what lets us search the
+smaller space of deterministic plans without loss of strength.
+\end{remark}
 
-Strong cyclic planning is useful when recovery loops are acceptable.  If
-the robot repeatedly tries to cross while the light may nondeterministically
-be red or green, a strong plan may be impossible because the red outcome
-can keep it stuck forever.  A strong cyclic plan can still be reasonable
-under the fairness assumption that the green outcome eventually occurs.
+Strong cyclic planning is useful precisely when recovery loops are
+acceptable but strong guarantees are unachievable.  If the robot
+repeatedly tries to cross while the light may nondeterministically be
+red or green, a strong plan is impossible because the red outcome can
+keep it stuck forever.  A strong cyclic plan is still reasonable under
+the fairness assumption that the green outcome eventually occurs ---
+the same kind of compassion constraint that we will revisit when we
+study fair model checking in Part~II.
+
+A useful mnemonic is the logic-flavour summary:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Plan type & Path quantifier & Acyclicity \\
+\midrule
+weak        & $\exists$ path reaching $G$      & not required \\
+strong      & $\forall$ paths, terminal in $G$ & required \\
+strong-cyclic & $\forall$ states, $\exists$ path to $G$ (under fairness) & cycles allowed \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 
 % ============================================================
@@ -232,13 +402,17 @@ under the fairness assumption that the green outcome eventually occurs.
 \label{sec:preimage-operators}
 % ============================================================
 
-Backward search is expressed with preimage operators.  Given a target
-set $X\subseteq S$, we ask which states can be made to reach $X$ in one
-step.
+How do we compute, rather than just describe, the states from which the
+planner can win?  The answer is the same trick that drove the attractor
+construction in \cref{ch:synthesis-games}: work backwards from the goal,
+one step at a time, and ask which states can be forced into the current
+winning set by a single action choice.  The two flavours of plan ---
+weak and strong --- give rise to two one-step predecessors, the
+\emph{preimage operators}.
 
 \begin{definition}[Weak preimage]
 \label{def:weak-preimage}
-The weak preimage of $X$ is
+The weak preimage of $X\subseteq S$ is
 \[
   \mathsf{Pre}_w(X)=
   \{s\in S:\exists a\in A,\exists s'\in X
@@ -247,51 +421,71 @@ The weak preimage of $X$ is
 \end{definition}
 
 This is the one-step version of a weak plan: there exists an action and
-an outcome that reaches $X$.
+an outcome that reaches $X$.  It captures the planner's ability to be
+\emph{lucky} --- the environment is allowed to pick the friendliest
+outcome of the chosen action.
 
 \begin{definition}[Strong preimage]
 \label{def:strong-preimage}
-The strong preimage of $X$ is
+The strong preimage of $X\subseteq S$ is
 \[
   \mathsf{Pre}_s(X)=
   \{s\in S:\exists a\in A,\;
         \mathrm{Post}(s,a)\neq\emptyset
         \text{ and }
-        \mathrm{Post}(s,a)\subseteq X\},
-\]
-where
-\[
-  \mathrm{Post}(s,a)=\{s'\in S:(s,a,s')\in T\}.
+        \mathrm{Post}(s,a)\subseteq X\}.
 \]
 \end{definition}
 
 This is the one-step version of a strong plan.  The planner chooses the
 action, but nature chooses the outcome.  Therefore every possible
-successor must be inside $X$.
+successor must already lie inside $X$; one bad outcome is enough to
+disqualify $s$ from being a strong predecessor.
 
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
-  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
-  goal/.style={circle, draw, double, thick, minimum size=8mm, fill=accent!15},
-  arr/.style={-Stealth, thick},
+  >={Stealth[length=2.2mm]},
+  state/.style={circle, draw, thick, minimum size=8mm, fill=gray!10},
+  goal/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!18},
+  warr/.style={->, thick, draw=orange!80!black},
+  sarr/.style={->, thick, draw=graphite!75},
 ]
-  \node[state] (s) {$s$};
-  \node[goal, right=2.7cm of s, yshift=7mm] (x1) {$x_1$};
-  \node[goal, right=2.7cm of s, yshift=-7mm] (x2) {$x_2$};
-  \node[state, below=1.5cm of s] (t) {$t$};
-  \node[goal, right=2.7cm of t, yshift=7mm] (y1) {$y_1$};
-  \node[state, right=2.7cm of t, yshift=-7mm] (y2) {$y_2$};
-  \draw[arr] (s) -- node[above, font=\small] {$a$} (x1);
-  \draw[arr] (s) -- node[below, font=\small] {$a$} (x2);
-  \draw[arr] (t) -- node[above, font=\small] {$a$} (y1);
-  \draw[arr] (t) -- node[below, font=\small] {$a$} (y2);
-  \node[below=4mm of x2, font=\small, align=center] {all outcomes in $X$\\strong predecessor};
-  \node[below=4mm of y2, font=\small, align=center] {one outcome escapes\\not strong};
+
+  \node[state] (s) at (0,0.9)  {$s$};
+  \node[goal]  (x1) at (3,1.7) {$x_1$};
+  \node[goal]  (x2) at (3,0.1) {$x_2$};
+
+  \node[state] (t) at (7,0.9)  {$t$};
+  \node[goal]  (y1) at (10,1.7){$y_1$};
+  \node[state] (y2) at (10,0.1){$y_2$};
+
+
+  \draw[sarr] (s) -- node[above, font=\scriptsize]{$a$} (x1);
+  \draw[sarr] (s) -- node[below, font=\scriptsize]{$a$} (x2);
+
+  \draw[warr] (t) -- node[above, font=\scriptsize]{$a$} (y1);
+  \draw[warr] (t) -- node[below, font=\scriptsize]{$a$} (y2);
+
+  \node[below=4mm of x2, font=\scriptsize, align=center]
+        {all outcomes in $X$\\strong predecessor};
+  \node[below=4mm of y2, font=\scriptsize, align=center]
+        {one outcome escapes\\only weak predecessor};
 \end{tikzpicture}
-\caption{Strong preimage requires all outcomes of the chosen action to stay inside the target set.}
+\caption{Strong vs.\ weak preimage.  In graphite, $s\in\mathsf{Pre}_s(X)$:
+all outcomes of action $a$ land in $X$.  In orange, $t\notin\mathsf{Pre}_s(X)$
+but $t\in\mathsf{Pre}_w(X)$: one outcome escapes, so $a$ cannot \emph{force}
+entry into $X$.}
 \label{fig:strong-preimage}
 \end{figure}
+
+\Cref{fig:strong-preimage} makes the operational difference explicit.
+The state $s$ is a strong predecessor of $X$ because action $a$ pins
+both successors inside $X$.  The state $t$ is not: even though $a$ has
+one successor in $X$, it has another outside, and an adversarial
+environment can pick that one.  This is precisely the same
+``controllable predecessor'' operator that built the system attractor
+in the games of \cref{ch:synthesis-games}; only the names have changed.
 
 
 % ============================================================
@@ -299,8 +493,11 @@ successor must be inside $X$.
 \label{sec:planning-fixpoints}
 % ============================================================
 
-The goal set is the starting point.  Then we repeatedly add states from
-which the planner can force progress into the current winning set.
+With the preimage operators in hand, the strong and weak planning
+problems reduce to least-fixpoint computations on the lattice
+$(2^S,\subseteq)$.  The goal set is the seed; we repeatedly add states
+from which the planner can force progress into the current winning set;
+when nothing new appears, we have reached the fixpoint.
 
 \begin{formaldetails}[Strong backward planning]
 \begin{enumerate}[label=\textbf{Step \arabic*.}, leftmargin=2cm]
@@ -310,21 +507,27 @@ which the planner can force progress into the current winning set.
           W_{i+1}=W_i\cup \mathsf{Pre}_s(W_i).
         \]
   \item Stop when $W_{i+1}=W_i$.
-  \item The resulting fixpoint $W$ is the set of states from which the
-        goal can be forced.
+  \item The resulting fixpoint $W^\ast$ is the set of states from which
+        the goal can be \emph{forced}.
 \end{enumerate}
+The weak variant is identical except that $\mathsf{Pre}_s$ is replaced
+by $\mathsf{Pre}_w$.
 \end{formaldetails}
 
-This is the same logical shape as an attractor computation in games.  At
-each step, we add states from which the controller has an action whose
-possible outcomes are already known to be winning.
+This is the same logical shape as the attractor computation in
+\cref{ch:synthesis-games}.  At each step we add states from which the
+controller has an action whose possible outcomes are already known to
+be winning.  The iteration terminates because $S$ is finite and the
+sequence is monotone.  By the Knaster--Tarski theorem the result is
+exactly the least fixpoint of the operator $X\mapsto G\cup
+\mathsf{Pre}_s(X)$.
 
-\begin{proposition}[Correctness intuition]
+\begin{proposition}[Strong winning region]
 \label{prop:strong-planning-fixpoint}
-If an initial state belongs to the fixpoint $W$, then a strong plan
-exists from that state.  If it does not belong to $W$, no memoryless
-strategy based on the represented state space can force the goal using
-the available transitions.
+Let $W^\ast$ be the fixpoint above.  If an initial state belongs to
+$W^\ast$, then a strong plan exists from that state.  If it does not
+belong to $W^\ast$, no memoryless strong plan based on the represented
+state space can force the goal using the available transitions.
 \end{proposition}
 
 \begin{proof}
@@ -336,17 +539,59 @@ action whose every successor lies in $W_i$.  Choose such an action.  No
 matter which successor occurs, the rank strictly decreases.  Since ranks
 are natural numbers, every execution reaches rank $0$, hence a goal.
 
-For the second claim, let $W$ be the fixpoint and consider a state
-outside $W$.  For every available action, either it has no valid
-successor or it has some successor outside $W$; otherwise the state
-would belong to $\mathsf{Pre}_s(W)$ and hence to $W$.  An adversarial
-environment can always choose such an outside successor, keeping the
-execution outside $W$ forever.  Therefore no state-based strong plan can
-force the goal from outside the fixpoint.
+For the second claim, let $W^\ast$ be the fixpoint and consider a state
+$s\notin W^\ast$.  For every available action, either it has no valid
+successor or it has some successor outside $W^\ast$; otherwise $s$
+would belong to $\mathsf{Pre}_s(W^\ast)$ and hence to $W^\ast$ by the
+fixpoint property.  An adversarial environment can always choose such
+an outside successor, keeping the execution outside $W^\ast$ forever.
+Therefore no state-based strong plan can force the goal from outside
+the fixpoint.
 \end{proof}
 
-The extracted policy chooses, at each newly added state, one action that
-witnessed membership in $\mathsf{Pre}_s(W_i)$.
+The extracted policy chooses, at each newly added state, one action
+that witnessed membership in $\mathsf{Pre}_s(W_i)$.  Ranks double as a
+certificate: they bound the number of steps to the goal.
+
+\begin{formaldetails}[Strong-cyclic backward planning]
+Strong-cyclic planning sits between weak and strong planning.  A weak
+plan only needs one successful outcome; a strong plan must tolerate all
+outcomes.  A strong-cyclic plan tolerates all outcomes \emph{provided}
+the chosen policy never leaves a closed live region and fairness rules
+out postponing enabled progress forever.
+
+The standard computation therefore alternates two requirements.  Given
+a candidate region $R$, keep a non-goal state $s\in R$ only if there is
+an action $a$ such that
+\[
+  \mathsf{Post}(s,a)\neq\emptyset,\qquad
+  \mathsf{Post}(s,a)\subseteq R,\qquad
+  \mathsf{Post}(s,a)\cap X\neq\emptyset
+\]
+for the current progress set $X$.  The first two clauses say that the
+policy is enabled and closed inside the candidate region; the third says
+that, under a fair resolution of nondeterminism, the policy has a way to
+make progress toward states already known to be closer to the goal.
+Starting from $X=G$ and iterating this progress test inside a greatest
+closed candidate yields the usual nested-fixpoint view of
+strong-cyclic planning.
+
+Operationally, one can read the algorithm as a backward pass followed by
+pruning, but the pruning is not optional bookkeeping: it removes states
+for which every apparent weak path to the goal depends on first leaving
+the live region or on cycling forever without any fair progress edge.
+The resulting policy has two invariants: every possible successor stays
+inside the region, and from every reachable non-goal state the goal is
+again reachable through policy edges.
+\end{formaldetails}
+
+This is the precise content behind the slogan ``from every state, a
+goal remains reachable, and every terminal state is a goal''.  The
+policy is not allowed to gamble on a single lucky branch: it must keep
+all nondeterministic outcomes inside the controlled region.  Fairness
+then supplies the missing ingredient that distinguishes strong-cyclic
+planning from strong planning: if progress remains continuously
+available, an execution cannot ignore it forever.
 
 
 % ============================================================
@@ -354,9 +599,14 @@ witnessed membership in $\mathsf{Pre}_s(W_i)$.
 \label{sec:symbolic-planning}
 % ============================================================
 
-Explicit state graphs can be enormous.  Symbolic model checking avoids
-enumerating all states by representing sets and transitions with Boolean
-formulas.
+Explicit state graphs can be enormous.  The parcel domain has six
+states, but a domain with forty Boolean fluents already hides up to
+$2^{40}$ states, and most realistic planning problems have many more.
+Symbolic model checking sidesteps the explosion by representing sets
+and transitions with Boolean formulas and manipulating whole sets at
+once.  The preimage operators we defined set-theoretically translate
+cleanly into quantified Boolean formulas, where they can be evaluated by
+BDD-based or SAT-based engines.
 
 \begin{definition}[Symbolic transition relation]
 \label{def:symbolic-transition}
@@ -372,6 +622,8 @@ that is true exactly for valid transitions.
 A set of states is represented by a formula $X(x)$.  The strong preimage
 can then be written logically as
 \[
+  \mathsf{Pre}_s(X)(x)
+  =
   \exists a\;
   \Big(
     \exists x'\,T(x,a,x')
@@ -379,9 +631,10 @@ can then be written logically as
     \forall x'\,(T(x,a,x')\rightarrow X(x'))
   \Big).
 \]
-
-This formula says: choose an action with at least one possible successor,
-and require every possible successor to satisfy $X$.
+Read this formula carefully: the outermost $\exists a$ is the planner's
+choice of action, the inner $\exists x'\,T$ checks that the action is
+actually enabled, and the universal $\forall x'$ is nature's adversarial
+choice of outcome, which we force to land inside $X$.
 
 The weak preimage has the existential version of the same shape:
 \[
@@ -391,14 +644,20 @@ The weak preimage has the existential version of the same shape:
   \big(T(x,a,x')\wedge X(x')\big).
 \]
 The strong preimage replaces the existential choice of outcome with a
-universal requirement over all outcomes of the chosen action.
+universal requirement over all outcomes of the chosen action.  In
+implementation, these formulas are rarely evaluated by enumerating
+assignments: they are compiled into ordered binary decision diagrams
+(OBDDs), on which projection and Boolean operations are polynomial in
+the diagram size.  Part~II develops this symbolic machinery in detail.
 
 \begin{intermezzo}{Why Symbolic Methods Matter}
 If a domain has 40 Boolean fluents, the explicit state space may contain
 $2^{40}$ states.  Symbolic methods do not make the problem magically
 small, but they let us manipulate large regular sets of states at once,
 often using compact representations such as ordered binary decision
-diagrams.
+diagrams.  Many planning domains are mostly regular: a robot's dynamics
+factor over its fluents, and a single BDD node can summarise millions
+of concrete states that all behave identically.
 \end{intermezzo}
 
 
@@ -407,19 +666,19 @@ diagrams.
 \label{sec:action-description-languages}
 % ============================================================
 
-Instead of writing the full transition relation by hand, planning tools
-often use an action description language.
+Writing the transition relation $T(x,a,x')$ by hand is tedious and
+error-prone.  Planning tools therefore let the modeller declare, at a
+higher level, what each action \emph{requires} and what it
+\emph{causes}; a compiler then expands those declarations into the
+symbolic transition relation used by the fixpoint algorithms.  This is
+the planning analogue of writing a program in a high-level language and
+letting a compiler lower it to machine code.
 
 \begin{definition}[Action rule]
 \label{def:action-rule}
 An action rule describes when an action is executable and how it changes
 fluents.  It typically has a precondition part and an effect part.
 \end{definition}
-
-For example, an action \texttt{load} may require the robot and parcel to
-be at the same location, and its effect is that the fluent
-$\mathit{loaded}$ becomes true.  The semantics of the action language is
-then compiled into the symbolic transition relation $T(x,a,x')$.
 
 A typical rule has the form
 \[
@@ -451,44 +710,140 @@ to the transition relation.  Inertia contributes, for example,
 \]
 \end{example}
 
-The course connection is now visible:
+\begin{example}[Rules for the parcel domain]
+\label{ex:parcel-rules}
+The parcel domain of \cref{fig:parcel-domain} can be written
+declaratively as follows.  State invariants pin down what a state is:
 \[
-\begin{gathered}
-  \text{planning}
-  \longrightarrow
-  \text{transition system}
-  \longrightarrow \\
-  \text{preimage/fixpoint computation}.
-\end{gathered}
+  \textsf{always}\;\Big(\mathit{pos}=\mathit{station}\oplus
+  \mathit{pos}=\mathit{light}\oplus\mathit{pos}=\mathit{airport}\Big).
+\]
+Initial and goal states are declared with the predicates
+\textsf{initially} and \textsf{goal}:
+\[
+  \textsf{initially}\;\big(\mathit{pos}=\mathit{station}\big),
+  \qquad
+  \textsf{goal}\;\big(\mathit{pos}=\mathit{airport}\big).
+\]
+The actions are compiled into transition constraints:
+\[
+  \texttt{transport}\;\textsf{causes}\;
+  \mathit{pos}=\mathit{light}\;\textsf{if}\;
+  \mathit{pos}=\mathit{station},
+\]
+\[
+  \texttt{transport}\;\textsf{causes}\;
+  \mathit{pos}=\mathit{airport}\;\textsf{if}\;
+  \mathit{pos}=\mathit{light}\wedge \mathit{color}=\mathit{green}.
+\]
+The colour $\mathit{color}$ is non-inertial, so its evolution is left
+unconstrained by these rules; nature chooses it.  A small set of
+declarative rules has thus generated the explicit six-state graph of
+\cref{fig:parcel-domain}.
+\end{example}
+
+% ============================================================
+\section{Towards Model Checking}
+\label{sec:planning-towards-mc}
+% ============================================================
+
+The chapter has traced a single arc.  Planning problems are finite
+transition systems with goals.  Plans are state-action tables, and
+their strength is measured against the universal or existential
+path-quantification in the induced execution structure.  Strong and
+weak solutions are characterised by preimage fixpoints; strong-cyclic
+solutions add a forward reachability pass on top.  The whole pipeline
+compiles declaratively from an action description language into the
+symbolic transition relations of model checking:
+
+\[
+\begin{tikzpicture}[baseline=-0.6ex,
+  >={Stealth[length=2mm]},
+  node distance=14mm and 9mm,
+  box/.style={draw, rounded corners=2pt, fill=teal!8,
+              minimum height=8mm, inner sep=4pt, font=\small, align=center}]
+  \node[box] (a) {action\\rules};
+  \node[box, right=of a] (b) {symbolic\\transition $T$};
+  \node[box, right=of b] (c) {preimage\\fixpoint};
+  \node[box, right=of c] (d) {weak / strong /\\strong-cyclic\\winning region};
+  \draw[->, thick] (a) -- (b);
+  \draw[->, thick] (b) -- (c);
+  \draw[->, thick] (c) -- (d);
+\end{tikzpicture}
 \]
 
+The closing observation is that the weak and strong plan-existence
+questions are themselves expressible in branching-time temporal logic.
+The existence of a path to a goal is the CTL formula
+$\mathit{EF}\,G$; the universality of reaching a goal is
+$\mathit{AF}\,G$; the strong-cyclic guarantee, under fairness, is a
+fair variant of $\mathit{AF}\,G$.  In other words, the very same CTL
+that will drive the symbolic model checkers of Part~II already
+classifies the plans of this chapter.  Planning \emph{is} model
+checking on a finite transition system, with a reachability objective.
+
 \begin{summarybox}
+We have now closed Part~I.  Starting from finite words and regular
+languages, we added infinite words, complementation, infinite games,
+and finally planning.  The throughline has been the same: a finite
+transition system, a target set, and a preimage-based backward search.
 \begin{itemize}[nosep]
   \item Planning domains are finite transition systems with actions.
-  \item Non-deterministic actions turn plans into strategies.
-  \item Weak planning is existential; strong planning is universal.
-  \item Preimage operators compute one-step controllable predecessors.
-  \item Symbolic model checking represents large planning problems with formulas instead of explicit graphs.
+  \item Plans are state-action tables; under non-determinism they
+        become strategies.
+  \item Weak planning is existential; strong planning is universal;
+        strong-cyclic planning adds fairness on top of reachability.
+  \item Preimage operators are one-step controllable predecessors,
+        reused from the attractor construction of \cref{ch:synthesis-games}.
+  \item Symbolic model checking represents large planning problems
+        with Boolean formulas and computes their fixpoints without
+        enumerating states.
 \end{itemize}
+
+Part~I has built the theoretical machinery: finite and infinite
+automata, games, and the attractor/preimage reasoning that solves them.
+Part~II turns to scale and practice.  We will introduce temporal logics
+(LTL and CTL) as specification languages, study explicit and symbolic
+model-checking algorithms, and meet the toolchain (SMV, OBDDs,
+SAT-based bounded model checking, learning, and Tamarin) that turns
+the theory of these chapters into running verifiers.  Many of the
+questions Part~I leaves open --- how do we specify temporal goals
+beyond reachability, how do we handle fairness explicitly, how do we
+verify systems far larger than six states --- are exactly what Part~II
+is designed to answer.
 \end{summarybox}
 
 \section*{Exercises}
 \addcontentsline{toc}{section}{Exercises}
 
-\begin{chapex}[Weak vs. strong]
-Construct a one-state action outcome example where a state belongs to
-$\mathsf{Pre}_w(G)$ but not to $\mathsf{Pre}_s(G)$.  Explain the
-difference in words.
+\begin{chapex}[Weak vs. strong on the parcel domain]
+In \cref{fig:parcel-domain}, list the contents of $\mathsf{Pre}_w(G)$
+and $\mathsf{Pre}_s(G)$ for $G=\{\mathsf{A}_\mathit{green},\mathsf{A}_\mathit{red}\}$
+after a single iteration.  Explain in one sentence why
+$\mathsf{L}_\mathit{red}$ belongs to the first set but not the second.
 \end{chapex}
 
 \begin{chapex}[One fixpoint step]
 Let $G=\{g\}$ and suppose state $s$ has an action whose only successors
 are $g$ and another state already in $G$.  Does $s$ enter the strong
-winning set after one iteration?
+winning set after one iteration?  Justify by evaluating the membership
+condition for $\mathsf{Pre}_s(G)$.
+\end{chapex}
+
+\begin{chapex}[Strong, weak, or strong-cyclic?]
+Consider the parcel domain of \cref{fig:parcel-domain} and the plan
+``at the light, if green then \texttt{transport}, else \texttt{wait};
+at the station, \texttt{transport}''.  Classify it as weak, strong, or
+strong-cyclic, and explain which feature of \cref{fig:parcel-domain}
+rules out the stronger classifications.
 \end{chapex}
 
 \begin{chapex}[Symbolic preimage]
-In the symbolic strong preimage formula, identify the existential
-quantifier controlled by the planner and the universal quantifier
-representing action uncertainty.
+In the symbolic strong preimage formula
+\[
+  \exists a\;\big(\exists x'\,T(x,a,x')\wedge \forall x'\,(T(x,a,x')\rightarrow X(x'))\big),
+\]
+identify which quantifier is controlled by the planner, which expresses
+action executability, and which expresses adversarial outcome
+selection by the environment.
 \end{chapex}

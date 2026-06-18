@@ -4,20 +4,31 @@
 \chapter{Reactive Systems, SMV, and Explicit Model Checking}
 \label{ch:reactive-smv}
 
-Part~II of these notes concerns the second module of the course.  While
-Part~I developed the mathematical theory of automata over finite and infinite
-words, Part~II asks: how do we use that theory to verify real software and
-hardware systems automatically?  This chapter lays the conceptual and
-practical groundwork.  We introduce \emph{reactive systems} as the class of
-programs we care about, explain what \emph{model checking} means and why it
-matters, learn a concrete modelling language---SMV---and practice reading
-and writing models using the tool \textsc{NuXMV}.
+\aside{Reactive systems do not stop, and their verification does not stop
+at finite input/output either: it reasons about every possible infinite
+interaction with the environment.}
 
-A useful way to read the chapter is as a single pipeline.  A reactive system
-has infinite executions; a Kripke structure packages all those executions in
-one finite graph; SMV is the engineering notation from which such a graph is
-generated; NuXMV explores the graph; and fairness or temporal-logic
-specifications tell the tool which executions count as meaningful.
+Part~I built the mathematical machinery: finite automata to recognise
+finite behaviours, $\omega$-automata to recognise infinite ones
+(\cref{ch:omega-automata}), games to synthesise controllers
+(\cref{ch:synthesis-games}), and planning to compose actions under
+uncertainty (\cref{ch:planning-model-checking}).  Throughout, the objects
+of study were idealised mathematical structures---graphs, automata,
+arenas---studied for their own sake.  Part~II now turns that machinery
+loose on \emph{practice}: real programs with state variables, real
+specifications written in temporal logics, and real tools that push the
+verification automatically.
+
+This chapter is the hinge.  We introduce \emph{reactive systems} as the
+class of programs we care about, formalise the \emph{model checking}
+problem, and learn a concrete modelling language---SMV---with which we
+feed models to the \textsc{NuXMV} model checker.  A useful way to read
+the chapter is as a single pipeline.  A reactive system has infinite
+executions; a Kripke structure packages all those executions in one
+finite graph; specifications select which of those executions count as
+correct; counterexamples explain why a violated specification fails;
+and SMV is the engineering notation from which the graph, the
+specifications, and the witnesses are all generated.
 
 % -----------------------------------------------------------------------
 \section{Why Reactive Systems?}
@@ -33,6 +44,18 @@ A \emph{reactive system} is a program or device that maintains a
 \emph{continuous, potentially infinite interaction} with its environment.
 \end{definition}
 
+\medskip\noindent
+\textbf{Intuition.}  The defining feature is not \emph{what} the system
+computes but \emph{when} it computes.  A reactive system is always
+switched on: at every instant it must be ready to accept an input,
+produce an output, and move on.  Correctness is therefore a statement
+about the entire infinite dialogue with the environment, not about a
+single terminating computation.  This contrasts sharply with the
+\emph{functional} view of programs---factorials, sorting routines,
+Fourier transforms---where correctness is a relation between one input
+and one output and the program is allowed to halt as soon as the answer
+is produced.
+
 Examples are everywhere: an operating system responding to user events, the
 flight-control software of an airplane, a communication protocol exchanging
 messages between two parties.  The interaction never truly ends---even if the
@@ -45,11 +68,17 @@ execution as an infinite sequence of \emph{time points}:
 \[
   s_0 \xrightarrow{} s_1 \xrightarrow{} s_2 \xrightarrow{} \cdots
 \]
-Each $s_i$ is a snapshot of the system's internal state.  The sequence is
-potentially infinite, so proving a property of the system means proving
-something about this infinite flow---very much like reasoning about the
-natural numbers $\mathbb{N}$.  This analogy is not accidental: we will see
-(Chapter~\ref{ch:s1s-buchi}) that the theory of infinite executions is
+Each $s_i$ is a snapshot of the system's internal state.  Reading the
+indices $0, 1, 2, \ldots$ as time positions, the execution is exactly
+an \emph{$\omega$-word} over the alphabet of state labels, in the sense
+of \cref{def:omega-word} in Part~I.  This is more than an analogy: the
+request/acknowledgement traces we used to motivate B\"uchi automata in
+\cref{fig:infinitely-many-ack} were already behaviours of an idealised
+reactive system.  The sequence is potentially infinite, so proving a
+property of the system means proving something about this infinite
+flow---very much like reasoning about the natural numbers
+$\mathbb{N}$.  This analogy is not accidental: we will see
+(\cref{ch:s1s-buchi}) that the theory of infinite executions is
 precisely the theory of the monadic second-order logic of one successor
 (S1S), which reasons directly over $\mathbb{N}$.
 
@@ -86,6 +115,15 @@ When the answer is negative, it produces a concrete \emph{counter-example}
 trace.
 \end{definition}
 
+\medskip\noindent
+\textbf{Intuition.}  The model $M$ is a finite description of \emph{all}
+behaviours of the system; the specification $\varphi$ is a temporal
+formula describing the behaviours we accept as correct.  Model checking
+is the decision problem $M \models \varphi$, made effective by the
+finiteness of $M$.  Crucially, the answer is not a probabilistic
+guarantee but a mathematical theorem that holds for every possible
+execution, including those driven by an adversarial environment.
+
 Three features distinguish model checking from other verification approaches.
 
 \begin{enumerate}
@@ -106,7 +144,7 @@ Three features distinguish model checking from other verification approaches.
         counter-example $\to$ fix model $\to$ re-check.
 \end{enumerate}
 
-Figure~\ref{fig:mc-flow} sketches the overall workflow.
+\cref{fig:mc-flow} sketches the overall workflow.
 
 \begin{figure}[ht]
   \centering
@@ -178,8 +216,8 @@ $\varphi$ can express the \emph{existence of an information leak} or a
 reachable dangerous state.  The celebrated
 \emph{Bounded Model Checking} (BMC) algorithm---introduced by Cimatti and
 collaborators in the early 2000s---is essentially an efficient existential
-model checker based on SAT solving.  We will study it in
-Chapter~\ref{ch:ctl-symbolic}.
+model checker based on SAT solving.  We will return to SAT-based and
+symbolic variants later in the model-checking part.
 
 \subsection{A brief historical note}
 
@@ -299,7 +337,8 @@ responses:
   \item \textbf{Symbolic model checking} (1990s--today): represents sets of
         states as Boolean formulas or Binary Decision Diagrams (BDDs) and
         operates on them without constructing individual states.  We will
-        study this in Chapter~\ref{ch:ctl-symbolic}.
+        study this later when CTL and symbolic state-space traversal are
+        developed.
 \end{itemize}
 
 % -----------------------------------------------------------------------
@@ -365,7 +404,7 @@ states (one per assignment).  The initial condition fixes
 $\texttt{state} = \textsc{Ready}$, with \texttt{request} unconstrained,
 giving \emph{two} initial states.
 
-To see how this corresponds precisely to Definition~\ref{def:kripke}, we can specify the components of the Kripke structure $M = (AP, Q, Q_0, R, L)$:
+To see how this corresponds precisely to \cref{def:kripke}, we can specify the components of the Kripke structure $M = (AP, Q, Q_0, R, L)$:
 \begin{itemize}
   \item $AP = \{ r, \mathit{ready}, \mathit{busy} \}$, where $r$ represents $\texttt{request} = \mathit{true}$, $\mathit{ready}$ represents $\texttt{state} = \textsc{Ready}$, and $\mathit{busy}$ represents $\texttt{state} = \textsc{Busy}$;
   \item $Q = \{ \textsf{RF}, \textsf{RT}, \textsf{BF}, \textsf{BT} \}$ corresponding to the four valuations:
@@ -374,14 +413,14 @@ To see how this corresponds precisely to Definition~\ref{def:kripke}, we can spe
           \textsf{BF} &= (\textsc{Busy}, \mathit{false})  & \textsf{BT} &= (\textsc{Busy}, \mathit{true})
         \end{align*}
   \item $Q_0 = \{ \textsf{RF}, \textsf{RT} \}$ because the system must start with $\texttt{state} = \textsc{Ready}$, while the initial value of $\texttt{request}$ is unconstrained;
-  \item The transition relation $R$ consists of the directed edges shown in Figure~\ref{fig:arbiter-kripke};
+  \item The transition relation $R$ consists of the directed edges shown in \cref{fig:arbiter-kripke};
   \item The labelling function $L$ maps each state to its active propositions:
         \begin{align*}
           L(\textsf{RF}) &= \{ \mathit{ready} \} & L(\textsf{RT}) &= \{ \mathit{ready}, r \} \\
           L(\textsf{BF}) &= \{ \mathit{busy} \}  & L(\textsf{BT}) &= \{ \mathit{busy}, r \}
         \end{align*}
 \end{itemize}
-Figure~\ref{fig:arbiter-kripke} shows the structure for the \emph{buggy} version of the arbiter (see Example~\ref{ex:arbiter-smv}).
+\cref{fig:arbiter-kripke} shows the structure for the \emph{buggy} version of the arbiter (see \cref{ex:arbiter-smv}).
 \end{example}
 
 \begin{figure}[ht]
@@ -417,33 +456,257 @@ Figure~\ref{fig:arbiter-kripke} shows the structure for the \emph{buggy} version
     \draw[arr] (RF) to (BF);
     \draw[arr] (RF) to (BT);
     \draw[arr] (RT) to (BF);
-    \draw[arr, orange!80!red, very thick] (RT) to node[right, font=\tiny, orange!80!red]{bug} (BF);
     \draw[arr] (RT) to (BT);
 
-    % Busy can return to Ready (unconstrained)
+    % Busy can return to Ready (unconstrained) --- the real bug is BT -> Ready
     \draw[arr] (BF) to[bend right=30] (RF);
-    \draw[arr] (BT) to[bend left=30]  (RT);
+    \draw[arr, orange!80!red, very thick] (BT) to[bend left=30]
+          node[right, font=\tiny, orange!80!red]{bug} (RT);
     \draw[arr] (BF) to[bend right=50] (RT);
     \draw[arr] (BT) to[bend left=50]  (RF);
   \end{tikzpicture}
   \caption{Kripke structure of the unconstrained arbiter
            (Example~\ref{ex:arbiter-kripke}).  Initial states (teal) have
            $\texttt{state} = \textsc{Ready}$.  The orange transition
-           $(\textsc{Ready}, r{=}1) \to (\textsc{Busy}, r{=}0)$ witnesses the
-           bug: from a state with a request pending, the arbiter moves to
-           Busy but the next state has no pending request, violating the
-           responsiveness property.}
+           $(\textsc{Busy}, r{=}1) \to (\textsc{Ready}, r{=}1)$ witnesses
+           the bug: with a request pending, the unconstrained
+           \texttt{TRUE} branch of the \texttt{case} lets the next state
+           be \textsc{Ready} rather than \textsc{Busy}, violating
+           $\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))$.}
   \label{fig:arbiter-kripke}
 \end{figure}
+
+% -----------------------------------------------------------------------
+\section{Specifications: Safety and Liveness}
+\label{sec:safety-liveness}
+
+A Kripke structure packages \emph{all} behaviours of a system; a
+specification selects which of those behaviours we accept as correct.
+Choosing the specification is therefore as important as choosing the
+model: an overly weak property is satisfied vacuously, an overly strong
+property is never satisfied, and a property in the wrong shape may not
+even be expressible in the temporal logic we plan to use.  In this
+section we introduce the classical Lamport taxonomy that splits
+temporal specifications into two families.  The split is not just
+pedagogical: as the LTL material in \cref{ch:ltl} will make algorithmic,
+safety and liveness properties are checked by qualitatively different
+searches.
+
+\subsection{Two kinds of ``always good''}
+
+Before giving the formal definitions, let us build intuition on the
+arbiter of \cref{ex:arbiter-kripke}.  Two natural requirements are:
+
+\begin{itemize}
+  \item \emph{``Two processes are never granted the resource at the same
+        time.''}  A violation is observed \emph{at a single instant}:
+        as soon as we see the bad configuration, no future behaviour of
+        the system can deny that it happened.
+  \item \emph{``Every request is eventually followed by a grant.''}
+        A violation can never be observed at any finite instant: no
+        matter how long the request has been pending, there is always a
+        future in which the grant arrives.  The only way to refute the
+        property is to exhibit an \emph{infinite} run in which the
+        grant never comes.
+\end{itemize}
+
+The first property is a \emph{safety} property; the second is a
+\emph{liveness} property.  The distinction is captured formally by
+asking what kind of finite prefix witnesses a violation.
+
+\begin{definition}[Safety property]
+\label{def:safety}
+A property $P \subseteq (2^{AP})^\omega$ is a \emph{safety property}
+if every behaviour that violates $P$ has a \emph{finite bad prefix}:
+for every $\sigma \notin P$ there exists $i \geq 0$ such that no
+extension of the prefix $\sigma[0,i]$ belongs to $P$.
+\end{definition}
+
+\medskip\noindent
+\textbf{Intuition.}  A safety violation is witnessed at a concrete
+instant.  Once the bad thing has happened, no future behaviour of the
+system can ``undo'' it.  Typical safety properties are mutual exclusion
+(two processes are never simultaneously in their critical sections),
+partial correctness of an arbiter (a grant is never asserted without a
+pending request), type correctness (a pointer is never dereferenced
+after being freed), and absence of deadlock.  Mechanically, a safety
+property is checked by a \emph{reachability} search: does any
+reachable state satisfy the bad condition?
+
+\begin{definition}[Liveness property]
+\label{def:liveness}
+A property $P \subseteq (2^{AP})^\omega$ is a \emph{liveness property}
+if every finite prefix can be extended to a behaviour in $P$: for
+every finite word $u \in (2^{AP})^*$ there exists an infinite word
+$\sigma \in P$ with prefix $u$.
+\end{definition}
+
+\medskip\noindent
+\textbf{Intuition.}  A liveness property can never be refuted by a
+finite prefix: no matter how long we observe the system, there is
+always a future in which the property could still hold.  Violations
+therefore require an \emph{infinite} witness.  Typical liveness
+properties are starvation freedom (every pending request is eventually
+granted), eventual delivery (every sent packet eventually arrives),
+and the absence of indefinite waiting.  Mechanically, a liveness
+property is checked by a \emph{repeated reachability} or
+\emph{fair-cycle} search.
+
+\begin{example}[Safety vs.\ liveness in the arbiter]
+\label{ex:arbiter-safety-liveness}
+Reconsider the arbiter of \cref{ex:arbiter-kripke} with atomic
+propositions $AP = \{r, \mathit{ready}, \mathit{busy}\}$.
+\begin{itemize}
+  \item ``Whenever the arbiter is \textsc{Busy}, it was \textsc{Ready}
+        in the previous step'' is a \emph{safety} property: the
+        violation is a single transition in which the invariant fails,
+        and no extension of that prefix repairs it.
+  \item ``Every request is eventually followed by a busy state,''
+        formally $\mathbf{AG}(r \to \mathbf{AF}\,\mathit{busy})$, is a
+        \emph{liveness} property: a finite trace with a pending request
+        can always be extended with a later busy state, so no finite
+        prefix alone witnesses a violation.
+\end{itemize}
+The CTL property we wrote in the SMV model
+(\texttt{AG (request -> AX (state = busy))}) is a hybrid: a
+\emph{bounded} liveness property, itself a safety property in disguise,
+because the deadline ``next state'' turns every violation into a
+finite witness of length two.
+\end{example}
+
+\begin{remark}[The decomposition theorem]
+Every temporal property decomposes, in a precise sense, into a safety
+and a liveness component (the Alpern--Schneider decomposition).  This
+is more than a theoretical curiosity: in practice we check safety with
+forward reachability and liveness with cycle detection, so knowing
+which part of a specification we are dealing with determines the
+algorithm we run.
+\end{remark}
+
+The req/ack traces of \cref{ch:omega-automata} give us a familiar
+vocabulary for the two families: ``every \texttt{req} is followed by
+\texttt{ack} within two steps'' is a safety property, while
+``\texttt{ack} occurs infinitely often''---the very property recognised
+by the B\"uchi automaton of \cref{fig:infinitely-many-ack}---is a
+liveness property.  The temporal logics LTL and CTL of
+\cref{ch:ltl} and the later CTL material will give us the syntax to
+write both kinds compactly; for now the informal vocabulary is enough.
+
+% -----------------------------------------------------------------------
+\section{Counterexamples: From Bugs to Witnesses}
+\label{sec:counterexamples}
+
+When the model checker reports \texttt{false}, the third desideratum of
+model checking kicks in: it must produce a \emph{counterexample}, a
+concrete behaviour of $M$ that starts in an initial state and violates
+$\varphi$.  Counterexamples are what makes model checking an iterative
+engineering activity rather than a one-shot oracle: a readable witness
+points the engineer at the exact sequence of choices that produces the
+bug, supports an interactive \emph{model $\to$ check $\to$ fix} loop,
+and survives as a regression test once the bug is fixed.
+
+The \emph{shape} of a counterexample depends on the kind of property
+that was violated.
+
+\subsection{Finite prefixes for safety violations}
+
+If $\varphi$ is a safety property, then by \cref{def:safety} a
+violation has a finite witness.  Concretely, the model checker returns
+a finite path
+\[
+  q_0 \to q_1 \to \cdots \to q_k
+\]
+with $q_0 \in Q_0$ and such that the bad event is observed at position
+$k$.  No infinite extension of the prefix can repair the violation, so
+the prefix alone is the certificate.
+
+\begin{example}[A safety counterexample in the arbiter]
+\label{ex:arbiter-safety-ce}
+In the unconstrained arbiter of \cref{fig:arbiter-kripke} the bounded
+property $\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))$
+fails.  Reading the figure, a finite counterexample is the three-state
+trace
+\[
+  \textsf{RF} \to \textsf{RT} \to \textsf{BT} \to \textsf{RT},
+\]
+i.e., start with no request; the environment raises a request (now at
+\textsf{RT}); the arbiter correctly moves to \textsc{Busy} (now at
+\textsf{BT}); but \texttt{request} is still true at \textsf{BT}, and
+the unconstrained \texttt{TRUE} branch of the \texttt{case} lets the
+arbiter return to \textsc{Ready}---violating the property at the last
+step.  This is exactly the orange ``bug'' edge of
+\cref{fig:arbiter-kripke}.
+\end{example}
+
+\subsection{Lassos for liveness violations}
+
+If $\varphi$ is a liveness property, no finite prefix can witness its
+violation: we need an \emph{infinite} behaviour in which the good
+event simply never occurs.  By the pigeonhole principle on the finite
+state space, every infinite path in a finite Kripke structure
+eventually enters a cycle.  Hence a liveness counterexample is always
+an \emph{ultimately periodic} path of the form
+\[
+  q_0 \to \cdots \to q_i \xrightarrow{\,\text{cycle}\,} q_i \to \cdots
+\]
+where the cycle is repeated forever.  This is precisely the
+\emph{lasso} shape of \cref{def:ultimately-periodic} and
+\cref{fig:buchi-lasso}: a finite prefix $u$ followed by an infinitely
+repeated non-empty suffix $v$.
+
+\begin{example}[A liveness counterexample is a lasso]
+\label{ex:lasso-counterexample}
+In the producer--consumer model of \cref{sec:prod-cons}, consider the
+liveness property ``whenever the buffer is full, eventually a cell is
+freed.''  Without fairness the property fails, and the counterexample
+is the infinite path on which the producer runs at every step:
+\[
+  \underbrace{(\textsf{empty},\textsf{empty})}_{\text{prefix}}
+  \to
+  \underbrace{(\textsf{full}_1,\textsf{empty}) \to
+              (\textsf{full}_1,\textsf{full}_2)}_{\text{prefix}}
+  \to
+  \underbrace{(\textsf{full}_1,\textsf{full}_2) \to
+              (\textsf{full}_1,\textsf{full}_2) \to \cdots}_{\text{lasso cycle}}.
+\]
+The cycle is a single self-loop on the state with a full buffer; the
+consumer never runs.  Reading the witness, the engineer identifies the
+unfair scheduling choice and adds a fairness constraint
+(\cref{sec:fairness}) to rule it out.
+\end{example}
+
+\begin{remark}[Why the model checker emits a lasso]
+The algorithmic reason is the same as the B\"uchi emptiness check of
+\cref{prop:buchi-emptiness} in Part~I: a finite graph contains an
+infinite path avoiding some set of states iff there is a reachable
+cycle that avoids that set.  Searching for such a cycle is exactly
+what an LTL model checker does, and the lasso it returns is the finite
+encoding of an infinite counterexample.  The LTL chapter will make this
+automata-theoretic search precise.
+\end{remark}
+
+The practical takeaway is that every counterexample is ultimately
+periodic, regardless of whether the property was safety or liveness.
+For safety the cycle has length zero (a single state suffices); for
+liveness the cycle is the heart of the witness.  In
+\cref{sec:smv-lang} we will write the models that produce such
+counterexamples, and in \cref{sec:nuxmv-simulation} we will replay
+them with NuXMV.
 
 % -----------------------------------------------------------------------
 \section{The SMV Modelling Language}
 \label{sec:smv-lang}
 
-Kripke structures are ideal for definitions, but too low-level for writing
-real examples by hand.  SMV is the bridge: the modeller writes variables,
-initial conditions, and next-state constraints; the tool turns them into the
-Kripke structure of Section~\ref{sec:kripke}.
+Kripke structures are ideal for definitions, but too low-level for
+writing real examples by hand.  Drawing the four-state graph of the
+arbiter already tried our patience; a 100-state model would be
+untenable.  SMV is the bridge between the engineering and the
+mathematics: the modeller writes variables, initial conditions, and
+next-state constraints in a small, typed language; the tool turns
+them into the Kripke structure of \cref{sec:kripke} on which the
+algorithms of \cref{sec:counterexamples} operate.  Specifications are
+written in the same notation, so that the model, the property, and the
+counterexample all live in one file.
 
 \emph{SMV} (Symbolic Model Verifier) is both a specification language and the
 name of one of the first model checkers (CMU, early 1990s).  We use SMV as a
@@ -640,7 +903,7 @@ transition constraint is $x' \leftrightarrow \neg x$.  Checking:
   \item $(s_1, s_1)$: $\neg x = 0$ but $x'=1$. $\times$
 \end{itemize}
 The unique transition structure is $s_0 \to s_1 \to s_0 \to \cdots$
-with \emph{no self-loops}.  Figure~\ref{fig:flipflop} shows this.
+with \emph{no self-loops}.  \cref{fig:flipflop} shows this.
 \end{example}
 
 \begin{figure}[ht]
@@ -900,7 +1163,7 @@ NuXMV > show_traces -v         -- display the generated trace
 
 \begin{example}[Simulating the flip-flop]
 \label{ex:nuxmv-flipflop}
-For the flip-flop module (Example~\ref{ex:flipflop}), \texttt{pick\_state}
+For the flip-flop module (\cref{ex:flipflop}), \texttt{pick\_state}
 reports only one available state ($x = \mathit{false}$).  Simulating 7
 steps with \texttt{simulate -k 7} produces the trace:
 \begin{center}
@@ -1205,6 +1468,13 @@ constraints} formalise this assumption.
 They do not change the transition graph itself; instead, they say which
 infinite paths of the graph should count as admissible executions.
 
+For this chapter, that is the whole point of fairness: it is an
+SMV-level \emph{path filter}.  We use justice and compassion to describe
+which infinite scheduler behaviours NuSMV should ignore before judging a
+property.  We are not yet deriving the full LTL fairness model-checking
+algorithm; the later automata/tableau machinery in \cref{ch:ltl} will
+explain how these ``infinitely often'' side conditions are checked.
+
 \subsection{Temporal hierarchy: four key concepts}
 
 Before defining justice and compassion, we must firmly understand four
@@ -1401,8 +1671,8 @@ Under fairness, model checking restricts attention to fair paths only:
 paths that violate any fairness constraint are excluded from consideration.
 As a consequence, a property that was false (because there existed an
 unfair counter-example) may become true (if every fair path satisfies it).
-We will formalise this precisely when we study LTL model checking with
-fairness in Chapter~\ref{ch:ltl-mc-fairness}.
+This is the semantic preview needed for SMV: fairness filters the paths
+first, and the specification is evaluated only on the remaining paths.
 
 % -----------------------------------------------------------------------
 \section{LTL, CTL, and CTL*: an Overview}
@@ -1410,7 +1680,7 @@ fairness in Chapter~\ref{ch:ltl-mc-fairness}.
 
 Throughout the chapter we have referred informally to LTL and CTL.  We
 preview their relationship here, to be developed formally in
-Chapters~\ref{ch:ltl}--\ref{ch:ctl-symbolic}.
+\cref{ch:ltl} and in the later CTL material.
 This section is only a map: Chapter~\ref{ch:s1s-buchi} first explains the
 automata-theoretic foundation behind temporal specifications, and later
 chapters turn these names into full syntax, semantics, and algorithms.

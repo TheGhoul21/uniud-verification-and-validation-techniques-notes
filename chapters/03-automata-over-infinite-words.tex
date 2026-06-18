@@ -116,6 +116,12 @@ For $W\subseteq\Sigma^*$, define
 The language $\vec{W}$ contains the infinite words whose finite prefixes
 hit $W$ infinitely often.  It is a natural way to express recurrence:
 not just ``a good prefix appears'', but ``good prefixes keep appearing''.
+For a deterministic B\"uchi automaton this is exactly the operational
+shape of acceptance: if $W$ is the set of finite prefixes that leave the
+automaton in an accepting state, then the accepted $\omega$-language is
+$\vec{W}$.  We will return to this observation in
+\cref{ch:deterministic-automata-star-free}, where it becomes the precise
+characterisation of deterministic B\"uchi languages.
 
 
 % ============================================================

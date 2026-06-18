@@ -4,11 +4,11 @@
 \chapter{Tree Languages and Tree Automata}
 \label{ch:tree-languages-automata}
 
-In the previous chapters, we focused on languages of infinite words. We established that an infinite word models a single execution path of a reactive system, which is the natural setting for linear-time specifications (such as LTL). However, reactive systems are fundamentally non-deterministic and interactive. When we analyze a system modeled as a transition graph, we are often interested not just in individual paths, but in the entire branching structure of choices available to the system at any given moment.
+\cref{ch:omega-automata,ch:omega-complementation} built the theory of $\omega$-words: a single infinite word models one linear execution of a reactive system, which is the natural substrate for linear-time specifications such as LTL. Yet a reactive system is rarely committed to a single future. A non-deterministic transition relation, a concurrent scheduler, an environment that may inject inputs at any time --- all of these mean that from a given configuration the system may evolve in \emph{many} distinct ways. Verification questions like ``does \emph{every} possible run eventually grant the request?'' or ``is there \emph{some} run that avoids the deadlock?'' cannot be answered by inspecting one path in isolation; they quantify over the whole bundle of possible futures at once.
 
-To capture this branching nature, we transition from linear time to \textbf{branching time}. Branching time is modeled by \textbf{trees}. Just as an infinite word represents a single history, an infinite tree represents all possible histories (computations) of a system starting from an initial configuration. The interleaving and combinatorics of these histories are essential for branching-time temporal logics like Computation Tree Logic (CTL). In this chapter, we develop the mathematical foundations of tree languages and tree automata.
+This chapter lifts the $\omega$-word machinery to \textbf{$\omega$-trees}. Just as an infinite word represents a single history, an infinite tree represents all histories of a system from a given initial configuration; the branching points are exactly the moments where the system (or its environment) makes a choice. The connection goes deeper: the parity and Muller games studied in \cref{ch:synthesis-games} are themselves played on the unfolding of an arena, which is a tree, and a strategy for either player carves a subtree out of that unfolding. So the tree model unifies three threads of the course so far --- non-deterministic executions (chapter~7), monadic second-order specifications (chapters~8--9), and synthesis games (chapter~5).
 
----
+To capture this branching behaviour we move from linear time to \textbf{branching time}, modelled by trees. We develop, in order: the algebraic theory of finite tree languages (regular tree expressions), top-down and bottom-up finite tree automata, Büchi and Rabin automata on infinite trees, and the logic S2S together with its weak fragment WS2S. The landmark result is Rabin's theorem: S2S is decidable, and its decision procedure rests on the closure of Rabin tree automata under complementation. The chapter closes the automata-theoretic core of Part~II: the next chapter (\cref{ch:ltl}) will introduce Linear Temporal Logic as a tractable, syntactically restricted fragment of these very expressive --- but high-complexity --- monadic logics.
 
 \section{Introduction to Trees and Branching Time}
 \label{sec:intro-trees}
@@ -16,9 +16,9 @@ To capture this branching nature, we transition from linear time to \textbf{bran
 To bridge the gap between reactive systems and trees, let us perform a thought experiment at the whiteboard. Suppose we have a non-deterministic transition system (represented as a directed graph) with states and transitions. If we choose an initial state and "roll out" all possible executions step-by-step, we are performing a process called \textbf{unfolding} or \textbf{unraveling}.
 
 \subsection{Unfolding a Transition System}
-Consider the transition system shown on the left of Figure~\ref{fig:unfolding}. It has two initial states, and the transitions from state $A$ allow it to stay in $A$, go to $B$, or go to $C$. State $C$ loops on itself deterministically, and state $B$ transitions back to $A$.
+Consider the transition system shown on the left of \cref{fig:unfolding}. It has two initial states, and the transitions from state $A$ allow it to stay in $A$, go to $B$, or go to $C$. State $C$ loops on itself deterministically, and state $B$ transitions back to $A$.
 
-If we start in the initial state $A$ and trace all possible behaviors, we obtain the infinite computation tree shown on the right of Figure~\ref{fig:unfolding}. Each branch in this tree represents a unique execution path, and the branching points represent the non-deterministic choices available to the system at that step.
+If we start in the initial state $A$ and trace all possible behaviors, we obtain the infinite computation tree shown on the right of \cref{fig:unfolding}. Each branch in this tree represents a unique execution path, and the branching points represent the non-deterministic choices available to the system at that step.
 
 \begin{figure}[H]
 \centering
@@ -136,7 +136,7 @@ Let $t$ be a $K$-ary $A$-valued tree:
 \end{itemize}
 \end{definition}
 
-To visualize these definitions, let us look at the finite binary tree ($K=2$) in Figure~\ref{fig:frontiers}.
+To visualize these definitions, let us look at the finite binary tree ($K=2$) in \cref{fig:frontiers}.
 
 \begin{figure}[H]
 \centering
@@ -213,7 +213,7 @@ From now on, we define:
 \end{itemize}
 A subset of $T(A)$ or $T_\omega(A)$ is called a \textbf{tree language}.
 
----
+With domains, paths, subtrees, and frontiers fixed, we can now ask the same question that starts the theory of regular word languages: which tree languages have a finite description? The first answer is algebraic.
 
 % =======================================================================
 \section{Regular Tree Languages and Concatenation}
@@ -265,7 +265,7 @@ $$T \cdot_c T' = \{ b, \, f(a, a), \, f(a, f(b, b)) \}$$
 This example demonstrates that when concatenating sets of trees, different occurrences of the placeholder can be substituted by different elements from the target set, and trees without placeholders are preserved unchanged.
 \end{example}
 
-An intuitive visualization of this substitution is shown in Figure~\ref{fig:tree-concatenation}.
+An intuitive visualization of this substitution is shown in \cref{fig:tree-concatenation}.
 
 \begin{figure}[H]
 \centering
@@ -429,7 +429,9 @@ Let $t \in T_\omega(A \cup C)$ be an infinite tree, and let $T' \subseteq T_\ome
 
 This ensures that we perform substitution at the boundary where the placeholder $c$ first appears along each infinite history.
 
----
+These operations give finite recipes for building tree languages, but finite recipes are only half of the regular-language story. For words, Kleene's theorem says that regular expressions and finite automata define the same languages; the expression is the algebraic view, and the automaton is the recognizer that can be executed on an input. The same question is natural here. Once concatenation has become substitution, and Kleene star has become iterated substitution at many frontier leaves, what finite machine recognizes exactly the languages generated by those operations?
+
+The answer is given by finite tree automata. Their runs are themselves trees: a state is placed at each node, and local transition constraints check that the state assignment is consistent with the input labels. The rest of this section develops the two possible directions of recognition and then returns to the Kleene-style equivalence between regular tree expressions and automata.
 
 % =======================================================================
 \section{Tree Automata on Finite Trees}
@@ -480,7 +482,7 @@ The tree $t$ is accepted by $A$ if there exists at least one successful run of $
 \begin{example}[NTTA Run Visualization]
 Let us visualize a run on the tree $t = f(a, b)$, which has the domain $\text{dom}(t) = \{\epsilon, 0, 1\}$ and outer frontier $\text{fr}^+(t) = \{00, 01, 10, 11\}$. 
 
-A run $R$ of the automaton must assign states to all nodes in $\text{dom}^+(t)$, as shown in Figure~\ref{fig:run-tree-comparison}.
+A run $R$ of the automaton must assign states to all nodes in $\text{dom}^+(t)$, as shown in \cref{fig:run-tree-comparison}.
 
 \begin{figure}[H]
 \centering
@@ -628,7 +630,7 @@ A bottom-up tree automaton is \textbf{deterministic} (DBTA) if $|Q_0| = 1$ and f
 \subsection{Bottom-Up Determinization (Subset Construction)}
 Unlike the top-down case, bottom-up tree automata can always be determinized. This is because a bottom-up transition can collect and merge information from the children as it propagates upwards.
 
-\begin{theorem}[Bottom-Up Determinization]
+\begin{theorem}[Bottom-Up Determinization]\label{thm:bottom-up-determinization}
 Deterministic bottom-up tree automata (DBTA) are expressively equivalent to non-deterministic bottom-up tree automata (NBTA):
 $$\text{DBTA} \equiv \text{NBTA}$$
 \end{theorem}
@@ -713,23 +715,43 @@ Finally, we state the equivalence between the algebraic and operational models, 
 A tree language $T \subseteq T(A)$ is regular if and only if it is recognized by a finite tree automaton.
 \end{theorem}
 
-\begin{corollary}[Boolean Closure]
-The class of regular tree languages is closed under all Boolean operations (union, intersection, and complementation) and projection.
-\end{corollary}
+\begin{theorem}[Boolean Closure]\label{thm:tree-boolean-closure}
+The class of regular tree languages is closed under union, intersection, complementation, and projection.
+\end{theorem}
 
-\begin{proof}[Proof Sketch]
-Union and intersection are achieved via standard product constructions. Complementation is achieved by first determinizing the bottom-up tree automaton (via the subset construction) and then complement at the root: $F^C = \mathcal{P}(Q) \setminus F'$.
+We prove closure under union and intersection by explicit product constructions; complementation then follows by first determinizing the bottom-up automaton (\cref{thm:bottom-up-determinization} would inline the same construction at the automaton level) and swapping the final set, and projection corresponds on automata to the usual hiding of the projected alphabet coordinate.
+
+\begin{proof}[Closure under union and intersection by product construction]
+Let $A_1 = (Q_1, \Sigma, Q_0^{(1)}, \Delta_1, F_1)$ and $A_2 = (Q_2, \Sigma, Q_0^{(2)}, \Delta_2, F_2)$ be two NBTA over the same alphabet. We build the product NBTA $A_\times = (Q_1 \times Q_2, \, \Sigma, \, Q_0^{(1)} \times Q_0^{(2)}, \, \Delta_\times, \, F_\times)$ whose transition relation contains
+\[
+  \bigl((q_1^L, q_2^L), \, (q_1^R, q_2^R), \, a, \, (q_1, q_2)\bigr) \in \Delta_\times
+\]
+whenever $(q_1^L, q_1^R, a, q_1) \in \Delta_1$ and $(q_2^L, q_2^R, a, q_2) \in \Delta_2$.
+
+The product runs $A_1$ and $A_2$ synchronously on the same input tree: a run $R$ of $A_\times$ projects to a run $R_1 = \pi_1 \circ R$ of $A_1$ and a run $R_2 = \pi_2 \circ R$ of $A_2$, and conversely any pair of runs $(R_1, R_2)$ lifts to a unique run of $A_\times$. Choosing
+\[
+  F_\times^{\cup} = (F_1 \times Q_2) \cup (Q_1 \times F_2)
+  \quad\text{and}\quad
+  F_\times^{\cap} = F_1 \times F_2
+\]
+yields $L(A_\times, F_\times^{\cup}) = L(A_1) \cup L(A_2)$ and $L(A_\times, F_\times^{\cap}) = L(A_1) \cap L(A_2)$, since acceptance is declared at the root and the projection correspondence above is bijective.
+
+\textbf{Complementation.} Given an NBTA $A$, first determinize it bottom-up via the subset construction to obtain an equivalent DBTA $A' = (Q', \Sigma, \{S_0\}, \delta', F')$. Then the DBTA $A^C = (Q', \Sigma, \{S_0\}, \delta', \mathcal{P}(Q) \setminus F')$ recognizes the complement: every input tree has a \emph{unique} run on a DBTA, so swapping the final set flips the verdict at the root.
 \end{proof}
 
----
+\begin{formaldetails}[Pumping lemma for regular tree languages]
+The small model property is the tree analogue of the pumping lemma for regular word languages. Suppose $L$ is recognized by an NBTA with $n$ states and let $t \in L$ have a path longer than $n$. Along that path the unique bottom-up run visits more nodes than there are states, so two ancestors $u \subsetneq v$ carry the same state. Splicing out the segment between $u$ and $v$ --- replacing the subtree at $v$ by the subtree at $u$ --- produces a strictly smaller tree still in $L$, and \emph{pumping} the segment (repeating $v/u$ any number of times) yields infinitely many trees in $L$. As for words, this gives the standard tool to prove that a tree language is \emph{not} regular.
+\end{formaldetails}
+
+The finite case is now complete: algebraic expressions, top-down nondeterminism, bottom-up nondeterminism, and bottom-up determinism all meet at the same class of regular tree languages. Infinite trees preserve the branching structure but remove the leaves, so the next step changes the direction and the acceptance condition of the automaton.
 
 % =======================================================================
 \section{Automata on Infinite Trees}
 \label{sec:automata-infinite-trees}
 
-In Section~\ref{sec:tree-automata-finite}, we analyzed tree automata on finite trees and established that bottom-up automata can be determinized using a subset construction, making them equivalent to regular tree expressions. However, when we transition to infinite trees, we encounter a fundamental structural barrier: \textbf{infinite trees have no leaves or frontier} from which a bottom-up automaton could begin its computation.
+In \cref{sec:tree-automata-finite}, we analyzed tree automata on finite trees and established that bottom-up automata can be determinized using a subset construction, making them equivalent to regular tree expressions. However, when we transition to infinite trees, we encounter a fundamental structural barrier: \textbf{infinite trees have no leaves or frontier} from which a bottom-up automaton could begin its computation.
 
-Consequently, on infinite trees, we are forced to process the tree in a \textbf{top-down} direction, starting at the root and moving down the branches. But as we proved in Theorem~\ref{thm:top-down-deterministic-limit}, top-down determinism is strictly weaker than non-determinism, meaning we cannot determinize top-down automata using standard subset techniques. To build a robust theory of infinite tree languages, we must enrich the acceptance conditions of top-down automata to reason about behavior in the limit (along the infinite paths of the tree). This leads us to Büchi and Rabin tree automata.
+Consequently, on infinite trees, we are forced to process the tree in a \textbf{top-down} direction, starting at the root and moving down the branches. But as we proved in \cref{thm:top-down-deterministic-limit}, top-down determinism is strictly weaker than non-determinism, meaning we cannot determinize top-down automata using standard subset techniques. To build a robust theory of infinite tree languages, we must enrich the acceptance conditions of top-down automata to reason about behavior in the limit (along the infinite paths of the tree). This leads us to Büchi and Rabin tree automata.
 
 \subsection{Büchi Tree Automata}
 A Büchi tree automaton checks whether every infinite path in the run tree satisfies a Büchi acceptance condition.
@@ -823,7 +845,7 @@ The class of languages recognized by Büchi tree automata is not closed under co
 \end{theorem}
 
 \begin{proof}
-To prove this, we consider the complement of the existential language $T_{\exists, \infty, a}$ from Example~\ref{ex:buchi-infinitely-many-existential}:
+To prove this, we consider the complement of the existential language $T_{\exists, \infty, a}$ from \cref{ex:buchi-infinitely-many-existential}:
 $$T_{co\text{-}\exists} = \{ t \in T_\omega(\{a,b\}) \mid \text{every path in } t \text{ contains finitely many } a\text{'s} \}$$
 We show that while $T_{\exists, \infty, a}$ is recognizable by a BTA, its complement $T_{co\text{-}\exists}$ is not recognizable by any BTA.
 
@@ -907,7 +929,7 @@ Since the condition is checked universally for all paths, the automaton accepts 
 \end{example}
 
 \subsection{Rabin's Decidability Theorem and S2S}
-The expressive power of Rabin tree automata is the key to proving the decidability of the Monadic Second-Order Logic of Two Successors, denoted by \textbf{S2S}.
+We have spent the whole chapter building an operational model on infinite trees. The pay-off is logical: just as Büchi's theorem connected S1S to NBA on words, Rabin's theorem connects the Monadic Second-Order Logic of Two Successors --- S2S --- to Rabin tree automata. S2S is the natural language for branching-time specifications: its first-order variables range over nodes of the computation tree, its second-order variables over arbitrary sets of nodes, and its two successor relations let us step down the left or right branch. Any property expressible in S2S --- including subtle ones that relate different branches, like ``whenever a request appears on some branch, every branch through that node eventually sees a grant'' --- is captured by a finite automaton.
 
 \begin{definition}[S2S Logic]
 The logic \emph{S2S} is the monadic second-order theory of two successors. The language of S2S is defined over the domain $\{0,1\}^*$ (the infinite binary tree). Formally, S2S formulas are built from:
@@ -944,27 +966,31 @@ The proof of Rabin's theorem follows the same automata-theoretic pipeline we saw
     \item Once the formula is compiled into a sentence (no free variables), checking the validity of the formula reduces to checking the emptiness of the compiled Rabin tree automaton.
 \end{enumerate}
 
+\begin{formaldetails}[Regular witnesses for non-emptiness]
+The emptiness step for infinite tree automata has its own tree analogue of the finite small-model property. Rabin's basis theorem says that if a Rabin-recognizable language of infinite trees is non-empty, then it contains a \emph{regular tree}: an infinite tree with only finitely many distinct subtrees, equivalently the unfolding of a finite directed graph with labels. Intuitively, an accepting run that succeeds somewhere can be regularized because the automaton has finitely many states and the Rabin condition depends only on which states occur infinitely often along paths. In the game view, a winning strategy can be chosen with finite memory; unfolding the finite strategy graph gives the required regular witness. Thus non-emptiness never requires searching arbitrary infinite branching objects one by one: if there is a witness, there is one with a finite description.
+\end{formaldetails}
+
 To make this pipeline work, the key mathematical hurdle is proving that Rabin tree automata are closed under complementation. Unlike word automata, where this is relatively simple, tree complementation is incredibly complex and represents the core of Rabin's paper:
 
 \begin{theorem}[Rabin Complementation Theorem]
 The class of languages recognized by Rabin tree automata is closed under complementation.
 \end{theorem}
 
-\begin{proof}[Proof Sketch and the Role of Game Determinacy]
+\begin{proof}[Proof idea and road map]
 Let $A$ be an RTA. To construct an automaton recognizing $L(A)^C$, we must verify that no successful run of $A$ exists on an input tree $t$.
 Rabin formulated the search for a successful run as a game played between two players on an infinite arena:
 \begin{itemize}
-    \item **Player 1 (Automaton)** tries to choose transitions that build a successful run,
-    \item **Player 2 (Path-Finder)** tries to select a path $\pi$ that violates the Rabin acceptance condition.
+    \item \textbf{Player 1 (Automaton)} tries to choose transitions that build a successful run,
+    \item \textbf{Player 2 (Path-Finder)} tries to select a path $\pi$ that violates the Rabin acceptance condition.
 \end{itemize}
 The input tree $t$ is accepted by $A$ if and only if Player 1 has a winning strategy in this run-construction game. Consequently, $t$ is rejected (belongs to the complement) if and only if Player 1 does not have a winning strategy.
-By the **Borel Determinacy Theorem** (proved by Donald A. Martin), since the winning condition of the game is Borel, the game is determined: one of the two players must have a winning strategy.
+By the \textbf{Borel Determinacy Theorem} (proved by Donald A. Martin), since the winning condition of the game is Borel, the game is determined: one of the two players must have a winning strategy.
 Therefore, $t$ is in the complement if and only if Player 2 has a winning strategy.
-We can construct a Rabin tree automaton $A^C$ that runs on $t$ and verifies the existence of a winning strategy for Player 2. Since Player 2's choices and winning conditions are regular, this winning strategy can be represented as a tree labeling and checked by another RTA, proving closure under complementation.
+The construction of $A^C$ then follows this road map: enrich the input with a finite description of Player 2's choices, let another Rabin tree automaton check locally that the description is a valid strategy, and use the Rabin condition to verify that every play compatible with it defeats every attempted run of $A$. This paragraph deliberately suppresses the technical encoding of strategies and ranks; it should be read as the proof idea, not as the full complementation construction.
 \end{proof}
 
 \subsection{Weak S2S Characterization}
-Just as we did for S1S, we can study the weak version of S2S, denoted by \textbf{WS2S}.
+The jump from S1S to S2S is enormous --- we went from a single linear future to an entire binary bundle of futures. A natural temptation is to ask whether we can recover some of the algorithmic tameness of the linear world by restricting the second-order quantification. This is precisely what the \emph{weak} fragment does. Just as for S1S, the weak version of S2S is denoted \textbf{WS2S}, and its second-order variables range over finite sets of nodes only.
 
 \begin{definition}[Weak S2S Logic]
 The logic \emph{WS2S} is the monadic second-order theory of two successors where second-order variables $X, Y, Z$ are restricted to range only over \emph{finite} sets of nodes.
@@ -985,7 +1011,35 @@ Since $T_{\exists, \infty, a}$ is recognizable by a BTA but its complement $T_{c
 \end{itemize}
 This illustrates that restricting second-order quantification to finite sets limits our ability to reason about properties that must hold infinitely often along branching paths.
 
----
+\subsection{From Tree Automata to Temporal Logics}
+\label{sec:toward-temporal-logics}
+
+We have reached the end of the automata-theoretic core of Part~II. Looking back, the chapter tells a single story: to analyse \emph{all} executions of a reactive system at once, we replaced $\omega$-words by $\omega$-trees; we rebuilt for trees the algebra of regular expressions (substitution in place of concatenation), the operational model (top-down vs.\ bottom-up automata, with the determinism asymmetry between them), the limit-behaviour acceptance hierarchy (Büchi, then Rabin), and finally the logic--automata correspondence S2S $\equiv$ Rabin tree automata.
+
+The correspondence S2S $\equiv$ RTA is mathematically beautiful but practically crippling. S2S has non-elementary decision complexity --- a tower of exponentials whose height grows with the quantifier alternation depth of the formula --- and writing a specification directly in monadic second-order logic is error-prone in the same way we already saw for S1S. Industrial verification needs logics that engineers can read, write, and discharge efficiently.
+
+The way out, pioneered by Amir Pnueli in 1977, is to identify \emph{tractable fragments} of S1S and S2S with syntax tuned to the temporal vocabulary of verification: ``eventually'', ``always'', ``until'', ``next''. Two such fragments will occupy the rest of Part~II:
+
+\begin{itemize}
+    \item \textbf{Linear Temporal Logic (LTL)}, the subject of \cref{ch:ltl}, is the fragment of S1S that quantifies over a single linear execution. Every LTL formula compiles to a Büchi automaton, and model checking reduces to the emptiness/inclusion problems of \cref{ch:omega-automata}. LTL cannot express branching properties like ``there exists a run that\dots'' --- it lives entirely on a single branch of the computation tree.
+    \item \textbf{Computation Tree Logic (CTL)} and its cousin CTL* live on the tree itself. They are fragments of S2S in which path quantifiers ($\forall$ paths / $\exists$ path) alternate with temporal modalities, exactly mirroring the universal-vs-existential dichotomy we exploited in \cref{ex:buchi-infinitely-many-existential} when guessing the ``good'' path of a Büchi tree automaton.
+\end{itemize}
+
+\aside{Notice the clean methodological loop: temporal logics are presented to engineers as readable modal notations, but the verification algorithms that decide them compile every formula back into the automata we have built in chapters~\ref{ch:omega-automata}--\ref{ch:tree-languages-automata}. The theory you have just finished is the engine that makes model checking work.}
+
+There is one more pleasant consequence of moving to trees that is worth recording before we leave the subject. For pure \emph{model checking} (as opposed to satisfiability or synthesis), the tree setting is actually friendlier than the word setting: the unfolding of a finite-state system into a computation tree is a regular tree --- it has only finitely many distinct subtrees, one per reachable state --- and a tree automaton can be run on this unfolding in lock-step without ever materialising the whole infinite object. This is the algorithmic reason why CTL model checking is polynomial in the size of the system, while LTL model checking is exponential in the size of the formula. We will return to this contrast in \cref{ch:ltl} and in the symbolic model-checking chapter.
+
+Before turning to exercises, we compress the main equivalences and separations into one reference box.
+
+\begin{summarybox}[Chapter~\ref{ch:tree-languages-automata} in one screen]
+A regular tree language over finite trees is equivalently: a language defined by regular tree expressions (union, $\cdot_c$ substitution, $*,c$ iteration), a language recognised by a non-deterministic top-down or bottom-up tree automaton, or a language recognised by a deterministic bottom-up tree automaton. Determinism matters: deterministic top-down recognises only path properties and is strictly weaker than non-deterministic top-down.
+
+On infinite trees there is no bottom-up model, so we move to top-down Büchi and then Rabin tree automata. Büchi tree automata are \emph{not} closed under complementation; Rabin tree automata are. This closure result is the technical heart of Rabin's theorem: S2S $\equiv$ Rabin tree automata, and S2S is decidable. The weak fragment WS2S (quantification over finite sets only) is strictly smaller: it corresponds to languages recognisable by Büchi tree automata together with their complements.
+
+This closes the automata-theoretic core of the book. The next chapter (\cref{ch:ltl}) introduces Linear Temporal Logic as a practical, low-complexity fragment of S1S, and CTL (later in Part~II) will play the same role for S2S.
+\end{summarybox}
+
+The exercises below check both sides of the chapter: the basic tree definitions and the automata constructions that recognize the resulting languages.
 
 \section{Exercises}
 \label{sec:tree-exercises}
@@ -1006,7 +1060,7 @@ This illustrates that restricting second-order quantification to finite sets lim
     \item \textbf{Binary Coding of 3-ary Trees} \\
     Let $t$ be a 3-ary tree with domain $\text{dom}(t) = \{ \epsilon, \, 0, \, 1, \, 2 \}$ and labeling:
     $$t(\epsilon) = f, \quad t(0) = a, \quad t(1) = b, \quad t(2) = a$$
-    Compute the domain and labeling of its binary coded tree $t_{bin}$ according to Definition~\ref{def:binary-coding}. \\
+    Compute the domain and labeling of its binary coded tree $t_{bin}$ according to \cref{def:binary-coding}. \\
     \textbf{Solution Hint}:
     Recall the injection $f(n_1 \dots n_r) = 1^{n_1}0 \dots 1^{n_r}0$. Let us map the nodes:
     \begin{itemize}
@@ -1036,7 +1090,7 @@ This illustrates that restricting second-order quantification to finite sets lim
     When processing $t = f(a,b)$, the outer frontier nodes (children of $a$ and $b$) start in $q_\emptyset$. The leaf $a$ transitions to $\delta'(q_\emptyset, q_\emptyset, a) = q_a$, and the leaf $b$ transitions to $\delta'(q_\emptyset, q_\emptyset, b) = q_b$. At the root, the automaton evaluates $\delta'(q_a, q_b, f) = q_{acc}$. Since $q_{acc} \in F$, the tree is accepted.
 
     \item \textbf{Büchi Tree Automaton Guessing} \\
-    Trace a successful run of the BTA from Example~\ref{ex:buchi-infinitely-many-existential} on the tree $t$ where the left-most path $\pi = 0^\omega$ has infinitely many $a$'s, and all other paths contain only $b$'s. Show the state labels assigned to nodes of depth up to 2. \\
+    Trace a successful run of the BTA from \cref{ex:buchi-infinitely-many-existential} on the tree $t$ where the left-most path $\pi = 0^\omega$ has infinitely many $a$'s, and all other paths contain only $b$'s. Show the state labels assigned to nodes of depth up to 2. \\
     \textbf{Solution Hint}:
     Since the path $0^\omega$ is the unique path with infinitely many $a$'s, the non-deterministic run $R$ must guess this path.
     \begin{itemize}
@@ -1062,4 +1116,3 @@ This illustrates that restricting second-order quantification to finite sets lim
     This is exactly the Büchi acceptance condition with $F = U_1$.
     Therefore, the equivalent Büchi tree automaton is simply $A' = (Q, \Sigma, q_0, \Delta, U_1)$.
 \end{enumerate}
-

@@ -27,6 +27,10 @@ variables into $\omega$-words over bit-vectors.  That encoding lets every
 logical operation become an automata operation: Boolean connectives become
 closure constructions, and existential set quantification becomes
 projection.  The Büchi theorem is the point where these translations meet.
+The final section on deterministic Büchi automata is a deliberate bridge:
+it keeps the theorem in view while explaining why the next chapter must
+enrich deterministic acceptance conditions rather than merely repeat the
+non-deterministic story.
 
 % -----------------------------------------------------------------------
 \section{The Time-Flow Perspective}
@@ -1036,9 +1040,27 @@ Both of the following extensions add a new predicate to S1S:
 The boundary is surprisingly delicate: adding ``multiply by 2'' destroys
 decidability, yet ``powers of $k$'' and ``factorial'' do not.
 
+We now turn from logical expressiveness to a closely related operational
+question.  The Büchi theorem says that non-deterministic Büchi automata
+capture exactly the S1S-definable languages, but model checking and
+synthesis often prefer deterministic monitors, because deterministic
+automata are easier to complement and to run inside games.  The next
+section is therefore not a second full theory of deterministic
+$\omega$-automata.  It is the motivating obstruction that
+Chapter~\ref{ch:deterministic-automata-star-free} will resolve with
+Muller, Rabin, and parity acceptance.
+
 % -----------------------------------------------------------------------
 \section{Deterministic Büchi Automata: Limitations}
 \label{sec:dba}
+
+The goal here is intentionally narrow.  We keep the Büchi acceptance
+condition and ask whether determinism alone is harmless.  Over finite
+words the answer would be yes: every NFA can be determinised.  Over
+infinite words the answer is no, and the failure already appears in the
+small language of words with finitely many $a$'s.  This witness prepares
+the more systematic deterministic theory of
+Chapter~\ref{ch:deterministic-automata-star-free}.
 
 \subsection{Definition}
 
@@ -1213,7 +1235,10 @@ $(ab)^\omega \notin L(\text{NBA})$, as expected.
 The failure of DBAs to accept $L_{\mathrm{fin}}$ shows that determinism
 with the Büchi acceptance condition is too weak.  For model checking, we
 \emph{need} determinism (to complement specifications efficiently), but we
-also need full $\omega$-regular expressiveness.
+also need full $\omega$-regular expressiveness.  This is the precise point
+at which the chapter hands off to deterministic $\omega$-automata proper:
+the proof above is a warning sign, and the repair is to keep determinism
+while replacing the acceptance condition.
 
 The solution is to change the acceptance condition.  Two classical approaches:
 

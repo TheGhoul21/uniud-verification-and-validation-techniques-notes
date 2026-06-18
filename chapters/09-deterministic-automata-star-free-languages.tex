@@ -4,19 +4,21 @@
 \chapter{Deterministic Omega-Automata and Star-Free Languages}
 \label{ch:deterministic-automata-star-free}
 
-The previous chapters established the Monadic Second-Order Theory of One Successor (S1S) and proved its decidability via a compiler to non-deterministic Büchi automata (NBAs). While this compilation is elegant, the non-deterministic nature of NBAs presents a major roadblock for advanced verification workflows. In this chapter, we address the quest for determinism over infinite words.
+Chapter~\ref{ch:s1s-buchi} closed on a slightly bitter note: deterministic Büchi automata (DBAs) are \emph{strictly weaker} than their non-deterministic cousins, witnessed by the pumping-style argument showing that no DBA can recognise the language $L_{\mathrm{fin}}$ of words with only finitely many $a$'s. If we want complementation to be a one-liner and reactive synthesis to be solvable by a real algorithm, that limitation must be overcome. This chapter does exactly that, in three movements.
 
-We will first study the limits of \textbf{Deterministic Büchi Automata (DBA)} and show that they are strictly less expressive than their non-deterministic counterparts. This fundamental limitation forces us to introduce richer acceptance conditions, leading to \textbf{Deterministic Muller Automata (DMA)} and \textbf{Deterministic Rabin Automata (DRA)}. We will prove the landmark theorems of McNaughton and McNaughton-Papert, which show that deterministic Muller/Rabin automata are expressively equivalent to NBAs, and that the first-order fragment of S1S corresponds exactly to star-free regular expressions.
+First we revisit the DBA limitation through an \emph{algebraic} lens, characterising DBA-recognisable languages as the \emph{vectorial closures} of regular languages (\cref{sec:dba-limit}). The mismatch between this algebraic form and the standard $\omega$-regular form $\bigcup_i U_i V_i^\omega$ tells us \emph{why} the Büchi condition is too weak under determinism. We then repair the expressiveness gap by enriching the acceptance condition: \textbf{Deterministic Muller Automata (DMA)}, \textbf{Deterministic Rabin Automata (DRA)}, and the equivalent \textbf{parity} condition all restore the equivalence between determinism and $\omega$-regularity (\cref{sec:dma-mcnaughton}, \cref{sec:dra-safra}). McNaughton's theorem (1966) is the landmark result, and Safra's construction (1988) makes it constructive.
 
-\aside{Determinism is essential for reactive synthesis (constructing a system from a specification by playing a game against the environment) and for simplifying language complementation.}
+Finally, we return to logic. Restricting S1S to its \emph{first-order} fragment FO-S1S$[<]$ strips away second-order quantification, and the corresponding class of languages is exactly the \emph{star-free} regular languages of \cref{ch:regular-decision} (\cref{sec:fo-star-free}). The McNaughton-Papert theorem identifies star-free, first-order definable, counter-free, and aperiodic as four faces of one class. This circle of equivalences is the doorway to Linear Temporal Logic, which we will reach in \cref{ch:ltl}.
+
+\aside{Determinism is essential for reactive synthesis (constructing a system from a specification by playing a game against the environment) and for trivialising language complementation.}
 
 % =======================================================================
 \section{The Quest for Determinism in Infinite Verification}
 \label{sec:quest-determinism}
 
-In finite-state verification, we frequently transition between logical specifications, regular expressions, and automata. Over finite words, determinization is always possible via the standard subset construction: for every Non-deterministic Finite Automaton (NFA), we can construct an equivalent Deterministic Finite Automaton (DFA). 
+In finite-state verification, we frequently transition between logical specifications, regular expressions, and automata. Over finite words, determinization is always possible via the standard subset construction of \cref{ch:fsa}: for every Non-deterministic Finite Automaton (NFA), we can construct an equivalent Deterministic Finite Automaton (DFA). Chapter~\ref{ch:s1s-buchi} then exported the same intuition to infinite words and crashed into a wall: the language $L_{\mathrm{fin}}$ of words with finitely many $a$'s is $\omega$-regular and accepted by a 2-state NBA, but \emph{no} DBA can recognise it.
 
-Over infinite words, this symmetry is broken. As we will see, a non-deterministic Büchi automaton cannot always be determinized into a deterministic Büchi automaton. This is not just a mathematical curiosity; it has profound implications for two major areas of verification:
+Over infinite words, the symmetry between determinism and non-determinism is broken. As we will see, an NBA cannot always be determinised into a DBA, and \cref{sec:dba-limit} below will tell us \emph{algebraically} why. This is not just a mathematical curiosity; it has profound implications for two major areas of verification:
 \begin{enumerate}
     \item \textbf{Language Inclusion and Complementation}: To check whether the executions of a system $M$ satisfy a property $P$, we verify that $L(M) \subseteq L(P)$, which is equivalent to checking that $L(M) \cap \overline{L(P)} = \emptyset$. If the property $P$ is represented by a deterministic automaton, complementation is trivial (we merely swap the accepting and non-accepting states). If $P$ is represented by an NBA, complementation requires a complex, non-elementary construction.
     \item \textbf{Reactive Synthesis}: In synthesis, we seek to generate a system that reacts to an environment. The environment controls input variables $x$, and the system controls output variables $y$. The interaction is modeled as a game on a graph. To determine if the system has a winning strategy, the game solver must monitor the history of the play. A non-deterministic automaton cannot be used directly in this setting because the solver cannot "guess" the correct transition a posteriori; the tracking must be deterministic.
@@ -25,11 +27,11 @@ Over infinite words, this symmetry is broken. As we will see, a non-deterministi
 \subsection{An Intuitive Example: Non-Deterministic Guessing vs. Real-Time Control}
 To illustrate the difference, consider a reactive system that receives requests ($r$) from the environment and must eventually grant them ($g$). The specification says: "every request must be granted."
 
-An NBA can recognize this language by looping in an initial state, and whenever a request $r$ is read, it non-deterministically spawns a branch to check that a grant $g$ occurs. Since it runs offline, the NBA is allowed to look at the entire infinite execution and verify if there exists *some* run that successfully resolved all requests.
+An NBA can recognize this language by looping in an initial state, and whenever a request $r$ is read, it non-deterministically spawns a branch to check that a grant $g$ occurs. Since it runs offline, the NBA is allowed to look at the entire infinite execution and verify if there exists \emph{some} run that successfully resolved all requests.
 
-Now, imagine we want to automatically synthesize a physical controller (e.g., a hardware circuit) from this specification. The controller must produce outputs (grants) in real-time. It cannot non-deterministically "guess" whether the environment will issue another request in the future, nor can it backtrack if a guess is wrong. The controller needs to make deterministic decisions based *only* on the prefix of the execution seen so far. This is why synthesis requires compiling the specification into a deterministic automaton.
+Now, imagine we want to automatically synthesize a physical controller (e.g., a hardware circuit) from this specification. The controller must produce outputs (grants) in real-time. It cannot non-deterministically "guess" whether the environment will issue another request in the future, nor can it backtrack if a guess is wrong. The controller needs to make deterministic decisions based \emph{only} on the prefix of the execution seen so far. This is why synthesis requires compiling the specification into a deterministic automaton.
 
-\aside{In a two-player game, the system must choose its move *before* knowing the future environment inputs. It cannot resolve non-deterministic choices after seeing the entire infinite play.}
+\aside{In a two-player game, the system must choose its move \emph{before} knowing the future environment inputs. It cannot resolve non-deterministic choices after seeing the entire infinite play.}
 
 \subsection{Why the Subset Construction Fails on Büchi Automata}
 To understand why determinization is not straightforward, let us try to apply the standard Rabin-Scott subset construction to a simple non-deterministic Büchi automaton.
@@ -78,15 +80,15 @@ $$\sigma = S_0 \xrightarrow{a} S_0 \xrightarrow{b} S_1 \xrightarrow{a} S_0 \xrig
 This run visits $S_1$ infinitely often, which means the DBA accepts the word. However, $\alpha$ contains infinitely many $a$'s! It does not belong to the language $L_{fin\_a}$, which requires only finitely many $a$'s.
 
 Why did the subset construction fail?
-The subset construction tracks \emph{reachability} at each finite prefix. For any prefix ending in $b$ (e.g., $ab$, $abab$), the state $q_1$ is indeed reachable in the NBA. However, these reachable states do not stitch together into a single, continuous infinite run that visits $q_1$ infinitely often. Every time an $a$ is read, the path that had branched off to $q_1$ dies, forcing the NBA to backtrack (which is impossible for a deterministic machine). The subset construction "remembers" that $q_1$ was reachable, but it forgets that the path was a dead end when $a$ arrived. This mismatch shows that tracking subset reachability is not sufficient for $\omega$-acceptance.
-
----
+The subset construction tracks \emph{reachability} at each finite prefix. For any prefix ending in $b$ (e.g., $ab$, $abab$), the state $q_1$ is indeed reachable in the NBA. However, these reachable states do not stitch together into a single, continuous infinite run that visits $q_1$ infinitely often. Every time an $a$ is read, the path that had branched off to $q_1$ dies, forcing the NBA to backtrack (which is impossible for a deterministic machine). The subset construction "remembers" that $q_1$ was reachable, but it forgets that the path was a dead end when $a$ arrived. This mismatch shows that tracking subset reachability is not sufficient for $\omega$-acceptance. The next step is to make that mismatch exact: which languages can deterministic Büchi acceptance still capture, and where is the precise algebraic boundary?
 
 % =======================================================================
 \section{Deterministic Büchi Automata (DBA) and the Limit of Vectorial Closure}
 \label{sec:dba-limit}
 
-We begin by formally characterizing the languages recognizable by deterministic Büchi automata. In a standard DFA running over finite words, acceptance is determined by the state the automaton is in when it reaches the end of the word. However, since an infinite word has no end, we must evaluate the behavior of the automaton in the limit.
+Chapter~\ref{ch:s1s-buchi} proved by a state-based pumping argument that no DBA recognises $L_{\mathrm{fin}}$. The pumping argument is constructive but leaves a question open: \emph{what} languages, exactly, can a DBA recognise? Answering that question algebraically is the goal of this section. We will characterise the DBA-recognisable languages as the \emph{vectorial closures} of regular languages. With that characterisation in hand, the failure of $L_{\mathrm{fin}}$ becomes a clean diagonalisation argument at the level of \emph{prefixes} rather than states---and it points the way to the repair (richer acceptance) that occupies the rest of the chapter.
+
+We begin by formally characterising the languages recognizable by deterministic Büchi automata. In a standard DFA running over finite words, acceptance is determined by the state the automaton is in when it reaches the end of the word. However, since an infinite word has no end, we must evaluate the behavior of the automaton in the limit.
 
 To see how we can characterize this, let us perform a thought experiment at the whiteboard. Suppose we have a DBA $A = (Q, \Sigma, \delta, q_0, F)$. How does $A$ process an infinite word $\alpha = a_0 a_1 a_2 \dots$?
 Since $A$ is deterministic and complete, there is a unique run $\sigma = s_0 s_1 s_2 \dots$ where $s_0 = q_0$ and $s_{i+1} = \delta(s_i, a_i)$.
@@ -160,6 +162,8 @@ Observe that the proof of the converse ($\Longleftarrow$) relies entirely on the
 \subsection{The Limit of DBAs: The Finitely Many $a$'s Language}
 \label{subsec:fin-a-limit}
 
+We now reprove, algebraically, the theorem of \cref{sec:dba} in Chapter~\ref{ch:s1s-buchi}: no DBA recognises $L_{\mathrm{fin}}$. There, the proof worked directly on DBA states via pumping. Here we use the DBA Characterization Theorem as a lever: we show that $L_{fin\_a}$ cannot be written as $W^\delta$ for any regular $W$, and therefore no DBA can recognise it. The two proofs are complementary---one operational, one algebraic---and both will be useful when we generalise to richer acceptance conditions.
+
 Now we demonstrate that DBAs are strictly less expressive than NBAs by showing that a simple $\omega$-regular language cannot be written as the vectorial closure of any regular language.
 
 Let $\Sigma = \{a, b\}$. Consider the language:
@@ -167,7 +171,7 @@ $$L_{fin\_a} = \{ \alpha \in \Sigma^\omega \mid \alpha \text{ contains finitely 
 This language is easily recognized by the NBA shown in Figure~\ref{fig:nba-fin-a}.
 
 \paragraph{Intuition behind the proof.}
-Before diving into the formal proof, let us understand intuitively why a DBA cannot recognize $L_{fin\_a}$. A DBA is deterministic: its transitions are completely determined by the prefix read so far. Suppose a DBA attempts to recognize $L_{fin\_a}$. As it reads a sequence of $b$'s, it must eventually decide that the $a$'s have stopped and start visiting accepting states. However, because it cannot look into the future, the automaton can never be sure if the current $a$ is the *last* one. If it starts accepting after a long sequence of $b$'s, an adversary can "trick" the automaton by presenting another $a$, forcing it to stop accepting. By repeating this process infinitely often, the adversary can construct a word with infinitely many $a$'s that the automaton is forced to accept. This "cat-and-mouse" game is formalized in the proof below.
+Before diving into the formal proof, let us understand intuitively why a DBA cannot recognize $L_{fin\_a}$. A DBA is deterministic: its transitions are completely determined by the prefix read so far. Suppose a DBA attempts to recognize $L_{fin\_a}$. As it reads a sequence of $b$'s, it must eventually decide that the $a$'s have stopped and start visiting accepting states. However, because it cannot look into the future, the automaton can never be sure if the current $a$ is the \emph{last} one. If it starts accepting after a long sequence of $b$'s, an adversary can "trick" the automaton by presenting another $a$, forcing it to stop accepting. By repeating this process infinitely often, the adversary can construct a word with infinitely many $a$'s that the automaton is forced to accept. This "cat-and-mouse" game is formalized in the proof below.
 
 \begin{figure}[H]
 \centering
@@ -193,7 +197,7 @@ The language $L_{fin\_a}$ is not recognizable by any DBA.
 \end{theorem}
 
 \begin{proof}
-The proof is by contradiction. Assume that $L_{fin\_a}$ is recognizable by a DBA. By the DBA Characterization Theorem, there exists a regular language $W \subseteq \Sigma^*$ such that $L_{fin\_a} = W^\delta$.
+This is the algebraic counterpart of the state-based pumping proof of \cref{thm:dba-not-complement} in Chapter~\ref{ch:s1s-buchi}. The proof is by contradiction. Assume that $L_{fin\_a}$ is recognizable by a DBA. By the DBA Characterization Theorem, there exists a regular language $W \subseteq \Sigma^*$ such that $L_{fin\_a} = W^\delta$.
 
 \begin{enumerate}
     \item Consider the infinite word $\alpha_1 = b^\omega$. Since $\alpha_1$ contains zero $a$'s, it belongs to $L_{fin\_a}$. Because $L_{fin\_a} = W^\delta$, there must exist a prefix of $\alpha_1$ in $W$. Thus, there exists a number $n_1 \ge 1$ such that:
@@ -229,7 +233,7 @@ The following properties hold:
 The language $L_{inf\_a} = (b^*a)^\omega$ (words containing infinitely many $a$'s) is recognizable by a DBA (a simple 2-state automaton that transitions to an accepting state whenever it reads $a$). The complement of this language is $L_{fin\_a}$, which is not recognizable by any DBA. Hence, DBAs are not closed under complementation.
 \end{proof}
 
----
+The negative result now becomes a design brief. Büchi acceptance is too weak under determinism, so we keep the deterministic transition structure but enrich the acceptance condition.
 
 % =======================================================================
 \section{Deterministic Muller Automata (DMA) and McNaughton's Theorem}
@@ -237,9 +241,11 @@ The language $L_{inf\_a} = (b^*a)^\omega$ (words containing infinitely many $a$'
 
 We have just proved that DBAs are strictly less expressive than NBAs, and are not closed under complementation. This represents a serious bottleneck: reactive synthesis requires determinism, but we cannot compile general $\omega$-regular specifications into DBAs.
 
-To resolve this expressiveness gap, we must rethink the acceptance condition. The Büchi condition is fundamentally existential and local: it only asks whether *at least one* accepting state is visited infinitely often, completely ignoring the other states. If we are restricted to a deterministic transition function, this condition is too weak to separate complex languages like $L_{fin\_a}$.
+To resolve this expressiveness gap, we must rethink the acceptance condition. The Büchi condition is fundamentally existential and local: it only asks whether \emph{at least one} accepting state is visited infinitely often, completely ignoring the other states. If we are restricted to a deterministic transition function, this condition is too weak to separate complex languages like $L_{fin\_a}$.
 
-Instead of marking individual states as accepting, what if we specify the *exact set* of states that the unique infinite run is allowed to cycle through in the limit? By defining acceptance in terms of the set of states visited infinitely often, we can capture fine-grained properties. This is the core idea behind the Muller condition, which successfully restores the equivalence between determinism and non-determinism.
+Instead of marking individual states as accepting, what if we specify the \emph{exact set} of states that the unique infinite run is allowed to cycle through in the limit? By defining acceptance in terms of the set of states visited infinitely often, we can capture fine-grained properties. This is the core idea behind the Muller condition, which successfully restores the equivalence between determinism and non-determinism.
+
+Let's preview the idea on the recurring request/acknowledgement example. Suppose requests $r$ and grants $g$ arrive as separate symbols over $\Sigma = \{r, g, \mathrm{idle}\}$. Consider the property ``eventually, every request is followed by a grant''---more precisely, ``from some point on, $r$ and $g$ alternate, with $r$ preceding $g$''. A deterministic 2-state machine that flips between $q_r$ (``last event was a request, awaiting grant'') and $q_g$ (``last event was a grant, awaiting next request'') reads every infinite word into a unique run. To accept the alternating property we want exactly the cycle $\{q_r, q_g\}$ to occur infinitely often; if the run eventually sticks to $q_r$ alone, some request was never granted and we must reject. The Büchi condition ``visit $q_g$ infinitely often'' would also do the job here, but the Muller condition lets us additionally insist that $q_r$ is visited infinitely often---i.e., that the run keeps cycling, not sitting on a final state. That extra precision is exactly what we need to handle languages like $L_{fin\_a}$ that resist DBAs.
 
 \subsection{Muller Acceptance Condition}
 \label{subsec:muller-def}
@@ -250,16 +256,17 @@ A \emph{Deterministic Muller Automaton} (DMA) is a tuple $A = (Q, \Sigma, \delta
 
 An infinite run $\sigma$ of $A$ on a word $\alpha \in \Sigma^\omega$ is successful if the set of states visited infinitely often is \emph{exactly} one of the sets in the family $\mathcal{F}$:
 $$\text{inf}(\sigma) \in \mathcal{F}$$
+The family $\mathcal{F}$ is the heart of the model. Where the Büchi condition $F \subseteq Q$ can only ask ``is some accepting state visited infinitely often?'', the Muller condition can pin down the \emph{entire} recurrent set: which states are visited infinitely often, and (by omission) which states must be visited only finitely often. This is what lets us express ``finitely many $a$'s'' deterministically: in the 2-state DMA with $q_a$ reached on $a$ and $q_b$ reached on $b$, we accept iff $\mathrm{inf}(\sigma) = \{q_b\}$, ruling out $q_a$ from the limit. Notice that the size of $\mathcal{F}$ can in principle be exponential in $|Q|$---a practical annoyance we will address in \cref{sec:dra-safra} with the Rabin and parity conditions.
 
-\aside{Unlike the Büchi condition, which only requires *some* accepting state to be visited infinitely often, the Muller condition specifies the *exact set* of states that the run must cycle through in the limit.}
+\aside{Unlike the Büchi condition, which only requires \emph{some} accepting state to be visited infinitely often, the Muller condition specifies the \emph{exact set} of states that the run must cycle through in the limit.}
 
 \begin{example}[DMA for Infinitely Many $a$'s and $b$'s]
-Let $\Sigma = \{a, b\}$. We want to recognize the language $L_{inf\_a\_and\_b}$ of words containing infinitely many $a$'s and infinitely many $b$'s.
+Let $\Sigma = \{a, b\}$. We want to recognize the language $L_{inf\_a\_and\_b}$ of words containing infinitely many $a$'s and infinitely many $b$'s. This is a natural ``both signals keep arriving'' property of the request/acknowledgement pattern: $a$ plays the role of a request, $b$ the role of an acknowledgement, and we require that both keep happening forever.
 Consider the 2-state automaton with states $Q = \{q_0, q_1\}$, where reading $a$ transitions to $q_0$ and reading $b$ transitions to $q_1$.
 The run on any word containing infinitely many $a$'s and $b$'s must visit both $q_0$ and $q_1$ infinitely often. Thus, the set of states visited infinitely often is $\{q_0, q_1\}$.
 To accept this language, we set the Muller acceptance family to:
 $$\mathcal{F} = \{ \{q_0, q_1\} \}$$
-If a word contains only finitely many $a$'s, the run eventually stays in $q_1$, yielding $\text{inf}(\sigma) = \{q_1\} \notin \mathcal{F}$. If it contains only finitely many $b$'s, $\text{inf}(\sigma) = \{q_0\} \notin \mathcal{F}$. Thus, the DMA correctly recognizes the language.
+If a word contains only finitely many $a$'s, the run eventually stays in $q_1$, yielding $\text{inf}(\sigma) = \{q_1\} \notin \mathcal{F}$. If it contains only finitely many $b$'s, $\text{inf}(\sigma) = \{q_0\} \notin \mathcal{F}$. Thus, the DMA correctly recognizes the language. Notice that a DBA cannot do this with a 2-state transition structure: insisting on \emph{both} $q_0$ and $q_1$ being visited infinitely often is exactly the kind of constraint the Büchi condition cannot express.
 \end{example}
 
 \subsection{Closure Properties of DMAs}
@@ -316,17 +323,33 @@ We prove both directions of the lemma.
 \subsection{McNaughton's Theorem and the Closure Bottleneck}
 \label{subsec:mcnaughton-theorem}
 
+We are finally ready to state the central theorem of this chapter. It closes the gap left open in Chapter~\ref{ch:s1s-buchi}: \emph{determinism} and \emph{$\omega$-regularity} can coexist, provided we trade the Büchi condition for the Muller condition.
+
 \begin{theorem}[McNaughton, 1966]
 Deterministic Muller Automata are expressively equivalent to Non-deterministic Büchi Automata. That is, a language $L \subseteq \Sigma^\omega$ is $\omega$-regular if and only if it is recognized by a DMA.
 \end{theorem}
 
 \aside{McNaughton's theorem is a landmark result because it proves that we do not lose expressiveness by forcing the transition structure to be deterministic, provided we enrich the acceptance condition.}
 
-To understand why the proof of McNaughton's theorem is highly non-trivial, we must look at the algebraic mismatch between the two models. An $\omega$-regular language is naturally represented using the \emph{$\omega$-closure} of regular languages:
+To understand why the proof of McNaughton's theorem is highly non-trivial, we must look at the algebraic mismatch between the two models. What follows is a proof roadmap rather than a full derivation: it isolates the algebraic bottleneck and records the counterexamples that rule out the tempting shortcuts. An $\omega$-regular language is naturally represented using the \emph{$\omega$-closure} of regular languages:
 $$L = \bigcup_{i=1}^k U_i \cdot V_i^\omega$$
 In contrast, DMAs naturally characterize Boolean combinations of the \emph{vectorial closure}:
 $$L = \text{Boolean combination of } W_j^\delta$$
 The bottleneck of the proof lies in converting the infinite iteration $V_i^\omega$ into combinations of prefix limits $W_j^\delta$. Naive attempts to equate the two operators fail, as shown by the following counterexamples.
+
+\begin{formaldetails}[Proof roadmap for McNaughton's theorem]
+The full proof is beyond this chapter (see W.~Thomas, \textit{Automata on Infinite Objects}, Handbook of Theoretical Computer Science vol.~B, 1990), but the strategy can be summarised in three steps.
+
+\begin{description}
+    \item[Step 1 (DMA Characterization Lemma, proved above)] An $\omega$-language is DMA-recognisable iff it is a Boolean combination of languages of the form $W^\delta$ with $W$ regular. This turns the theorem into a purely algebraic statement about $\omega$-regular languages.
+
+    \item[Step 2 (the hard step)] Every $\omega$-regular language $L = \bigcup_{i=1}^k U_i \cdot V_i^\omega$ can be rewritten as a Boolean combination of vectorial closures of regular languages. This is the heart of McNaughton's argument and relies on a delicate combinatorial analysis (via \emph{$\mathcal{V}$-witnesses} or, equivalently, ultimately-periodic decompositions of $\omega$-semigroups). The two counterexamples below show that the most naive rewritings---$U V^\omega \stackrel{?}{=} U V^\delta$ and $(UV)^\delta \stackrel{?}{=} U \cdot V^\delta$---are simply \emph{false}; the theorem holds, but only because we are allowed to swap $U$ and $V$ for cleverly re-engineered regular sets $U', V'$ depending on $L$.
+
+    \item[Step 3 (conclusion)] Step~2 expresses $L$ as a Boolean combination of $W_j^\delta$, and Step~1 turns that Boolean combination into a DMA. Since DMAs are closed under complement, union, and intersection, no further machinery is needed.
+
+    \item[Why McNaughton's proof is non-constructive] The argument above tells us that \emph{some} DMA exists for every NBA, but it does not give a direct algorithm to compute one. This is a serious problem for verification tools: given a 30-state NBA compiled from an LTL formula, we cannot afford to chase the proof's combinatorial core by hand. \emph{Safra's construction} (\cref{subsec:safra-roadmap}) is the constructive rescue: a single explicit procedure that turns any NBA into an equivalent DRA in time $2^{\mathcal{O}(n \log n)}$.
+\end{description}
+\end{formaldetails}
 
 \begin{formaldetails}[Counterexample 1: $U \cdot V^\omega \neq U \cdot V^\delta$]
 One might hope that if $V$ is closed under concatenation ($V \cdot V \subseteq V$), then $V^\omega = V^\delta$. This is false.
@@ -363,26 +386,30 @@ for regular languages $W \subseteq \Sigma^*$.
 Since WS1S is closed under Boolean operations, we only need to show that $W^\delta$ is definable in WS1S for any regular language $W$.
 Since $W$ is a regular language of finite words, there exists a WS1S formula $\phi(X_1, \dots, X_k)$ that defines it.
 We introduce a new first-order variable $y$ (representing a boundary). We relativize the formula $\phi$ to the finite interval $[0, y]$ by bounding all quantifiers:
-*   Replace $\exists x \psi$ with $\exists x (x \le y \land \psi)$.
-*   Replace $\forall x \psi$ with $\forall x (x \le y \to \psi)$.
+\begin{itemize}
+    \item Replace $\exists x \psi$ with $\exists x (x \le y \land \psi)$.
+    \item Replace $\forall x \psi$ with $\forall x (x \le y \to \psi)$.
+\end{itemize}
 Let this relativized formula be $\psi(X_1, \dots, X_k, y)$. It asserts that the prefix of the word up to position $y$ belongs to $W$.
 We can now assert that there are infinitely many such positions $y$:
 $$\Phi(X_1, \dots, X_k) = \forall x \exists y \left( y > x \land \psi(X_1, \dots, X_k, y) \right)$$
 Since $x$ and $y$ are first-order variables, they represent single positions (which are finite sets). Thus, $\Phi$ is a valid WS1S formula.
 \end{proof}
 
----
+Muller automata restore expressiveness, but they still leave open how to store and compute the acceptance condition efficiently. Rabin and parity acceptance address that implementation-facing side of determinisation.
 
 % =======================================================================
-\section{Deterministic Rabin Automata (DRA) and Safra's Construction}
+\section{Deterministic Rabin Automata, Parity, and Safra's Construction}
 \label{sec:dra-safra}
 
-Although Deterministic Muller Automata (DMAs) successfully restore the equivalence between determinism and non-determinism, they present a significant practical challenge. Since the Muller condition relies on a family of state subsets $\mathcal{F} \subseteq \mathcal{P}(Q)$, the size of $\mathcal{F}$ can grow exponentially with the number of states ($|\mathcal{F}| \le 2^{|Q|}$). Storing and checking this family is computationally expensive and difficult to optimize.
+McNaughton's theorem tells us that DMAs are expressively complete for $\omega$-regular languages, but it leaves two practical problems on the table. First, the Muller family $\mathcal{F} \subseteq \mathcal{P}(Q)$ can have up to $2^{|Q|}$ elements, which is expensive to store and check. Second, the theorem is non-constructive: it tells us that a DMA exists without telling us how to compute one from an NBA. This section solves both problems.
 
-To make determinization algorithmically viable, we require a more compact and structured acceptance condition. The key idea, proposed by Michael Rabin, is to specify pairs of state sets. Each pair represents a constraint: we define a set of "bad" states $L_i$ that should eventually be avoided, and a set of "good" states $U_i$ that must be visited infinitely often. This allows us to define identical languages using a much more compact condition.
+We first replace the bulky Muller family with the more compact \emph{Rabin pairs} (and the equivalent \emph{parity ranking}). Then we give Safra's constructive determinisation procedure, which compiles any NBA into an equivalent DRA.
 
 \subsection{Rabin Acceptance Condition}
 \label{subsec:rabin-def}
+
+The key idea, proposed by Michael Rabin, is to specify pairs of state sets. Each pair represents a constraint: we define a set of ``bad'' states $L_i$ that should eventually be avoided, and a set of ``good'' states $U_i$ that must be visited infinitely often. This allows us to define identical languages using a much more compact condition.
 
 \begin{definition}[Deterministic Rabin Automaton]
 A \emph{Deterministic Rabin Automaton} (DRA) is a tuple $A = (Q, \Sigma, \delta, q_0, \Omega)$ where $Q, \Sigma, \delta, q_0$ are defined as in a DFA, and the acceptance condition is a set of pairs of state sets:
@@ -394,49 +421,118 @@ A run $\sigma$ is successful if there exists an index $j \in \{1, \dots, n\}$ su
 $$\text{inf}(\sigma) \cap L_j = \emptyset \quad \text{and} \quad \text{inf}(\sigma) \cap U_j \neq \emptyset$$
 This means that, for some pair $j$, the run eventually avoids all states in $L_j$ while visiting at least one state in $U_j$ infinitely often.
 
+The Rabin condition is a hybrid: the $L_j$ component is ``Muller-flavoured'' (it pins down what must \emph{disappear} from the limit, like the $\mathcal{P}(Q) \setminus \mathcal{F}$ side of complementation), while the $U_j$ component is ``Büchi-flavoured'' (it asks for something to occur infinitely often). The number of pairs $n$ is typically $\mathcal{O}(|Q|)$ rather than $2^{|Q|}$, which is the practical advantage over Muller. As an example, the request/acknowledgement property ``every request is eventually followed by a grant'' is naturally expressed by a single Rabin pair $(L, U)$: let $L$ contain all the ``request-pending'' states and $U$ contain all the ``grant-issued'' states, so that the pair fires exactly when the run eventually leaves the pending region and keeps visiting grant states forever.
+
 \aside{The Rabin condition combines a Muller-like restriction ($L_j$ must not be visited infinitely often) with a Büchi-like trigger ($U_j$ must be visited infinitely often).}
 
 \begin{example}[Rabin Reset Automaton]
 Consider a 3-state DRA over $\Sigma = \{A, B, C\}$ with states $Q = \{q_0, q_1, q_2\}$ where reading $A$ resets the state to $q_0$, reading $B$ resets to $q_1$, and reading $C$ resets to $q_2$.
 We want to recognize the language where:
-*   either $B$ is read finitely often and $A$ is read infinitely often,
-*   or both $A$ and $B$ are read finitely often and $C$ is read infinitely often.
+\begin{itemize}
+    \item either $B$ is read finitely often and $A$ is read infinitely often;
+    \item or both $A$ and $B$ are read finitely often and $C$ is read infinitely often.
+\end{itemize}
 We can define the Rabin condition with two pairs $\Omega = \{ (L_1, U_1), (L_2, U_2) \}$:
-*   Pair 1: $L_1 = \{q_1\}$, $U_1 = \{q_0\}$. This requires the run to visit $q_1$ finitely often (finitely many $B$'s) and $q_0$ infinitely often (infinitely many $A$'s).
-*   Pair 2: $L_2 = \{q_0, q_1\}$, $U_2 = \{q_2\}$. This requires the run to visit $q_0, q_1$ finitely often (finitely many $A$'s and $B$'s) and $q_2$ infinitely often (infinitely many $C$'s).
+\begin{description}
+    \item[Pair 1] $L_1 = \{q_1\}$ and $U_1 = \{q_0\}$. This requires the run to visit $q_1$ finitely often (finitely many $B$'s) and $q_0$ infinitely often (infinitely many $A$'s).
+    \item[Pair 2] $L_2 = \{q_0, q_1\}$ and $U_2 = \{q_2\}$. This requires the run to visit $q_0, q_1$ finitely often (finitely many $A$'s and $B$'s) and $q_2$ infinitely often (infinitely many $C$'s).
+\end{description}
 This DRA precisely captures the language.
 \end{example}
+
+\subsection{Parity Acceptance and the Equivalence DMA $\equiv$ DRA $\equiv$ Parity}
+\label{subsec:parity-equivalence}
+
+The Rabin condition is already a major practical improvement over Muller, but it can be simplified even further. A \emph{parity condition} labels each state $q \in Q$ with an integer priority $\pi(q) \in \{0, 1, \dots, 2k\}$ and accepts the run iff the \emph{largest} priority occurring infinitely often is even.
+
+\begin{definition}[Deterministic Parity Automaton]
+A \emph{Deterministic Parity Automaton} (DPA) is a tuple $A = (Q, \Sigma, \delta, q_0, \pi)$ where $\pi : Q \to \{0, 1, \dots, 2k\}$ is a priority function. A run $\sigma$ is successful iff
+$$\max \{\pi(q) \mid q \in \text{inf}(\sigma) \}$$
+is even.
+\end{definition}
+
+The parity condition is the ``minimal'' deterministic acceptance condition for $\omega$-regular languages: just one integer per state. Despite its simplicity, it is expressively complete.
+
+\begin{theorem}[Equivalence of deterministic conditions]
+\label{thm:det-equiv}
+For $\omega$-languages over infinite words, the following deterministic models recognise exactly the same class---the $\omega$-regular languages:
+$$\text{DMA} \;\equiv\; \text{DRA} \;\equiv\; \text{DPA} \;\equiv\; \text{NBA}.$$
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By McNaughton's theorem it suffices to show DMA $\equiv$ DRA $\equiv$ DPA.
+
+\begin{description}
+    \item[DMA $\to$ DPA] Given a DMA $(Q, \Sigma, \delta, q_0, \mathcal{F})$, the standard construction replaces $\mathcal{F}$ by an \emph{appearance-record} (latest-appearance record, LAR) of the states. The LAR tracks, at every step, the permutation of $Q$ ordered by most-recent visit. The states of the DPA are these permutations (so $|Q|!$ states), and the priority assigned to a permutation $\rho$ is even iff the set of states appearing after the last ``hit'' equals some $F \in \mathcal{F}$. Since every infinite run induces a unique infinite sequence of LARs, the parity check coincides with the original Muller check.
+
+    \item[DPA $\to$ DRA] Given priorities $\pi : Q \to \{0, \dots, 2k\}$, build one Rabin pair per even priority $2i$: set $L_{2i} = \{q \mid \pi(q) > 2i\}$ and $U_{2i} = \{q \mid \pi(q) = 2i\}$. The pair $(L_{2i}, U_{2i})$ fires iff $2i$ is the largest priority seen infinitely often---exactly the parity condition.
+
+    \item[DRA $\to$ DMA] Given pairs $\Omega = \{(L_i, U_i)\}$, the equivalent Muller family is
+$$\mathcal{F} = \{S \subseteq Q \mid \exists i.\; S \cap L_i = \emptyset \,\land\, S \cap U_i \neq \emptyset\}.$$
+Each $S \in \mathcal{F}$ certifies that some pair $i$ is satisfied, and conversely.
+\end{description}
+\end{proof}
+
+\aside{Over \emph{trees}, the equivalence between deterministic and non-deterministic automata breaks down: deterministic Rabin automata are strictly more expressive than NBAs. We will return to this in \cref{ch:tree-languages-automata}.}
+
+The parity condition will return as the central acceptance condition for infinite games in synthesis, where it makes attractor computations polynomial (see \cref{ch:synthesis-games}). For now, it confirms that we have a small, clean deterministic model that captures all $\omega$-regular languages.
 
 \subsection{Safra's Determinization (Roadmap)}
 \label{subsec:safra-roadmap}
 
-McNaughton's original proof was non-constructive. In 1989, Shmuel Safra introduced a constructive algorithm to translate any NBA with $S$ states into an equivalent DRA.
-*   **Safra Trees**: Instead of a simple subset construction, a state in the DRA is represented as a structured tree (Safra tree). Nodes in the tree are labeled with subsets of states of the NBA.
-*   **The Algorithm**: For each input letter, the algorithm:
-    1.  Applies the power set construction to each node's state set.
-    2.  Spawns child nodes to track new non-deterministic runs that pass through accepting states.
-    3.  Performs horizontal merges: if a state appears in a node, it is removed from all sibling nodes to its right.
-    4.  Performs vertical merges: if the union of the states in a node's children equals the node's own state set, the children are deleted, and an acceptance flag is set.
-*   **Complexity**: Safra's construction yields a DRA with at most $2^{\mathcal{O}(S \log S)}$ states and $\mathcal{O}(S)$ pairs, which is asymptotically optimal.
+McNaughton's theorem tells us \emph{that} every NBA admits an equivalent deterministic automaton, but it does not tell us \emph{how} to compute one. Safra's 1988 construction is the constructive answer. We describe it at roadmap level---enough to understand why it works and what its complexity is, without the full case analysis or the full bookkeeping of node names.
 
----
+\begin{formaldetails}[Construction idea: Safra trees]
+\begin{description}
+    \item[The problem with the subset construction] Recall from \cref{sec:quest-determinism} that the Rabin-Scott subset construction fails on Büchi automata because it forgets \emph{which} branches through the NBA are still alive in their search for accepting states. To recover determinism we need a data structure that simultaneously tracks subset reachability \emph{and} remembers, for each candidate branch, whether it has visited an accepting state since the last checkpoint.
+
+    \item[Safra's data structure] A Safra tree is a finite ordered tree whose nodes are labelled with subsets of $Q$ (states of the NBA). Each node also carries a Boolean flag ``accepting hit since this node was created''. The invariant is:
+\begin{itemize}
+\item the union of all node labels equals the current subset-construction state (so no NBA run is lost);
+\item the labels of sibling nodes are pairwise disjoint (so we never double-count an NBA state);
+\item a node's label is always a strict subset of its parent's label (so the tree is finite-depth);
+\item a child is created only when its parent has visited an NBA accepting state, so the child marks a ``fresh post-accepting'' run.
+\end{itemize}
+
+    \item[The transition on a single letter] Reading letter $a$, the algorithm performs, in order:
+\begin{enumerate}
+\item \textbf{Power step.} Replace every node label $S$ by $\delta(S, a) = \bigcup_{q \in S} \delta(q, a)$.
+\item \textbf{Accepting hits.} For every node whose new label intersects $F$, set its ``hit'' flag and spawn a fresh child labelled with $S \cap F$.
+\item \textbf{Horizontal sanitisation.} Walking siblings left-to-right, remove from each node's label any state already present in an elder sibling. (Order matters: this is how Safra remembers ``which branch claimed this NBA state first''.)
+\item \textbf{Vertical merge.} If a node's label equals the union of its children's labels, delete the children and set the node's ``hit'' flag (the parent has now collected all the post-accepting runs its children were tracking).
+\item \textbf{Cleanup.} Delete empty nodes.
+\end{enumerate}
+
+    \item[The Rabin acceptance] The Rabin pairs are indexed by the (finitely many possible) nodes of a Safra tree. For each possible node position $v$, the pair is
+$$L_v = \{\text{configurations in which node } v \text{ is absent}\}, \quad U_v = \{\text{configurations in which node } v \text{ has its hit flag set}\}.$$
+Intuition: if the run of the Safra automaton visits $U_v$ infinitely often, then infinitely many accepting hits were collected at node $v$, so some NBA branch must have hit $F$ infinitely often. If additionally $L_v$ is eventually avoided (node $v$ stays alive forever), that branch survives forever---so the NBA accepts.
+
+    \item[Complexity] For an $n$-state NBA, the number of possible Safra trees is $2^{\mathcal{O}(n \log n)}$ and the number of Rabin pairs is $\mathcal{O}(n)$. This is asymptotically optimal: a lower bound of $n^{\Theta(n)}$ states is known for converting certain NBAs to deterministic automata. Modern variants (Piterman's parity version, Schewe's optimisation) trim constants but preserve the asymptotics.
+
+    \item[Why we will not run Safra by hand] Even a 4-state NBA produces a Safra DRA with hundreds of states. In practice, verification tools never run Safra directly; they use it as the theoretical guarantee that deterministic automata exist, while working with the original NBAs and quotient constructions in actual algorithms.
+\end{description}
+\end{formaldetails}
+
+With the deterministic acceptance conditions in place, we now return to logic and ask what happens when S1S itself is syntactically restricted.
 
 % =======================================================================
 \section{The First-Order Fragment of S1S and Star-Free Languages}
 \label{sec:fo-star-free}
 
-Having characterized the deterministic variants of $\omega$-automata on the operational side, we now return to the logical side. Full S1S is equivalent to the entire class of $\omega$-regular languages, but it suffers from non-elementary complexity. This complexity is driven by second-order quantification (the ability to quantify over infinite sets of positions).
+Having characterized the deterministic variants of $\omega$-automata on the operational side, we now return to the logical side. Full S1S is equivalent to the entire class of $\omega$-regular languages (Chapter~\ref{ch:s1s-buchi}), but it suffers from non-elementary complexity. This complexity is driven by second-order quantification (the ability to quantify over infinite sets of positions).
 
-What happens if we restrict S1S by forbidding second-order variables, allowing only first-order quantification over individual positions? This syntactic restriction brings us to a fundamental class in formal language theory: the \emph{star-free} languages. Over finite words, this logic is equivalent to extended regular expressions that do not use the Kleene star. In this section, we explore this logical-algebraic equivalence and lay the foundation for Linear Temporal Logic (LTL), which represents the temporal counterpart to this first-order fragment.
+What happens if we restrict S1S by forbidding second-order variables, allowing only first-order quantification over individual positions? This syntactic restriction brings us to a fundamental class in formal language theory: the \emph{star-free} languages. The bridge back to \cref{ch:regular-decision} is direct---there we met star-free regular expressions as extended regular expressions in which the Kleene star is forbidden, and we observed that, surprisingly, $(ab)^*$ is still star-free even though it is written with a star. The deep theorem of this section, due to McNaughton and Papert, says that the star-free class is exactly the first-order fragment of S1S over words---and that, under infinite words, this same class corresponds to Linear Temporal Logic (LTL). The chain of equivalences star-free $\equiv$ first-order $\equiv$ aperiodic $\equiv$ counter-free $\equiv$ LTL is one of the crown jewels of automata-theoretic verification, and we lay its foundation here.
 
 \subsection{The Signature $\text{FO-S1S}[<]$}
 \label{subsec:signature-fo}
 
 In full S1S, the successor relation $+1$ and the ordering relation $<$ are inter-definable. In first-order S1S, this symmetry breaks.
-*   We can define $+1$ using $<$:
+\begin{itemize}
+    \item We can define $+1$ using $<$:
     $$y = x + 1 \iff x < y \land \neg \exists z (x < z \land z < y)$$
     This formula uses only first-order variables and is therefore valid in $\text{FO-S1S}[<]$.
-*   We cannot define $<$ using only $+1$ in first-order logic. Defining $x < y$ requires computing the transitive closure of $+1$, which is equivalent to induction. Induction inherently requires quantifying over sets (second-order variables).
+    \item We cannot define $<$ using only $+1$ in first-order logic. Defining $x < y$ requires computing the transitive closure of $+1$, which is equivalent to induction. Induction inherently requires quantifying over sets (second-order variables).
+\end{itemize}
 Thus, to study the first-order fragment, we must explicitly include the ordering relation in the signature, yielding the logic $\text{FO-S1S}[<]$.
 
 \subsection{Star-Free Languages}
@@ -446,16 +542,20 @@ Thus, to study the first-order fragment, we must explicitly include the ordering
 A language $W \subseteq \Sigma^*$ of finite words is \emph{star-free} if it can be generated from finite languages using only Boolean operations (union, intersection, and complement relative to $\Sigma^*$) and concatenation.
 \end{definition}
 
-Notice that the Kleene star is forbidden. However, we can express the universal language $\Sigma^*$ as the complement of the empty set:
+This is the same definition we met in \cref{ch:regular-decision}, restated here for direct reference. The Kleene star is forbidden, but every other operation of extended regular expressions is allowed.
+
+Notice that we can express the universal language $\Sigma^*$ as the complement of the empty set:
 $$\Sigma^* = \emptyset^C$$
 Since $\emptyset$ is finite (hence star-free) and complementation is allowed, $\Sigma^*$ is star-free. This allows us to write complex expressions.
 
 \begin{example}[$(ab)^*$ without Kleene star]
 Let $\Sigma = \{a, b\}$. The language $(ab)^*$ consists of words that alternate $a$ and $b$, starting with $a$ and ending with $b$ (including the empty word $\epsilon$). We can define this language by ruling out all violations:
-1.  No two consecutive $a$'s: $L_{aa} = \Sigma^* a a \Sigma^*$.
-2.  No two consecutive $b$'s: $L_{bb} = \Sigma^* b b \Sigma^*$.
-3.  Does not start with $b$: $L_{start\_b} = b \Sigma^*$.
-4.  Does not end with $a$: $L_{end\_a} = \Sigma^* a$.
+\begin{enumerate}
+    \item No two consecutive $a$'s: $L_{aa} = \Sigma^* a a \Sigma^*$.
+    \item No two consecutive $b$'s: $L_{bb} = \Sigma^* b b \Sigma^*$.
+    \item Does not start with $b$: $L_{start\_b} = b \Sigma^*$.
+    \item Does not end with $a$: $L_{end\_a} = \Sigma^* a$.
+\end{enumerate}
 Since $\Sigma^*$ is star-free, each of these violation languages is star-free (using concatenation and finite sets). The language $(ab)^*$ is the complement of their union:
 $$(ab)^* = \emptyset^C \setminus \left( L_{aa} \cup L_{bb} \cup L_{start\_b} \cup L_{end\_a} \right)$$
 Thus, $(ab)^*$ is star-free.
@@ -479,11 +579,13 @@ The proof is by induction on the structure of the star-free expression.
     $$\phi_{\{\epsilon\}}(x, y) = y < x$$
     
     \item[Inductive Step] Let $U$ and $V$ be star-free languages defined by $\phi_U(x, y)$ and $\phi_V(x, y)$.
-    *   **Union ($U \cup V$)**: $\phi_{U \cup V}(x, y) = \phi_U(x, y) \lor \phi_V(x, y)$.
-    *   **Complement ($U^C$)**: $\phi_{U^C}(x, y) = \neg \phi_U(x, y) \land x \le y + 1$ (where $y+1$ handles the empty word boundary).
-    *   **Concatenation ($U \cdot V$)**: We assert the existence of a split point $z$:
+    \begin{description}
+        \item[Union] $\phi_{U \cup V}(x, y) = \phi_U(x, y) \lor \phi_V(x, y)$.
+        \item[Complement] $\phi_{U^C}(x, y) = \neg \phi_U(x, y) \land x \le y + 1$ (where $y+1$ handles the empty word boundary).
+        \item[Concatenation] We assert the existence of a split point $z$:
     $$\phi_{U \cdot V}(x, y) = \exists z \left( x \le z \land z < y \land \phi_U(x, z) \land \phi_V(z+1, y) \right)$$
     where $z+1$ is defined via the successor shortcut.
+    \end{description}
 \end{description}
 \end{proof}
 
@@ -500,35 +602,43 @@ The converse is the landmark McNaughton-Papert Theorem.
 A language of finite words $W \subseteq \Sigma^*$ is star-free if and only if it is definable in first-order S1S over finite intervals.
 \end{theorem}
 
-To prove this, we introduce the concept of \emph{quantifier depth} and equivalence relations.
+The theorem statement is exact, but the notes below give only the proof roadmap for the difficult first-order-to-star-free direction. The missing formal details are the induction showing finite index and concatenation compatibility of the congruences; once those are established, the separation step explains how quantifiers become star-free concatenations.
+
+To set up that roadmap, we introduce the concept of \emph{quantifier depth} and equivalence relations.
 
 \begin{definition}[Quantifier Depth]
 The quantifier depth $qd(\phi)$ of a formula $\phi$ is the maximum nesting level of quantifiers:
-*   $qd(\text{atomic}) = 0$
-*   $qd(\phi \lor \psi) = \max(qd(\phi), qd(\psi))$
-*   $qd(\neg \phi) = qd(\phi)$
-*   $qd(\exists x \phi) = qd(\phi) + 1$
+\begin{description}
+    \item[Atomic formulas] $qd(\text{atomic}) = 0$.
+    \item[Disjunction] $qd(\phi \lor \psi) = \max(qd(\phi), qd(\psi))$.
+    \item[Negation] $qd(\neg \phi) = qd(\phi)$.
+    \item[Existential quantification] $qd(\exists x \phi) = qd(\phi) + 1$.
+\end{description}
 \end{definition}
 
+Think of quantifier depth as the number of nested ``let me pick a position'' moves available to the formula. A depth-$0$ formula only inspects a fixed finite window of positions; a depth-$1$ formula can name one position and reason about it; a depth-$2$ formula can play two such moves in sequence. This intuition is what makes the equivalences $\equiv_n$ below work: two words are indistinguishable at depth $n$ exactly when no depth-$n$ formula can tell them apart.
+
 We define two equivalence relations of rank $n$:
-\begin{enumerate}
-    \item **Standard Congruence ($\equiv_n$)**: For $u, v \in \Sigma^*$, $u \equiv_n v$ iff they satisfy the same sentences of quantifier depth $\le n$.
-    \item **Extended Congruence ($\equiv_n^1$)**: For $(u, r), (v, s)$ where $u,v \in \Sigma^*$ and $r \in [1, |u|]$, $s \in [1, |v|]$ are distinguished positions, $(u, r) \equiv_n^1 (v, s)$ iff they satisfy the same formulas $\phi(x)$ with one free variable $x$ of quantifier depth $\le n$.
-\end{enumerate}
+\begin{description}
+    \item[Standard congruence $\equiv_n$] For $u, v \in \Sigma^*$, $u \equiv_n v$ iff they satisfy the same sentences of quantifier depth $\le n$.
+    \item[Extended congruence $\equiv_n^1$] For $(u, r), (v, s)$ where $u,v \in \Sigma^*$ and $r \in [1, |u|]$, $s \in [1, |v|]$ are distinguished positions, $(u, r) \equiv_n^1 (v, s)$ iff they satisfy the same formulas $\phi(x)$ with one free variable $x$ of quantifier depth $\le n$.
+\end{description}
 
 \begin{lemma}[Properties of $\equiv_n$ and $\equiv_n^1$]
 The relations satisfy:
-\begin{enumerate}
-    \item **Finite Index**: The number of equivalence classes of $\equiv_n$ and $\equiv_n^1$ is finite.
-    \item **Definability**: Each equivalence class $K$ of $\equiv_n$ can be defined by a sentence $\phi_K$ of quantifier depth $n$.
-    \item **Disjunction**: Any formula $\phi(x)$ of quantifier depth $n$ is equivalent to a finite disjunction of formulas representing classes of $\equiv_n^1$.
-    \item **Concatenation Congruence**: 
-        *   If $u \equiv_n v$ and $u' \equiv_n v'$, then $u u' \equiv_n v v'$.
-        *   If $u \equiv_n v$ and $u' \equiv_n v'$, then $(u a u', |u|+1) \equiv_{n+1}^1 (v a v', |v|+1)$.
-\end{enumerate}
+\begin{description}
+    \item[Finite index] The number of equivalence classes of $\equiv_n$ and $\equiv_n^1$ is finite.
+    \item[Definability] Each equivalence class $K$ of $\equiv_n$ can be defined by a sentence $\phi_K$ of quantifier depth $n$.
+    \item[Disjunction] Any formula $\phi(x)$ of quantifier depth $n$ is equivalent to a finite disjunction of formulas representing classes of $\equiv_n^1$.
+    \item[Concatenation congruence] The relations are compatible with concatenation in the following two senses:
+    \begin{itemize}
+        \item If $u \equiv_n v$ and $u' \equiv_n v'$, then $u u' \equiv_n v v'$.
+        \item If $u \equiv_n v$ and $u' \equiv_n v'$, then $(u a u', |u|+1) \equiv_{n+1}^1 (v a v', |v|+1)$.
+    \end{itemize}
+\end{description}
 \end{lemma}
 
-\begin{proof}[Proof of the Separation Step (FO $\to$ Star-Free)]
+\begin{formaldetails}[Proof roadmap for the separation step (FO $\to$ Star-Free)]
 Let $\Phi = \exists x \phi(x)$ be a sentence of quantifier depth $n+1$, where $qd(\phi) = n$.
 By the Disjunction property, the formula $\phi(x)$ is equivalent to a finite disjunction of class formulas of $\equiv_n^1$:
 $$\phi(x) \equiv \bigvee_{W_j \models \phi} \phi_{W_j}(x)$$
@@ -547,13 +657,13 @@ Thus, the set of words satisfying $\exists x \phi_{W}(x)$ is exactly the languag
 $$L_W = U \cdot a \cdot V$$
 By the induction hypothesis, since $U$ and $V$ are classes of $\equiv_{n-1}$ defined by sentences of quantifier depth $n-1$, they correspond to star-free languages.
 Therefore, the language $L_W = U \cdot a \cdot V$ is the concatenation of star-free languages, which is star-free. The finite union of such languages is also star-free.
-\end{proof}
+\end{formaldetails}
 
 \begin{summarybox}[First-Order Equivalence Class]
 The first-order fragment of S1S, star-free languages, counter-free automata (automata whose transition graphs contain no non-trivial cycles), and aperiodic monoids are all equivalent. Under infinite words, this exact class corresponds to Linear Temporal Logic (LTL).
 \end{summarybox}
 
----
+The chapter closes with exercises that revisit the three main moves: DBA limits, richer deterministic acceptance, and first-order/star-free translations.
 
 % =======================================================================
 \section{Exercises}
@@ -582,8 +692,10 @@ Let $\Sigma = \{a, b\}$.
 
 \begin{chapex}[Rabin Acceptance Pairs]
 Consider the 3-state deterministic transition structure over $\{a,b\}$ with states $Q = \{q_0, q_1, q_2\}$ and transition relation:
-*   $\delta(q_0, a) = q_1, \quad \delta(q_0, b) = q_0$
-*   $\delta(q_1, a) = q_2, \quad \delta(q_1, b) = q_0$
-*   $\delta(q_2, a) = q_2, \quad \delta(q_2, b) = q_0$
+\begin{itemize}
+    \item $\delta(q_0, a) = q_1, \quad \delta(q_0, b) = q_0$.
+    \item $\delta(q_1, a) = q_2, \quad \delta(q_1, b) = q_0$.
+    \item $\delta(q_2, a) = q_2, \quad \delta(q_2, b) = q_0$.
+\end{itemize}
 Identify the Rabin accepting pairs $\Omega = \{ (L_1, U_1), \dots, (L_n, U_n) \}$ that recognize the language of words containing infinitely many occurrences of the subword $aa$.
 \end{chapex}

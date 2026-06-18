@@ -34,47 +34,6 @@ The necessity of formal verification is underscored by high-profile software and
     \item \textbf{Ariane 5 Flight 501 (1996)}: The rocket self-destructed 37 seconds after launch due to an unhandled integer overflow. A 64-bit floating-point variable representing horizontal velocity was cast into a 16-bit signed integer, causing the guidance software to fail.
 \end{enumerate}
 
-\subsection{The Three Desiderata of Model Checking}
-Model checking is an automated verification technique characterized by three properties:
-\begin{enumerate}
-    \item \textbf{Fully Automatic}: Unlike interactive theorem proving, which requires manual proof construction by an expert, model checking is a ``push-button'' technology.
-    \item \textbf{Exhaustive}: Testing only checks a subset of possible executions. Model checking exhaustively verifies all possible behaviors of the system model, ensuring that no execution path is missed.
-    \item \textbf{Counterexample Generation}: If a property is violated, the model checker does not just report a failure; it provides a concrete execution trace (a counterexample) showing exactly how to reproduce the bug.
-\end{enumerate}
-
-\begin{center}
-  \begin{tikzpicture}[
-      box/.style={draw, rectangle, rounded corners, minimum width=2.3cm, minimum height=0.9cm, align=center, thick, fill=gray!5, font=\small},
-      rhombus/.style={draw, diamond, aspect=2, minimum width=2.5cm, minimum height=0.9cm, align=center, thick, fill=yellow!5, font=\small},
-      arr/.style={->, >=stealth, thick}
-    ]
-    \node[box] (req) at (0, 3.2) {Requirements};
-    \node[box] (spec) at (3.5, 3.2) {Specification\\(LTL / CTL)};
-    \node[box] (sys) at (0, 0.8) {System / Code};
-    \node[box] (model) at (3.5, 0.8) {System Model\\(Kripke Structure)};
-    
-    \node[box] (mc) at (7.5, 2) {Model Checking\\Engine};
-    \node[rhombus] (dec) at (11.2, 2) {Verdict};
-    
-    \node[box] (safe) at (14.2, 3.2) {System Safe\\(Satisfied)};
-    \node[box] (cex) at (14.2, 0.8) {Counterexample\\(Violated)};
-    
-    \draw[arr] (req) to (spec);
-    \draw[arr] (sys) to (model);
-    \draw[arr] (spec) to (mc);
-    \draw[arr] (model) to (mc);
-    \draw[arr] (mc) to (dec);
-    
-    \draw[arr] (dec) |- node[above, pos=0.8] {Yes} (safe);
-    \draw[arr] (dec) |- node[below, pos=0.8] {No} (cex);
-    
-    % Feedback loop
-    \draw[arr] (cex.south) -- ++(0,-0.6) -| node[above, pos=0.25, font=\small] {Simulate \& Debug} (sys.south);
-  \end{tikzpicture}
-  \captionof{figure}{The automated workflow of a model checking engine.}
-  \label{fig:model-checking-flow}
-\end{center}
-
 \subsection{Dimensions and Classification of Temporal Logics}
 Temporal logics can be classified along five main dimensions:
 \begin{enumerate}
@@ -93,6 +52,10 @@ Temporal logics can be classified along five main dimensions:
 \medskip\noindent
 \textbf{The $\omega$-Regular Connection.} 
 By Kamp's Theorem (1968), LTL corresponds precisely to the \emph{first-order fragment of S1S} ($FO(S1S)$). This fragment defines exactly the \emph{star-free} $\omega$-regular languages (languages definable by $\omega$-regular expressions without using the Kleene star). 
+
+\medskip\noindent
+\textbf{Fairness preview.}
+When LTL is used to describe executions of concurrent systems, it is common to talk about fair paths.  The two standard terms are \emph{justice} or weak fairness, for actions that stay enabled and should eventually occur, and \emph{compassion} or strong fairness, for actions that are enabled infinitely often and should also occur infinitely often.  Chapter~\ref{ch:ltl-mc-fairness} uses that terminology in the model-checking setting.
 
 % =======================================================================
 \section{Formal Syntax and Semantics of LTL}
@@ -352,51 +315,6 @@ which requires that each atomic proposition $P_i$ (for $i \in \{1, \dots, n\}$) 
     \item \textbf{LTL representation}: The size of $\psi$ is linear in $n$ ($\mathcal{O}(n)$).
     \item \textbf{Automata representation}: A Büchi automaton recognizing the language of $\psi$ must explicitly keep track of which propositions have already been visited. It must branch to accommodate all $n!$ possible arrival orders of the events $P_i$. Thus, the state space of the automaton is of size $\mathcal{O}(2^n)$, representing the power set of $\{P_1, \dots, P_n\}$. This illustrates the declarative-to-operational gap.
 \end{itemize}
-
-\subsection{Fairness Constraints in LTL: Justice and Compassion}
-In the verification of concurrent or reactive systems, we must often restrict our analysis to paths that represent realistic, fair execution schedules. We express these constraints in LTL using fairness properties. Let $N$ represent that a state/transition is \emph{enabled}, and $Tk$ represent that it is \emph{taken}.
-
-We distinguish two levels of fairness, originally formalized by Manna and Pnueli:
-\begin{enumerate}
-    \item \textbf{Weak Fairness (Justice)}: If a transition is continuously enabled from some point onward, it must eventually be taken.
-          \[
-            \text{Just} = F G N \implies G F Tk
-          \]
-          Using boolean equivalences, this can be rewritten as:
-          \[
-            F G N \implies G F Tk \equiv \neg F G (N \land \neg Tk)
-          \]
-          which states that it is impossible for a transition to be enabled and not taken continuously.
-    \item \textbf{Strong Fairness (Compassion)}: If a transition is enabled infinitely many times, it must be taken infinitely many times.
-          \[
-            \text{Comp} = G F N \implies G F Tk
-          \]
-          This is equivalent to:
-          \[
-            \neg (G F N \land F G \neg Tk)
-          \]
-          stating that we cannot have the transition enabled infinitely often while only taking it finitely many times (i.e., eventually never taking it).
-\end{enumerate}
-
-\paragraph{Common Misconception: Compassion vs. Response.}
-A frequent mistake when writing strong fairness is to use the response property:
-\[
-  \text{Resp} = G (N \implies F Tk)
-\]
-This property is strictly stronger than strong fairness and does not capture the same meaning:
-\begin{itemize}
-    \item \textbf{Response}: Every single time $N$ is enabled, it must eventually be followed by a transition $Tk$.
-    \item \textbf{Compassion}: If $N$ occurs infinitely many times, $Tk$ must occur infinitely many times. If $N$ is enabled only finitely many times, the constraint is vacuously satisfied, and $Tk$ is not required to occur.
-\end{itemize}
-
-\begin{example}[Compassion Counterexample]
-Consider the trace $\sigma = \{N\} \emptyset \{N\} \emptyset^\omega$, where $Tk$ is false at all states.
-\begin{itemize}
-    \item \textbf{Evaluating Compassion}: $N$ is true at indices 0 and 2, and false thereafter. Thus, $G F N$ is false. The implication $G F N \implies G F Tk$ is therefore \textbf{True} (vacuously satisfied).
-    \item \textbf{Evaluating Response}: At index 0, $N$ holds. This requires $Tk$ to hold at some index $j \ge 0$. Since $Tk$ is false everywhere, the response formula $G (N \implies F Tk)$ is \textbf{False} at index 0.
-\end{itemize}
-Thus, the response formula incorrectly rejects a trace that is strongly fair (since the transition is only enabled finitely many times).
-\end{example}
 
 % =======================================================================
 \section{Expressive Power and Boundaries}
@@ -740,10 +658,17 @@ We identify the 8 atoms based on the basic formulas $P$, $X\Box P$, and $X\Diamo
 \end{center}
 
 Applying the transition relation:
-* From $\{A_0, A_4\}$ (where $X\Box P=0, X\Diamond\neg P=0$): transitions go to $\{A_4\}$.
-* From $\{A_1, A_5\}$ ($X\Box P=0, X\Diamond\neg P=1$): transitions go to $\{A_0, A_1, A_2, A_3, A_5\}$.
-* From $\{A_2, A_6\}$ ($X\Box P=1, X\Diamond\neg P=0$): transitions go to $\{A_6\}$.
-* From $\{A_3, A_7\}$ ($X\Box P=1, X\Diamond\neg P=1$): transitions go to $\{A_7\}$.
+\begin{itemize}[nosep]
+  \item From $\{A_0, A_4\}$, where $X\Box P=0$ and
+  $X\Diamond\neg P=0$, transitions go to $\{A_4\}$.
+  \item From $\{A_1, A_5\}$, where $X\Box P=0$ and
+  $X\Diamond\neg P=1$, transitions go to
+  $\{A_0, A_1, A_2, A_3, A_5\}$.
+  \item From $\{A_2, A_6\}$, where $X\Box P=1$ and
+  $X\Diamond\neg P=0$, transitions go to $\{A_6\}$.
+  \item From $\{A_3, A_7\}$, where $X\Box P=1$ and
+  $X\Diamond\neg P=1$, transitions go to $\{A_7\}$.
+\end{itemize}
 
 \begin{figure}[ht]
   \centering
@@ -816,79 +741,8 @@ To translate the GNBA with acceptance sets $\{F_1, \dots, F_k\}$ to a standard N
 The transition relation advances the counter from $i$ to $(i \bmod k) + 1$ if and only if the current state belongs to $F_i$.
 
 % =======================================================================
-\section{Automata-Theoretic Model Checking}
-\label{sec:ltl-modelchecking}
-
-To perform model checking, a system is modeled as a Kripke structure.
-
-\begin{definition}[Kripke Structure]
-A Kripke structure is a tuple $\mathcal{M} = (Q, I, R, L)$ over $AP$, where $Q$ is a finite set of states, $I \subseteq Q$ is the set of initial states, $R \subseteq Q \times Q$ is a total relation, and $L : Q \to 2^{AP}$ is a labeling function.
-\end{definition}
-
-The LTL model checking problem is to verify if all paths of $\mathcal{M}$ starting from initial states satisfy $\phi$:
-\[
-  L(\mathcal{M}) \subseteq L(\phi)
-\]
-We solve this by checking for counterexamples in the negated specification:
-\[
-  L(\mathcal{M}) \cap L(\neg \phi) = \emptyset \iff L(\mathcal{A}_{\mathcal{M}} \times \mathcal{A}_{\neg \phi}) = \emptyset
-\]
-Since negating the formula is $\mathcal{O}(1)$, we bypass the exponential cost of B\"uchi complementation. The product automaton emptiness is solvable in NLOGSPACE (and PSPACE on-the-fly relative to formula size).
-
-\begin{example}[Reconstructed Model Checking]
-Consider the Kripke structure $\mathcal{M}$ over $AP = \{P, R\}$ with states $\{S_0, S_1, S_2\}$, initial state $S_0$, and labeling $L(S_0)=\{P\}$, $L(S_1)=\{P, R\}$, and $L(S_2)=\{P\}$, as depicted in Figure~\ref{fig:kripke-example-mc}.
-
-\begin{center}
-  \begin{tikzpicture}[
-      st/.style={draw, circle, minimum size=1.2cm, font=\small, align=center, thick},
-      arr/.style={->, >=stealth, thick}
-    ]
-    \node[st, initial, initial where=left] (S0) at (0, 0) {$S_0$\\$\{P\}$};
-    \node[st] (S1) at (3, 0) {$S_1$\\$\{P, R\}$};
-    \node[st] (S2) at (6, 0) {$S_2$\\$\{P\}$};
-
-    \draw[arr] (S0) to (S1);
-    \draw[arr] (S1) edge[loop above] (S1);
-    \draw[arr] (S1) to[bend left=20] (S2);
-    \draw[arr] (S2) to[bend left=20] (S1);
-  \end{tikzpicture}
-  \captionof{figure}{A three-state Kripke structure $\mathcal{M}$ illustrating path-based LTL verification.}
-  \label{fig:kripke-example-mc}
-\end{center}
-
-We evaluate three properties on $\mathcal{M}$:
-\begin{itemize}
-    \item $\mathcal{M}, S_0 \models G P$: \textbf{True} (all reachable states satisfy $P$).
-    \item $\mathcal{M}, S_0 \models G F R$: \textbf{True} (any infinite path starting from $S_0$ must enter the $\{S_1, S_2\}$ component, and since the only transition out of $S_2$ goes to $S_1$, any loop will visit state $S_1$ infinitely often, where $R$ is true).
-    \item $\mathcal{M}, S_0 \models F G R$: \textbf{False} (the oscillating path $\pi = S_0 (S_1 S_2)^\omega$ visits state $S_2$ infinitely often, where $R$ is false, preventing stabilization). The model checker outputs $\pi$ as a counterexample.
-\end{itemize}
-\end{example}
-
-\subsection{NuSMV Case Study: A Three-Digit Counter}
-In practical model checkers like NuSMV, specifications are verified symbolically. To illustrate how model checkers construct counterexamples for liveness specifications, we consider a three-digit decimal counter.
-
-The system variables are $d_0, d_1, d_2 \in \{0, 1, \dots, 9\}$. The system starts at $000$ and increments by 1 at each clock cycle, wrapping around from $999$ back to $000$. The total state space has $10^3 = 1000$ states.
-
-We write the liveness specification asserting that the counter eventually resets to $000$ infinitely often:
-\[
-  \phi = G F (d_0 = 0 \land d_1 = 0 \land d_2 = 0)
-\]
-To verify this, the model checker performs the following steps:
-\begin{enumerate}
-    \item \textbf{Negation}: The specification is negated to find counterexamples:
-          \[
-            \neg \phi \equiv \neg G F (d_0 = 0 \land d_1 = 0 \land d_2 = 0) \equiv F G \neg (d_0 = 0 \land d_1 = 0 \land d_2 = 0)
-          \]
-          which represents the properties that eventually, the reset state $000$ is never visited again.
-    \item \textbf{Automaton Compilation}: The negated formula $\neg \phi$ is compiled into an NBA $\mathcal{A}_{\neg \phi}$.
-    \item \textbf{Product Construction and Emptiness Check}: The product of the counter system's transition system and $\mathcal{A}_{\neg \phi}$ is analyzed. Since the counter increments deterministically and must wrap around to $000$ every 1000 steps, there is no infinite path in the system that can avoid $000$ forever.
-    \item \textbf{Verdict}: The intersection is empty ($L(\mathcal{M}) \cap L(\neg \phi) = \emptyset$). The model checker reports that the property is satisfied.
-\end{enumerate}
-If we were to modify the system such that it got stuck in a dead-end loop (e.g., stopping at $999$ and looping there forever), the model checker would find a path:
-\[
-  000 \to 001 \to \dots \to 999 \to (999)^\omega
-\]
-where $000$ is never visited again. It would output this lasso path as a counterexample, demonstrating that the liveness property was violated.
+\paragraph{Bridge to Chapter~\ref{ch:ltl-mc-fairness}.}
+This chapter stops at the specification side: syntax, semantics, expressiveness, past operators, satisfiability, and the automata viewpoint.  Chapter~\ref{ch:ltl-mc-fairness} takes the next step and uses those formulas for model checking over finite systems, with fairness handled there.
 
 % =======================================================================
 \section{Exercises}
