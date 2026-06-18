@@ -31,7 +31,19 @@ Let $L \subseteq \Sigma^*$ be a language. The Myhill--Nerode equivalence relatio
 If $x \equiv_L y$, we say that $x$ and $y$ behave identically with respect to completions in $L$. We denote the equivalence class of a string $x$ by $[x]_L = \{y \in \Sigma^* \mid x \equiv_L y\}$.
 \end{definition}
 
-To simplify notation, we write $xz =_L yz$ to denote that $xz$ and $yz$ have the same membership status in $L$ (both inside or both outside). The relation $\equiv_L$ is an equivalence relation: it is reflexive, symmetric, and transitive. Crucially, it satisfies the property of being a \emph{right congruence} (or being right invariant).
+To simplify notation, we write $xz =_L yz$ to denote that $xz$ and $yz$ have the same membership status in $L$ (both inside or both outside). The relation $\equiv_L$ is an equivalence relation: it is reflexive, symmetric, and transitive. 
+
+\begin{intermezzo}{The Puzzle Piece Analogy}
+Imagine the universe of all strings $\Sigma^*$ painted on a canvas. The simplest classification is the trivial two-class equivalence: a blue region (strings inside $L$) and a gray region (strings outside $L$). The Myhill--Nerode equivalence classes act as \emph{puzzle pieces} that tile this canvas. 
+
+Two critical properties govern these puzzle pieces:
+\begin{enumerate}
+    \item \textbf{Saturation}: A single puzzle piece cannot cross the blue/gray boundary. Every string in a piece must share the same membership status.
+    \item \textbf{Right-invariance}: If you take all the strings in one puzzle piece and append the same letter $a$, they must all land squarely inside a \emph{single target puzzle piece}. You cannot split a puzzle piece by taking a step.
+\end{enumerate}
+\end{intermezzo}
+
+Crucially, $\equiv_L$ satisfies the property of being a \emph{right congruence} (or being right invariant), perfectly matching our puzzle piece intuition.
 
 \begin{lemma}[Right invariance]
 \label{lem:right-invariance}
@@ -138,7 +150,15 @@ To bypass these negative results, Dana Angluin (1987) proposed the \emph{active 
   \label{fig:mat-framework}
 \end{figure}
 
-The teacher knows the target regular language $L$ (represented internally as a DFA, regular expression, or program) but does not reveal it directly. The learner only knows the alphabet $\Sigma$. The learner can then ask the teacher two types of queries:
+The active learning setup is often framed as a game between a \textbf{Learner} and a \textbf{Teacher}. The teacher holds a secret target regular language $L$ (represented internally as a DFA, regular expression, or black-box program). The learner only knows the alphabet $\Sigma$ and must reconstruct the minimal DFA for $L$. To do this, the learner can ask two types of queries. 
+
+Could the learner win the game using only one type of query?
+\begin{itemize}
+    \item \textbf{Only Membership Queries?} No. If the learner only asks "is string $w$ in $L$?", it can only gather a finite set of labeled examples. There are always infinitely many valid DFAs that fit any finite set of points. The learner could never be mathematically certain it found the right one.
+    \item \textbf{Only Equivalence Queries?} Yes! Since the set of all DFAs is countable, the learner could simply enumerate them ($A_1, A_2, A_3 \dots$) and ask "Is it $A_1$?", "Is it $A_2$?". The teacher will eventually say yes. However, this brute-force approach takes \emph{exponential time}.
+\end{itemize}
+
+By combining both queries, the MAT framework allows the learner to win the game in polynomial time.
 
 \begin{definition}[Membership Query]
 \label{def:membership-query}
@@ -170,6 +190,9 @@ To prevent an adversarial teacher from stalling the algorithm by returning arbit
 
 By combining MQs and EQs, active learning makes it possible to reconstruct the minimal DFA in polynomial time. The learner uses MQs to explore local state transitions and EQs to detect global discrepancies between the candidate model and the true language.
 
+\medskip\noindent
+\textbf{Approximating EQs in Practice.} The MAT framework is a theoretical ideal. In real-world system identification (often called ``model learning'' or ``black-box checking''), the teacher is not a mathematical oracle but a physical protocol or software system. While MQs are easy to execute (just send a test sequence to the system and observe if it accepts or crashes), EQs are impossible to answer perfectly. In practice, EQs are approximated via \textbf{fuzzing}: the learner launches large batches of random test sequences against both the physical system and the candidate DFA. If the outputs match for thousands of random tests, the learner assumes the candidate DFA is equivalent to the system. If a discrepancy is found, that specific test sequence serves as the counterexample.
+
 % =======================================================================
 \section{Angluin's $L^*$ Algorithm}
 \label{sec:lstar-algorithm}
@@ -195,11 +218,21 @@ The observation table is a matrix where:
 
 \aside{In practice, the observation table also serves as a memoization cache: if a string's membership has already been queried, its result is stored, preventing redundant queries to the teacher.}
 
-For any string $s \in S \cup (S \cdot \Sigma)$, we define its \textbf{row profile} $\text{row}(s)$ as the finite vector of values indexed by $T$:
+Before defining the row profile, we must formally introduce the \textbf{$T$-restricted equivalence} ($\equiv_{L,T}$). This relation sits strictly between the trivial 2-class equivalence (equal-L) and the true Myhill-Nerode equivalence ($\equiv_L$). 
+Two strings are $T$-equivalent if they cannot be distinguished by any suffix from the set $T$:
+\[
+  x \equiv_{L,T} y \iff \forall t \in T, (xt \in L \iff yt \in L)
+\]
+
+\begin{intermezzo}{The Test Set as a Knob}
+Think of the test set $T$ as a \emph{tuning knob}. When $T$ is small (e.g., just $\{\epsilon\}$), $\equiv_{L,T}$ is a very coarse approximation, yielding large, chunky puzzle pieces. As the learner discovers counterexamples, it adds strings to $T$, effectively "turning the knob." This refines the equivalence, shattering the large puzzle pieces into smaller, more precise ones, until the approximation perfectly aligns with the true Myhill-Nerode equivalence classes.
+\end{intermezzo}
+
+For any string $s \in S \cup (S \cdot \Sigma)$, we define its \textbf{row profile} $\text{row}(s)$ as the finite vector of boolean values indexed by $T$:
 \[
   \text{row}(s) = \langle \text{Table}(s, t_1), \text{Table}(s, t_2), \dots, \text{Table}(s, t_{|T|}) \rangle
 \]
-The row profile acts as an approximation of the Myhill--Nerode equivalence class of $s$, restricted only to the suffixes present in the test set $T$.
+The row profile is simply the characteristic function (a vector of 0s and 1s) representing the $\equiv_{L,T}$ equivalence class of $s$. If two strings have the same row profile, they currently reside in the same approximated puzzle piece.
 
 \subsection{Table properties: Minimality and Completeness}
 
@@ -211,7 +244,7 @@ An observation table is \textbf{$T$-minimal} (or consistent) if no two distinct 
 \[
   \forall s_1, s_2 \in S, (\text{row}(s_1) = \text{row}(s_2) \implies s_1 = s_2)
 \]
-In other words, $S$ contains at most one representative for each approximated equivalence class.
+In puzzle piece terms, minimality means we have selected \emph{at most one representative string per puzzle piece}. There are no redundant states.
 \end{definition}
 
 \begin{definition}[$T$-completeness]
@@ -220,7 +253,7 @@ An observation table is \textbf{$T$-complete} if for every one-step extension $s
 \[
   \forall s \in S, \forall a \in \Sigma, \exists s' \in S, (\text{row}(s \cdot a) = \text{row}(s'))
 \]
-If a table is not $T$-complete, it means that extending a known state representative by a letter leads to a state profile that we have not yet selected as a state representative.
+In puzzle piece terms, completeness means that if any representative takes a step by one letter and lands in a new puzzle piece, \emph{that target puzzle piece must already have a designated representative in $S$}. If it doesn't, the table is incomplete, and we must promote the stray string to be the new representative for that piece.
 \end{definition}
 
 \subsection{DFA Construction}
@@ -533,7 +566,7 @@ where $s_0 = \epsilon$ and $s_i$ is the representative of the state reached afte
 
 We assume, for the sake of contradiction, that the table remains $T'$-complete with the same set of representatives $S$. That is, no new representatives are added.
 
-The most unintuitive---yet brilliant---step of this proof involves concatenating the string representative of a state $s_i$ with a suffix of the counterexample $t_i$. By tracking the membership of $s_i \cdot t_i$, we can expose where the candidate automaton made a faulty transition. Under this assumption, we prove by induction that for all $i \in \{0, \dots, k\}$, the string $s_i \cdot t_i$ has the same membership status in $L$:
+The most unintuitive---yet brilliant---step of this proof involves the string $s_i t_i$. Why this string? Think of it operationally: we feed the counterexample $w$ into the automaton, but we \emph{pause} it after reading the prefix $a_1 \dots a_i$. At this point, the automaton is in state $s_i$. We then \emph{swap out} the prefix we just read for the canonical string representative $s_i$, and \emph{play} the remaining suffix $t_i$. By tracking the membership of this hybrid string $s_i \cdot t_i$ as $i$ goes from $0$ to $k$, we can pinpoint exactly where the candidate automaton made a faulty transition. Under the assumption of completeness, we prove by induction that for all $i \in \{0, \dots, k\}$, the string $s_i \cdot t_i$ has the same membership status in $L$:
 \[
   s_i t_i \in L \iff s_{i+1} t_{i+1} \in L
 \]
