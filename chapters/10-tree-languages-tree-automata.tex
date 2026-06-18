@@ -182,6 +182,7 @@ To visualize these definitions, let us look at the finite binary tree ($K=2$) in
 Studying $K$-ary trees for arbitrary $K$ complicates notations and proofs without adding conceptual value. Without loss of generality, we can restrict our study to \textbf{binary trees} ($K=2$). Any $K$-ary tree can be encoded into a binary tree over an extended alphabet by introducing a dummy padding symbol $\Omega$.
 
 \begin{definition}[Binary Coding of $K$-ary Trees]
+\label{def:binary-coding}
 Let $t$ be a $K$-ary $A$-valued tree. Let $\Omega$ be a fresh symbol not in $A$. The binary coding of $t$ is a binary tree $t_{bin}: \text{dom}(t_{bin}) \to A \cup \{\Omega\}$ constructed as follows:
 \begin{enumerate}
     \item We map each node $w = n_1 n_2 \dots n_r \in \text{dom}(t)$ (where $n_i < K$) to a binary sequence using the injection $f: \{0, \dots, K-1\}^* \to \{0,1\}^*$:
@@ -554,6 +555,7 @@ Let us trace this automaton on a tree. At the root, we start in $q_0$. If we see
 \end{example}
 
 \begin{theorem}[Top-Down Deterministic Limit]
+\label{thm:top-down-deterministic-limit}
 Deterministic top-down tree automata (DTTA) are strictly less expressive than non-deterministic top-down tree automata (NTTA):
 $$\text{DTTA} \subset \text{NTTA}$$
 \end{theorem}
@@ -718,4 +720,346 @@ The class of regular tree languages is closed under all Boolean operations (unio
 \begin{proof}[Proof Sketch]
 Union and intersection are achieved via standard product constructions. Complementation is achieved by first determinizing the bottom-up tree automaton (via the subset construction) and then complement at the root: $F^C = \mathcal{P}(Q) \setminus F'$.
 \end{proof}
+
+---
+
+% =======================================================================
+\section{Automata on Infinite Trees}
+\label{sec:automata-infinite-trees}
+
+In Section~\ref{sec:tree-automata-finite}, we analyzed tree automata on finite trees and established that bottom-up automata can be determinized using a subset construction, making them equivalent to regular tree expressions. However, when we transition to infinite trees, we encounter a fundamental structural barrier: \textbf{infinite trees have no leaves or frontier} from which a bottom-up automaton could begin its computation.
+
+Consequently, on infinite trees, we are forced to process the tree in a \textbf{top-down} direction, starting at the root and moving down the branches. But as we proved in Theorem~\ref{thm:top-down-deterministic-limit}, top-down determinism is strictly weaker than non-determinism, meaning we cannot determinize top-down automata using standard subset techniques. To build a robust theory of infinite tree languages, we must enrich the acceptance conditions of top-down automata to reason about behavior in the limit (along the infinite paths of the tree). This leads us to Büchi and Rabin tree automata.
+
+\subsection{Büchi Tree Automata}
+A Büchi tree automaton checks whether every infinite path in the run tree satisfies a Büchi acceptance condition.
+
+\begin{definition}[Büchi Tree Automaton]
+A \emph{non-deterministic Büchi tree automaton} (BTA) over infinite binary trees is a tuple:
+$$A = (Q, \Sigma, q_0, \Delta, F)$$
+where:
+\begin{itemize}
+    \item $Q$ is a finite set of states,
+    \item $\Sigma$ is the input alphabet,
+    \item $q_0 \in Q$ is the single initial state,
+    \item $\Delta \subseteq Q \times \Sigma \times Q \times Q$ is the transition relation,
+    \item $F \subseteq Q$ is the set of accepting states.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[BTA Run and Acceptance]
+Let $t: \{0,1\}^* \to \Sigma$ be an infinite binary tree. A \emph{run} of the BTA $A$ on $t$ is an infinite tree $R: \{0,1\}^* \to Q$ labeled with states such that:
+\begin{enumerate}
+    \item \textbf{Initiality}: The root of the run is labeled with the initial state:
+    $$R(\epsilon) = q_0$$
+    \item \textbf{Consequentiality}: For every node $w \in \{0,1\}^*$, the transitions must obey the transition relation:
+    $$(R(w), t(w), R(w0), R(w1)) \in \Delta$$
+\end{enumerate}
+An infinite path $\pi = d_1 d_2 d_3 \dots \in \{0,1\}^\omega$ (where each $d_i \in \{0,1\}$) induces an infinite sequence of states in the run:
+$$R|_\pi = R(\epsilon), \, R(d_1), \, R(d_1 d_2), \, R(d_1 d_2 d_3), \, \dots$$
+The run $R$ is \emph{successful} (or accepting) if for \emph{every} infinite path $\pi$ through the tree, the sequence of states $R|_\pi$ visits the set of accepting states $F$ infinitely often:
+$$\forall \pi \in \{0,1\}^\omega, \quad \text{inf}(R|_\pi) \cap F \neq \emptyset$$
+The tree $t$ is accepted by $A$ if there exists a successful run of $A$ on $t$. The language recognized by $A$ is denoted by $L(A)$.
+\end{definition}
+
+\aside{Notice the universal path quantification in the acceptance condition: \emph{every} path $\pi$ must satisfy the Büchi condition. If even a single path fails to visit $F$ infinitely often, the entire run is rejected.}
+
+To understand the interaction between non-determinism and path quantification, let us look at two classical examples at the blackboard.
+
+\begin{example}[Universal Property: Every Path Infinitely Many $a$'s]
+Let $\Sigma = \{a, b\}$. We want to recognize the tree language $T_{\forall, \infty, a}$ of all infinite binary trees where every path contains infinitely many nodes labeled $a$.
+We can construct a deterministic BTA for this language as follows:
+\begin{itemize}
+    \item States: $Q = \{q_0, q_a\}$, with initial state $q_0$.
+    \item Accepting states: $F = \{q_a\}$.
+    \item Transitions: For each state $q \in Q$:
+    \begin{align*}
+        (q, a, q_a, q_a) &\in \Delta \\
+        (q, b, q_0, q_0) &\in \Delta
+    \end{align*}
+\end{itemize}
+Since the transitions are deterministic, for any input tree $t$, there is a unique run $R$. Along any path $\pi$, the state transitions to $q_a$ if and only if the current node is labeled $a$, and transitions to $q_0$ if and only if the node is labeled $b$. Thus, the run visits $q_a$ infinitely often along a path $\pi$ if and only if the path contains infinitely many $a$'s. Since the acceptance condition requires this for all paths, the tree is accepted if and only if every path contains infinitely many $a$'s.
+\end{example}
+
+\begin{example}[Existential Property: At Least One Path Infinitely Many $a$'s]
+\label{ex:buchi-infinitely-many-existential}
+Let $\Sigma = \{a, b\}$. We want to recognize the tree language $T_{\exists, \infty, a}$ of all infinite binary trees where \emph{there exists} at least one path containing infinitely many nodes labeled $a$.
+Here, the path quantification is existential rather than universal. Since BTA always checks all paths universally, we must use non-determinism to guess the "good" path. Along the guessed path, the automaton performs the Büchi check, while routing all other branches to a dummy state $q_T$ that accepts any tree.
+\end{example}
+
+Let us build the BTA for $T_{\exists, \infty, a}$:
+\begin{itemize}
+    \item States: $Q = \{q_0, q_a, q_T\}$, with initial state $q_0$.
+    \item Accepting states: $F = \{q_a, q_T\}$.
+    \item Transitions:
+    \begin{itemize}
+        \item For the dummy state $q_T$, we accept everything:
+        $$(q_T, \sigma, q_T, q_T) \in \Delta \quad \text{for all } \sigma \in \{a, b\}$$
+        \item For $q \in \{q_0, q_a\}$:
+        \begin{align*}
+            \text{If label is } a: \quad & (q, a, q_a, q_T) \in \Delta \quad \text{(guess left is good)} \\
+                                       & (q, a, q_T, q_a) \in \Delta \quad \text{(guess right is good)} \\
+            \text{If label is } b: \quad & (q, b, q_0, q_T) \in \Delta \quad \text{(guess left is good)} \\
+                                       & (q, b, q_T, q_0) \in \Delta \quad \text{(guess right is good)}
+        \end{align*}
+    \end{itemize}
+\end{itemize}
+
+\paragraph{Whiteboard Trace of the Guessing Mechanism.}
+Let us trace how this automaton evaluates a run on a tree $t$:
+\begin{itemize}
+    \item The automaton starts at the root in state $q_0$. At each step, it chooses one child to receive a state in $\{q_0, q_a\}$ (continuing the search for the path with infinitely many $a$'s), and sends the other child to state $q_T$.
+    \item Any path routed to $q_T$ stays in $q_T$ forever. Since $q_T \in F$, these paths trivially satisfy the Büchi condition $\text{inf}(R|_\pi) \cap F \neq \emptyset$.
+    \item The single path that is checked will visit state $q_a$ (which is in $F$) if and only if it encounters nodes labeled $a$.
+    \item If there exists a path with infinitely many $a$'s, the automaton can non-deterministically guess this path. The check along this path will succeed (visiting $q_a$ infinitely often), and all other paths will succeed trivially in $q_T$. Hence, the run is successful.
+    \item If no such path exists, then along any run, the checked path will only visit $q_a$ finitely many times, failing the Büchi condition. Thus, no successful run exists, and the tree is rejected.
+\end{itemize}
+
+\subsection{The Complementation Barrier for Büchi Tree Automata}
+In the case of infinite words, non-deterministic Büchi automata (NBAs) are closed under complementation. However, this closure property fails dramatically for tree automata.
+
+\begin{theorem}[Büchi Non-closure under Complementation]
+The class of languages recognized by Büchi tree automata is not closed under complementation.
+\end{theorem}
+
+\begin{proof}
+To prove this, we consider the complement of the existential language $T_{\exists, \infty, a}$ from Example~\ref{ex:buchi-infinitely-many-existential}:
+$$T_{co\text{-}\exists} = \{ t \in T_\omega(\{a,b\}) \mid \text{every path in } t \text{ contains finitely many } a\text{'s} \}$$
+We show that while $T_{\exists, \infty, a}$ is recognizable by a BTA, its complement $T_{co\text{-}\exists}$ is not recognizable by any BTA.
+
+Assume for contradiction that there exists a BTA $A = (Q, \Sigma, q_0, \Delta, F)$ such that $L(A) = T_{co\text{-}\exists}$.
+Consider the tree $t_b$ where all nodes are labeled with $b$. Since $t_b$ has zero $a$'s, every path in $t_b$ contains only finitely many $a$'s, so $t_b \in T_{co\text{-}\exists}$. Thus, there exists a successful run $R$ of $A$ on $t_b$.
+By definition of a successful run, for every path $\pi \in \{0,1\}^\omega$, we have $\text{inf}(R|_\pi) \cap F \neq \emptyset$.
+
+Let $n = |Q|$ be the number of states in $A$. We can trace a path in the run tree $R$ to construct a contradiction.
+Starting from the root $\epsilon$, since every path in the run visits $F$ infinitely often, we can find a node $w_1 = d_1 \dots d_{k_1}$ (with $k_1 > 0$) such that the state sequence from the root to $w_1$ visits at least one state in $F$.
+Similarly, from the subtree root $w_1$, we can find a node $w_1 w_2$ (where $w_2 = d'_{1} \dots d'_{k_2}$, $k_2 > 0$) such that the state sequence from $w_1$ to $w_1 w_2$ visits a state in $F$.
+Repeating this construction, we obtain an infinite path:
+$$\pi = w_1 w_2 w_3 \dots$$
+such that for each segment $w_j$, the run visits a state in $F$.
+Since $Q$ is finite, by the pigeonhole principle, if we make these segments sufficiently long, we can find two nodes $u$ and $uv$ along this path such that:
+\begin{enumerate}
+    \item $R(u) = R(uv) = q$ for some state $q \in Q$,
+    \item The path segment from $u$ to $uv$ visits at least one state in $F$.
+\end{enumerate}
+
+Now, since $R(u) = R(uv) = q$, the state at the boundary repeats. Because the transitions of the top-down automaton only depend on the current state and the current node label, we can "graft" this repeating transition sequence.
+Specifically, let us construct a new input tree $t'$:
+\begin{itemize}
+    \item Along the path $\pi$, we repeat the segment $v$ infinitely many times.
+    \item At the end of each segment (i.e., at nodes of the form $u v^m$), we label the node with $a$.
+    \item For all other nodes in $t'$ not along this repeating path, we label them with $b$.
+\end{itemize}
+We can construct a run $R'$ on $t'$ by copying the transitions of $R$ for all branches that branch off the main path, and repeating the state sequence from $u$ to $uv$ along the main path.
+Because the state repeats at the boundary ($q \xrightarrow{b} \dots \xrightarrow{a} q$), this run is valid.
+Let us evaluate if $R'$ is successful:
+\begin{itemize}
+    \item For any path that branches off the main path $\pi$, it eventually enters a subtree labeled entirely with $b$, where the run behaves exactly like the successful run $R$ on $t_b$. Thus, all these paths satisfy the Büchi condition.
+    \item For the main path $\pi$ itself, the state sequence is periodic and repeats the segment from $u$ to $uv$ infinitely often. Since this segment contains a state in $F$, the path $\pi$ visits $F$ infinitely often, satisfying the Büchi condition.
+\end{itemize}
+Thus, the run $R'$ is successful, meaning $A$ accepts $t'$.
+However, the path $\pi$ in $t'$ contains infinitely many nodes labeled $a$ (since we placed $a$ at the end of each repeated segment $v$). Thus, $t' \notin T_{co\text{-}\exists}$.
+This is a contradiction, since $L(A) = T_{co\text{-}\exists}$.
+Therefore, no BTA can recognize $T_{co\text{-}\exists}$, proving that Büchi tree automata are not closed under complementation.
+\end{proof}
+
+\aside{Why does complementation fail for Büchi tree automata?
+In words, an NBA can be complemented by converting it to a deterministic Rabin automaton (using Safra's construction) and then complement the Rabin condition. In trees, we cannot determinize top-down, and the lack of coordination between paths prevents us from using the word complementation techniques directly. The universal path quantification of BTA makes it impossible to check that a path property is violated existential-style on all paths simultaneously.}
+
+\subsection{Rabin Tree Automata}
+To restore closure under complementation and build a complete logic-automata connection on infinite trees, Michael Rabin introduced \textbf{Rabin Tree Automata} in his landmark 1969 paper. Rabin tree automata generalize the acceptance condition by using pairs of state sets.
+
+\begin{definition}[Rabin Tree Automaton]
+A \emph{non-deterministic Rabin tree automaton} (RTA) over infinite binary trees is a tuple:
+$$A = (Q, \Sigma, q_0, \Delta, \Omega)$$
+where $Q, \Sigma, q_0, \Delta$ are defined as in BTA, and:
+$$\Omega = \{ (L_1, U_1), \, (L_2, U_2), \, \dots, \, (L_k, U_k) \}$$
+is a finite set of $k$ Rabin pairs of states, where $L_i, U_i \subseteq Q$.
+\end{definition}
+
+\begin{definition}[RTA Acceptance]
+A run $R: \{0,1\}^* \to Q$ of the RTA $A$ is \emph{successful} if for \emph{every} infinite path $\pi \in \{0,1\}^\omega$, the set of states visited infinitely often along $\pi$ satisfies the Rabin condition with respect to $\Omega$:
+$$\forall \pi \in \{0,1\}^\omega, \quad \exists i \in \{1, \dots, k\} \text{ s.t. } \text{inf}(R|_\pi) \cap L_i = \emptyset \land \text{inf}(R|_\pi) \cap U_i \neq \emptyset$$
+In words, for every path $\pi$, there must exist some pair $(L_i, U_i)$ such that the path visits states in $L_i$ only finitely many times, and visits states in $U_i$ infinitely many times.
+\end{definition}
+
+Let us see how Rabin pairs allow us to bypass the Büchi complementation barrier by recognizing the language $T_{co\text{-}\exists}$ of infinite binary trees where every path contains only finitely many $a$'s.
+
+\begin{example}[RTA for "Every Path Finitely Many $a$'s"]
+Let $\Sigma = \{a, b\}$. We want to design a deterministic Rabin tree automaton (DRTA) for the language $T_{co\text{-}\exists}$ where every path contains only finitely many $a$'s.
+We construct the DRTA as follows:
+\begin{itemize}
+    \item States: $Q = \{q_0, q_a\}$, with initial state $q_0$.
+    \item Transitions: For each state $q \in Q$:
+    \begin{align*}
+        (q, a, q_a, q_a) &\in \Delta \\
+        (q, b, q_0, q_0) &\in \Delta
+    \end{align*}
+    \item Rabin pairs: $\Omega = \{ (L_1, U_1) \}$ where $L_1 = \{q_a\}$ and $U_1 = \{q_0\}$.
+\end{itemize}
+Let us trace the Rabin condition on any path $\pi$ of the unique run tree:
+\begin{itemize}
+    \item The state is $q_a$ at a node if and only if the node label is $a$.
+    \item If the path contains only finitely many $a$'s, then the state $q_a$ is visited only finitely many times, meaning $\text{inf}(R|_\pi) \cap L_1 = \emptyset$. Since the path is infinite, it must contain infinitely many $b$'s, which means the state $q_0$ is visited infinitely often: $\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$. The Rabin condition is satisfied.
+    \item If the path contains infinitely many $a$'s, then $q_a$ is visited infinitely often, meaning $\text{inf}(R|_\pi) \cap L_1 \neq \emptyset$, violating the Rabin condition.
+\end{itemize}
+Since the condition is checked universally for all paths, the automaton accepts the tree if and only if every path contains only finitely many $a$'s. This deterministic RTA recognizes $T_{co\text{-}\exists}$ using a single Rabin pair.
+\end{example}
+
+\subsection{Rabin's Decidability Theorem and S2S}
+The expressive power of Rabin tree automata is the key to proving the decidability of the Monadic Second-Order Logic of Two Successors, denoted by \textbf{S2S}.
+
+\begin{definition}[S2S Logic]
+The logic \emph{S2S} is the monadic second-order theory of two successors. The language of S2S is defined over the domain $\{0,1\}^*$ (the infinite binary tree). Formally, S2S formulas are built from:
+\begin{itemize}
+    \item First-order variables $x, y, z$ (representing nodes in the binary tree),
+    \item Second-order variables $X, Y, Z$ (representing sets of nodes),
+    \item Relations:
+    \begin{itemize}
+        \item $y = x0$ (left successor relation),
+        \item $y = x1$ (right successor relation),
+        \item $x \in X$ (set membership).
+    \end{itemize}
+    \item Standard logical connectives ($\lor, \land, \neg$) and quantifiers ($\exists x, \forall x, \exists X, \forall X$).
+\end{itemize}
+\end{definition}
+
+S2S is extremely powerful. We can express ordering relations ($x < y$, meaning $x$ is a prefix of $y$), check if a set of nodes is a path, and reason about properties of infinite branching computations.
+
+In 1969, Michael Rabin proved one of the most celebrated results in mathematical logic and computer science:
+
+\begin{theorem}[Rabin's Decidability Theorem]
+The Monadic Second-Order Theory of Two Successors (S2S) is decidable.
+\end{theorem}
+
+The proof of Rabin's theorem follows the same automata-theoretic pipeline we saw for S1S:
+\begin{enumerate}
+    \item We establish a correspondence: for every S2S formula $\phi(X_1, \dots, X_n)$ with free set variables, we can construct an equivalent Rabin tree automaton $A_\phi$ over the alphabet $\Sigma = \{0,1\}^n$ such that $L(A_\phi)$ is the set of all tree valuations satisfying $\phi$.
+    \item The logical connectives map to operations on automata:
+    \begin{itemize}
+        \item Disjunction ($\lor$) maps to automaton union,
+        \item Existential second-order quantification ($\exists X$) maps to automaton projection,
+        \item Negation ($\neg$) maps to automaton complementation.
+    \end{itemize}
+    \item Once the formula is compiled into a sentence (no free variables), checking the validity of the formula reduces to checking the emptiness of the compiled Rabin tree automaton.
+\end{enumerate}
+
+To make this pipeline work, the key mathematical hurdle is proving that Rabin tree automata are closed under complementation. Unlike word automata, where this is relatively simple, tree complementation is incredibly complex and represents the core of Rabin's paper:
+
+\begin{theorem}[Rabin Complementation Theorem]
+The class of languages recognized by Rabin tree automata is closed under complementation.
+\end{theorem}
+
+\begin{proof}[Proof Sketch and the Role of Game Determinacy]
+Let $A$ be an RTA. To construct an automaton recognizing $L(A)^C$, we must verify that no successful run of $A$ exists on an input tree $t$.
+Rabin formulated the search for a successful run as a game played between two players on an infinite arena:
+\begin{itemize}
+    \item **Player 1 (Automaton)** tries to choose transitions that build a successful run,
+    \item **Player 2 (Path-Finder)** tries to select a path $\pi$ that violates the Rabin acceptance condition.
+\end{itemize}
+The input tree $t$ is accepted by $A$ if and only if Player 1 has a winning strategy in this run-construction game. Consequently, $t$ is rejected (belongs to the complement) if and only if Player 1 does not have a winning strategy.
+By the **Borel Determinacy Theorem** (proved by Donald A. Martin), since the winning condition of the game is Borel, the game is determined: one of the two players must have a winning strategy.
+Therefore, $t$ is in the complement if and only if Player 2 has a winning strategy.
+We can construct a Rabin tree automaton $A^C$ that runs on $t$ and verifies the existence of a winning strategy for Player 2. Since Player 2's choices and winning conditions are regular, this winning strategy can be represented as a tree labeling and checked by another RTA, proving closure under complementation.
+\end{proof}
+
+\subsection{Weak S2S Characterization}
+Just as we did for S1S, we can study the weak version of S2S, denoted by \textbf{WS2S}.
+
+\begin{definition}[Weak S2S Logic]
+The logic \emph{WS2S} is the monadic second-order theory of two successors where second-order variables $X, Y, Z$ are restricted to range only over \emph{finite} sets of nodes.
+\end{definition}
+
+In the linear-time case, WS1S and S1S are expressively equivalent: both correspond to regular languages of infinite words. In the branching-time case, this equivalence breaks. WS2S is strictly weaker than S2S.
+
+We can characterize this expressiveness gap using Büchi tree automata:
+
+\begin{theorem}[Weak S2S Characterization]
+A tree language $T \subseteq T_\omega(A)$ is definable in WS2S if and only if both $T$ and its complement $T^C$ are recognizable by Büchi tree automata.
+\end{theorem}
+
+Since $T_{\exists, \infty, a}$ is recognizable by a BTA but its complement $T_{co\text{-}\exists}$ is not, we immediately obtain:
+\begin{itemize}
+    \item The language $T_{\exists, \infty, a}$ ("there exists a path with infinitely many $a$'s") is definable in S2S,
+    \item The language $T_{\exists, \infty, a}$ is \emph{not} definable in WS2S.
+\end{itemize}
+This illustrates that restricting second-order quantification to finite sets limits our ability to reason about properties that must hold infinitely often along branching paths.
+
+---
+
+\section{Exercises}
+\label{sec:tree-exercises}
+
+\begin{enumerate}
+    \item \textbf{Tree Domain Properties} \\
+    Verify whether the following sets of binary strings satisfy the prefix-closure and child-ordering properties to form a valid binary tree domain:
+    \begin{enumerate}
+        \item $D_1 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 11 \}$
+        \item $D_2 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 10 \}$
+    \end{enumerate}
+    \textbf{Solution Hint}:
+    \begin{itemize}
+        \item For $D_1$: The node $11 \in D_1$. By width-closure (child ordering), since $11$ exists and $0 < 1$, the node $10$ must also belong to the domain. Since $10 \notin D_1$, width-closure is violated. $D_1$ is not a valid domain.
+        \item For $D_2$: Check all prefixes: for $00, 01 \in D_2$, the parent is $0 \in D_2$. For $10 \in D_2$, the parent is $1 \in D_2$. All prefixes are present, so prefix-closure holds. Check child ordering: $01 \in D_2 \implies 00 \in D_2$ (holds since $0 < 1$). $10 \in D_2 \implies 10 \in D_2$ (holds). No other sibling nodes violate the ordering. $D_2$ is a valid domain.
+    \end{itemize}
+
+    \item \textbf{Binary Coding of 3-ary Trees} \\
+    Let $t$ be a 3-ary tree with domain $\text{dom}(t) = \{ \epsilon, \, 0, \, 1, \, 2 \}$ and labeling:
+    $$t(\epsilon) = f, \quad t(0) = a, \quad t(1) = b, \quad t(2) = a$$
+    Compute the domain and labeling of its binary coded tree $t_{bin}$ according to Definition~\ref{def:binary-coding}. \\
+    \textbf{Solution Hint}:
+    Recall the injection $f(n_1 \dots n_r) = 1^{n_1}0 \dots 1^{n_r}0$. Let us map the nodes:
+    \begin{itemize}
+        \item Root: $f(\epsilon) = \epsilon$. Thus, $t_{bin}(\epsilon) = t(\epsilon) = f$.
+        \item Child 0: $f(0) = 1^0 0 = 0$. Thus, $t_{bin}(0) = t(0) = a$.
+        \item Child 1: $f(1) = 1^1 0 = 10$. Thus, $t_{bin}(10) = t(1) = b$.
+        \item Child 2: $f(2) = 1^2 0 = 110$. Thus, $t_{bin}(110) = t(2) = a$.
+    \end{itemize}
+    The domain of $t_{bin}$ is the prefix closure of $\{ \epsilon, 0, 10, 110 \}$, which is:
+    $$\text{dom}(t_{bin}) = \{ \epsilon, \, 0, \, 1, \, 10, \, 11, \, 110 \}$$
+    The labels for the nodes are:
+    $$t_{bin}(\epsilon) = f, \quad t_{bin}(0) = a, \quad t_{bin}(10) = b, \quad t_{bin}(110) = a$$
+    For the remaining nodes (which are prefix completions not matching any original node):
+    $$t_{bin}(1) = \Omega, \quad t_{bin}(11) = \Omega$$
+
+    \item \textbf{Bottom-Up Automaton Construction} \\
+    Construct a deterministic bottom-up tree automaton (DBTA) that recognizes the language $T_{xor} = \{ f(a,b), \, f(b,a) \}$. Write down the transition table and explain how the automaton processes the tree $f(a,b)$. \\
+    \textbf{Solution Hint}:
+    We can define the DBTA states as $Q = \{q_\emptyset, q_a, q_b, q_{acc}, q_{err}\}$, with initial state $Q_0 = \{q_\emptyset\}$ (applied at the outer frontier), accepting states $F = \{q_{acc}\}$, and transitions:
+    \begin{itemize}
+        \item Leaf transitions (height 0, children in state $q_\emptyset$):
+        $$\delta'(q_\emptyset, q_\emptyset, a) = q_a, \quad \delta'(q_\emptyset, q_\emptyset, b) = q_b, \quad \delta'(q_\emptyset, q_\emptyset, f) = q_{err}$$
+        \item Node transitions:
+        $$\delta'(q_a, q_b, f) = q_{acc}, \quad \delta'(q_b, q_a, f) = q_{acc}$$
+        \item All other transitions route to $q_{err}$ (which loops to $q_{err}$).
+    \end{itemize}
+    When processing $t = f(a,b)$, the outer frontier nodes (children of $a$ and $b$) start in $q_\emptyset$. The leaf $a$ transitions to $\delta'(q_\emptyset, q_\emptyset, a) = q_a$, and the leaf $b$ transitions to $\delta'(q_\emptyset, q_\emptyset, b) = q_b$. At the root, the automaton evaluates $\delta'(q_a, q_b, f) = q_{acc}$. Since $q_{acc} \in F$, the tree is accepted.
+
+    \item \textbf{Büchi Tree Automaton Guessing} \\
+    Trace a successful run of the BTA from Example~\ref{ex:buchi-infinitely-many-existential} on the tree $t$ where the left-most path $\pi = 0^\omega$ has infinitely many $a$'s, and all other paths contain only $b$'s. Show the state labels assigned to nodes of depth up to 2. \\
+    \textbf{Solution Hint}:
+    Since the path $0^\omega$ is the unique path with infinitely many $a$'s, the non-deterministic run $R$ must guess this path.
+    \begin{itemize}
+        \item Depth 0 (Root $\epsilon$): $R(\epsilon) = q_0$.
+        \item Depth 1: Since $0$ is the guessed path, the transition from the root must route the checked state to $0$ and the dummy state to $1$.
+        If $t(\epsilon) = a$, we use $q_0 \dots (q_a, q_T) \implies R(0) = q_a, \, R(1) = q_T$.
+        If $t(\epsilon) = b$, we use $q_0 \dots (q_0, q_T) \implies R(0) = q_0, \, R(1) = q_T$.
+        \item Depth 2:
+        - For children of $1$ (which is in state $q_T$): since $q_T \xrightarrow{\sigma} (q_T, q_T)$, we have $R(10) = q_T, \, R(11) = q_T$.
+        - For children of $0$ (which is in $q_0$ or $q_a$): we continue routing the checked path to $00$.
+        If $t(0) = a$, we route $R(00) = q_a, \, R(01) = q_T$.
+        If $t(0) = b$, we route $R(00) = q_0, \, R(01) = q_T$.
+    \end{itemize}
+    This routes the checked state sequence along the path $0^\omega$, where it will visit $q_a$ infinitely often because $0^\omega$ contains infinitely many $a$'s. All other paths branch off into state $q_T$, which is accepting.
+
+    \item \textbf{Rabin vs Büchi Tree Automata} \\
+    Let $A = (Q, \Sigma, q_0, \Delta, \Omega)$ be a Rabin tree automaton with a single Rabin pair $\Omega = \{ (L_1, U_1) \}$. Suppose that the state set $L_1 = \emptyset$. Write down the equivalent Büchi tree automaton and explain why the constructions are equivalent. \\
+    \textbf{Solution Hint}:
+    The Rabin condition for a single pair $(L_1, U_1)$ requires that for every path, the set of states visited infinitely often satisfies $\text{inf}(R|_\pi) \cap L_1 = \emptyset$ and $\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$.
+    Since $L_1 = \emptyset$, the first condition $\text{inf}(R|_\pi) \cap \emptyset = \emptyset$ is vacuously true for all paths.
+    Thus, the Rabin condition simplifies to:
+    $$\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$$
+    This is exactly the Büchi acceptance condition with $F = U_1$.
+    Therefore, the equivalent Büchi tree automaton is simply $A' = (Q, \Sigma, q_0, \Delta, U_1)$.
+\end{enumerate}
 
