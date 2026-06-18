@@ -230,6 +230,7 @@ Let $A$ be an alphabet and let $C$ be a set of placeholders disjoint from $A$. T
 \begin{definition}[Tree Concatenation]
 Let $T \subseteq T(A \cup C)$ be a language of finite trees, and let $T' \subseteq T_\infty(A \cup C)$. The \emph{concatenation of $T'$ with $T$ with respect to $c$}, denoted by $T \cdot_c T'$, is the set of all trees obtained by taking a tree $t \in T$ and, for every leaf $w \in \text{fr}(t)$ labeled with $c$, substituting the leaf $w$ with a tree $t'_w \in T'$.
 
+% Merged mathematical domain representation:
 Mathematically, for each leaf $w$ labeled $c$, we can choose a different tree $t'_w \in T'$. The resulting tree $t_{new}$ has the domain:
 $$\text{dom}(t_{new}) = \left( \text{dom}(t) \setminus \{ w \in \text{fr}(t) \mid t(w) = c \} \right) \cup \bigcup_{w \in \text{fr}(t), \, t(w) = c} \{ w v \mid v \in \text{dom}(t'_w) \}$$
 and the valuation:
@@ -238,6 +239,30 @@ t(z) & \text{if } z \in \text{dom}(t) \text{ and } z \text{ is not a descendant 
 t'_w(v) & \text{if } z = w v \text{ where } t(w) = c \text{ and } v \in \text{dom}(t'_w)
 \end{cases}$$
 \end{definition}
+
+\begin{example}[Concatenation of Tree Languages]
+Let $A = \{a, b, f\}$ and $C = \{c\}$. Let $T$ and $T'$ be two tree languages defined as:
+$$T = \{ t_1, t_2 \}, \quad T' = \{ t_3, t_4 \}$$
+where:
+\begin{itemize}
+    \item $t_1 = f(a, c)$ (a root $f$ with left child $a$ and right child $c$),
+    \item $t_2 = b$ (a single leaf node labeled $b$),
+    \item $t_3 = a$ (a single leaf node labeled $a$),
+    \item $t_4 = f(b, b)$ (a root $f$ with two children labeled $b$).
+\end{itemize}
+Let us compute the concatenation $T \cdot_c T'$. For each tree in $T$:
+\begin{itemize}
+    \item For $t_2 = b$, there are no occurrences of the placeholder $c$ on the frontier. Thus, substitution yields the tree itself: $t_2 \cdot_c T' = \{b\}$.
+    \item For $t_1 = f(a, c)$, the right child is labeled with the placeholder $c$. We substitute this leaf with any tree from $T'$. Since $T'$ contains two candidate trees, we obtain two possible trees:
+    \begin{align*}
+        t_{1a} &= f(a, t_3) = f(a, a) \\
+        t_{1b} &= f(a, t_4) = f(a, f(b, b))
+    \end{align*}
+\end{itemize}
+Taking the union of all possible resulting trees, we get:
+$$T \cdot_c T' = \{ b, \, f(a, a), \, f(a, f(b, b)) \}$$
+This example demonstrates that when concatenating sets of trees, different occurrences of the placeholder can be substituted by different elements from the target set, and trees without placeholders are preserved unchanged.
+\end{example}
 
 An intuitive visualization of this substitution is shown in Figure~\ref{fig:tree-concatenation}.
 
@@ -298,6 +323,35 @@ where the sequence of approximations $T^{n, c}$ is defined inductively as:
 \end{align*}
 \end{definition}
 
+\begin{example}[Traces of the Tree Kleene Star]
+Let $A = \{a, f\}$ and $C = \{c\}$, and let $T = \{ f(c, c), a \}$. Let us trace the approximations $T^{n, c}$ for the iterated substitution $T^{*, c}$:
+\begin{itemize}
+    \item \textbf{Base Case ($n=0$)}:
+    $$T^{0, c} = \{c\}$$
+    This represents a single root node labeled with the placeholder $c$.
+    
+    \item \textbf{First Iteration ($n=1$)}:
+    $$T^{1, c} = T \cdot_c T^{0, c} \cup T^{0, c} = \{ f(c, c), a \} \cdot_c \{c\} \cup \{c\} = \{ f(c, c), a, c \}$$
+    
+    \item \textbf{Second Iteration ($n=2$)}:
+    $$T^{2, c} = T \cdot_c T^{1, c} \cup T^{1, c}$$
+    To compute $T \cdot_c T^{1, c}$, we take each tree in $T$ and replace its $c$-leaves with any choice from $T^{1, c} = \{ f(c, c), a, c \}$:
+    \begin{itemize}
+        \item For $a \in T$, there are no $c$ leaves, so we get $\{a\}$.
+        \item For $f(c, c) \in T$, we have two leaves labeled $c$. We can replace them independently with any combination of trees from $\{ f(c, c), a, c \}$. This yields:
+        \begin{itemize}
+            \item Replacing both with $a$: $f(a, a)$
+            \item Replacing left with $a$, right with $c$: $f(a, c)$
+            \item Replacing left with $c$, right with $a$: $f(c, a)$
+            \item Replacing left with $a$, right with $f(c, c)$: $f(a, f(c, c))$
+            \item Replacing both with $f(c, c)$: $f(f(c, c), f(c, c))$
+            \item \dots and so on, for all 9 possible combinations.
+        \end{itemize}
+    \end{itemize}
+    Taking the union with $T^{1, c}$, we see that $T^{2, c}$ contains trees of varying shapes and branching configurations (such as $f(a, c)$ where one branch stopped growing while the other was replaced by the placeholder $c$, or $f(a, a)$ where all placeholders have been resolved to terminals).
+\end{itemize}
+\end{example}
+
 \begin{formaldetails}[Why is the Tree Kleene Star Cumulative?]
 Observe that in the inductive step, we define $T^{n+1, c}$ by taking the union with $T^{n, c}$ (making the sequence cumulative). This is in stark contrast to words, where the Kleene star is defined by simply concatenating $n+1$ words, and the union is taken only at the very end.
 
@@ -318,7 +372,51 @@ A tree language $T \subseteq T(A)$ is \emph{regular} if and only if there exists
 \end{enumerate}
 \end{definition}
 
+\begin{example}[Algebraic Expression for All Finite Binary Trees]
+Suppose we want to define the language of all finite binary trees over the alphabet $A = \{a, b\}$. A tree in this language is either a single terminal leaf (labeled $a$ or $b$) or a node (labeled $a$ or $b$) with two child subtrees which are themselves finite binary trees.
+
+Using a single placeholder $c$, we can define the finite set of base trees:
+$$B = \{ a, \, b, \, a(c, c), \, b(c, c) \}$$
+The regular tree language $B^{*, c}$ contains exactly all finite binary trees over $A$. Let's see why:
+\begin{itemize}
+    \item At each step of the Kleene star substitution, we can choose to replace the active placeholder leaves $c$ either with terminals $a$ or $b$ (which terminates that branch), or with branching patterns $a(c, c)$ or $b(c, c)$ (which extends the branch and introduces new placeholders).
+    \item For example, the tree $a(b, a(b, b))$ is generated by:
+    $$c \xrightarrow{B} a(c, c) \xrightarrow{B} a(b, c) \xrightarrow{B} a(b, a(c, c)) \xrightarrow{B} a(b, a(b, b))$$
+    which belongs to $B^{4, c} \subseteq B^{*, c}$.
+    \item Since all placeholders are eventually replaced by $a$ or $b$, the final trees contain only symbols from $A$, making $B^{*, c}$ a valid regular tree language over $A$.
+\end{itemize}
+\end{example}
+
 \aside{Since the final regular language $T$ is a subset of $T(A)$, it consists only of trees labeled by $A$. This implies that all placeholder symbols from $C$ must be completely substituted away during the algebraic construction.}
+
+\subsection{Tuple Concatenation and Omega-Closure}
+In many constructions, we need to perform simultaneous substitution of multiple different placeholder symbols. This is modeled by \textbf{tuple concatenation}.
+
+\begin{definition}[Tuple Concatenation]
+Let $C = \{c_1, \dots, c_m\}$ be a set of placeholders. Let $T \subseteq T(A \cup C)$ and let $T_1, \dots, T_m \subseteq T_\infty(A \cup C)$ be tree languages. The \emph{tuple concatenation}, denoted by:
+$$T \cdot_{\bar{c}} (T_1, \dots, T_m)$$
+is the tree language obtained by taking a tree $t \in T$ and, for each $i \in \{1, \dots, m\}$, replacing every leaf labeled $c_i$ on the frontier of $t$ with some tree from $T_i$.
+\end{definition}
+
+Using tuple concatenation, we can define the infinite iteration of tree substitution, leading to the \textbf{$\omega$-closure} of tree languages, which is the algebraic representation of infinite trees.
+
+\begin{definition}[Tree Omega-Closure]
+Let $C = \{c_1, \dots, c_m\}$ be placeholders. Let $T_1, \dots, T_m \subseteq T(A \cup C)$ be languages of finite trees. The \emph{$\omega$-closure} with respect to $\bar{c}$, denoted by:
+$$(T_1, \dots, T_m)^{\omega, \bar{c}}$$
+is the set of all infinite trees obtained by applying the tuple concatenation infinitely many times starting from the initial set of placeholders.
+\end{definition}
+
+\begin{example}[Alternating Paths via Omega-Closure]
+Suppose we want to generate the set of all infinite binary trees where every path alternates between the symbols $a$ and $b$, starting with $a$ at the root. We can define this language algebraically.
+Let $C = \{c_a, c_b\}$ be placeholders. We define the base sets:
+\begin{align*}
+    T_a &= \{ a(c_b, c_b) \} \\
+    T_b &= \{ b(c_a, c_a) \}
+\end{align*}
+The language of alternating trees is exactly the $\omega$-closure:
+$$T_{alt} = (T_a, T_b)^{\omega, (c_a, c_b)}$$
+In this construction, we start with the placeholder $c_a$. It is replaced by $a(c_b, c_b)$ (which introduces $c_b$ at both children). In the next step, both occurrences of $c_b$ are replaced by $b(c_a, c_a)$, which introduces $c_a$ at all four grandchildren. Repeating this infinitely yields an infinite binary tree where every path alternates $a$ and $b$.
+\end{example}
 
 \subsection{Concatenation of Infinite Trees}
 If a tree is infinite, it does not have a frontier (its set of leaves is empty). How can we define concatenation for infinite trees?
