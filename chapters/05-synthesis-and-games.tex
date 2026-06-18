@@ -156,6 +156,30 @@ $F$.  M\"uller acceptance can inspect the whole set of states seen
 infinitely often.  This additional expressiveness is useful when moving
 from non-deterministic automata to deterministic automata for synthesis.
 
+\begin{definition}[Weak M\"uller condition]
+\label{def:weak-muller}
+A \textbf{weak M\"uller condition} evaluates a play using the set
+$\mathrm{Occ}(\rho)$ of all states that occur at least once, rather than
+the set $\inf(\rho)$ of states that occur infinitely often.
+\end{definition}
+
+The difference is subtle but important.  A weak M\"uller objective can
+ask whether a state ever appears during the play.  A full M\"uller
+objective asks what remains visible in the limit after all finite
+prefixes are forgotten.
+
+\begin{example}[Occurrence vs. infinity]
+\label{ex:occ-vs-inf}
+Consider the play
+\[
+  p\,q\,r\,r\,r\,r\cdots.
+\]
+Then $\mathrm{Occ}(\rho)=\{p,q,r\}$, while
+$\inf(\rho)=\{r\}$.  A weak condition can remember that $p$ and $q$
+appeared once.  A M\"uller condition ignores them because they do not
+appear infinitely often.
+\end{example}
+
 
 % ============================================================
 \section{Reachability Games and Attractors}
@@ -240,6 +264,27 @@ visited again, it is moved to the front.
 
 The LAR lets a parity condition detect which set of states is seen
 infinitely often.  It is a finite-memory encoding of a long-run set.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=3pt, minimum width=11mm, minimum height=8mm, fill=teal!8},
+  arr/.style={-Stealth, thick},
+]
+  \node[box] (a) {$a$};
+  \node[box, right=1mm of a] (b) {$b$};
+  \node[box, right=1mm of b] (c) {$c$};
+  \node[right=9mm of c] (arrow) {};
+  \node[box, right=18mm of c, fill=orange!12] (b2) {$b$};
+  \node[box, right=1mm of b2] (a2) {$a$};
+  \node[box, right=1mm of a2] (c2) {$c$};
+  \draw[arr] ([xshift=2mm]c.east) -- node[above, font=\small] {visit $b$} (b2.west);
+  \node[below=6mm of b, font=\small] {old LAR};
+  \node[below=6mm of a2, font=\small] {new LAR};
+\end{tikzpicture}
+\caption{Latest appearance record: when $b$ is visited, it moves to the front of the recency list.}
+\label{fig:lar-update}
+\end{figure}
 
 \begin{formaldetails}[Determinacy fact]
 For the finite infinite-duration games used in the synthesis pipeline,

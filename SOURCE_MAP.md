@@ -33,7 +33,11 @@ ORDER BY c.id, l.id, a.id;
 ### Course 88 - Part I Source
 
 Status: complete for the current plan, 12 lectures with one text/markdown
-attachment each.
+attachment each. The current Part I draft covers all 12 lectures and has been
+deepened with the main technical points that were initially under-extracted:
+small-model emptiness, reachability fixpoints, the double-tilde congruence
+index bound, idempotent Ramsey decomposition, weak/full Muller games, LAR
+memory, and action-based vs timeline-based planning.
 
 | Lecture | DB lecture id | Attachment status | Notes |
 | --- | ---: | --- | --- |

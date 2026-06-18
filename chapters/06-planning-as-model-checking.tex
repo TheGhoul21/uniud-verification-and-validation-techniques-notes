@@ -23,6 +23,61 @@ checking.
 
 
 % ============================================================
+\section{Action-Based and Timeline-Based Planning}
+\label{sec:action-vs-timeline-planning}
+% ============================================================
+
+There are two common ways to model planning problems.
+
+\begin{definition}[Action-based planning]
+\label{def:action-based-planning}
+\textbf{Action-based planning} models change as a sequence of discrete
+actions.  A plan is built from operations such as \texttt{load},
+\texttt{move}, or \texttt{cross}, each with preconditions and effects.
+\end{definition}
+
+This is the graph view: states are nodes, actions are labelled
+transitions, and a plan is a path or policy leading to a goal.
+
+\begin{definition}[Timeline-based planning]
+\label{def:timeline-based-planning}
+\textbf{Timeline-based planning} models the evolution of state variables
+over time intervals.  Instead of focusing on individual actions, it
+records when each component has a given value and which temporal
+constraints synchronize different components.
+\end{definition}
+
+Timeline planning is natural for scheduling and control domains.  For a
+spacecraft, for instance, an instrument may be \emph{off}, then
+\emph{warming up}, then \emph{collecting data}; another component, such
+as a battery or data buffer, evolves on its own timeline but must remain
+compatible with the instrument timeline.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  slot/.style={draw, minimum height=7mm, align=center, font=\small},
+]
+  \node[anchor=east] at (0,0) {Instrument};
+  \node[slot, fill=gray!10, minimum width=21mm] at (1.2,0) {off};
+  \node[slot, fill=orange!12, minimum width=23mm] at (3.4,0) {warm up};
+  \node[slot, fill=teal!12, minimum width=32mm] at (6.1,0) {collect};
+  \node[anchor=east] at (0,-0.9) {Buffer};
+  \node[slot, fill=gray!10, minimum width=39mm] at (2.1,-0.9) {empty};
+  \node[slot, fill=violet!10, minimum width=37mm] at (5.9,-0.9) {filling};
+  \draw[-Stealth, thick] (0,-1.6) -- (7.8,-1.6) node[right] {time};
+\end{tikzpicture}
+\caption{Timeline-based planning follows component values over intervals and synchronizes them by constraints.}
+\label{fig:timeline-planning}
+\end{figure}
+
+The rest of this chapter focuses on the action-based view because it
+connects directly to transition systems and model checking.  The
+timeline view is important in applications, but it requires richer
+temporal constraints.
+
+
+% ============================================================
 \section{Planning Domains}
 \label{sec:planning-domains}
 % ============================================================

@@ -146,6 +146,29 @@ finite Boolean table over $Q\times Q$.  It is also a congruence: the
 transition profile of $uv$ is obtained by composing the profiles of $u$
 and $v$.
 
+\begin{proposition}[Index bound]
+\label{prop:double-tilde-index}
+If $A$ has $n$ states, then $\approx_A$ has at most $3^{n^2}$
+equivalence classes.
+\end{proposition}
+
+\begin{proof}
+Fix a finite word $u$ and a pair of states $(p,q)$.  With respect to
+that pair, there are three relevant statuses:
+\begin{enumerate}[nosep]
+  \item no path labelled $u$ goes from $p$ to $q$;
+  \item some path labelled $u$ goes from $p$ to $q$, but no such path
+        visits an accepting state;
+  \item some path labelled $u$ goes from $p$ to $q$ and visits an
+        accepting state.
+\end{enumerate}
+There are $n^2$ ordered pairs $(p,q)$.  A word therefore determines a
+matrix with $n^2$ entries, each entry chosen from at most three statuses.
+There are at most $3^{n^2}$ such matrices.  Two words with the same
+matrix are $\approx_A$-equivalent, so the number of equivalence classes
+is at most $3^{n^2}$.
+\end{proof}
+
 \begin{example}[What the profile remembers]
 \label{ex:profile-remembers}
 Suppose $Q=\{p,q,r\}$ and $F=\{r\}$.  For a block $u$, the profile does
@@ -175,7 +198,11 @@ $\omega$-word $\alpha$ can be decomposed as
   \alpha = u_0u_1u_2\cdots
 \]
 where $u_0\in\Sigma^*$, each $u_i$ for $i\geq 1$ is non-empty, and all
-blocks $u_i$ with $i\geq 1$ belong to the same $\equiv$-class.
+blocks $u_i$ with $i\geq 1$ belong to the same $\equiv$-class $V$.
+Moreover, the class can be chosen idempotent:
+\[
+  V\cdot V \subseteq V.
+\]
 \end{lemma}
 
 \begin{proof}
@@ -188,11 +215,22 @@ the infinite Ramsey theorem gives an infinite set of positions
 such that all segments $\alpha[i_m,i_n]$ have the same colour.  Taking
 $u_0=\alpha[0,i_0]$ and $u_k=\alpha[i_{k-1},i_k]$ gives the desired
 decomposition.
+
+To see idempotence, take any two words $x,y\in V$.  Since $V$ is an
+equivalence class and $\equiv$ is a congruence, the class of $xy$ is the
+same as the class of a concatenation of two consecutive homogeneous
+segments:
+\[
+  \alpha[i_0,i_1]\alpha[i_1,i_2]=\alpha[i_0,i_2].
+\]
+But $\alpha[i_0,i_2]$ has the same homogeneous colour $V$.  Hence
+$xy\in V$, so $V\cdot V\subseteq V$.
 \end{proof}
 
 The point is conceptual: although the word may not be periodic, it can
 be partitioned into blocks that are indistinguishable by the finite
-congruence.
+congruence, and the repeated block class is closed under concatenating
+its own blocks.
 
 
 % ============================================================

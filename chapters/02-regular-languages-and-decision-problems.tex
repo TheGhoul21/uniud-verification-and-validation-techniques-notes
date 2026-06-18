@@ -312,6 +312,87 @@ an accepting state.  Thus non-emptiness and accepting-state reachability
 are the same question.
 \end{proof}
 
+There is another way to say the same thing, useful later when we move to
+symbolic model checking: if a finite automaton accepts something, then it
+accepts a short witness.
+
+\begin{theorem}[Small model property for finite automata]
+\label{thm:small-model-finite}
+Let $A$ be a DFA with $n$ states.  Then
+\[
+  L(A)\neq\emptyset
+  \quad\Longleftrightarrow\quad
+  \text{there exists }w\in L(A)\text{ with }|w|<n.
+\]
+\end{theorem}
+
+\begin{proof}
+The right-to-left implication is immediate: an accepted word of any
+length proves non-emptiness.
+
+For the other direction, assume $L(A)\neq\emptyset$ and choose an
+accepted word $z=a_1a_2\cdots a_m$ of minimum length.  Let
+\[
+  p_0 \xrightarrow{a_1} p_1
+      \xrightarrow{a_2} \cdots
+      \xrightarrow{a_m} p_m
+\]
+be the accepting run, with $p_0=q_0$ and $p_m\in F$.
+
+If $m\geq n$, then the sequence $p_0,p_1,\ldots,p_m$ contains at least
+$n+1$ state occurrences but only $n$ possible states.  By the pigeonhole
+principle, $p_i=p_j$ for some $0\leq i<j\leq m$.  Split the word as
+\[
+  z = u v r,
+\]
+where $u=a_1\cdots a_i$, $v=a_{i+1}\cdots a_j$, and
+$r=a_{j+1}\cdots a_m$.  The segment $v$ labels a loop from $p_i$ back to
+$p_i$.  Removing that loop gives the shorter word $ur$, and the run
+still goes from $q_0$ to the same accepting state $p_m$.  Thus $ur$ is
+accepted, contradicting the minimality of $z$.  Hence the minimal
+accepted word has length $m<n$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  state/.style={circle, draw, thick, minimum size=9mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=9mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (p0) {$p_0$};
+  \node[state, right=1.7cm of p0] (pi) {$p_i$};
+  \node[state, right=2.2cm of pi] (pj) {$p_j$};
+  \node[acc, right=1.9cm of pj] (pm) {$p_m$};
+  \draw[arr] (p0) -- node[above] {$u$} (pi);
+  \draw[arr, bend left=28, red!70!black, dashed] (pi) to node[above] {$v$} (pj);
+  \draw[arr] (pj) -- node[above] {$r$} (pm);
+  \draw[blue!65!black, dashed, thick] (pi) to[bend right=40] node[below] {$p_i=p_j$} (pj);
+\end{tikzpicture}
+\caption{If an accepting run repeats a state, the loop can be removed to obtain a shorter accepted word.}
+\label{fig:small-model-loop-removal}
+\end{figure}
+
+The graph algorithm is better in practice, but the small-model theorem is
+conceptually useful: decidability follows because, in principle, we only
+need to inspect finitely many words shorter than $n$.
+
+\subsection{Reachability as a Fixpoint}
+\label{subsec:reachability-fixpoint}
+
+Let $\mathsf{Post}(X)$ be the set of states reachable in one transition
+from some state in $X$.  Starting from $R_0=\{q_0\}$, define
+\[
+  R_{i+1}=R_i\cup \mathsf{Post}(R_i).
+\]
+Because $Q$ is finite, this increasing sequence eventually stabilizes at
+a set $R^*$.  The language is non-empty exactly when
+\[
+  R^*\cap F\neq\emptyset.
+\]
+This fixpoint view is the finite-state ancestor of the symbolic
+preimage/fixpoint algorithms used later for CTL and planning.
+
 The other problems reduce to emptiness by using closure.
 
 \begin{formaldetails}[Reductions]
