@@ -15,6 +15,18 @@ checking, synthesis, and planning.
   recaps unless they serve the exposition.
 - Use "we" and "let's" when walking through constructions.
 
+## Chapter Construction Workflow
+
+To maintain high quality and pedagogical cohesion, every chapter must follow a strict four-phase creation process:
+
+1. **Comprehensive Reading**: Read the entire set of transcripts and source materials first. Do not write any draft text yet.
+2. **Structural Outline (Schema)**: Prepare and align on a detailed section-by-section outline. Map every section to its source lectures, noting which definitions, theorems, examples, and TikZ figures will be included.
+3. **Drafting with "Narrative Glue"**: When writing, avoid presenting a dry sequence of disconnected blocks (definition $\to$ theorem $\to$ proof $\to$ example). You must weave a continuous narrative:
+   - **Bridges**: Explain *why* we transition from one concept to the next. What is the limit of the current system that forces us to introduce a new definition, logic, or automaton?
+   - **Intuitive Introductions**: Before writing a formal block, provide a high-level, informal explanation of what the formalization aims to capture.
+   - **Whiteboard Guidance**: Guide the reader through the reasoning, connecting the formal mathematical constructs back to the practical verification goals.
+4. **Pedagogical Polish**: Review the chapter to ensure that figures and examples are tightly integrated with the text, referencing them directly to reinforce the intuition.
+
 ## Proofs
 
 - If a result is stated as `theorem`, `lemma`, `proposition`, or `corollary`,
