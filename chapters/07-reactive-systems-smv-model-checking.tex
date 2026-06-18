@@ -58,6 +58,14 @@ for asserting facts about infinite sequences of states.  The plural is
 intentional---there are many temporal logics, each with its own expressive
 power and algorithmic properties.
 
+\subsection{Closed vs. Open Systems}
+When we model and verify reactive systems, we must distinguish between two fundamental configurations of their environment:
+\begin{itemize}
+    \item \textbf{Closed Systems}: A closed system is completely self-contained. Its transitions and state changes are determined entirely by its own internal logic and non-deterministic choices. There are no external inputs from the environment. In verification, closed systems are modeled directly as Kripke structures (where all choices are internal to the model).
+    \item \textbf{Open Systems}: An open system maintains a continuous interaction with an environment that it does not control. Its transitions depend not only on its internal state, but also on external inputs supplied by the environment. To verify an open system, we must ensure that it satisfies its specification under \emph{all} possible sequences of environment inputs. In synthesis, open systems are modeled as games between the system and the environment.
+\end{itemize}
+While real-world reactive systems are almost always open, we often analyze them as closed systems during model checking by incorporating a model of the environment directly into the state space.
+
 % -----------------------------------------------------------------------
 \section{The Model Checking Problem}
 \label{sec:mc-problem}
@@ -355,9 +363,25 @@ $\texttt{request} \in \{\mathit{false}, \mathit{true}\}$ and
 $\texttt{state} \in \{\textsc{Ready}, \textsc{Busy}\}$.  There are four
 states (one per assignment).  The initial condition fixes
 $\texttt{state} = \textsc{Ready}$, with \texttt{request} unconstrained,
-giving \emph{two} initial states.  Figure~\ref{fig:arbiter-kripke} shows
-the structure for the \emph{buggy} version of the arbiter (see
-Example~\ref{ex:arbiter-smv}).
+giving \emph{two} initial states.
+
+To see how this corresponds precisely to Definition~\ref{def:kripke}, we can specify the components of the Kripke structure $M = (AP, Q, Q_0, R, L)$:
+\begin{itemize}
+  \item $AP = \{ r, \mathit{ready}, \mathit{busy} \}$, where $r$ represents $\texttt{request} = \mathit{true}$, $\mathit{ready}$ represents $\texttt{state} = \textsc{Ready}$, and $\mathit{busy}$ represents $\texttt{state} = \textsc{Busy}$;
+  \item $Q = \{ \textsf{RF}, \textsf{RT}, \textsf{BF}, \textsf{BT} \}$ corresponding to the four valuations:
+        \begin{align*}
+          \textsf{RF} &= (\textsc{Ready}, \mathit{false}) & \textsf{RT} &= (\textsc{Ready}, \mathit{true}) \\
+          \textsf{BF} &= (\textsc{Busy}, \mathit{false})  & \textsf{BT} &= (\textsc{Busy}, \mathit{true})
+        \end{align*}
+  \item $Q_0 = \{ \textsf{RF}, \textsf{RT} \}$ because the system must start with $\texttt{state} = \textsc{Ready}$, while the initial value of $\texttt{request}$ is unconstrained;
+  \item The transition relation $R$ consists of the directed edges shown in Figure~\ref{fig:arbiter-kripke};
+  \item The labelling function $L$ maps each state to its active propositions:
+        \begin{align*}
+          L(\textsf{RF}) &= \{ \mathit{ready} \} & L(\textsf{RT}) &= \{ \mathit{ready}, r \} \\
+          L(\textsf{BF}) &= \{ \mathit{busy} \}  & L(\textsf{BT}) &= \{ \mathit{busy}, r \}
+        \end{align*}
+\end{itemize}
+Figure~\ref{fig:arbiter-kripke} shows the structure for the \emph{buggy} version of the arbiter (see Example~\ref{ex:arbiter-smv}).
 \end{example}
 
 \begin{figure}[ht]
@@ -1055,7 +1079,7 @@ answers depending on whether the reset input is included:
     $\mathbf{AF}(\texttt{last\_state})$
       & \emph{All runs eventually reach $99999$.}
       & \textbf{T} & \textbf{F} \\
-    $\mathbf{EX}(\texttt{state\_81100} \to \texttt{first\_state})$
+    $\mathbf{AG}(\texttt{state\_81100} \to \mathbf{EX}(\texttt{first\_state}))$
       & \emph{There is a 1-step path from $81100$ to $00000$.}
       & \textbf{F} & \textbf{T} (via reset) \\
     $\mathbf{AG}\,\mathbf{AF}(\texttt{first\_state})$
