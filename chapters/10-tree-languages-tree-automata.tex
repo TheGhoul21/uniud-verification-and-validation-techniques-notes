@@ -1,0 +1,213 @@
+% Chapter 10: Tree Languages and Tree Automata
+% Sources: Course 89, L10 (att. 1135), L11 (att. 1136), L12 (att. 1137)
+
+\chapter{Tree Languages and Tree Automata}
+\label{ch:tree-languages-automata}
+
+In the previous chapters, we focused on languages of infinite words. We established that an infinite word models a single execution path of a reactive system, which is the natural setting for linear-time specifications (such as LTL). However, reactive systems are fundamentally non-deterministic and interactive. When we analyze a system modeled as a transition graph, we are often interested not just in individual paths, but in the entire branching structure of choices available to the system at any given moment.
+
+To capture this branching nature, we transition from linear time to \textbf{branching time}. Branching time is modeled by \textbf{trees}. Just as an infinite word represents a single history, an infinite tree represents all possible histories (computations) of a system starting from an initial configuration. The interleaving and combinatorics of these histories are essential for branching-time temporal logics like Computation Tree Logic (CTL). In this chapter, we develop the mathematical foundations of tree languages and tree automata.
+
+---
+
+\section{Introduction to Trees and Branching Time}
+\label{sec:intro-trees}
+
+To bridge the gap between reactive systems and trees, let us perform a thought experiment at the whiteboard. Suppose we have a non-deterministic transition system (represented as a directed graph) with states and transitions. If we choose an initial state and "roll out" all possible executions step-by-step, we are performing a process called \textbf{unfolding} or \textbf{unraveling}.
+
+\subsection{Unfolding a Transition System}
+Consider the transition system shown on the left of Figure~\ref{fig:unfolding}. It has two initial states, and the transitions from state $A$ allow it to stay in $A$, go to $B$, or go to $C$. State $C$ loops on itself deterministically, and state $B$ transitions back to $A$.
+
+If we start in the initial state $A$ and trace all possible behaviors, we obtain the infinite computation tree shown on the right of Figure~\ref{fig:unfolding}. Each branch in this tree represents a unique execution path, and the branching points represent the non-deterministic choices available to the system at that step.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.4\textwidth}
+\centering
+\begin{tikzpicture}[
+    st/.style={draw, circle, minimum size=1cm, font=\small},
+    arr/.style={->, thick}]
+    
+    \node[st, fill=teal!10, draw=teal!40] (q0) at (0,1.5) {$A$};
+    \node[st, fill=gray!10, draw=gray!40] (q1) at (0,0) {$B$};
+    \node[st, fill=gray!10, draw=gray!40] (q2) at (2,0.75) {$C$};
+    
+    \draw[->, gray, thick] (-1,1.5) -- (q0);
+    \draw[->, gray, thick] (3,0.75) -- (q2);
+    
+    \draw[arr] (q0) edge [loop above] node {\scriptsize$A$} (q0);
+    \draw[arr, bend left=15] (q0) to node [right] {\scriptsize$b$} (q1);
+    \draw[arr, bend left=15] (q1) to node [left] {\scriptsize$a$} (q0);
+    \draw[arr] (q0) -- node [above] {\scriptsize$c$} (q2);
+    \draw[arr] (q2) edge [loop below] node {\scriptsize$c$} (q2);
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.55\textwidth}
+\centering
+\begin{tikzpicture}[
+    st/.style={draw, circle, minimum size=0.8cm, font=\footnotesize},
+    arr/.style={->, thick}]
+    
+    \node[st, fill=teal!15, draw=teal!50] (r) at (0,0) {$A$};
+    
+    \node[st, fill=teal!15, draw=teal!50] (n0) at (-1.8,-1.2) {$A$};
+    \node[st, fill=teal!15, draw=teal!50] (n1) at (0,-1.2) {$B$};
+    \node[st, fill=teal!15, draw=teal!50] (n2) at (1.8,-1.2) {$C$};
+    
+    \node[st, fill=gray!15, draw=gray!50] (n00) at (-2.4,-2.4) {$\dots$};
+    \node[st, fill=gray!15, draw=gray!50] (n01) at (-1.8,-2.4) {$\dots$};
+    \node[st, fill=gray!15, draw=gray!50] (n02) at (-1.2,-2.4) {$\dots$};
+    
+    \node[st, fill=teal!15, draw=teal!50] (n10) at (0,-2.4) {$A$};
+    
+    \node[st, fill=teal!15, draw=teal!50] (n20) at (1.8,-2.4) {$C$};
+    
+    \node[st, fill=gray!15, draw=gray!50] (n200) at (1.8,-3.4) {$C$};
+    \node[st, fill=gray!15, draw=gray!50] (n2000) at (1.8,-4.2) {$\vdots$};
+    
+    \draw[arr] (r) -- (n0);
+    \draw[arr] (r) -- (n1);
+    \draw[arr] (r) -- (n2);
+    
+    \draw[arr] (n0) -- (n00);
+    \draw[arr] (n0) -- (n01);
+    \draw[arr] (n0) -- (n02);
+    
+    \draw[arr] (n1) -- (n10);
+    \draw[arr] (n2) -- (n20);
+    \draw[arr] (n20) -- (n200);
+    \draw[arr] (n20) -- (n2000);
+\end{tikzpicture}
+\end{minipage}
+\caption{A transition system graph (left) and its infinite unfolding from initial state $A$ into a computation tree (right).}
+\label{fig:unfolding}
+\end{figure}
+
+\aside{While an LTL formula evaluates a single path in isolation, a CTL formula can reason about the tree structure directly, using quantifiers like "for all paths ($\forall$)" or "there exists a path ($\exists$)" at each branching point.}
+
+\subsection{Formalizing Trees: Domains and Valuations}
+To study trees mathematically, we must formalize their structure. In words, positions are represented by the natural numbers $\{0, 1, 2, \dots\}$. In trees, a position (or node) is represented by a sequence of choices. For example, if we are in a binary tree, we can go left (0) or right (1). The sequence $010$ represents the node reached by going left, then right, then left.
+
+This motivates the formal definition of a tree domain as a prefix-closed set of sequences.
+
+\begin{definition}[$K$-ary Labeled Tree]
+Let $A$ be a finite alphabet and let $K \ge 1$ be a natural number representing the maximum arity (branching factor) of the tree. A \emph{$K$-ary $A$-valued tree} $t$ is a labeling function:
+$$t: \text{dom}(t) \to A$$
+where the set of nodes $\text{dom}(t) \subseteq \{0, \dots, K-1\}^*$ is called the \emph{domain} of $t$. The domain must satisfy the following conditions:
+\begin{enumerate}
+    \item \textbf{Non-emptiness}: $\text{dom}(t) \neq \emptyset$, which implies that the root node $\epsilon$ (the empty word) always belongs to the domain.
+    \item \textbf{Prefix Closure}: For every word $w \in \{0, \dots, K-1\}^*$ and symbol $j < K$, if $w j \in \text{dom}(t)$, then $w \in \text{dom}(t)$.
+    \item \textbf{Width Closure (Child Ordering)}: For every word $w \in \{0, \dots, K-1\}^*$ and symbols $i, j < K$, if $w j \in \text{dom}(t)$ and $i < j$, then $w i \in \text{dom}(t)$.
+\end{enumerate}
+\end{definition}
+
+\paragraph{Whiteboard Explanation of the Domain Conditions.}
+Let us trace what these conditions mean operationally:
+\begin{itemize}
+    \item \textbf{Prefix closure} ensures that we cannot have "floating" nodes. If a node exists in the tree, its parent must also exist. You cannot reach a position like $01$ without first traversing through the root $\epsilon$ and the node $0$.
+    \item \textbf{Width closure} ensures that children are ordered and contiguous starting from index $0$. An node cannot have a "second child" (labeled $j$) without also having all preceding children (labeled $i < j$). For instance, in a binary tree, we cannot have a right child ($w1$) unless the left child ($w0$) also exists.
+\end{itemize}
+
+\subsection{Paths, Subtrees, and Frontiers}
+Now we define the key structural properties of a tree.
+
+\begin{definition}[Paths and Subtrees]
+Let $t$ be a $K$-ary $A$-valued tree:
+\begin{itemize}
+    \item A \emph{path} $\pi$ through $t$ is a maximal subset of $\text{dom}(t)$ that is linearly ordered by the prefix relation.
+    \item For any node $w \in \text{dom}(t)$, the \emph{subtree} of $t$ at node $w$, denoted by $t|_w$, is the tree whose domain is:
+    $$\text{dom}(t|_w) = \{ v \in \{0, \dots, K-1\}^* \mid w v \in \text{dom}(t) \}$$
+    and whose labeling function is defined as $t|_w(v) = t(w v)$ for all $v \in \text{dom}(t|_w)$.
+\end{itemize}
+\end{definition}
+
+\aside{Observe that the domain of a subtree $t|_w$ always resets to start at the empty word $\epsilon$. The root of the subtree is labeled with the value that $t$ had at position $w$.}
+
+To define tree automata, we need to specify where the run of the automaton terminates or accepts. For a word of length $n$, the run is of length $n+1$, terminating at the position after the last letter. For trees, we generalize this using the concepts of \textbf{frontier} (the set of leaves) and \textbf{outer frontier} (the set of positions immediately below the leaves).
+
+\begin{definition}[Frontiers]
+Let $t$ be a $K$-ary $A$-valued tree:
+\begin{itemize}
+    \item The \emph{frontier} of $t$ (the set of leaves), denoted by $\text{fr}(t)$, is the set:
+    $$\text{fr}(t) = \{ w \in \text{dom}(t) \mid \forall j < K, \, w j \notin \text{dom}(t) \}$$
+    \item The \emph{outer frontier} of $t$, denoted by $\text{fr}^+(t)$, contains the positions immediately succeeding the leaves that are not part of the domain:
+    $$\text{fr}^+(t) = \{ w j \in \{0, \dots, K-1\}^* \setminus \text{dom}(t) \mid w \in \text{dom}(t) \land j < K \}$$
+    \item The \emph{extended domain} of $t$ is defined as $\text{dom}^+(t) = \text{dom}(t) \cup \text{fr}^+(t)$.
+\end{itemize}
+\end{definition}
+
+To visualize these definitions, let us look at the finite binary tree ($K=2$) in Figure~\ref{fig:frontiers}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    st/.style={draw, circle, minimum size=0.8cm, font=\footnotesize},
+    leaf/.style={draw, circle, minimum size=0.8cm, font=\footnotesize, fill=teal!20, draw=teal!60, thick},
+    outer/.style={draw, rectangle, minimum size=0.8cm, font=\footnotesize, fill=tomato!15, draw=tomato!50, dashed, thick},
+    arr/.style={->, thick}]
+    
+    \node[st] (r) at (0,0) {$\epsilon$};
+    \node[st] (n0) at (-1.5,-1) {$0$};
+    \node[leaf] (n1) at (1.5,-1) {$1$};
+    
+    \node[leaf] (n00) at (-2.5,-2) {$00$};
+    \node[leaf] (n01) at (-0.5,-2) {$01$};
+    
+    \node[outer] (o10) at (0.8,-2) {$10$};
+    \node[outer] (o11) at (2.2,-2) {$11$};
+    
+    \node[outer] (o000) at (-3.2,-3) {$000$};
+    \node[outer] (o001) at (-1.8,-3) {$001$};
+    
+    \node[outer] (o010) at (-1.2,-3) {$010$};
+    \node[outer] (o011) at (0.2,-3) {$011$};
+    
+    \draw[arr] (r) -- (n0);
+    \draw[arr] (r) -- (n1);
+    \draw[arr] (n0) -- (n00);
+    \draw[arr] (n0) -- (n01);
+    
+    \draw[arr, dashed, gray] (n1) -- (o10);
+    \draw[arr, dashed, gray] (n1) -- (o11);
+    \draw[arr, dashed, gray] (n00) -- (o000);
+    \draw[arr, dashed, gray] (n00) -- (o001);
+    \draw[arr, dashed, gray] (n01) -- (o010);
+    \draw[arr, dashed, gray] (n01) -- (o011);
+\end{tikzpicture}
+\caption{A finite binary tree. The domain consists of $\{\epsilon, 0, 1, 00, 01\}$. The frontier (leaves) consists of $\{1, 00, 01\}$ (highlighted in teal). The outer frontier consists of $\{10, 11, 000, 001, 010, 011\}$ (dashed squares, highlighted in orange).}
+\label{fig:frontiers}
+\end{figure}
+
+\subsection{Simplifying Focus: Binary Coding of K-ary Trees}
+Studying $K$-ary trees for arbitrary $K$ complicates notations and proofs without adding conceptual value. Without loss of generality, we can restrict our study to \textbf{binary trees} ($K=2$). Any $K$-ary tree can be encoded into a binary tree over an extended alphabet by introducing a dummy padding symbol $\Omega$.
+
+\begin{definition}[Binary Coding of $K$-ary Trees]
+Let $t$ be a $K$-ary $A$-valued tree. Let $\Omega$ be a fresh symbol not in $A$. The binary coding of $t$ is a binary tree $t_{bin}: \text{dom}(t_{bin}) \to A \cup \{\Omega\}$ constructed as follows:
+\begin{enumerate}
+    \item We map each node $w = n_1 n_2 \dots n_r \in \text{dom}(t)$ (where $n_i < K$) to a binary sequence using the injection $f: \{0, \dots, K-1\}^* \to \{0,1\}^*$:
+    $$f(n_1 n_2 \dots n_r) = 1^{n_1} 0 1^{n_2} 0 \dots 1^{n_r} 0$$
+    where $1^k$ denotes $k$ consecutive $1$s.
+    \item The domain $\text{dom}(t_{bin})$ is the prefix closure of the image $f(\text{dom}(t))$.
+    \item The valuation $t_{bin}$ is defined as:
+    $$t_{bin}(w') = \begin{cases} 
+    t(w) & \text{if } w' = f(w) \text{ for some } w \in \text{dom}(t) \\ 
+    \Omega & \text{otherwise} 
+    \end{cases}$$
+\end{enumerate}
+\end{definition}
+
+\begin{example}[Encoding a Node]
+Let $K=3$ and consider a node $w = 2 0 1$ in the 3-ary tree. Its binary encoding is:
+$$f(2 0 1) = 1^2 0 1^0 0 1^1 0 = 110010$$
+At this position in the binary tree, $t_{bin}(110010) = t(201)$. The intermediate nodes along the path (such as $1$, $11$, $110$, $1100$, $11001$) are labeled with the dummy symbol $\Omega$.
+\end{example}
+
+\aside{This encoding is a prefix-preserving bijection between the original nodes and a subset of the binary tree. It can be extended to trees with countably infinite branching arity. Thus, we will assume all trees are binary ($K=2$) unless specified otherwise.}
+
+From now on, we define:
+\begin{itemize}
+    \item $T(A)$ as the set of all finite binary $A$-valued trees.
+    \item $T_\omega(A)$ as the set of all infinite binary $A$-valued trees (whose domain is $\{0,1\}^*$).
+    \item $T_\infty(A) = T(A) \cup T_\omega(A)$ as the set of all binary $A$-valued trees.
+\end{itemize}
+A subset of $T(A)$ or $T_\omega(A)$ is called a \textbf{tree language}.
