@@ -250,6 +250,23 @@ is exactly what we exploit later: the syntax is narrower than CTL*, but the
 resulting model checking problem is much easier to solve.
 
 % =======================================================================
+\section{Explicit State CTL Model Checking}
+\label{sec:ctl-explicit}
+
+Before we jump into advanced symbolic representations (which operate on formulas and binary decision diagrams), it is critical to understand the classic, explicit-state algorithm for CTL. Imagine stepping up to a whiteboard drawing of a finite state graph and physically sticking subformula labels onto the nodes.
+
+The explicit algorithm works \emph{bottom-up} on the syntax tree of the CTL formula.
+For example, to check $E[p\,U\,q]$, we first find all nodes where $p$ is true and stick a "$p$" label on them. We do the same for $q$. Then, we search the graph to figure out which nodes should get the "$E[p\,U\,q]$" label.
+
+A key pedagogical insight is the direction of the search:
+\begin{itemize}
+    \item \textbf{Backward search for EU/EF}: To find all states satisfying $E[p\,U\,q]$, we start at the target nodes (labeled $q$) and walk \emph{backwards} along the edges. If we step backward into a node labeled $p$, we label it $E[p\,U\,q]$ and continue our backward search from there. This is efficient because we are growing a set of successful states from the target outwards.
+    \item \textbf{Forward search for AU/AF}: It is intrinsically wrong to evaluate $A[p\,U\,q]$ by walking backwards! If we step backwards from $q$ into $p$, we only know that \emph{one} branch successfully reached $q$. But $A[p\,U\,q]$ demands that \emph{all} branches reach $q$. To check this safely, we must use a \emph{forward} recursive traversal, exploring every outgoing edge from a state to guarantee that no branch escapes the $p$-region without eventually hitting $q$.
+\end{itemize}
+
+Once the root formula is evaluated, the set of states containing the root label is exactly the set of states that satisfy the property. This physical labeling process builds the intuition for the symbolic set-manipulations (fixed points) we will see later.
+
+% =======================================================================
 \section{CTL* and Expressiveness}
 \label{sec:ctlstar-expressiveness}
 
@@ -528,6 +545,16 @@ initial state of $\mathcal{M}$ that violates $\varphi$.  The question is
 encoded as a propositional satisfiability problem.
 \end{definition}
 
+\medskip\noindent
+\textbf{LTL Bounded Semantics.} When applying BMC to temporal formulas, the semantics rely on the shape of the finite prefix. There are two cases:
+\begin{enumerate}
+    \item \textbf{k-loop (lasso)}: The finite path contains a back-edge to a previously visited state, proving it represents an infinite cycle.
+    \item \textbf{loop-free}: The finite path has no cycle; it simply ends at step $k$.
+\end{enumerate}
+
+These shapes dictate conservative bounded semantics. Consider an LTL property on a loop-free prefix. 
+An eventuality like $\mathbf{F}\,p$ can evaluate to True if $p$ occurs anywhere in the finite prefix. However, a global property like $\mathbf{G}\,p$ \emph{cannot} evaluate to True on a loop-free path—even if $p$ is true at every state up to $k$, we do not know what happens at $k+1$. $\mathbf{G}\,p$ can only be proven true if the prefix forms a k-loop (proving $p$ will hold forever). This is why BMC is naturally an asymmetric bug-finding tool: a finite loop-free prefix is often enough to decisively falsify a safety property, but not to prove it.
+
 The unrolling is direct, but it helps to see one concrete instance all the way
 through.  Consider a tiny two-bit transition system with state variables
 $x_1,x_0$.  The initial state is
@@ -612,10 +639,12 @@ appear in the same fixed order along every path, and repeated subgraphs are
 shared.
 \end{definition}
 
-The starting point is a binary decision tree.  Every internal node asks one
-variable, every edge corresponds to the value $0$ or $1$, and every leaf is a
-Boolean constant.  The OBDD is what remains after we remove redundant tests
-and merge identical subtrees.
+The starting point is a binary decision tree. Every internal node asks one variable, every edge corresponds to the value $0$ or $1$, and every leaf is a Boolean constant. We minimize this tree into an OBDD by applying three strict reduction rules from the bottom up:
+\begin{enumerate}
+    \item \textbf{Remove duplicate terminals}: If there are multiple leaf nodes representing $0$, merge them into a single $0$ node. Do the same for $1$.
+    \item \textbf{Remove duplicate non-terminals}: If two internal nodes query the same variable and their $0$-edges and $1$-edges point to the exact same respective children, they are identical. Merge them into a single node.
+    \item \textbf{Remove redundant tests}: If an internal node has both its $0$-edge and $1$-edge pointing to the same child, the test is useless (the outcome is identical regardless of the variable's value). Remove the node and bypass it, routing incoming edges directly to the child.
+\end{enumerate}
 
 At the algebraic level this is just Shannon expansion:
 \[
@@ -653,20 +682,16 @@ shared by every path.
   \label{fig:decision-tree-obdd}
 \end{figure}
 
-\begin{example}[Ordering-sensitive equality]
-Let
+\begin{example}[Ordering-sensitive equality: The n-bit Comparator]
+Consider an $n$-bit equality comparator:
 \[
-  eq(x_1,x_0,y_1,y_0) \equiv
-  (x_1 \leftrightarrow y_1) \land (x_0 \leftrightarrow y_0).
+  eq(x_1 \dots x_n, y_1 \dots y_n) \equiv \bigwedge_{i=1}^n (x_i \leftrightarrow y_i)
 \]
-With the order $x_1,y_1,x_0,y_0$, the diagram can reject a mismatch in the
-high bits immediately and only needs to remember whether the first pair
-agreed.  The same idea works for the low bits, so the graph stays small.
-
-With the order $x_1,x_0,y_1,y_0$, the diagram must first distinguish all four
-possibilities for $x_1x_0$ before it has even seen the $y$ bits.  Those four
-partial cases lead to different residual functions, so the OBDD grows much
-larger.  The Boolean function is unchanged; only the order changed.
+\begin{itemize}
+    \item \textbf{Interleaved Order ($x_1, y_1, x_2, y_2, \dots$)}: The diagram checks bit 1 of $X$ against bit 1 of $Y$. If they mismatch, it routes immediately to the $0$ terminal. If they match, it proceeds to check bit 2. Because it only ever needs to remember "are we still matching?", the resulting OBDD size is perfectly linear: exactly $3n+2$ nodes.
+    \item \textbf{Separated Order ($x_1, x_2, \dots, x_n, y_1, y_2, \dots$)}: The diagram must read all $n$ bits of $X$ before seeing a single bit of $Y$. To remember the exact bit-pattern of $X$ so it can compare it against $Y$ later, the decision tree must branch into $2^n$ distinct intermediate nodes. The OBDD size explodes exponentially.
+\end{itemize}
+This dramatic difference gives rise to a crucial practical heuristic for choosing variable orderings in symbolic model checkers: \textbf{"Variables that are close together in the formula (strongly related) should be kept close together in the OBDD ordering."}
 \end{example}
 
 \subsection{The restrict function}
