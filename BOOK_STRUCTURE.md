@@ -67,28 +67,29 @@ complete proofs for stated theorem-level results, and targeted exercises.
   - Sources: L04-L06.
   - Monadic second-order logic of one successor, encodings of words, projection,
     the correspondence between S1S and Büchi automata, and decidability.
-- **Chapter 9: Deterministic Automata, Star-Free Languages, and Trees**
-  - Sources: L07-L12.
-  - S1S extensions, McNaughton's theorem, deterministic Muller/parity-style
-    automata, first-order definability, star-free languages, finite and
-    infinite trees, and tree automata.
-- **Chapter 10: Linear Temporal Logic**
+- **Chapter 9: Deterministic Omega-Automata and Star-Free Languages**
+  - Sources: L07-L09, L10 (part 1).
+  - Deterministic Büchi Automata (DBA) characterization, Deterministic Muller Automata (DMA), McNaughton's theorem, Deterministic Rabin Automata (DRA), Safra's determinization construction, S1S vs WS1S equivalence, First-order S1S logic, star-free languages, McNaughton-Papert theorem.
+- **Chapter 10: Tree Languages and Tree Automata**
+  - Sources: L10 (part 2), L11-L12.
+  - Finite and infinite trees, top-down and bottom-up tree automata, regular tree languages, Rabin's theorem, S2S logic, and Weak S2S logic.
+- **Chapter 11: Linear Temporal Logic**
   - Sources: L13-L17.
   - LTL syntax and semantics, next/until, derived operators, satisfiability,
     tableau/fulfilling paths, translation to Büchi automata, and LTL with past.
-- **Chapter 11: LTL Model Checking and Fairness**
+- **Chapter 12: LTL Model Checking and Fairness**
   - Sources: L18-L19.
   - Automata-theoretic model checking, direct algorithms, SCC-based search,
     justice and compassion constraints.
-- **Chapter 12: CTL and Symbolic Model Checking**
+- **Chapter 13: CTL and Symbolic Model Checking**
   - Sources: L20-L24.
   - CTL syntax/semantics, CTL*, explicit vs symbolic model checking, SAT-based
     bounded model checking, OBDDs, predicate transformers, and fixpoints.
-- **Chapter 13: Learning Regular Languages**
+- **Chapter 14: Learning Regular Languages**
   - Sources: L25-L26.
   - Learning automata/regular languages, Myhill-Nerode approximations, test
     sets, observation tables, and active-learning style algorithms.
-- **Chapter 14: Security Protocol Verification with Tamarin**
+- **Chapter 15: Security Protocol Verification with Tamarin**
   - Sources: L27-L28.
   - Multiset rewriting, facts, terms, protocol roles, traces, and property
     verification in the Tamarin prover.
