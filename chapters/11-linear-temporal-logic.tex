@@ -19,6 +19,15 @@ A temporal logic is characterized by how it represents the flow of time. In LTL,
 
 Before formalizing the syntax and semantics of LTL, we establish its place in the broader context of software and hardware verification.
 
+\subsection{Modal Logic Foundations}
+Before we define the syntax of LTL, it is helpful to look at its roots. LTL is a specific flavor of \emph{modal logic}. Let's step up to the whiteboard and draw a Kripke structure: a graph of "multiple worlds." 
+Imagine a 3-node graph with states $s_0, s_1, s_2$ connected by directed edges representing an "accessibility relation" (which worlds are reachable in one time-step from another). In standard modal logic, we evaluate formulas at a specific state. We have two key operators:
+\begin{itemize}
+    \item \textbf{Necessity ($\Box P$):} $P$ is true in \emph{all} immediately accessible neighboring worlds.
+    \item \textbf{Possibility ($\Diamond P$):} $P$ is true in \emph{at least one} immediately accessible neighboring world.
+\end{itemize}
+This branching-world view is very expressive, but sometimes we want to study just a single execution trace of a system. What happens if we restrict our "multiple worlds" graph to be just an infinite linear chain of states ($s_0 \to s_1 \to s_2 \to \dots$)? On a linear chain, "all accessible worlds" and "some accessible world" collapse into exactly one world: the unique next state! This restriction gives birth to Linear Temporal Logic. The $\Box$ (always) and $\Diamond$ (eventually) operators are extended to evaluate properties over the entire infinite sequence rather than just the immediate neighbors.
+
 \subsection{Verification vs. Validation}
 In formal methods, we distinguish between two fundamental activities:
 \begin{itemize}
@@ -33,6 +42,14 @@ The necessity of formal verification is underscored by high-profile software and
     \item \textbf{AT\&T Network Outage (1990)}: A single buggy line of C code in a switch recovery routine caused a cascading crash, bringing down AT\&T's long-distance telephone network for 9 hours and disrupting 70 million calls.
     \item \textbf{Ariane 5 Flight 501 (1996)}: The rocket self-destructed 37 seconds after launch due to an unhandled integer overflow. A 64-bit floating-point variable representing horizontal velocity was cast into a 16-bit signed integer, causing the guidance software to fail.
 \end{enumerate}
+
+\subsection{Broader AI Applications of LTL}
+While software verification is the primary driver for LTL, the logic has deep roots in Artificial Intelligence. Because LTL can concisely describe sequences of events and eventual goals, it is widely used in:
+\begin{itemize}
+    \item \textbf{Automated Planning}: Finding a sequence of robot actions that satisfies an LTL goal specification.
+    \item \textbf{Automated Synthesis}: Compiling an LTL specification directly into a correct-by-construction reactive system.
+    \item \textbf{Reinforcement Learning}: Using LTL formulas as reward functions to train agents, or as "shields" to prevent agents from taking unsafe actions during exploration.
+\end{itemize}
 
 \subsection{Dimensions and Classification of Temporal Logics}
 Temporal logics can be classified along five main dimensions:
@@ -97,6 +114,9 @@ The satisfaction relation $\sigma, i \models \phi$ (trace $\sigma$ satisfies $\p
   \sigma, i &\models \phi_1 U \phi_2 &&\iff \exists j \ge i \text{ such that } \sigma, j \models \phi_2 \text{ and } \forall k \in [i, j-1], \sigma, k \models \phi_1
 \end{align*}
 \end{definition}
+
+\medskip\noindent
+\textbf{Operational meaning of Semantics.} Let's decode this operationally. Evaluating $p$, $\neg\phi$, or $\phi_1 \land \phi_2$ at position $i$ just means looking at the state $s_i$ in isolation. The temporal magic happens with $X$ and $U$. The $X \phi$ operator simply shifts the evaluation pointer one step into the future to $i+1$. The $\phi_1 U \phi_2$ operator is a search loop: it looks for a future position $j$ where the goal $\phi_2$ is met, while simultaneously checking that the condition $\phi_1$ is unbroken for every step between $i$ and $j-1$.
 
 \subsection{Derived Temporal Operators}
 We define three crucial temporal operators as syntactic sugar:
@@ -487,6 +507,10 @@ Combining the pieces: if $A_n$ were definable by a sub-exponential pure-future L
 
 The LTL satisfiability problem is decided via a graph-based representation called the \emph{tableau}.
 
+\paragraph{Whiteboard intuition: What is a Tableau?}
+Imagine we are handed an LTL formula $\phi$ and asked: "Does there exist an infinite trace that satisfies this?" To answer this, we will build a massive state-space graph called the tableau. Every node in this graph will be a "candidate state" (called an atom) that contains a consistent set of formulas it claims are true. Edges will represent valid single-step time transitions.
+If we can find an infinite path through this graph starting from a state that claims $\phi$ is true, we have found our model! However, there is a trap: to handle "eventually" properties (Beta formulas), nodes are allowed to postpone their obligations to the future. This means our graph will contain "spurious" paths that endlessly postpone promises and lie about the future. Our final job will be to filter out those lying paths.
+
 \subsection{Negation Normal Form (NNF)}
 In NNF, negations are pushed inward to literals. To negate Until formulas, we introduce the \emph{Release} operator ($R$), the dual of Until:
 \[
@@ -518,6 +542,9 @@ The semantic rule is that a state sequence $\sigma$ satisfies $\alpha$ at positi
   \sigma, j \models \alpha \iff \forall \chi \in K(\alpha), \; \sigma, j \models \chi
 \]
 
+\medskip\noindent
+\textbf{Operational meaning of Alpha.} Alpha formulas are deterministic enforcements. There is no choice here. If you claim $\alpha$ is true today, you are strictly forced to also claim everything in $K(\alpha)$ is true today.
+
 \subsubsection{Beta Formulas ($\beta$)}
 A beta formula behaves like a disjunction: it introduces branching (non-determinism). If a beta formula holds, at least one of its two constituent sets must hold.
 For each beta formula $\beta \in Cl(\phi)$, we define two constituent sets $K_1(\beta)$ and $K_2(\beta)$:
@@ -537,9 +564,8 @@ The semantic rule is that a state sequence $\sigma$ satisfies $\beta$ at positio
   \sigma, j \models \beta \iff \left( \forall \chi \in K_1(\beta), \; \sigma, j \models \chi \right) \lor \left( \forall \chi \in K_2(\beta), \; \sigma, j \models \chi \right)
 \]
 
-\begin{remark}[The Risk of Infinite Postponement]
-Alpha constituents are deterministic. However, Beta formulas introduce choice. For example, for $\beta = F \psi$, choosing the second constituent $K_2(\beta) = \{X F \psi\}$ postpones the obligation to satisfy $\psi$ to the next step. If we continuously select the postponement branch along a path, we generate a trace that never satisfies $\psi$. This is known as the \emph{infinite postponement problem}, and it is the key reason why the tableau construction requires a separate path-fulfillment check (SCS reduction) rather than just local state consistency.
-\end{remark}
+\medskip\noindent
+\textbf{Operational meaning of Beta.} Beta formulas represent non-deterministic choices. For example, if you claim $F \psi$ is true today, you must choose a path: either fulfill it today by claiming $\psi$ is true now (First Set), or postpone the obligation by claiming $X F \psi$ is true, kicking the can to tomorrow (Second Set).
 
 \subsection{Closure and Atoms}
 \begin{definition}[Closure]
@@ -577,11 +603,25 @@ The tableau $T(\phi)$ is a directed graph $(V, E)$ where:
 \end{itemize}
 \end{definition}
 
+\medskip\noindent
+\textbf{Operational meaning of the Tableau.} Operationally, the tableau is a massive graph where every node is a candidate state of our system (an atom), and edges represent valid single-step transitions forward in time. An edge exists from $A$ to $B$ if and only if all the "tomorrow" promises made in $A$ ($X\chi$) are kept "today" in $B$ ($\chi$). Finding a model for our formula reduces to finding a valid infinite path through this graph starting from an atom containing $\phi$.
+
 % =======================================================================
 \section{Fulfilling Paths and SCS Reduction}
 \label{sec:ltl-fulfilling}
 
 An infinite path in $T(\phi)$ is a sequence of atoms $\pi = A_0 A_1 A_2 \dots$ with $(A_i, A_{i+1}) \in E$.
+
+\subsection{Induced Paths and the Infinite Postponement Problem}
+Does every path in the tableau correspond to a real LTL model? To answer this, we look at the concept of an \emph{induced path}.
+
+If we are given an actual, true LTL model $\sigma = s_0 s_1 s_2 \dots$ that satisfies $\phi$, we can trace its exact footprint through the tableau. For each step $i$, we define an atom $A_i$ containing exactly the formulas that are true at step $i$: $A_i = \{ \psi \in Cl(\phi) \mid \sigma, i \models \psi \}$. Because $\sigma$ is a real model, this sequence of atoms $A_0 A_1 A_2 \dots$ is guaranteed to be a valid path in $T(\phi)$. We say the model $\sigma$ \emph{induces} this path. This proves a critical property: \textbf{the tableau does not lose anything.} Any valid model lives inside the tableau as an induced path.
+
+But the reverse is not true! There is an asymmetry. Consider the trace where $P$ is always true: $\sigma = \{P\}^\omega$. Now, let's try to evaluate the formula $F \neg P$. In the tableau, an atom might claim $F \neg P$ is true by using the Beta non-determinism to choose $X F \neg P$ (postponing the obligation to tomorrow). At the next step, it postpones again. And again. The tableau allows this infinite chain of postponements because it only enforces local step-by-step consistency. Thus, the tableau contains a "spurious" path that endlessly kicks the can down the road, claiming $F \neg P$ is true but never actually delivering $\neg P$. This is the \emph{infinite postponement problem}.
+
+Because of this asymmetry, we must filter the paths in the tableau. We only want paths that don't lie about the future.
+
+\subsection{Fulfilling Paths}
 
 \begin{definition}[Promising Formulas and Fulfilling Paths]
 A formula $\psi \in Cl(\phi)$ is \emph{promising} if it is of the form $\alpha U \beta$. It promises $\beta$.
