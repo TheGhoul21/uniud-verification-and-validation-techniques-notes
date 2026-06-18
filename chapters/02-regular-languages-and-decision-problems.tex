@@ -432,6 +432,8 @@ longer enough.
 Once languages are represented by automata, many semantic questions
 become graph questions.
 
+\aside{Why care about emptiness? At first glance, asking whether an automaton accepts \emph{anything at all} seems trivial. But if we view automata as a way of compiling logical formulas, checking emptiness is exactly equivalent to solving the \textbf{satisfiability problem} in logic (a foundational connection you may recall from Professor Bopps's course). This simple graph property hides immense verification power.}
+
 \begin{definition}[Core decision problems]
 \label{def:finite-decision-problems}
 For finite automata over $\Sigma^*$, the standard decision problems are:
@@ -627,26 +629,26 @@ same suffix makes the two future computations identical.
 
 \begin{theorem}[Myhill--Nerode theorem]
 \label{thm:myhill-nerode}
-A language $L\subseteq\Sigma^*$ is regular if and only if
-$\equiv_L$ has finite index, meaning it partitions $\Sigma^*$ into
-finitely many equivalence classes.
+For any language $L\subseteq\Sigma^*$, the following three statements are equivalent:
+\begin{enumerate}[nosep]
+  \item $L$ is a regular language.
+  \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
+  \item The specific right congruence relation $\equiv_L$ has finite index.
+\end{enumerate}
 \end{theorem}
 
 \begin{proof}
-Assume first that $L$ is recognized by a DFA
-$A=(Q,\Sigma,\delta,q_0,F)$.  If two words reach the same state, then
-every continuation has the same fate from that state.  Formally, if
-$\widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y)$, then for every
-$z\in\Sigma^*$,
-\[
-  \widehat{\delta}(q_0,xz)=\widehat{\delta}(q_0,yz).
-\]
-Therefore $xz\in L$ if and only if $yz\in L$, so $x\equiv_L y$.  The
-automaton relation $\equiv_A$ has at most $|Q|$ classes, and each
-$\equiv_A$-class sits inside one $\equiv_L$-class.  Hence $\equiv_L$ has
-finite index.
+We prove the equivalence in a cycle: $(1)\implies(2)\implies(3)\implies(1)$.
 
-Conversely, assume $\equiv_L$ has finite index.  Build the quotient DFA
+\medskip\noindent\textbf{(1) $\implies$ (2).}
+Assume $L$ is regular, so it is recognized by some DFA $A=(Q,\Sigma,\delta,q_0,F)$.
+The automaton relation $\equiv_A$ (defined by $x \equiv_A y \iff \widehat{\delta}(q_0,x) = \widehat{\delta}(q_0,y)$) is a right-invariant equivalence relation and has at most $|Q|$ classes. Since $L$ is exactly the set of words reaching states in $F$, $L$ is exactly the union of the $\equiv_A$-classes corresponding to those final states.
+
+\medskip\noindent\textbf{(2) $\implies$ (3).}
+Assume $L$ is a union of classes of some right-invariant equivalence relation $\sim$ of finite index. If $x \sim y$, then for any continuation $z$, we have $xz \sim yz$. Since $L$ is a union of $\sim$-classes, $xz$ and $yz$ must either both be in $L$ or both outside $L$. This means $x \sim y \implies x \equiv_L y$. Thus, every $\sim$-class is fully contained in a single $\equiv_L$-class. Since $\sim$ has finite index, $\equiv_L$ can have at most the same finite number of classes.
+
+\medskip\noindent\textbf{(3) $\implies$ (1).}
+Assume $\equiv_L$ has finite index. Build the quotient DFA
 \[
   A_L=(\Sigma^*/{\equiv_L},\Sigma,\delta,[\varepsilon],F_L)
 \]
@@ -657,14 +659,11 @@ where
   F_L=\{[w]:w\in L\}.
 \]
 The transition is well-defined because $\equiv_L$ is right-invariant:
-if $w\equiv_L w'$, then $wa\equiv_L w'a$.  The accepting set is
-well-defined because taking the empty continuation $z=\varepsilon$ in
-the definition of $\equiv_L$ shows that equivalent words are either both
-in $L$ or both outside $L$.
+if $w\equiv_L w'$, then $wa\equiv_L w'a$. The accepting set is
+well-defined because taking the empty continuation $z=\varepsilon$ in the definition of $\equiv_L$ shows that equivalent words are either both in $L$ or both outside $L$.
 
 After reading a word $w$, the quotient automaton is in state $[w]$.
-Thus it accepts exactly the words whose equivalence class belongs to
-$F_L$, which is exactly $L$.
+Thus it accepts exactly the words whose equivalence class belongs to $F_L$, which is exactly $L$.
 \end{proof}
 
 \begin{proposition}[Minimality]

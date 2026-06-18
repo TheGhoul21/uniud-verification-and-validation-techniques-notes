@@ -206,6 +206,45 @@ state is visited infinitely often exactly when infinitely many
 \label{fig:infinitely-many-ack}
 \end{figure}
 
+\begin{example}[Parity between occurrences]
+\label{ex:buchi-parity-thomas}
+Here is a richer example, adapted from Wolfgang Thomas. Over the alphabet $\Sigma=\{a,b,c\}$, consider the language:
+\begin{quote}
+``Between any two consecutive occurrences of $a$, there is an even number of occurrences of $b$ and $c$ combined.''
+\end{quote}
+For instance, $a\,b\,c\,a$ is accepted (two symbols between the $a$'s), but $a\,b\,b\,b\,a$ is rejected (three symbols). Words with fewer than two occurrences of $a$ vacuously satisfy the condition.
+
+The B\"uchi automaton uses its states to track the parity of the non-$a$ symbols since the last $a$:
+\begin{itemize}[nosep]
+  \item $q_0$ (initial, accepting): The empty prefix, or reading $b,c$ before the first $a$.
+  \item $q_1$ (accepting): The last symbol was $a$, or we have seen an even number of $b/c$ symbols since the last $a$.
+  \item $q_2$ (non-accepting): We have seen an odd number of $b/c$ symbols since the last $a$.
+\end{itemize}
+If the automaton reads an $a$ while in $q_2$, it transitions to a rejecting sink (omitted for clarity), because a forbidden odd-length block has been sealed by an $a$.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.2cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[accepting] (q0) {$q_0$};
+  \node[accepting, right=of q0] (q1) {$q_1$};
+  \node[state, right=of q1] (q2) {$q_2$};
+  \draw[arr] ([xshift=-1.0cm]q0.west) -- (q0);
+  \draw[arr] (q0) edge[loop above] node {$b,c$} (q0);
+  \draw[arr] (q0) -- node[above] {$a$} (q1);
+  \draw[arr] (q1) edge[loop above] node {$a$} (q1);
+  \draw[arr, bend left=18] (q1) to node[above] {$b,c$} (q2);
+  \draw[arr, bend left=18] (q2) to node[below] {$b,c$} (q1);
+\end{tikzpicture}
+\caption{A B\"uchi automaton verifying the parity of $\{b,c\}$ blocks between occurrences of $a$.}
+\label{fig:buchi-parity}
+\end{figure}
+
 
 % ============================================================
 \section{Closure and Expressions}
@@ -396,21 +435,33 @@ word.  The graph-theoretic lasso in \cref{prop:buchi-emptiness} is the
 automata reason: a finite path gives $u$, and the repeated cycle gives
 $v^\omega$.
 
-\begin{example}[A singleton that is not $\omega$-regular]
-\label{ex:non-omega-regular-singleton}
-Consider
+\begin{example}[Languages without periodic words]
+\label{ex:non-omega-regular-languages}
+Consider the infinite word
 \[
   \beta=a\,b\,a\,b^2\,a\,b^3\,a\,b^4\cdots .
 \]
 Both $a$ and $b$ occur infinitely often, but the gaps between consecutive
-$a$'s keep growing.  The word is not ultimately periodic: in an
-ultimately periodic word, the distances between repeated occurrences are
-eventually governed by one fixed period.
+$a$'s keep growing. The word is not ultimately periodic: in an ultimately
+periodic word, the distances between repeated occurrences are eventually
+governed by one fixed period.
 
-The singleton language $\{\beta\}$ is therefore not $\omega$-regular.
-If it were non-empty and $\omega$-regular, it would contain an
-ultimately periodic word.  But its only word is $\beta$, which is not
-ultimately periodic.
+Can we build a non-empty language that is not $\omega$-regular?
+
+We could simply take the singleton language $\{\beta\}$. If it were $\omega$-regular,
+by the lasso property, it would have to contain an ultimately periodic word. But
+its only word is $\beta$, which is not ultimately periodic. So $\{\beta\}$ is not $\omega$-regular.
+However, one might argue that building a finite B\"uchi automaton for a single infinite,
+aperiodic word feels trivially impossible anyway, making it a weak counterexample.
+
+To make the obstruction robust, consider Wolfgang Thomas's example:
+\[
+  L_\beta = \{ u\beta : u\in\Sigma^* \}.
+\]
+This language is infinite---we can prepend any finite prefix to $\beta$. Is $L_\beta$ $\omega$-regular?
+If it were, it would have to contain an ultimately periodic word. But every word in $L_\beta$
+shares the suffix $\beta$, meaning it eventually behaves exactly like $\beta$ and cannot be ultimately periodic.
+Thus, $L_\beta$ is not $\omega$-regular. The absence of an ultimately periodic word is a fundamental structural barrier to $\omega$-regularity, even for rich, infinite languages.
 \end{example}
 
 \begin{summarybox}

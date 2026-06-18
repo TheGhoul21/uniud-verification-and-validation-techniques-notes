@@ -147,6 +147,12 @@ Strategies may use memory.  A \textbf{positional} strategy depends only
 on the current vertex.  A \textbf{finite-state} strategy depends on the
 current vertex plus a finite memory state.
 
+\aside{On the whiteboard (and in Wolfgang Thomas's standard tutorial, which
+the lectures follow), a positional strategy for the system is drawn by
+making exactly one outgoing edge from each system vertex \textbf{bold}.
+Because the environment is adversarial, \emph{all} outgoing edges from
+an environment vertex are treated as possible moves.}
+
 A strategy for the system is \textbf{winning} from a vertex $v$ if
 every infinite play that starts in $v$ and is consistent with that
 strategy satisfies the winning condition, no matter how the environment
@@ -542,9 +548,8 @@ set is the prefix of the old list up to $b$, here $\{a,b\}$.}
 
 \begin{example}[Walking through an LAR]
 \label{ex:lar-walk}
-Take an arena on four states $\{a,c,d\}$ plus a starting sentinel.  The
-first few states of a play are $a,c,c,d,d$.  Let's track the LAR, the
-hit position, and the hit set:
+Take an arena on four states $\{a,b,c,d\}$.  Let's track the LAR, the
+hit position, and the hit set for the sequence of visits $a, c, c, d, b, c, d$:
 \begin{center}
 \begin{tabular}{c|c|c|c}
 visit & LAR after & hit pos. & hit set \\ \hline
@@ -552,13 +557,17 @@ $a$ & $[a]$            & $0$ & $\emptyset$ \\
 $c$ & $[c,a]$          & $0$ & $\emptyset$ \\
 $c$ & $[c,a]$          & $1$ & $\{c\}$ \\
 $d$ & $[d,c,a]$        & $0$ & $\emptyset$ \\
-$d$ & $[d,c,a]$        & $1$ & $\{d\}$
+$b$ & $[b,d,c,a]$      & $0$ & $\emptyset$ \\
+$c$ & $[c,b,d,a]$      & $3$ & $\{b,d,c\}$ \\
+$d$ & $[d,c,b,a]$      & $3$ & $\{c,b,d\}$
 \end{tabular}
 \end{center}
 The first visit to each state has hit position $0$ and empty hit set:
-the state was not yet in the list.  From the third visit onward every
-state is already known, so the hit position is at least $1$.  The short
-prefixes above do not yet reveal the limit behaviour; they only show the
+the state was not yet in the list.  When $c$ is visited the second time,
+it is already at the front, so the hit position is $1$ and the hit set is $\{c\}$.
+When $c$ is visited the third time (after $d$ and $b$), it is in position $3$ of
+the old LAR $[b,d,c,a]$. It moves to the front, and the hit set is $\{b,d,c\}$.
+The short prefixes above do not yet reveal the limit behaviour; they only show the
 update rule.  Once the play has stabilised, recurring visits to states
 inside the eventual loop produce hit sets whose largest recurring
 records identify exactly the set of states appearing infinitely often.

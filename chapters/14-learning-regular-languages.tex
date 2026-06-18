@@ -8,7 +8,7 @@
 
 Up to this point, our verification algorithms assumed that the model of the system was given. We had a Kripke structure, an SMV file, or a set of multiset rewriting rules, and our task was to verify that it met a temporal logic specification or trace property. In practice, however, a complete model of a complex software system is rarely available. Often, we are confronted with a legacy implementation, a black-box hardware controller, or a third-party protocol whose internal state transitions are hidden.
 
-This chapter introduces the technique of \emph{learning regular languages} (or automata learning). We bridge the gap between machine learning and formal language theory. Instead of learning continuous functions over fixed-dimensional real vectors (as in modern neural networks), our goal is to reconstruct the discrete structure of a finite-state machine by observing its input-output behavior.
+This chapter introduces the technique of \emph{learning regular languages} (or automata learning). We bridge the gap between machine learning and formal language theory. Instead of learning continuous functions over fixed-dimensional real vectors (as in modern neural networks), our goal is to reconstruct the discrete structure of a finite-state machine by observing its input-output behavior. While this chapter focuses on deterministic finite automata, these active learning techniques have been successfully extended to probabilistic automata (e.g., for user profiling in systems like Amazon), tree automata for XML schema extraction, and tree transformations for modeling Linux package managers.
 
 We follow the progression of the lecture block. We begin with the mathematical foundations of the Myhill--Nerode theorem, which guarantees that a regular language has a unique minimal representation. Then we transition to the active learning paradigm, explaining how a learner can reconstruct this minimal representation by asking targeted questions to a teacher. We describe Angluin's $L^*$ active-learning algorithm in detail, complete with a step-by-step trace on a concrete language and a formal proof of its correctness and complexity.
 
@@ -192,6 +192,8 @@ The observation table is a matrix where:
     \text{Table}(s, t) = \text{MQ}(s \cdot t) \in \{0, 1\}
   \]
 \end{itemize}
+
+\aside{In practice, the observation table also serves as a memoization cache: if a string's membership has already been queried, its result is stored, preventing redundant queries to the teacher.}
 
 For any string $s \in S \cup (S \cdot \Sigma)$, we define its \textbf{row profile} $\text{row}(s)$ as the finite vector of values indexed by $T$:
 \[
@@ -516,7 +518,7 @@ Let $n$ be the number of states of the unique minimal DFA recognizing the target
 
 The key to the termination proof is showing that a counterexample really does force a state split. If we add the suffixes of a counterexample $w$ to $T$, the table cannot remain complete without introducing a new state representative.
 
-\begin{formaldetails}[Counterexample state split proof]
+\begin{formaldetails}[Proof roadmap: Counterexample state split]
 Let $A$ be the candidate DFA constructed from a complete and minimal table $(S, T)$ in Phase 2. Suppose $A$ is incorrect, and the teacher returns a counterexample $w = a_1 a_2 \dots a_k$ of length $k \le m$.
 
 Let $T' = T \cup \text{suffixes}(w)$ be the updated test set, where $\text{suffixes}(w) = \{t_0, t_1, \dots, t_k\}$ and each suffix is defined as:
@@ -531,7 +533,7 @@ where $s_0 = \epsilon$ and $s_i$ is the representative of the state reached afte
 
 We assume, for the sake of contradiction, that the table remains $T'$-complete with the same set of representatives $S$. That is, no new representatives are added.
 
-Under this assumption, we prove by induction that for all $i \in \{0, \dots, k\}$, the string $s_i \cdot t_i$ has the same membership status in $L$:
+The most unintuitive---yet brilliant---step of this proof involves concatenating the string representative of a state $s_i$ with a suffix of the counterexample $t_i$. By tracking the membership of $s_i \cdot t_i$, we can expose where the candidate automaton made a faulty transition. Under this assumption, we prove by induction that for all $i \in \{0, \dots, k\}$, the string $s_i \cdot t_i$ has the same membership status in $L$:
 \[
   s_i t_i \in L \iff s_{i+1} t_{i+1} \in L
 \]

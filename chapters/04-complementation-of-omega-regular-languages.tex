@@ -443,11 +443,7 @@ be partitioned into blocks that are indistinguishable by the finite
 congruence, and the repeated block class is closed under concatenating
 its own blocks.
 
-\aside{On the whiteboard: draw
-$\alpha$ as an infinite line, mark the
-homogeneous cut positions, and verify
-that merging any two adjacent marked
-segments yields a block still in $V$.}
+\aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha[k,m]$ and $\alpha[k',m]$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
 
 Two remarks will help when reading the proof below.  First, the
 idempotence $V\cdot V\subseteq V$ is what lets us treat the infinite
@@ -688,18 +684,13 @@ $L(A)\subseteq L(B)$ for B\"uchi automata.  Which operation is the
 technically hardest one?
 \end{chapex}
 
-\begin{chapex}[Computing a transition profile]
-Using the automaton of \cref{fig:profile-automaton}, compute the
-transition profile of the word $u=abc$.  List every pair $(p,q)$ for
-which $p\xrightarrow{u}q$ holds, and indicate which of those paths visit
-$F=\{s_1\}$.  Is $abc$ in the same $\approx_A$-class as $ab$?
-\end{chapex}
-
-\begin{chapex}[One saturation decision]
-Still on \cref{fig:profile-automaton}, let $U$ be the $\approx_A$-class
-of the empty word and $V$ the $\approx_A$-class of $ab$.  By running an
-emptiness test on the product of a $U\cdot V^\omega$ automaton with
-$A$, decide whether $U\cdot V^\omega$ contributes to $L(A)$ or to
-$\overline{L(A)}$.  Describe the witness: a reachable accepting cycle,
-or its absence.
+\begin{chapex}[The complete profile congruence]
+Consider the B\"uchi automaton $A$ of \cref{fig:profile-automaton}.
+As discussed in lecture, the transition-profile congruence $\approx_A$
+induces exactly nine equivalence classes over $\Sigma^*$.
+\begin{enumerate}
+  \item Find all nine $\approx_A$-classes. For each class, provide a regular expression describing the words it contains (for example, one class contains $b, bab, babab\dots$ and can be written as $(ba)^*b$).
+  \item Verify that this is indeed a congruence by picking two classes, concatenating them, and showing that the result falls cleanly into another single class.
+  \item Express $L(A)$ exactly as a union of four class products $U_i (V_i)^\omega$, choosing $U_i$ and $V_i$ from your nine classes.
+\end{enumerate}
 \end{chapex}
