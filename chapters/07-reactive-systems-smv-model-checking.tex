@@ -13,6 +13,12 @@ programs we care about, explain what \emph{model checking} means and why it
 matters, learn a concrete modelling language---SMV---and practice reading
 and writing models using the tool \textsc{NuXMV}.
 
+A useful way to read the chapter is as a single pipeline.  A reactive system
+has infinite executions; a Kripke structure packages all those executions in
+one finite graph; SMV is the engineering notation from which such a graph is
+generated; NuXMV explores the graph; and fairness or temporal-logic
+specifications tell the tool which executions count as meaningful.
+
 % -----------------------------------------------------------------------
 \section{Why Reactive Systems?}
 \label{sec:reactive-why}
@@ -55,6 +61,11 @@ power and algorithmic properties.
 % -----------------------------------------------------------------------
 \section{The Model Checking Problem}
 \label{sec:mc-problem}
+
+The previous section explained why executions are infinite.  Model checking
+adds the missing verification question: given a finite description of all
+possible executions, and a formal property of those executions, can a tool
+decide whether the property always holds?
 
 \subsection{What model checking is}
 
@@ -163,6 +174,12 @@ model checker based on SAT solving.  We will study it in
 Chapter~\ref{ch:ctl-symbolic}.
 
 \subsection{A brief historical note}
+
+The definition above is abstract, but the motivation is concrete.  Model
+checking became important because many severe failures were not caused by a
+single wrong arithmetic result; they were caused by rare interactions between
+states, timing, concurrency, and environment choices---exactly the behaviours
+that are hard to cover with ordinary testing.
 
 The field of formal verification developed in response to a string of
 software failures whose costs---in human lives and money---were enormous.
@@ -281,6 +298,9 @@ responses:
 \section{Kripke Structures}
 \label{sec:kripke}
 
+We have now named the verification problem.  The next step is to choose the
+mathematical object that the model checker actually analyses.
+
 The most abstract model we use is the \emph{Kripke structure}, the formal
 counterpart of the ``state machine'' idea.  All the concrete modelling
 languages we will see---SMV, NuSMV, and others---ultimately produce Kripke
@@ -395,6 +415,11 @@ Example~\ref{ex:arbiter-smv}).
 % -----------------------------------------------------------------------
 \section{The SMV Modelling Language}
 \label{sec:smv-lang}
+
+Kripke structures are ideal for definitions, but too low-level for writing
+real examples by hand.  SMV is the bridge: the modeller writes variables,
+initial conditions, and next-state constraints; the tool turns them into the
+Kripke structure of Section~\ref{sec:kripke}.
 
 \emph{SMV} (Symbolic Model Verifier) is both a specification language and the
 name of one of the first model checkers (CMU, early 1990s).  We use SMV as a
@@ -529,6 +554,9 @@ states} the arbiter is in state \texttt{busy}.''
 \label{sec:smv-semantics}
 
 We now spell out how an SMV module translates to a Kripke structure.
+This is the point where syntax becomes behaviour: every declaration and
+constraint either creates states, removes impossible states, or restricts the
+transition relation.
 
 \paragraph{State space.}  Each state is an assignment of values to all
 state variables.  States that violate any \texttt{INVAR} condition are removed.
@@ -720,6 +748,11 @@ Figure~\ref{fig:mod4}.
 \subsection{Non-determinism in SMV}
 \label{sec:smv-nondeterminism}
 
+The examples so far include deterministic counters and deliberately
+underspecified transitions.  In model checking, this underspecification is
+not a defect in the notation: it is how we represent choices made by the
+environment, an adversary, or a scheduler.
+
 Non-determinism arises naturally in three ways.
 
 \begin{enumerate}
@@ -827,8 +860,10 @@ building the state space.  Macros are useful for:
 \section{Simulation with NuXMV}
 \label{sec:nuxmv-simulation}
 
-Before running model checking, it is good practice to \emph{simulate} the
-model to catch obvious errors.  NuXMV provides an interactive simulation
+Once the model has a precise semantics, the first practical check is usually
+not a full proof but a short execution.  Simulation lets us inspect one path
+through the Kripke structure and catch modelling mistakes before asking the
+model checker to explore all paths.  NuXMV provides an interactive simulation
 mode:
 
 \begin{verbatim}
@@ -880,6 +915,11 @@ NuXMV > check_ctlspec -p "AG (request -> AX (state = busy))"
 % -----------------------------------------------------------------------
 \section{Modules: Hierarchical Modelling}
 \label{sec:smv-modules}
+
+Flat examples are useful for learning the semantics, but realistic systems
+are built out of repeated components.  SMV modules let us keep that
+structure visible while still compiling the whole model to one flattened
+transition system.
 
 Modules in SMV play the role of \emph{classes} in object-oriented
 programming: a module is declared once and can be instantiated multiple
@@ -1038,6 +1078,11 @@ $00000$ is visited even more often.  So the property is true in all runs.
 \section{Asynchronous Composition}
 \label{sec:smv-async}
 
+The decimal counter was hierarchical but still synchronous: every component
+advanced together in one global step.  Concurrent systems add a different
+source of behaviour, namely the scheduler's choice of which process runs
+next.
+
 \subsection{Synchronous vs.\ asynchronous}
 
 In a \emph{synchronous} composition, a single step of the combined system
@@ -1133,6 +1178,8 @@ buffer full forever.
 The counter-example above is unrealistic: in any real system, a scheduler
 ensures that every process eventually gets CPU time.  \emph{Fairness
 constraints} formalise this assumption.
+They do not change the transition graph itself; instead, they say which
+infinite paths of the graph should count as admissible executions.
 
 \subsection{Temporal hierarchy: four key concepts}
 
@@ -1164,7 +1211,7 @@ sources of errors in exams.
 
     % never P
     \foreach \i in {0,...,11} \fill[gray!25] (\i, 0.4) circle (3pt);
-    \node[right, font=\small] at (12.2, 0.4) {never $P$};
+    \node[right, font=\small] at (12.2, 0.4) {eventually never $P$};
 
     % Implications
     \draw[->, thick, teal!60] (12.2+3.5, 3.7)
@@ -1174,8 +1221,8 @@ sources of errors in exams.
   \end{tikzpicture}
   \caption{Four temporal behaviours of a property $P$ along an infinite path.
            ``Always $P$'' implies ``infinitely often $P$''; ``finitely often
-           $P$'' implies ``never $P$'' in the limit sense.  The converse
-           implications do not hold.}
+           $P$'' means that, from some point on, $P$ never holds again.  The
+           converse implications do not hold.}
   \label{fig:temporal-hierarchy}
 \end{figure}
 
@@ -1208,20 +1255,23 @@ option was actually exercised.  In a deterministic system these coincide,
 but in a non-deterministic one many states may be enabled while only one is
 taken.
 
+For a set $S \subseteq Q$, write $\mathrm{Enabled}_S(i)$ when some state in
+$S$ is enabled at position $i$, and $\mathrm{Taken}_S(i)$ when the actual
+successor $\pi(i+1)$ belongs to $S$.
+
 \begin{definition}[Justice / Weak fairness]
 \label{def:justice}
 A set $J \subseteq Q$ satisfies \emph{justice} (weak fairness) on path
 $\pi$ if:
 \[
-  \neg\Bigl(\exists k.\; \forall i \geq k.\;
-    \exists s \in J.\; s \text{ is enabled at } i
-    \;\wedge\;
-    \forall j \geq k.\; s \text{ is not taken at } j\Bigr).
+  \bigl(\exists k.\;\forall i \geq k.\;\mathrm{Enabled}_J(i)\bigr)
+  \implies
+  \bigl(\forall k.\;\exists i \geq k.\;\mathrm{Taken}_J(i)\bigr).
 \]
 Equivalently (positive form):
 \begin{quote}
 If states in $J$ are \emph{continuously available} from some time point
-on, then at least one of them must eventually be \emph{taken}.
+on, then states in $J$ must be \emph{taken infinitely often}.
 \end{quote}
 \end{definition}
 
@@ -1230,9 +1280,9 @@ on, then at least one of them must eventually be \emph{taken}.
 A set $C \subseteq Q$ satisfies \emph{compassion} (strong fairness) on
 path $\pi$ if:
 \[
-  \bigl(\text{states in } C \text{ are enabled infinitely often}\bigr)
+  \bigl(\forall k.\;\exists i \geq k.\;\mathrm{Enabled}_C(i)\bigr)
   \implies
-  \bigl(\text{states in } C \text{ are taken infinitely often}\bigr).
+  \bigl(\forall k.\;\exists i \geq k.\;\mathrm{Taken}_C(i)\bigr).
 \]
 \end{definition}
 
@@ -1243,32 +1293,35 @@ path $\pi$ if:
     Concept & Condition & Required conclusion \\
     \midrule
     Justice (weak)     & \emph{always} enabled (from time $k$)  &
-                         \emph{eventually} taken (at least once) \\
+                         taken \emph{infinitely often} \\
     Compassion (strong)& enabled \emph{infinitely often}         &
                          taken \emph{infinitely often}           \\
     \bottomrule
   \end{tabular}
 \end{center}
 
-Note that justice is \emph{not} implied by compassion: a state can be
-enabled infinitely often (triggering compassion) even if there are long
-stretches where it is \emph{not} enabled (not triggering justice).  The two
-notions are thus genuinely different.
+Compassion is stronger than justice for the same scheduling choice: if
+something is enabled continuously from some point on, then it is enabled
+infinitely often, so strong fairness forces it to be taken infinitely often.
+The converse does not hold.  A choice can be enabled infinitely often but
+with gaps; justice is silent in that situation, while compassion still
+requires infinitely many selections.
 
 \begin{example}[Fairness in the producer--consumer]
 \label{ex:prod-cons-fairness}
 In the producer--consumer model, the set
-$C = \{s \in Q \mid s \models \texttt{consumer.running}\}$ contains all
-states in which the consumer is the selected process.
+$S_{\mathit{cons}} =
+\{s \in Q \mid s \models \texttt{consumer.running}\}$ contains all states
+in which the consumer is the selected process.
 
 The unfair run consists of the producer being selected in every step:
 \texttt{producer.running = TRUE, consumer.running = FALSE, ...} ad
-infinitum.  In this run, the states in $C$ are enabled at every step (the
-scheduler could always pick the consumer) but never taken.  This violates
-\emph{justice}.
+infinitum.  In this run, the states in $S_{\mathit{cons}}$ are enabled at
+every step (the scheduler could always pick the consumer) but never taken.
+This violates \emph{justice}.
 
-It also violates compassion: states in $C$ are enabled infinitely often
-(always, in fact) but taken zero times (finitely often).
+It also violates compassion: states in $S_{\mathit{cons}}$ are enabled
+infinitely often (always, in fact) but taken zero times (finitely often).
 
 Adding the fairness constraints:
 \begin{verbatim}
@@ -1306,10 +1359,12 @@ COMPASSION (P, Q)
 
 \begin{remark}[NuSMV terminology mismatch]
 In NuSMV, \texttt{JUSTICE~P} means ``$P$ holds infinitely often on every
-fair path''---it does \emph{not} correspond to the formal definition of
-justice above.  It is a weaker condition.  For exam purposes, always use
-the formal definitions (Definitions~\ref{def:justice} and
-\ref{def:compassion}), not the NuSMV keyword semantics.
+fair path''.  This is a path constraint, not the enabled/taken definition
+above.  It implements weak fairness for a scheduler only when $P$ names the
+process that should be selected and that process is continuously enabled.
+For exam purposes, keep the semantic definition
+(Definitions~\ref{def:justice} and~\ref{def:compassion}) separate from the
+NuSMV keyword syntax.
 \end{remark}
 
 \subsection{Fair paths and model checking under fairness}
@@ -1332,6 +1387,9 @@ fairness in Chapter~\ref{ch:ltl-mc-fairness}.
 Throughout the chapter we have referred informally to LTL and CTL.  We
 preview their relationship here, to be developed formally in
 Chapters~\ref{ch:ltl}--\ref{ch:ctl-symbolic}.
+This section is only a map: Chapter~\ref{ch:s1s-buchi} first explains the
+automata-theoretic foundation behind temporal specifications, and later
+chapters turn these names into full syntax, semantics, and algorithms.
 
 \paragraph{Linear Temporal Logic (LTL).}  Formulas are evaluated on a
 single \emph{infinite path} (a linear sequence of states).  Operators include
@@ -1390,6 +1448,11 @@ verification tasks.
 % -----------------------------------------------------------------------
 \section{Formal Methods in Context}
 \label{sec:formal-methods-context}
+
+We close the chapter by locating model checking among the other techniques
+that an engineer might use.  This context matters because model checking is
+not a replacement for all validation activity: it is a precise answer to the
+specific question ``does this finite model satisfy this formal property?''
 
 \subsection{Three categories of formal methods}
 

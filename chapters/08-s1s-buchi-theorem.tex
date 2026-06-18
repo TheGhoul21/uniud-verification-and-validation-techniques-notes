@@ -21,6 +21,13 @@ counterparts---a fact that motivates the whole machinery of
 complementation and, ultimately, the need for richer acceptance
 conditions (Muller automata, studied in Chapter~\ref{ch:muller}).
 
+The chapter has one narrative spine.  First we learn how S1S talks about
+positions of an infinite execution.  Then we turn formulas with free set
+variables into $\omega$-words over bit-vectors.  That encoding lets every
+logical operation become an automata operation: Boolean connectives become
+closure constructions, and existential set quantification becomes
+projection.  The Büchi theorem is the point where these translations meet.
+
 % -----------------------------------------------------------------------
 \section{The Time-Flow Perspective}
 \label{sec:s1s-motivation}
@@ -51,6 +58,12 @@ whole temporal-logic edifice is built.
 % -----------------------------------------------------------------------
 \section{The Logic S1S}
 \label{sec:s1s-def}
+
+The time-flow perspective gives us the intended structure:
+$0,1,2,\ldots$ with a successor operation.  S1S is the formal language for
+talking about that structure.  First-order variables name individual time
+positions; second-order variables name sets of positions, such as ``all
+times where a request is pending''.
 
 \subsection{S1S$_A$: S1S over an alphabet}
 
@@ -149,6 +162,8 @@ set of $\omega$-words---but now defined logically.
 Before proving the Büchi theorem, let us develop an intuition for the
 expressive power of S1S$_A$ through four examples of increasing
 difficulty.  These patterns appear constantly in exam problems.
+They also foreshadow the proof: every example below isolates a logical move
+that later becomes an automata construction.
 
 \subsection{Simple example: every \texorpdfstring{$a$}{a} is followed by a \texorpdfstring{$b$}{b}}
 \label{sec:s1s-ex1}
@@ -401,7 +416,8 @@ is wrong.  The correct $\Phi_\infty$ has no conditional: it asserts that
 The pattern $\forall x.\;\exists y.\;x < y \land P(y)$ is one of the most
 recurring in S1S, model checking, and temporal logic.  In LTL it corresponds
 to $\mathbf{G}(\mathbf{F}\,P)$ (``$P$ holds infinitely often'').  In fairness
-constraints, it is the condition for \emph{justice} (Chapter~\ref{ch:reactive-smv}).
+constraints, the same infinitely-often pattern appears in NuSMV
+\texttt{JUSTICE} clauses (Chapter~\ref{ch:reactive-smv}).
 \end{remark}
 
 % -----------------------------------------------------------------------
@@ -411,6 +427,9 @@ constraints, it is the condition for \emph{justice} (Chapter~\ref{ch:reactive-sm
 So far we have treated S1S$_A$ for sentences (no free variables).  For the
 Büchi theorem proof, we need to handle \emph{open formulas} with $n$ free
 \emph{second-order} variables $X_1, \ldots, X_n$.
+This is not just a technical detail: it is the mechanism that lets logic
+and automata communicate.  An automaton reads a word, so a valuation for the
+free variables must itself be presented as a word.
 
 \subsection{Why free variables complicate things}
 
@@ -495,6 +514,11 @@ expressively equivalent; we use whichever is more convenient.
 \section{The Büchi Theorem}
 \label{sec:buchi-theorem}
 
+At this point the two sides have the same shape.  An S1S sentence defines a
+set of infinite words; a Büchi automaton recognises a set of infinite words.
+The theorem says that these two ways of describing sets are extensionally
+identical.
+
 We can now state the central result.
 
 \begin{theorem}[Büchi, 1960]
@@ -525,6 +549,11 @@ this theorem means:
 % -----------------------------------------------------------------------
 \section{Proof: \texorpdfstring{$\omega$-regular $\Rightarrow$ S1S-definable}{omega-regular implies S1S-definable}}
 \label{sec:buchi-proof-fwd}
+
+This is the easier direction.  An accepting run is already an infinite
+object indexed by time; S1S only has to guess that run using sets of
+positions and then check that the guessed run starts correctly, follows the
+transition relation, and satisfies the Büchi condition.
 
 \textbf{Given:} NBA $\mathcal{A} = (Q, A, \delta, q_0, F)$ with states
 $Q = \{0, 1, \ldots, m\}$ (we name the initial state $0$).
@@ -653,6 +682,9 @@ satisfies all three conditions.
 Before proving the other direction of the Büchi theorem, we need one more
 closure property of Büchi automata: \emph{closure under projection}.  This
 corresponds, logically, to \emph{existential second-order quantification}.
+This is the central bridge from syntax to automata: forgetting one bit of
+the input word is the automata-theoretic version of saying ``there exists a
+set of positions with this property''.
 
 \begin{lemma}[Closure under projection]
 \label{lem:projection}
@@ -702,6 +734,9 @@ is now ``free'' to take any value.
 
 This is the more involved direction: given an S1S formula, construct an
 NBA.  The strategy is a two-step normalisation.
+First we reduce the logic to a tiny kernel with only set variables and two
+atomic predicates.  Then we show that this kernel has base automata and is
+closed under the operations used to build formulas.
 
 \subsection{Step 1: S1S $\to$ S1S$_0$ (syntactic simplification)}
 
@@ -739,12 +774,11 @@ variable $X$ (a set containing exactly one element):
 Here $\mathrm{Singleton}(X)$ asserts $X$ has exactly one element:
 \[
   \mathrm{Singleton}(X) \;\equiv\;
-  \exists Y.\;Y \subsetneq X \;\land\;
-  \neg\exists Z.\; Y \subsetneq Z \land Z \subsetneq X.
+  \exists Y.\;\mathrm{Succ}(X,Y).
 \]
-(``$Y$ is a proper subset of $X$, and there is nothing strictly between
-$Y$ and $X$ in the inclusion lattice---so $Y$ must be empty and $X$
-must have exactly one element.'')
+Since $\mathrm{Succ}(X,Y)$ means ``$X = \{x\}$ and $Y = \{x+1\}$'' for
+some position $x$, the existence of such a $Y$ is exactly the assertion that
+$X$ is a singleton.
 
 \paragraph{Step 1d: Rewrite remaining atomic formulas.}
 After the above steps, every atomic formula has one of these forms,
@@ -830,38 +864,33 @@ formula---is complete.  This finishes the proof of Theorem~\ref{thm:buchi}.
 
 \begin{theorem}[Decidability of S1S]
 \label{thm:s1s-decidable}
-The truth of any S1S sentence is decidable: there is an algorithm that,
-given an S1S sentence $\Phi$, terminates and outputs \textbf{true} if
-$\Phi$ is a theorem of S1S (i.e., it holds over every $\omega$-word), or
-\textbf{false} otherwise.
+Satisfiability and validity of S1S sentences are decidable.  Equivalently,
+given an S1S$_A$ sentence $\Phi$, there are algorithms to decide whether
+$L(\Phi)$ is empty and whether $L(\Phi)=A^\omega$.
 \end{theorem}
 
 \begin{proof}[Algorithm]
-Given $\Phi$ (a sentence, no free variables):
+Given an S1S$_A$ sentence $\Phi$:
 \begin{enumerate}
   \item Translate $\Phi$ to an NBA $\mathcal{A}$ using the construction
-        of Section~\ref{sec:buchi-proof-bwd}.  Since $\Phi$ has no free
-        variables, the alphabet of $\mathcal{A}$ is $\{0,1\}^0 = \{\varepsilon\}$
-        (a single symbol, the empty tuple).  The automaton is
-        \emph{input-free}: it has no meaningful labels on transitions.
+        of Section~\ref{sec:buchi-proof-bwd}, so that
+        $L(\mathcal{A}) = L(\Phi)$.
   \item Decide \emph{emptiness} of $\mathcal{A}$: check whether $L(\mathcal{A})$
         is empty.  Emptiness of an NBA is solvable in NLogSpace (polynomial
         time) by looking for a reachable accepting lasso.
-  \item $\Phi$ is \textbf{true} if and only if $L(\mathcal{A}) \neq \emptyset$.
+        This decides satisfiability of $\Phi$.
+  \item To decide validity, apply the same construction to $\neg\Phi$ and
+        check emptiness.  The sentence $\Phi$ is valid over all
+        $\omega$-words iff $L(\neg\Phi)=\emptyset$.
 \end{enumerate}
-Since $\Phi$ is a sentence (no free variables), there are no models to
-evaluate over---``true'' means the sentence holds in the unique
-interpretation $(\mathbb{N}, 0, +1, <)$, which corresponds to the
-single (vacuous) $\varepsilon^\omega$ word.
 \end{proof}
 
 \medskip\noindent
-\textbf{Why input-free?}  Applying existential quantification over all
-$n$ free variables (via projection) removes all $n$ components of the
-alphabet, one by one.  A sentence has $n = 0$ free variables, so the
-alphabet shrinks to $\{0,1\}^0$---there is nothing left to read.  The
-automaton simply checks whether a successful run exists, which is the
-emptiness problem.
+\textbf{Pure S1S as a special case.}  If there are no alphabet predicates
+$Q_a$, the structure is just $(\mathbb{N},0,+1,<)$.  There is then only one
+vacuous input word over $\{0,1\}^0=\{\varepsilon\}$, so satisfiability,
+truth in the pure structure, and non-emptiness of the translated automaton
+collapse to the same check.
 
 \subsection{Complexity: the non-elementary lower bound}
 
@@ -877,7 +906,7 @@ etc.
 \end{definition}
 
 \begin{theorem}[Stockmeyer]
-Deciding the truth of S1S sentences requires time $\Omega(\exp(h, n))$
+The S1S decision problem requires time $\Omega(\exp(h, n))$
 where $n$ is the size of the formula and $h$ is the number of
 \emph{alternations} between $\exists$ and $\forall$ quantifiers.
 In general, $h$ is unbounded, so no fixed-height tower suffices:
@@ -928,6 +957,9 @@ alternations an S1S formula can have), the tower is arbitrarily high.
 
 Over the decades, many extensions of S1S have been studied, some
 remaining decidable and some falling into undecidability.
+This boundary is pedagogically important: S1S is powerful because it can
+quantify over sets of time positions, but its decidability depends on very
+specific arithmetic restrictions.
 
 \subsection{S1S over finite words}
 
@@ -1021,6 +1053,8 @@ A DBA has a \emph{unique run} on every $\omega$-word: given $\alpha$,
 the run $\sigma = q_0, q_1, q_2, \ldots$ is fully determined by
 $q_{i+1} = \delta(q_i, \alpha(i))$.  Acceptance: the unique run is
 successful iff $\mathrm{Inf}(\sigma) \cap F \neq \emptyset$.
+This uniqueness removes the automaton's ability to ``guess'' a future
+event.  That is exactly what will fail in the witness language below.
 
 \subsection{What DBAs can and cannot do}
 
@@ -1031,12 +1065,13 @@ DBAs are closed under \emph{union} and \emph{intersection}.
 
 \begin{theorem}[DBAs are not closed under complementation]
 \label{thm:dba-not-complement}
-There exists an $\omega$-regular language $L$ such that no DBA accepts
-the complement of $L$.  In particular, the class of languages recognised
-by DBAs is a \emph{strict subset} of the $\omega$-regular languages.
+There exists a language $L$ recognised by a DBA such that
+$A^\omega \setminus L$ is not recognised by any DBA.  In particular, DBA
+languages are not closed under complement and form a \emph{strict subset}
+of the $\omega$-regular languages.
 \end{theorem}
 
-\subsection{The witness language: finitely many \texorpdfstring{$a$}{a}'s}
+\subsection{The witness pair: infinitely many vs.\ finitely many \texorpdfstring{$a$}{a}'s}
 
 \begin{definition}
 \label{def:Lfin}
@@ -1111,26 +1146,40 @@ $a$'s'' is accepted by the following DBA:
 \subsection{Why \texorpdfstring{$L_{\mathrm{fin}}$}{Lfin} has no DBA}
 
 Suppose for contradiction that some DBA $\mathcal{B}$ accepts $L_{\mathrm{fin}}$.
-Consider the run of $\mathcal{B}$ on $b^\omega$ (infinitely many $b$'s, no
-$a$'s).  Since $b^\omega \in L_{\mathrm{fin}}$, this run is accepting, so
-it visits some final state $q_f \in F$ infinitely often.  The run on
-$b^\omega$ must eventually enter a cycle visiting $q_f$.
+We will construct an infinite word with infinitely many $a$'s that
+$\mathcal{B}$ is forced to accept.
 
-Now consider the word $b^k a b^\omega$ for large $k$ (finitely many $a$'s,
-so also in $L_{\mathrm{fin}}$).  Because $\mathcal{B}$ is deterministic,
-after reading $b^k$ it is in the same state as after $k$ steps of the
-$b^\omega$ run---eventually cycling through the same states.  By choosing
-$k$ appropriately, we can arrange that the run on $b^k a b^\omega$ also
-visits $q_f$ infinitely often (since $a$ leads to some state from which
-the $b^\omega$ cycle resumes).
+Start with a finite prefix $u_0=\varepsilon$.  For any finite prefix $u$,
+the word $u b^\omega$ has only finitely many $a$'s, hence belongs to
+$L_{\mathrm{fin}}$.  Since $\mathcal{B}$ is assumed to recognise
+$L_{\mathrm{fin}}$, the unique run on $u b^\omega$ must visit accepting
+states infinitely often.  Therefore, after the prefix $u$, there exists
+some number $n$ such that the run reaches an accepting state after reading
+$b^n$.
 
-This argument can be iterated to show that $\mathcal{B}$ also accepts
-words with \emph{infinitely many} $a$'s (by inserting $a$'s at the right
-positions), contradicting the assumption that $\mathcal{B}$ recognises
-$L_{\mathrm{fin}}$.  The full proof uses the Myhill-Nerode theorem for
-Büchi automata and is found in Thomas's survey.\footnote{W.~Thomas,
+Use this observation inductively.  Having built $u_r$, choose $n_r$ so that
+the run reaches an accepting state after $u_r b^{n_r}$, and set
+\[
+  u_{r+1} = u_r b^{n_r} a.
+\]
+The limiting word
+\[
+  \beta = b^{n_0} a\, b^{n_1} a\, b^{n_2} a \cdots
+\]
+contains infinitely many $a$'s, so $\beta \notin L_{\mathrm{fin}}$.  But the
+unique run of $\mathcal{B}$ on $\beta$ visits an accepting state after each
+block $b^{n_r}$, hence infinitely often.  Thus $\mathcal{B}$ accepts
+$\beta$, a contradiction.
+
+This proves that no DBA recognises $L_{\mathrm{fin}}$.\footnote{A standard
+reference for deterministic automata on infinite words is W.~Thomas,
 \textit{Automata on Infinite Objects}, in \textit{Handbook of Theoretical
 Computer Science}, vol.~B, Elsevier, 1990.}
+
+Theorem~\ref{thm:dba-not-complement} now follows by taking
+$L=\overline{L_{\mathrm{fin}}}$, the language ``infinitely many $a$'s'':
+Figure~\ref{fig:dba-infmany} gives a DBA for $L$, while the argument above
+shows that its complement $L_{\mathrm{fin}}$ has no DBA.
 
 \subsection{Tracing the NBA for \texorpdfstring{$L_{\mathrm{fin}}$}{Lfin} on \texorpdfstring{$abab\cdots$}{ababw}}
 
