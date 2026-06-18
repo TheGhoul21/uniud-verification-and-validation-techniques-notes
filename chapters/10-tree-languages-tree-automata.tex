@@ -86,7 +86,7 @@ If we start in the initial state $A$ and trace all possible behaviors, we obtain
 \aside{While an LTL formula evaluates a single path in isolation, a CTL formula can reason about the tree structure directly, using quantifiers like "for all paths ($\forall$)" or "there exists a path ($\exists$)" at each branching point.}
 
 \subsection{Formalizing Trees: Domains and Valuations}
-To study trees mathematically, we must formalize their structure. In words, positions are represented by the natural numbers $\{0, 1, 2, \dots\}$. In trees, a position (or node) is represented by a sequence of choices. For example, if we are in a binary tree, we can go left (0) or right (1). The sequence $010$ represents the node reached by going left, then right, then left.
+To study trees mathematically, we must formalize their structure. Let's think of the domain of a tree as the set of positions in the world. For words, we have the natural numbers $\mathbb{N} = \{0, 1, 2, \dots\}$ as linear time points, representing a single determined future. For trees, we replace $\mathbb{N}$ with words over branch indices, like $\mathbb{N}^*$ or $\{0,1\}^*$. A position (or node) is represented by the sequence of choices made to reach it. For example, in a binary tree, the sequence $010$ represents the time point reached by going left, then right, then left. This branching structure perfectly captures the idea of multiple possible futures.
 
 This motivates the formal definition of a tree domain as a prefix-closed set of sequences.
 
@@ -120,6 +120,9 @@ Let $t$ be a $K$-ary $A$-valued tree:
     and whose labeling function is defined as $t|_w(v) = t(w v)$ for all $v \in \text{dom}(t|_w)$.
 \end{itemize}
 \end{definition}
+
+\medskip\noindent
+\textbf{Operational meaning of Subtrees.} Notice how the definition of $\text{dom}(t|_w)$ works operationally: it takes every node below $w$ (which looks like $wv$) and strips away the $w$ prefix. This mathematically "shifts" the entire subtree upwards so that its new root is always the empty word $\epsilon$. The root of the new subtree $t|_w(\epsilon)$ gets the value $t(w)$, perfectly preserving the original labeling relative to the new origin.
 
 \aside{Observe that the domain of a subtree $t|_w$ always resets to start at the empty word $\epsilon$. The root of the subtree is labeled with the value that $t$ had at position $w$.}
 
@@ -228,6 +231,8 @@ To solve this, we define tree concatenation as a \textbf{substitution} operation
 \subsection{Tree Concatenation (Substitution)}
 Let $A$ be an alphabet and let $C$ be a set of placeholders disjoint from $A$. Trees are built over the alphabet $A \cup C$. Concatenation is defined with respect to a specific placeholder symbol $c \in C$.
 
+Before we get to the dense mathematical formulation, let's understand the operation intuitively. To concatenate a tree $t'$ to a tree $t$, we simply search the frontier (leaves) of $t$ for any leaf labeled with the placeholder $c$. We then "graft" the entire tree $t'$ onto $t$ by replacing that leaf with the root of $t'$. If there are multiple leaves labeled $c$, we can graft a different tree from our target set onto each one.
+
 \begin{definition}[Tree Concatenation]
 Let $T \subseteq T(A \cup C)$ be a language of finite trees, and let $T' \subseteq T_\infty(A \cup C)$. The \emph{concatenation of $T'$ with $T$ with respect to $c$}, denoted by $T \cdot_c T'$, is the set of all trees obtained by taking a tree $t \in T$ and, for every leaf $w \in \text{fr}(t)$ labeled with $c$, substituting the leaf $w$ with a tree $t'_w \in T'$.
 
@@ -313,6 +318,8 @@ An intuitive visualization of this substitution is shown in \cref{fig:tree-conca
 
 \subsection{Tree Kleene Star (Iterated Substitution)}
 Having defined single substitution, we can now define iterated substitution. This corresponds to the Kleene star.
+
+Imagine growing a tree from a seed. The seed is just a placeholder $c$. At step 1, you replace the seed with a small tree (say, $f(c,c)$). At step 2, you replace the new $c$ leaves with more small trees, growing it larger. Because you take the union of all these steps, the language contains trees of all possible finite sizes grown this way.
 
 \begin{definition}[Tree Kleene Star]
 Let $T \subseteq T(A \cup C)$ be a language of finite trees and let $c \in C$. The \emph{Kleene star of $T$ with respect to $c$}, denoted by $T^{*, c}$, is defined as the union:
@@ -599,6 +606,8 @@ A top-down automaton is forced to split its state at a node \emph{before} it rea
 \subsection{Bottom-Up Tree Automata}
 To restore the equivalence between determinism and non-determinism, we turn to the \textbf{bottom-up} model. A bottom-up automaton reads the tree starting from the leaves and moves up to the root.
 
+Operationally, think of a bottom-up automaton like evaluating a syntax tree for an arithmetic expression. You cannot evaluate the root "+" until you have evaluated its left and right subtrees. The automaton starts at the outer frontier (the leaves), assigns initial states, and then works upwards. At every parent node, it reads the states passed up from its left and right children, looks at the symbol at the current node, and "merges" this information into a single new state that it passes further up to its own parent.
+
 \begin{definition}[Non-deterministic Bottom-up Tree Automaton]
 A \emph{non-deterministic bottom-up tree automaton} (NBTA) over finite binary trees is a tuple:
 $$A = (Q, \Sigma, Q_0, \Delta, F)$$
@@ -806,7 +815,10 @@ Since the transitions are deterministic, for any input tree $t$, there is a uniq
 \begin{example}[Existential Property: At Least One Path Infinitely Many $a$'s]
 \label{ex:buchi-infinitely-many-existential}
 Let $\Sigma = \{a, b\}$. We want to recognize the tree language $T_{\exists, \infty, a}$ of all infinite binary trees where \emph{there exists} at least one path containing infinitely many nodes labeled $a$.
-Here, the path quantification is existential rather than universal. Since BTA always checks all paths universally, we must use non-determinism to guess the "good" path. Along the guessed path, the automaton performs the Büchi check, while routing all other branches to a dummy state $q_T$ that accepts any tree.
+
+Notice the fundamental mismatch here: our language asks an \emph{existential} question ("at least one path"), but the Büchi acceptance condition is inherently \emph{universal} ("every path"). How can a universal machine check an existential property?
+
+The solution relies on non-deterministic guessing. The automaton guesses which path is the "good" one and sends the real state machine down that path. But what about all the other paths? We cannot just ignore them; the Büchi condition will check them anyway. So we route all those uninteresting paths into a dummy "sink" state $q_T$ which trivially accepts everything. In this way, the universal check on the dummy paths automatically passes, leaving only the guessed path to do the real work.
 \end{example}
 
 Let us build the BTA for $T_{\exists, \infty, a}$:
@@ -890,6 +902,8 @@ In words, an NBA can be complemented by converting it to a deterministic Rabin a
 
 \subsection{Rabin Tree Automata}
 To restore closure under complementation and build a complete logic-automata connection on infinite trees, Michael Rabin introduced \textbf{Rabin Tree Automata} in his landmark 1969 paper. Rabin tree automata generalize the acceptance condition by using pairs of state sets.
+
+Think of the Rabin condition as a combination of Muller and Büchi. A Büchi condition ($F$) says "visit this infinitely often". A Muller condition ($\mathcal{F}$) says "visit exactly these states infinitely often". A Rabin pair $(L, U)$ splits the requirement: $L$ acts as a negative condition ("you must visit $L$ only finitely many times"), while $U$ acts as a positive Büchi condition ("you must visit $U$ infinitely many times").
 
 \begin{definition}[Rabin Tree Automaton]
 A \emph{non-deterministic Rabin tree automaton} (RTA) over infinite binary trees is a tuple:
