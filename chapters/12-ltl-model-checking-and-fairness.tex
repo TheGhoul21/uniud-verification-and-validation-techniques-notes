@@ -27,13 +27,16 @@ why the practical algorithms look so much like the emptiness test for
 B\"uchi automata from Part~I.
 
 % =======================================================================
-\section{From a Formula to an Emptiness Problem}
+\section{P-Validity and P-Satisfiability}
 \label{sec:ltl-mc-pipeline}
 
-The key observation behind LTL model checking is simple: a universal
-verification question can be turned into an existential search for a bad
-behaviour.  Instead of proving that every execution satisfies $\varphi$, we
-look for an execution that satisfies $\neg\varphi$.
+In Chapter~\ref{ch:ltl}, we studied \emph{general satisfiability}: does there exist \emph{any} infinite trace in the universe that satisfies formula $\varphi$? Model Checking is simply satisfiability constrained to the paths of a specific finite-state program $P$.
+
+When we verify a program $P$ against a specification $\varphi$, we want to ensure that \emph{every} computation of $P$ satisfies $\varphi$. This universal property is called \textbf{P-validity}, denoted $P \models \varphi$. 
+
+However, searching universally is algorithmically awkward. The key observation behind LTL model checking is to turn this universal verification question into an existential search for a counterexample. Instead of proving that every execution satisfies $\varphi$, we ask: does there exist \emph{at least one} computation of $P$ that satisfies $\neg\varphi$? This existential property is called \textbf{P-satisfiability}, denoted $P \models_{sat} \neg\varphi$.
+
+If $P \models_{sat} \neg\varphi$ is true, the satisfying trace is our counterexample, and $P \models \varphi$ is false. If $P \models_{sat} \neg\varphi$ is false, then $P \models \varphi$ is true.
 
 \begin{definition}[Kripke structure]
 \label{def:kripke-structure}
@@ -113,36 +116,36 @@ right target representation.
   \label{fig:ltl-mc-pipeline}
 \end{figure}
 
-\subsection{The product construction}
+\subsection{The Behavior Graph Construction}
 
-The product graph keeps track of both the system state and the current
-automaton state.
+Instead of building a full Büchi automaton for $\neg\varphi$, the Manna-Pnueli direct algorithm constructs a \textbf{Behavior Graph}. The behavior graph is the synchronous product of the Kripke structure (the system) and the LTL Tableau (the logic) from Chapter~\ref{ch:ltl}. 
 
-\begin{definition}[Product with a B\"uchi automaton]
-Let $\mathcal{M} = (Q, I, R, L)$ and let
-\[
-  \mathcal{A} = (Q_A, \Sigma, I_A, \Delta, F)
-\]
-be a B\"uchi automaton over $\Sigma = 2^{AP}$.  The product
-$\mathcal{M} \times \mathcal{A}$ has:
+\begin{definition}[Consistent Atom]
+Let $s$ be a state of the system and $A$ be a tableau atom. The pair $(s, A)$ is \emph{consistent} if the physical state $s$ satisfies all the immediate propositional formulas promised by the logical atom $A$. Formally, for every atomic proposition $p \in AP$, $p \in A \iff p \in L(s)$.
+\end{definition}
+
+Operationally, an atom represents a set of logical claims about the present and future. A system state represents the physical reality of the present. If the atom claims $p$ is true today, but the system state says $p$ is false, the pairing is inconsistent and discarded.
+
+\begin{definition}[Behavior Graph]
+Let $\mathcal{M} = (Q, I, R, L)$ be a Kripke structure and $T(\neg\varphi) = (V, E)$ be the tableau for $\neg\varphi$. The behavior graph $\mathcal{B} = \mathcal{M} \times T(\neg\varphi)$ is a directed graph where:
 \begin{itemize}
-  \item states $Q \times Q_A$;
-  \item initial states $\{(q,a) \mid q \in I,\ a \in I_A,\ a \text{ is
-        compatible with } L(q)\}$;
-  \item transitions
-        \[
-          (q,a) \to (q',a')
-          \iff
-          (q,q') \in R \text{ and } a' \in \Delta(a, L(q'));
-        \]
-  \item accepting states $Q \times F$.
+  \item Nodes are consistent pairs $(s, A) \in Q \times V$.
+  \item Edges $(s, A) \to (s', A')$ exist if and only if $(s, s') \in R$ (a valid system transition) and $(A, A') \in E$ (a valid tableau transition).
 \end{itemize}
 \end{definition}
 
+\begin{example}[The \texttt{loop} system]
+\label{ex:loop-system}
+To make this concrete, consider the \texttt{loop} system: a simple modulo-4 counter with states $\{s_0, s_1, s_2, s_3\}$. From any state $s_i$, the system can take a transition $\tau_{count}$ to $s_{(i+1) \bmod 4}$, or it can take an idling transition $\tau_{idle}$ to remain in $s_i$. 
+
+If we check the property $\varphi = \mathbf{F}(s_3)$, we build the behavior graph of \texttt{loop} $\times$ $T(\mathbf{G} \neg s_3)$. 
+A path in this behavior graph might enter $s_0$, and then the system repeatedly chooses the $\tau_{idle}$ transition forever. The corresponding tableau atoms easily accommodate this: they just claim $\neg s_3$ is true today and $\mathbf{G} \neg s_3$ is true tomorrow. This infinite sequence $(s_0, A) \to (s_0, A) \to \dots$ is a valid, fulfilling path in the behavior graph! It proves P-satisfiability, showing the system can fail to reach $s_3$.
+\end{example}
+
 The intuition is straightforward.  The system chooses the next concrete
-state; the automaton reacts to the label of that state; the product records
-both moves at once.  A counterexample is therefore not just a path in the
-system, but a path annotated with the automaton states that explain why the
+state; the tableau restricts the logical futures; the behavior graph records
+both constraints at once.  A counterexample is therefore not just a path in the
+system, but a path annotated with the logical atoms that explain why the
 path violates the property.
 
 \begin{example}[A lasso counterexample]
@@ -276,87 +279,52 @@ path that permanently starves one process is usually not the execution we
 mean to reason about.  Fairness says that such paths should not count against
 the specification.
 
-\subsection{Justice and compassion revisited}
+\subsection{Transition-Based Justice and Compassion}
 
-We restate the two fairness notions at the level of runs.
+In the Manna-Pnueli formalism taught in this course, fairness is defined over \emph{transitions} ($\tau$) rather than states. We restate the two fairness notions at the level of strongly connected components (SCCs) in the behavior graph.
 
-\begin{definition}[Justice and compassion]
-Let $\pi$ be an infinite path.
+\begin{definition}[Transition-based Justice and Compassion]
+Let $S$ be a Strongly Connected Component (SCC) in the behavior graph.
 \begin{itemize}
-  \item A \emph{justice} constraint says that if a condition remains enabled
-        from some point onward, then the corresponding action must occur
-        infinitely often.
-  \item A \emph{compassion} constraint says that if a condition occurs
-        infinitely often, then the corresponding action must also occur
-        infinitely often.
+  \item \textbf{Justice (Weak Fairness)}: A transition $\tau$ is \emph{just} in $S$ if either $\tau$ is taken in $S$ (i.e., there is an edge in $S$ corresponding to $\tau$), or $\tau$ is \emph{not enabled} in some node within $S$.
+  \item \textbf{Compassion (Strong Fairness)}: A transition $\tau$ is \emph{compassionate} in $S$ if either $\tau$ is taken in $S$, or $\tau$ is \emph{not enabled} in \textbf{all} nodes within $S$.
 \end{itemize}
 \end{definition}
 
-These are exactly the notions previewed in Chapter~\ref{ch:reactive-smv}
-under the SMV keywords \texttt{JUSTICE} and \texttt{COMPASSION}.  The
-important difference is the level of use: there they were presented as a
-modelling device; here they become a constraint on the model-checking search
-space.
+\medskip\noindent
+\textbf{Operational meaning of Justice.} If you cycle inside $S$ forever, a transition is just if you either eventually take it, or you at least visit some state where it's impossible to take it (giving you an excuse). If it is enabled \emph{everywhere} in $S$ but you \emph{never} take it, that is an unfair starvation, and the SCC violates justice.
 
 \medskip\noindent
-\textbf{Justice is a continuous obligation.}  If a process is continuously
-available, it must not be ignored forever.
+\textbf{Operational meaning of Compassion.} If you cycle inside $S$ forever, a transition is compassionate if you either eventually take it, or you never even have the choice to take it (it's disabled everywhere in $S$). If it is enabled in \emph{even one} state in $S$, then you see the opportunity infinitely often as you cycle. If you never take it, you are violating compassion.
+
+\subsection{The Adequate Subgraph}
+
+On a finite graph, every infinite path eventually stays inside one SCC. That is the point where fairness and tableau fulfillment become easy to test together.
+
+\begin{definition}[Adequate Subgraph]
+A reachable SCC $S$ of the behavior graph is an \emph{adequate subgraph} if it satisfies three conditions:
+\begin{enumerate}
+  \item \textbf{Fulfilling}: For every promising formula $\alpha U \beta$ present in any atom in $S$, there exists a node in $S$ whose atom fulfills the promise ($\beta$ or $\neg(\alpha U \beta)$).
+  \item \textbf{Just}: Every transition $\tau$ in the system is just in $S$.
+  \item \textbf{Compassionate}: Every transition $\tau$ in the system is compassionate in $S$.
+\end{enumerate}
+\end{definition}
+
+This 3-part criterion is the core of the direct algorithm. It combines the logical requirement (the path must be a real model, not a spurious postponed path) with the scheduler requirements (the path must be realistic). 
 
 \medskip\noindent
-\textbf{Compassion is a recurring-obligation rule.}  If a process keeps
-showing up, even with gaps, the run must still give it infinitely many
-opportunities.
+The practical algorithm therefore builds the adequate subgraph: the reachable part of the behavior graph after pruning every SCC that fails any of the three adequacy conditions. Once the pruning is done, the remaining graph contains exactly the fair, fulfilling counterexamples.
 
-\begin{example}[Producer and consumer]
-\label{ex:ltl-fair-producer-consumer}
-The producer--consumer system from Chapter~\ref{ch:reactive-smv} is a
-standard source of unfair counterexamples.  Without fairness, the scheduler
-may keep choosing the producer forever.  The buffer fills up, the consumer
-never runs, and the property
-\[
-  \mathbf{G}\bigl(\texttt{full} \rightarrow \mathbf{F}\,\texttt{free}\bigr)
-\]
-fails.  The counterexample is a lasso whose cycle is the self-loop that keeps
-the producer active.
-
-Under fairness, this run is discarded.  If the consumer is continuously
-enabled but never scheduled, justice fails.  If the consumer is enabled only
-intermittently, compassion is the relevant constraint.  Either way, the
-checker only judges the property on fair paths, so the spurious starvation
-witness disappears.
+\begin{example}[The \texttt{loop+} system]
+Building on Example~\ref{ex:loop-system}, consider the \texttt{loop+} system, which adds a transition $\tau_3$ from $s_0$ directly to $s_3$. 
+Suppose the fairness conditions require $\tau_3$ to be compassionate. 
+If we check $\varphi = \mathbf{F}(s_3)$ and get the same infinite cycle on $s_0$ using $\tau_{idle}$, is it an adequate subgraph? 
+\begin{itemize}
+  \item It is Fulfilling (no unmet $U$ promises in $\mathbf{G} \neg s_3$).
+  \item It is Just (because $\tau_3$ is enabled everywhere in the SCC but never taken, it fails Justice too!).
+\end{itemize}
+Actually, $\tau_3$ being enabled at $s_0$ but never taken violates \emph{both} justice and compassion in that single-node SCC. The SCC is pruned, and no adequate subgraph exists, correctly proving $P \models \mathbf{F}(s_3)$ under fairness!
 \end{example}
-
-\subsection{The SCC criterion for fairness}
-
-On a finite graph, every infinite path eventually stays inside one SCC.  That
-is the point where fairness becomes easy to test.
-
-\begin{definition}[Fair SCC]
-Let $\mathcal{J}$ be the set of justice constraints and $\mathcal{C}$ the set
-of compassion constraints.  A reachable SCC $S$ of the product graph is
-\emph{fair} if:
-\begin{itemize}
-  \item for every justice set $J \in \mathcal{J}$, we have $S \cap J \neq
-        \emptyset$;
-  \item for every compassion pair $(C,D) \in \mathcal{C}$, if $S \cap C
-        \neq \emptyset$ then $S \cap D \neq \emptyset$.
-\end{itemize}
-\end{definition}
-
-This criterion is the graph version of the path conditions above.  If an SCC
-violates justice, then there is a region of the graph in which the scheduler
-can stay forever while starving some enabled activity.  If an SCC violates
-compassion, then the recurring trigger can be seen forever while the required
-response never appears.  In both cases, the SCC cannot host a fair
-counterexample.
-
-\medskip\noindent
-The practical algorithm therefore builds an \emph{adequate subgraph}: the
-reachable part of the product graph after pruning every SCC that cannot
-possibly support a fair run.  Once the pruning is done, the remaining graph
-is checked with the usual accepting-cycle search.  The adequate-subgraph idea
-does not change the underlying semantics; it simply removes regions that are
-provably irrelevant.
 
 \begin{figure}[ht]
   \centering
