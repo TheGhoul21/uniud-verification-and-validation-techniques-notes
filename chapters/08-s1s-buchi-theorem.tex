@@ -63,6 +63,29 @@ whole temporal-logic edifice is built.
 \section{The Logic S1S}
 \label{sec:s1s-def}
 
+\subsection{Simple example: every \texorpdfstring{$a$}{a} is followed by a \texorpdfstring{$b$}{b}}
+\label{sec:s1s-ex1}
+
+\begin{example}
+Let $A = \{a, b, c\}$.  Define the language:
+\[
+  L_1 = \{\alpha \in A^\omega \mid
+          \text{every occurrence of } a \text{ is followed by some } b\}.
+\]
+An S1S$_A$ sentence for $L_1$:
+\[
+  \forall x.\; (x \in Q_a) \to (\exists y.\; x < y \land y \in Q_b).
+\]
+Reading in natural language: ``for every position $x$, if $a$ holds at
+$x$, then there exists a future position $y > x$ where $b$ holds.''
+\end{example}
+
+Note how naturally the logic captures the English description: every
+universal quantifier over positions $\forall x$ corresponds to ``for
+every time point'', the predicate $Q_a$ says ``the symbol at that
+position is $a$'', and $\exists y.\; x < y$ means ``there is a future
+time point $y$''.
+
 The time-flow perspective gives us the intended structure:
 $0,1,2,\ldots$ with a successor operation.  S1S is the formal language for
 talking about that structure.  First-order variables name individual time
@@ -169,28 +192,7 @@ difficulty.  These patterns appear constantly in exam problems.
 They also foreshadow the proof: every example below isolates a logical move
 that later becomes an automata construction.
 
-\subsection{Simple example: every \texorpdfstring{$a$}{a} is followed by a \texorpdfstring{$b$}{b}}
-\label{sec:s1s-ex1}
 
-\begin{example}
-Let $A = \{a, b, c\}$.  Define the language:
-\[
-  L_1 = \{\alpha \in A^\omega \mid
-          \text{every occurrence of } a \text{ is followed by some } b\}.
-\]
-An S1S$_A$ sentence for $L_1$:
-\[
-  \forall x.\; (x \in Q_a) \to (\exists y.\; x < y \land y \in Q_b).
-\]
-Reading in natural language: ``for every position $x$, if $a$ holds at
-$x$, then there exists a future position $y > x$ where $b$ holds.''
-\end{example}
-
-Note how naturally the logic captures the English description: every
-universal quantifier over positions $\forall x$ corresponds to ``for
-every time point'', the predicate $Q_a$ says ``the symbol at that
-position is $a$'', and $\exists y.\; x < y$ means ``there is a future
-time point $y$''.
 
 \subsection{Defining \texorpdfstring{$x < y$}{x < y} using only \texorpdfstring{$+1$}{+1}}
 \label{sec:s1s-ordering}
@@ -221,6 +223,15 @@ This looks right, but is \emph{wrong}.  The problem: if $y < x$, we can
 still choose $X = \mathbb{N}$, which satisfies all the conditions (it
 contains $x+1$, is closed under $+1$, and contains $y$).  The existential
 is too weak---it lets us pick any set, including ones that are ``too big''.
+
+\textbf{Correcting the Existential Attempt}:
+We \emph{can} make the existential definition work by adding a "breakpoint". We need to force the set $X$ to start strictly after $x$. We do this by simply forbidding $x \in X$:
+\[
+  \exists X.\;\bigl[x \notin X \;\land\; (x+1) \in X \;\land\;
+              \forall z.\; z \in X \to (z+1) \in X \;\land\;
+              y \in X\bigr].
+\]
+This prevents the choice of $X = \mathbb{N}$ and forces $X$ to be exactly $\{x+1, x+2, \ldots\}$ (or a subset of it, but closure under $+1$ makes it exactly that set).
 
 \begin{center}
   \begin{tikzpicture}[x=0.7cm, y=0.5cm]
@@ -265,6 +276,11 @@ The ordering $<$ is \emph{not} definable from $+1$ in the
 The inductive construction above fundamentally relies on the ability to
 quantify over the \emph{set} of all successors, which is a second-order
 concept.  This separation will reappear when we compare LTL to S1S.
+
+However, the converse is true: we \emph{can} define the successor $+1$ from the ordering $<$ in purely first-order logic. The successor of $x$ is the strictly greater element $y$ such that there is no other element $z$ strictly between them:
+\[
+  y = x+1 \;\iff\; x < y \;\land\; \neg\exists z.\; (x < z \land z < y).
+\]
 \end{remark}
 
 \subsection{Parity: positions of A in even locations}
@@ -775,14 +791,27 @@ variable $X$ (a set containing exactly one element):
   \exists x.\;\varphi(x) &\quad\mapsto\quad \exists X.\;\mathrm{Singleton}(X) \land \varphi(X), \\
   \forall x.\;\varphi(x) &\quad\mapsto\quad \forall X.\;\mathrm{Singleton}(X) \to \varphi(X).
 \end{align*}
-Here $\mathrm{Singleton}(X)$ asserts $X$ has exactly one element:
+Here $\mathrm{Singleton}(X)$ asserts $X$ has exactly one element. While we could define it using $\mathrm{Succ}(X,Y)$, we can construct it more cleanly using \emph{only} the subset relation $\subseteq$ by viewing sets as a lattice:
 \[
   \mathrm{Singleton}(X) \;\equiv\;
-  \exists Y.\;\mathrm{Succ}(X,Y).
+  \exists Y \subseteq X.\; \bigl(Y \neq X \;\land\; \neg\exists Z.\; (Y \subseteq Z \land Z \subseteq X \land Z \neq Y \land Z \neq X)\bigr).
 \]
-Since $\mathrm{Succ}(X,Y)$ means ``$X = \{x\}$ and $Y = \{x+1\}$'' for
-some position $x$, the existence of such a $Y$ is exactly the assertion that
-$X$ is a singleton.
+Because $Y$ is a strict subset of $X$ with no sets strictly between them, $X$ can only have exactly one more element than $Y$. Furthermore, by forcing $Y$ to be the empty set (which we can define as $Y \subseteq W$ for all $W$), this completely constrains $X$ to have exactly one element.
+
+\paragraph{Walkthrough: Reducing a formula to S1S$_0$}
+Let's see this process in action at the whiteboard. Suppose we start with the simple property: ``the successor of position $x$ is labelled $a$'', which is written as $x+1 \in Q_a$.
+\begin{enumerate}
+    \item \textbf{Isolate $+1$}: We extract the successor into an equality.
+          $\exists y.\; (y = x+1 \land y \in Q_a)$.
+    \item \textbf{Eliminate FO variables}: We replace the positions $x$ and $y$ with singleton sets $X$ and $Y$.
+          $\exists X.\; \mathrm{Singleton}(X) \land \exists Y.\; \mathrm{Singleton}(Y) \land \dots$
+    \item \textbf{Rewrite atomics}: The equality $y = x+1$ becomes $\mathrm{Succ}(X, Y)$. The membership $y \in Q_a$ means the set $Y$ is a subset of the set of positions labelled $a$, which is just $Y \subseteq Q_a$.
+\end{enumerate}
+The final S1S$_0$ formula is:
+\[
+  \exists X.\, \exists Y.\; \mathrm{Singleton}(X) \land \mathrm{Singleton}(Y) \land \mathrm{Succ}(X, Y) \land Y \subseteq Q_a.
+\]
+This uses only second-order variables and the base predicates.
 
 \paragraph{Step 1d: Rewrite remaining atomic formulas.}
 After the above steps, every atomic formula has one of these forms,
@@ -1000,8 +1029,7 @@ definable in WS1S is also definable in S1S, and vice versa.
 
 The non-obvious direction (S1S $\subseteq$ WS1S) is proved via a detour
 through \emph{deterministic Muller automata}.  The intuition: although
-each set is finite, we can consider sets of \emph{increasing cardinality},
-and the ``limit'' of these finite sets captures the infinite behaviour.
+each set in WS1S is strictly finite, we can simulate infinity by considering a sequence of finite sets of \emph{always increasing size}. The "limit" of these growing finite sets mathematically captures the infinite behavior without ever needing a single infinite set as an object.
 
 \medskip\noindent
 \textbf{The fundamental operation.}  The reference operation for Büchi
@@ -1070,6 +1098,9 @@ all components are as in an NBA except that $\delta : Q \times A \to Q$
 is a \emph{function} (not a relation).  Every state-symbol pair has
 exactly one successor.
 \end{definition}
+
+\medskip\noindent
+\textbf{Operational meaning.}  At runtime, a DBA has no choices to make. Upon reading a symbol, the transition function deterministically forces the automaton into exactly one next state. It completely loses the ability to "guess" future inputs. For a finite word, this isn't a problem, because we can always traverse the whole word and check the end. But for an infinite word, the inability to branch into multiple potential futures and "wait and see" which one becomes successful fundamentally cripples its expressive power.
 
 A DBA has a \emph{unique run} on every $\omega$-word: given $\alpha$,
 the run $\sigma = q_0, q_1, q_2, \ldots$ is fully determined by
