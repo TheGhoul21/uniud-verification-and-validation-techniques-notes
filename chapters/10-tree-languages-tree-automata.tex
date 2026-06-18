@@ -428,3 +428,294 @@ Let $t \in T_\omega(A \cup C)$ be an infinite tree, and let $T' \subseteq T_\ome
 
 This ensures that we perform substitution at the boundary where the placeholder $c$ first appears along each infinite history.
 
+---
+
+% =======================================================================
+\section{Tree Automata on Finite Trees}
+\label{sec:tree-automata-finite}
+
+Having established the algebraic representation of tree languages (regular tree expressions), we now introduce the corresponding operational model: \textbf{tree automata}.
+
+Just as a standard automaton processes a word by reading symbols sequentially and transitioning between states, a tree automaton processes a tree by traversing its branching structure. Over finite trees, we can process the structure in two directions:
+\begin{enumerate}
+    \item \textbf{Top-Down}: We start at the root and work down towards the leaves. At each node, the automaton reads the label and splits its state, spawning two independent state processes to run on the left and right child subtrees.
+    \item \textbf{Bottom-Up}: We start at the leaves (outer frontier) and work up towards the root. At each node, the automaton reads the states reached by its children and combines them with the current node's label to produce a state for the parent.
+\end{enumerate}
+
+As we will see, this choice of direction represents a crucial fork in the road: top-down deterministic automata are strictly weaker than their non-deterministic counterparts, whereas bottom-up deterministic and non-deterministic automata are expressively equivalent.
+
+\subsection{Top-Down Tree Automata}
+We begin by defining the top-down model.
+
+\begin{definition}[Non-deterministic Top-down Tree Automaton]
+A \emph{non-deterministic top-down tree automaton} (NTTA) over finite binary trees is a tuple:
+$$A = (Q, \Sigma, Q_0, \Delta, F)$$
+where:
+\begin{itemize}
+    \item $Q$ is a finite set of states,
+    \item $\Sigma$ is the input alphabet,
+    \item $Q_0 \subseteq Q$ is the set of initial states (applied at the root),
+    \item $F \subseteq Q$ is the set of final states (checked at the leaves),
+    \item $\Delta \subseteq Q \times \Sigma \times Q \times Q$ is the transition relation.
+\end{itemize}
+A transition $(q, a, q_L, q_R) \in \Delta$ (often written $q \xrightarrow{a} (q_L, q_R)$) means that if the automaton is in state $q$ at a node labeled $a$, it sends state $q_L$ to the left child and state $q_R$ to the right child.
+\end{definition}
+
+\begin{definition}[NTTA Run and Acceptance]
+Let $t \in T(\Sigma)$ be a finite binary tree. A \emph{run} of the NTTA $A$ on $t$ is a tree $R: \text{dom}^+(t) \to Q$ labeled with states, which is defined over the extended domain of $t$, satisfying:
+\begin{enumerate}
+    \item \textbf{Initiality}: The root of the run is labeled with an initial state:
+    $$R(\epsilon) \in Q_0$$
+    \item \textbf{Consequentiality}: For every node $w \in \text{dom}(t)$ (excluding the outer frontier), the transitions must obey the transition relation:
+    $$(R(w), t(w), R(w0), R(w1)) \in \Delta$$
+\end{enumerate}
+The run $R$ is \emph{successful} if all leaves of the run (which are the nodes in the outer frontier of $t$) are labeled with final states:
+$$\forall w \in \text{fr}^+(t), \, R(w) \in F$$
+The tree $t$ is accepted by $A$ if there exists at least one successful run of $A$ on $t$. The language recognized by $A$ is denoted by $L(A)$.
+\end{definition}
+
+\aside{Notice that the run $R$ is defined on the extended domain $\text{dom}^+(t) = \text{dom}(t) \cup \text{fr}^+(t)$. This is because, like in the case of finite words, we need an extra "look-ahead" step at the leaves to check if we can transition into final states.}
+
+\begin{example}[NTTA Run Visualization]
+Let us visualize a run on the tree $t = f(a, b)$, which has the domain $\text{dom}(t) = \{\epsilon, 0, 1\}$ and outer frontier $\text{fr}^+(t) = \{00, 01, 10, 11\}$. 
+
+A run $R$ of the automaton must assign states to all nodes in $\text{dom}^+(t)$, as shown in Figure~\ref{fig:run-tree-comparison}.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.45\textwidth}
+\centering
+\begin{tikzpicture}[
+    st/.style={draw, circle, minimum size=1cm, font=\small},
+    arr/.style={->, thick}]
+    
+    \node[st] (r) at (0,0) {$f$};
+    \node[st] (l) at (-1,-1.2) {$a$};
+    \node[st] (rt) at (1,-1.2) {$b$};
+    
+    \draw[arr] (r) -- (l);
+    \draw[arr] (r) -- (rt);
+\end{tikzpicture}
+\caption*{Input Tree $t$}
+\end{minipage}\hfill
+\begin{minipage}{0.45\textwidth}
+\centering
+\begin{tikzpicture}[
+    st/.style={draw, circle, minimum size=1cm, font=\small},
+    acc/.style={draw, circle, minimum size=1cm, font=\small, double, fill=teal!15, draw=teal!50},
+    arr/.style={->, thick}]
+    
+    \node[st] (r) at (0,0) {$q_0$};
+    \node[st] (l) at (-1.2,-1.2) {$q_L$};
+    \node[st] (rt) at (1.2,-1.2) {$q_R$};
+    
+    \node[acc] (ll) at (-1.8,-2.4) {$q_F$};
+    \node[acc] (lr) at (-0.6,-2.4) {$q_F$};
+    \node[acc] (rl) at (0.6,-2.4) {$q_F$};
+    \node[acc] (rr) at (1.8,-2.4) {$q_F$};
+    
+    \draw[arr] (r) -- (l);
+    \draw[arr] (r) -- (rt);
+    \draw[arr] (l) -- (ll);
+    \draw[arr] (l) -- (lr);
+    \draw[arr] (rt) -- (rl);
+    \draw[arr] (rt) -- (rr);
+\end{tikzpicture}
+\caption*{Run Tree $R$}
+\end{minipage}
+\caption{Side-by-side comparison of an input tree $t$ of height 1 and its corresponding run tree $R$ of height 2 over the extended domain.}
+\label{fig:run-tree-comparison}
+\end{figure}
+\end{example}
+
+\subsection{The Expressive Limit of Deterministic Top-Down Automata}
+A top-down tree automaton is \textbf{deterministic} (DTTA) if:
+\begin{enumerate}
+    \item There is exactly one initial state: $|Q_0| = 1$,
+    \item For every state $q \in Q$ and symbol $a \in \Sigma$, there is \emph{at most one} pair $(q_L, q_R) \in Q \times Q$ such that $(q, a, q_L, q_R) \in \Delta$.
+\end{enumerate}
+
+In the case of finite words, deterministic and non-deterministic finite automata (DFAs and NFAs) are equivalent. Surprisingly, this equivalence breaks for top-down tree automata. We first demonstrate a language that is easily recognizable deterministically, and then a language that highlights the limit of top-down determinism.
+
+\begin{example}[Path Property: Deterministic Top-Down Tree Automaton]
+Let $\Sigma = \{a, b\}$ and consider the language $T_{\ge 1, a}$ of all finite binary trees where \emph{every} path from the root to a leaf contains at least one node labeled $a$.
+We can design a DTTA for $T_{\ge 1, a}$ as follows:
+\begin{itemize}
+    \item States: $Q = \{q_0, q_a\}$, where $q_0$ represents the state before seeing an $a$ on the path, and $q_a$ represents the state after seeing an $a$.
+    \item Initial state: $Q_0 = \{q_0\}$.
+    \item Final states: $F = \{q_a\}$ (meaning we must have seen an $a$ before reaching the leaf).
+    \item Transitions:
+    \begin{align*}
+        q_0 \xrightarrow{a} (q_a, q_a) & \quad \text{and} \quad q_0 \xrightarrow{b} (q_0, q_0) \\
+        q_a \xrightarrow{a} (q_a, q_a) & \quad \text{and} \quad q_a \xrightarrow{b} (q_a, q_a)
+    \end{align*}
+\end{itemize}
+Let us trace this automaton on a tree. At the root, we start in $q_0$. If we see $b$, we propagate $q_0$ down to both children. If we see $a$, we transition to $q_a$ and propagate $q_a$ down. Once a branch transitions to $q_a$, it stays in $q_a$ regardless of subsequent labels. Since we check that all leaves in the outer frontier are in $F = \{q_a\}$, the tree is accepted if and only if every single path contains at least one $a$. This automaton is deterministic because for each state and label, there is exactly one target pair.
+\end{example}
+
+\begin{theorem}[Top-Down Deterministic Limit]
+Deterministic top-down tree automata (DTTA) are strictly less expressive than non-deterministic top-down tree automata (NTTA):
+$$\text{DTTA} \subset \text{NTTA}$$
+\end{theorem}
+
+\begin{proof}
+Clearly, \text{DTTA} $\subseteq$ \text{NTTA} by definition. To prove that the inclusion is strict, we show that the finite tree language:
+$$T_{xor} = \{ f(a, b), \, f(b, a) \}$$
+is recognizable by an NTTA but cannot be recognized by any DTTA.
+\begin{enumerate}
+    \item \textbf{NTTA Construction}: We construct an NTTA with states $Q = \{q_0, q_a, q_b, q_F\}$, initial state $Q_0 = \{q_0\}$, final states $F = \{q_F\}$, and transitions:
+    \begin{align*}
+        q_0 &\xrightarrow{f} (q_a, q_b) \quad \text{and} \quad q_0 \xrightarrow{f} (q_b, q_a) \\
+        q_a &\xrightarrow{a} (q_F, q_F) \\
+        q_b &\xrightarrow{b} (q_F, q_F)
+    \end{align*}
+    This automaton easily accepts $f(a,b)$ by choosing the first transition, and $f(b,a)$ by choosing the second transition. All other runs get stuck and reject. Thus, $L(A) = T_{xor}$.
+    
+    \item \textbf{Proof of Unrecognizability by DTTA}: Assume for contradiction that there exists a DTTA $A' = (Q', \Sigma, \{q'_0\}, \delta', F')$ recognizing $T_{xor}$.
+    Since $f(a,b) \in L(A')$, there must exist a unique transition for the root:
+    $$q'_0 \xrightarrow{f} (q'_L, q'_R)$$
+    such that $q'_L$ accepts the left child leaf $a$ and $q'_R$ accepts the right child leaf $b$. This means:
+    $$(q'_L, a, q'_F, q'_F) \in \delta' \quad \text{and} \quad (q'_R, b, q'_F, q'_F) \in \delta'$$
+    for some final states in $F'$.
+    
+    Similarly, since $f(b,a) \in L(A')$, the same unique root transition $q'_0 \xrightarrow{f} (q'_L, q'_R)$ must be used (as $A'$ is deterministic). This implies that $q'_L$ must accept the leaf $b$ and $q'_R$ must accept the leaf $a$:
+    $$(q'_L, b, q'_F, q'_F) \in \delta' \quad \text{and} \quad (q'_R, a, q'_F, q'_F) \in \delta'$$
+    
+    Now, consider the trees $t_{aa} = f(a, a)$ and $t_{bb} = f(b, b)$.
+    If we run $A'$ on $t_{aa}$, the root transitions to $(q'_L, q'_R)$. The state $q'_L$ accepts the left leaf $a$ (since $q'_L$ accepts $a$), and the state $q'_R$ accepts the right leaf $a$ (since $q'_R$ accepts $a$). Thus, $A'$ accepts $t_{aa}$.
+    By symmetric reasoning, $A'$ also accepts $t_{bb}$.
+    However, $t_{aa}, t_{bb} \notin T_{xor}$. This is a contradiction, since $L(A') = T_{xor}$.
+\end{enumerate}
+Thus, no DTTA can recognize $T_{xor}$, proving $\text{DTTA} \subset \text{NTTA}$.
+\end{proof}
+
+\aside{Why does determinism fail top-down? 
+A top-down automaton is forced to split its state at a node \emph{before} it reads the leaves below. A deterministic automaton cannot relate the choices made on the left branch with the choices made on the right branch; once the split happens, the two branches run in complete isolation. Non-determinism bypasses this by allowing the automaton to guess the global correlation (e.g., guessing whether the tree is $f(a,b)$ or $f(b,a)$) at the root.}
+
+\subsection{Bottom-Up Tree Automata}
+To restore the equivalence between determinism and non-determinism, we turn to the \textbf{bottom-up} model. A bottom-up automaton reads the tree starting from the leaves and moves up to the root.
+
+\begin{definition}[Non-deterministic Bottom-up Tree Automaton]
+A \emph{non-deterministic bottom-up tree automaton} (NBTA) over finite binary trees is a tuple:
+$$A = (Q, \Sigma, Q_0, \Delta, F)$$
+where:
+\begin{itemize}
+    \item $Q$ is a finite set of states,
+    \item $\Sigma$ is the input alphabet,
+    \item $Q_0 \subseteq Q$ is the set of initial states (applied at the outer frontier),
+    \item $F \subseteq Q$ is the set of final states (checked at the root),
+    \item $\Delta \subseteq Q \times Q \times \Sigma \times Q$ is the transition relation.
+\end{itemize}
+A transition $(q_L, q_R, a, q) \in \Delta$ (written $(q_L, q_R) \xrightarrow{a} q$) means that if the left child is in state $q_L$, the right child is in state $q_R$, and the parent node is labeled $a$, the parent transitions to state $q$.
+\end{definition}
+
+\begin{definition}[NBTA Run and Acceptance]
+Let $t \in T(\Sigma)$ be a finite binary tree. A \emph{run} of the NBTA $A$ on $t$ is a tree $R: \text{dom}^+(t) \to Q$ satisfying:
+\begin{enumerate}
+    \item \textbf{Initiality}: All leaf nodes of the run (the outer frontier $\text{fr}^+(t)$) are labeled with initial states:
+    $$\forall w \in \text{fr}^+(t), \, R(w) \in Q_0$$
+    \item \textbf{Consequentiality}: For every node $w \in \text{dom}(t)$, the parent state $R(w)$ is determined by the children's states $R(w0), R(w1)$ and the node label $t(w)$:
+    $$(R(w0), R(w1), t(w), R(w)) \in \Delta$$
+\end{enumerate}
+The run $R$ is \emph{successful} if the root node of the run is labeled with a final state:
+$$R(\epsilon) \in F$$
+\end{definition}
+
+A bottom-up tree automaton is \textbf{deterministic} (DBTA) if $|Q_0| = 1$ and for every $q_L, q_R \in Q$ and $a \in \Sigma$, there is \emph{at most one} state $q \in Q$ such that $(q_L, q_R, a, q) \in \Delta$.
+
+\subsection{Bottom-Up Determinization (Subset Construction)}
+Unlike the top-down case, bottom-up tree automata can always be determinized. This is because a bottom-up transition can collect and merge information from the children as it propagates upwards.
+
+\begin{theorem}[Bottom-Up Determinization]
+Deterministic bottom-up tree automata (DBTA) are expressively equivalent to non-deterministic bottom-up tree automata (NBTA):
+$$\text{DBTA} \equiv \text{NBTA}$$
+\end{theorem}
+
+\begin{proof}
+Clearly, $\text{DBTA} \subseteq \text{NBTA}$. To prove the converse, let $A = (Q, \Sigma, Q_0, \Delta, F)$ be an NBTA. We construct an equivalent DBTA $A' = (Q', \Sigma, Q'_0, \delta', F')$ using a generalization of the subset construction:
+\begin{itemize}
+    \item \textbf{States}: $Q' = \mathcal{P}(Q)$ (the power set of $Q$).
+    \item \textbf{Initial State}: $Q'_0 = \{ Q_0 \}$ (the single initial state of $A'$ is the set of all initial states of $A$).
+    \item \textbf{Transition Function}: For any subset of states $S_L, S_R \subseteq Q$ and symbol $a \in \Sigma$:
+    $$\delta'(S_L, S_R, a) = \{ q \in Q \mid \exists q_L \in S_L, \, q_R \in S_R \text{ such that } (q_L, q_R, a, q) \in \Delta \}$$
+    \item \textbf{Final States}: $F' = \{ S \subseteq Q \mid S \cap F \neq \emptyset \}$.
+\end{itemize}
+We prove by induction on the height of the tree $t$ that the state reached at the root of $t$ in the unique run of $A'$ is exactly the set of all states that can be reached at the root of $t$ in some run of $A$.
+\begin{itemize}
+    \item \textbf{Base Case}: Let $t$ be a single leaf labeled $a$ (height 0). The domain is $\{\epsilon\}$ and the outer frontier is $\{0, 1\}$. 
+    In the DBTA $A'$, the children $0$ and $1$ are labeled with $Q_0$. The root transitions to:
+    $$S' = \delta'(Q_0, Q_0, a) = \{ q \in Q \mid \exists q_L, q_R \in Q_0, \, (q_L, q_R, a, q) \in \Delta \}$$
+    This is precisely the set of states that the NBTA $A$ can reach at the root of $t$ starting from initial states in the outer frontier.
+    
+    \item \textbf{Inductive Step}: Let $t = a(t_L, t_R)$ be a tree where the subtrees $t_L, t_R$ have height at most $h$.
+    By the induction hypothesis, the unique run of $A'$ on $t_L$ (resp. $t_R$) reaches the subset of states $S_L$ (resp. $S_R$), which contains exactly the states reachable by $A$ at the root of $t_L$ (resp. $t_R$).
+    When evaluating the root of $t$, the DBTA $A'$ computes:
+    $$S' = \delta'(S_L, S_R, a)$$
+    By definition of $\delta'$, $q \in S'$ if and only if there exist $q_L \in S_L$ and $q_R \in S_R$ such that $(q_L, q_R, a, q) \in \Delta$. Since $S_L$ and $S_R$ are the exact sets of reachable states for $t_L$ and $t_R$, $S'$ is the exact set of states that $A$ can reach at the root of $t$.
+\end{itemize}
+Finally, $A'$ accepts $t \iff S' \in F' \iff S' \cap F \neq \emptyset$, which is true if and only if there exists a successful run of $A$ on $t$. Thus, $L(A') = L(A)$.
+\end{proof}
+
+\begin{example}[Determinizing the NBTA for $T_{xor}$]
+Let us trace the subset construction on the NBTA for $T_{xor} = \{ f(a,b), f(b,a) \}$.
+Recall the NBTA states are $Q = \{q_0, q_a, q_b, q_{acc}\}$, with $Q_0 = \{q_F\}$, $F = \{q_{acc}\}$, and transitions:
+\begin{align*}
+    (q_F, q_F) &\xrightarrow{a} q_a \\
+    (q_F, q_F) &\xrightarrow{b} q_b \\
+    (q_a, q_b) &\xrightarrow{f} q_{acc} \\
+    (q_b, q_a) &\xrightarrow{f} q_{acc}
+\end{align*}
+We construct the DBTA $A'$:
+\begin{itemize}
+    \item The initial state of $A'$ is the set $S_0 = \{q_F\}$.
+    \item If we evaluate a leaf node labeled $a$, its children (in the outer frontier) are in state $S_0 = \{q_F\}$. The DBTA transitions to:
+    $$\delta'( \{q_F\}, \{q_F\}, a ) = \{ q \in Q \mid (q_F, q_F) \xrightarrow{a} q \} = \{ q_a \}$$
+    \item Similarly, for a leaf node labeled $b$, the DBTA transitions to:
+    $$\delta'( \{q_F\}, \{q_F\}, b ) = \{ q \in Q \mid (q_F, q_F) \xrightarrow{b} q \} = \{ q_b \}$$
+    \item Now, consider the root node labeled $f$ of the tree $t = f(a,b)$. The left subtree (leaf $a$) reaches state $\{q_a\}$, and the right subtree (leaf $b$) reaches state $\{q_b\}$. The DBTA transitions to:
+    $$\delta'( \{q_a\}, \{q_b\}, f ) = \{ q \in Q \mid \exists q_L \in \{q_a\}, q_R \in \{q_b\} \text{ s.t. } (q_L, q_R) \xrightarrow{f} q \} = \{ q_{acc} \}$$
+    \item For the tree $t' = f(b,a)$, the left subtree reaches state $\{q_b\}$, and the right subtree reaches state $\{q_a\}$. The DBTA transitions to:
+    $$\delta'( \{q_b\}, \{q_a\}, f ) = \{ q_{acc} \}$$
+    \item If we have $t_{aa} = f(a,a)$, both children reach state $\{q_a\}$. The transition evaluates to:
+    $$\delta'( \{q_a\}, \{q_a\}, f ) = \emptyset$$
+    which is not an accepting state because $\emptyset \cap \{q_{acc}\} = \emptyset$.
+\end{itemize}
+Since $\{q_{acc}\} \cap F \neq \emptyset$, the DBTA accepts $f(a,b)$ and $f(b,a)$ but rejects $f(a,a)$ and $f(b,b)$ as desired, successfully determinizing the system.
+\end{example}
+
+\subsection{Decision Problems and Closure Properties}
+We conclude this section by stating the algorithmic and algebraic properties of finite tree languages.
+
+\begin{theorem}[Decidability of Emptiness]
+The emptiness problem for tree automata (top-down or bottom-up) is decidable in polynomial time.
+\end{theorem}
+
+\begin{proof}
+We can solve the emptiness problem by computing the set of reachable states in a bottom-up fashion. Let $A = (Q, \Sigma, Q_0, \Delta, F)$ be an NBTA. We define the sequence of sets of reachable states $Reach_i \subseteq Q$:
+\begin{align*}
+    Reach_0 &= Q_0 \\
+    Reach_{i+1} &= Reach_i \cup \{ q \in Q \mid \exists q_L, q_R \in Reach_i, \, a \in \Sigma \text{ such that } (q_L, q_R, a, q) \in \Delta \}
+\end{align*}
+Since $Q$ is finite, this sequence must reach a fixed point in at most $|Q|$ steps, i.e., $Reach_k = Reach_{k+1}$ for some $k \le |Q|$. The language $L(A)$ is non-empty if and only if:
+$$Reach_k \cap F \neq \emptyset$$
+This fixed-point computation can be performed in time polynomial in the size of the transition relation.
+\end{proof}
+
+\begin{summarybox}[Small Model Property]
+The fixed-point reachability algorithm implies a \textbf{small model property} for finite trees: if a tree language recognized by a tree automaton is non-empty, then it contains a tree of height at most $|Q|$.
+\end{summarybox}
+
+Finally, we state the equivalence between the algebraic and operational models, which is the tree-counterpart to Kleene's theorem.
+
+\begin{theorem}[Kleene's Theorem for Trees]
+A tree language $T \subseteq T(A)$ is regular if and only if it is recognized by a finite tree automaton.
+\end{theorem}
+
+\begin{corollary}[Boolean Closure]
+The class of regular tree languages is closed under all Boolean operations (union, intersection, and complementation) and projection.
+\end{corollary}
+
+\begin{proof}[Proof Sketch]
+Union and intersection are achieved via standard product constructions. Complementation is achieved by first determinizing the bottom-up tree automaton (via the subset construction) and then complement at the root: $F^C = \mathcal{P}(Q) \setminus F'$.
+\end{proof}
+
