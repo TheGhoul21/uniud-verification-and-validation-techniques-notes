@@ -1,0 +1,315 @@
+% ============================================================
+%  Chapter 5 -- Synthesis and Infinite Games
+% ============================================================
+
+\chapter{Synthesis and Infinite Games}
+\label{ch:synthesis-games}
+
+\aside{Verification asks whether a given
+system is correct.  Synthesis asks for a
+correct system to be constructed
+automatically.}
+
+So far, the system has been part of the input.  We model its behaviours,
+compare them with a specification, and look for counterexamples.  The
+synthesis problem is more ambitious: given a specification, construct a
+finite-state system that satisfies it against every possible behaviour of
+the environment.
+
+This chapter presents the game-theoretic view behind Church's synthesis
+problem and the B\"uchi--Landweber solution pipeline.
+
+
+% ============================================================
+\section{From Verification to Synthesis}
+\label{sec:verification-to-synthesis}
+% ============================================================
+
+\begin{definition}[Reactive synthesis]
+\label{def:reactive-synthesis}
+\textbf{Reactive synthesis} asks whether there exists a finite-state
+controller that, for every infinite input sequence produced by the
+environment, generates an output sequence satisfying a given
+specification.
+\end{definition}
+
+The important phrase is ``for every input sequence''.  The controller is
+not allowed to choose a friendly environment.  It must react correctly
+to all behaviours that the environment may produce.
+
+\begin{definition}[Mealy transducer]
+\label{def:mealy-transducer}
+A \textbf{Mealy transducer} is a finite-state machine whose output at
+each step depends on the current state and the current input symbol.
+\end{definition}
+
+This captures causality.  At time $n$, the system may use the input
+history up to time $n$, but not future inputs.  A specification that can
+only be satisfied by looking into the future is not realizable by a
+reactive device.
+
+\begin{example}[Satisfiability is not realizability]
+\label{ex:sat-vs-realizable}
+The requirement ``output exactly the next input bit'' is satisfiable as a
+relation between two infinite sequences: for every input sequence there
+exists an output sequence shifted one step earlier.  But it is not
+realizable by a causal transducer, because the system would need to know
+tomorrow's input today.
+\end{example}
+
+\begin{definition}[Church's synthesis problem]
+\label{def:church-synthesis}
+Given a logical specification $\Phi(X,Y)$, where $X$ are input streams
+controlled by the environment and $Y$ are output streams controlled by
+the system, decide whether there is a finite-state transducer $M$ such
+that for every input stream $x$, the output stream $M(x)$ satisfies
+\[
+  \Phi(x,M(x)).
+\]
+If such an $M$ exists, construct it.
+\end{definition}
+
+
+% ============================================================
+\section{The Game View}
+\label{sec:game-view}
+% ============================================================
+
+Synthesis is naturally a game.  The environment chooses inputs, the
+system responds with outputs, and the infinite play must satisfy the
+specification.
+
+\begin{definition}[Game arena]
+\label{def:game-arena}
+A \textbf{game arena} is a finite directed graph
+\[
+  G=(V_E,V_S,E)
+\]
+whose vertices are split between environment vertices $V_E$ and system
+vertices $V_S$.  At an environment vertex, the environment chooses the
+next move.  At a system vertex, the system chooses the next move.
+\end{definition}
+
+A play is an infinite path through the arena.  The winning condition
+selects which infinite paths are winning for the system.
+
+\begin{definition}[Strategy]
+\label{def:strategy}
+A \textbf{strategy} for a player tells the player which move to take
+after each finite history ending in one of that player's vertices.
+\end{definition}
+
+Strategies may use memory.  A \textbf{positional} strategy depends only
+on the current vertex.  A \textbf{finite-state} strategy depends on the
+current vertex plus a finite memory state.
+
+\begin{example}[Request-grant game]
+\label{ex:request-grant-game}
+The environment may raise a request.  The system may grant.  The
+specification is:
+\[
+  \text{every request is eventually granted.}
+\]
+This is not a finite-prefix property.  A finite play cannot prove that a
+request will never be granted.  The game must be evaluated over infinite
+plays.
+\end{example}
+
+
+% ============================================================
+\section{Automata-Theoretic Synthesis Pipeline}
+\label{sec:synthesis-pipeline}
+% ============================================================
+
+The B\"uchi--Landweber solution connects logic, automata, and games.
+
+\begin{formaldetails}[Pipeline]
+\begin{enumerate}[label=\textbf{Step \arabic*.}, leftmargin=2cm]
+  \item Write the specification in a logic over infinite words, such as
+        S1S or a temporal logic fragment.
+  \item Translate the specification into an equivalent deterministic
+        automaton with an acceptance condition suitable for games, such
+        as a M\"uller or parity condition.
+  \item Split each round into an environment move followed by a system
+        move, obtaining a finite game arena.
+  \item Solve the infinite game.
+  \item If the system player has a winning strategy, extract a finite
+        transducer from that strategy.
+\end{enumerate}
+\end{formaldetails}
+
+The pipeline differs from model checking in one crucial way.  Model
+checking takes a system automaton as input.  Synthesis constructs the
+system from a winning strategy.
+
+\begin{definition}[M\"uller condition]
+\label{def:muller-condition}
+A \textbf{M\"uller condition} specifies a family
+$\mathcal{F}\subseteq 2^Q$ of accepting sets.  A run is accepting if
+\[
+  \inf(\rho)\in\mathcal{F}.
+\]
+\end{definition}
+
+B\"uchi acceptance asks whether $\inf(\rho)$ intersects a fixed set
+$F$.  M\"uller acceptance can inspect the whole set of states seen
+infinitely often.  This additional expressiveness is useful when moving
+from non-deterministic automata to deterministic automata for synthesis.
+
+
+% ============================================================
+\section{Reachability Games and Attractors}
+\label{sec:reachability-games}
+% ============================================================
+
+The simplest game-solving pattern is reachability.
+
+\begin{definition}[Reachability game]
+\label{def:reachability-game}
+In a reachability game, the system wins a play if the play eventually
+visits a target set $T\subseteq V$.
+\end{definition}
+
+The winning region is computed by an attractor construction.
+
+\begin{definition}[Attractor]
+\label{def:attractor}
+The system attractor to $T$ is the least set $\mathsf{Attr}(T)$ such
+that:
+\begin{itemize}[nosep]
+  \item $T\subseteq \mathsf{Attr}(T)$;
+  \item if $v\in V_S$ has some successor in $\mathsf{Attr}(T)$, then
+        $v\in\mathsf{Attr}(T)$;
+  \item if $v\in V_E$ has all successors in $\mathsf{Attr}(T)$, then
+        $v\in\mathsf{Attr}(T)$.
+\end{itemize}
+\end{definition}
+
+The two predecessor clauses reflect control.  At a system vertex, one
+good successor is enough because the system chooses.  At an environment
+vertex, all successors must be good because the environment chooses.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  env/.style={circle, draw, thick, fill=orange!12, minimum size=9mm},
+  sys/.style={rectangle, draw, thick, rounded corners=2pt, fill=teal!12, minimum size=9mm},
+  target/.style={draw, double, thick, fill=accent!16},
+  arr/.style={-Stealth, thick},
+]
+  \node[sys] (s0) {$s_0$};
+  \node[env, right=2.2cm of s0] (e1) {$e_1$};
+  \node[sys, target, right=2.2cm of e1] (t) {$T$};
+  \node[env, below=1.4cm of e1] (bad) {$e_2$};
+  \draw[arr] (s0) -- (e1);
+  \draw[arr] (e1) -- (t);
+  \draw[arr] (e1) -- (bad);
+  \draw[arr] (bad) edge[loop right] node {\small stay} (bad);
+\end{tikzpicture}
+\caption{At environment vertices, every possible successor must be safe for attractor membership.}
+\label{fig:attractor-control}
+\end{figure}
+
+
+% ============================================================
+\section{M\"uller and Parity Games}
+\label{sec:muller-parity-games}
+% ============================================================
+
+Reachability is not enough for full synthesis.  Specifications often
+depend on what happens infinitely often.
+
+\begin{definition}[Parity condition]
+\label{def:parity-condition}
+In a parity game, each vertex has a priority in $\mathbb{N}$.  The
+winner is determined by the highest priority seen infinitely often:
+one player wins when that priority is even, the other when it is odd.
+\end{definition}
+
+Parity games are central because many acceptance conditions can be
+reduced to them, and they admit memoryless winning strategies.  M\"uller
+games can be reduced to parity games by recording enough finite memory
+about the latest appearance of states.
+
+\begin{definition}[Latest appearance record]
+\label{def:lar}
+The \textbf{latest appearance record} (LAR) is a finite memory structure
+that keeps the states seen so far ordered by recency.  When a state is
+visited again, it is moved to the front.
+\end{definition}
+
+The LAR lets a parity condition detect which set of states is seen
+infinitely often.  It is a finite-memory encoding of a long-run set.
+
+\begin{formaldetails}[Determinacy fact]
+For the finite infinite-duration games used in the synthesis pipeline,
+from every vertex one of the two players has a winning strategy.  For
+reachability games, this follows directly from the attractor
+construction: vertices inside the attractor are winning for the system,
+and vertices outside are winning for the environment by avoiding the
+attractor forever.
+
+For parity and M\"uller games the proof is deeper.  The course uses the
+result as the game-theoretic foundation that makes synthesis decidable:
+if the system does not have a winning strategy, then the environment has
+a counter-strategy.
+\end{formaldetails}
+
+Determinacy is what makes synthesis a decision problem.  If the system
+does not have a winning strategy, then the environment has a strategy to
+force a violation.
+
+
+% ============================================================
+\section{Formal Verification in Practice}
+\label{sec:formal-verification-practice}
+% ============================================================
+
+The same automata and game ideas appear in industrial verification.  A
+typical safety-critical example is railway interlocking: the controller
+must prevent incompatible train movements and unsafe signal settings.
+
+\begin{intermezzo}{Railway Interlocking}
+Legacy railway systems were often implemented with relay circuits.  When
+such systems are migrated to software, the engineering challenge is not
+only to generate code, but to prove that the generated controller
+preserves the safety constraints of the original infrastructure.
+
+Model-based design, software model checking, deductive verification, and
+reverse engineering of relay logic all fit the same pattern: extract a
+finite model, state the property precisely, and use an automated method
+to rule out bad behaviours.
+\end{intermezzo}
+
+Synthesis pushes this idea further.  Instead of verifying code after it
+has been written, we try to generate a correct-by-construction
+finite-state controller from the specification.
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item Synthesis constructs a finite-state system from a specification.
+  \item Causality separates realizability from ordinary satisfiability.
+  \item Infinite games model the interaction between environment and system.
+  \item Attractor computation explains the basic predecessor reasoning.
+  \item M\"uller and parity games handle conditions about infinite behaviour.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Causality]
+Classify the following specifications as causal or non-causal for a
+Mealy transducer: (i) output the current input bit; (ii) output the
+previous input bit; (iii) output the next input bit.
+\end{chapex}
+
+\begin{chapex}[Attractor iteration]
+In \cref{fig:attractor-control}, compute the first attractor iteration
+starting from $T$.  Why is $e_1$ not immediately added?
+\end{chapex}
+
+\begin{chapex}[Strategy memory]
+Give an example of a property where reacting only to the current input
+symbol is insufficient, but one bit of memory is enough.
+\end{chapex}

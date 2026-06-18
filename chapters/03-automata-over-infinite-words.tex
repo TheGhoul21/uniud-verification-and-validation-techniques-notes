@@ -1,0 +1,374 @@
+% ============================================================
+%  Chapter 3 -- Automata over Infinite Words
+% ============================================================
+
+\chapter{Automata over Infinite Words}
+\label{ch:omega-automata}
+
+\aside{Reactive systems do not produce
+one finite output and stop.  Their
+behaviour is an infinite interaction
+with the environment.}
+
+Finite-word automata are well suited for batch computations: a compiler
+receives a finite program, a parser receives a finite string, a protocol
+message has a finite body.  Verification of reactive systems is
+different.  Operating systems, controllers, servers, and embedded
+devices are meant to keep interacting with their environment.
+
+Their behaviours are therefore not finite words but infinite words.  To
+model them we keep the finite-state graph, but change the acceptance
+condition.
+
+
+% ============================================================
+\section{Infinite Words}
+\label{sec:omega-words}
+% ============================================================
+
+\begin{definition}[$\omega$-word]
+\label{def:omega-word}
+Let $\Sigma$ be a finite alphabet.  An \textbf{$\omega$-word} over
+$\Sigma$ is an infinite sequence
+\[
+  \alpha=\alpha_0\alpha_1\alpha_2\cdots
+  \quad\text{with each }\alpha_i\in\Sigma.
+\]
+The set of all infinite words over $\Sigma$ is denoted by
+$\Sigma^\omega$.
+\end{definition}
+
+We use $u,v,w$ for finite words and Greek letters such as
+$\alpha,\beta$ for infinite words.  This distinction matters because
+finite words can be consumed completely, while infinite words have no
+last position.
+
+\begin{definition}[Segments and suffixes]
+\label{def:omega-segments}
+For an $\omega$-word $\alpha$, the finite segment
+$\alpha[i,j]$ denotes the word
+\[
+  \alpha_i\alpha_{i+1}\cdots\alpha_{j-1}.
+\]
+The infinite suffix $\alpha[i,\omega]$ denotes
+\[
+  \alpha_i\alpha_{i+1}\alpha_{i+2}\cdots.
+\]
+\end{definition}
+
+The convention $\alpha[i,i]=\varepsilon$ keeps formulas uniform: a
+segment with equal endpoints consumes no symbols.
+
+\begin{definition}[Infinitely often]
+\label{def:inf-set}
+For an infinite word $\alpha\in\Sigma^\omega$, define
+\[
+  \inf(\alpha)=\{a\in\Sigma : a\text{ occurs infinitely often in }\alpha\}.
+\]
+\end{definition}
+
+Because $\Sigma$ is finite and $\alpha$ is infinite, at least one symbol
+must occur infinitely often.  The set $\inf(\alpha)$ records the
+long-run behaviour and forgets finite prefixes.
+
+\begin{example}[A long-run property]
+\label{ex:infinitely-many-a}
+Let
+\[
+  \alpha = ab\,a\,bb\,a\,bbb\,a\,bbbb\cdots.
+\]
+Then $a$ occurs infinitely often and $b$ occurs infinitely often, so
+$\inf(\alpha)=\{a,b\}$.
+\end{example}
+
+
+% ============================================================
+\section{From Finite Languages to Infinite Languages}
+\label{sec:omega-language-ops}
+% ============================================================
+
+Some infinite languages can be built from finite-word languages.
+
+\begin{definition}[$\omega$-power]
+\label{def:omega-power}
+If $W\subseteq\Sigma^*$, then
+\[
+  W^\omega =
+  \{w_0w_1w_2\cdots : w_i\in W\text{ for every }i\geq 0\}
+\]
+is the set of infinite concatenations of blocks from $W$.
+\end{definition}
+
+Usually we assume $\varepsilon\notin W$ when using $W^\omega$, because
+empty blocks do not help construct an infinite word and can obscure the
+intended decomposition.
+
+\begin{definition}[Vectorial closure]
+\label{def:vectorial-closure}
+For $W\subseteq\Sigma^*$, define
+\[
+  \vec{W}=
+  \{\alpha\in\Sigma^\omega :
+    \alpha[0,n]\in W\text{ for infinitely many }n\}.
+\]
+\end{definition}
+
+The language $\vec{W}$ contains the infinite words whose finite prefixes
+hit $W$ infinitely often.  It is a natural way to express recurrence:
+not just ``a good prefix appears'', but ``good prefixes keep appearing''.
+
+
+% ============================================================
+\section{B\"uchi Automata}
+\label{sec:buchi-automata}
+% ============================================================
+
+A B\"uchi automaton has the same graph shape as an NFA, but reads an
+infinite input and uses an infinite-run acceptance condition.
+
+\begin{definition}[B\"uchi automaton]
+\label{def:buchi}
+A \textbf{B\"uchi automaton} is a tuple
+\[
+  A=(Q,\Sigma,\Delta,q_0,F)
+\]
+where $Q$ is finite, $\Delta\subseteq Q\times\Sigma\times Q$,
+$q_0\in Q$, and $F\subseteq Q$ is the set of accepting states.
+\end{definition}
+
+\begin{definition}[Run and B\"uchi acceptance]
+\label{def:buchi-run}
+Let $\alpha=\alpha_0\alpha_1\alpha_2\cdots$.  A run of $A$ on
+$\alpha$ is an infinite sequence of states
+\[
+  \rho=\rho_0\rho_1\rho_2\cdots
+\]
+such that $\rho_0=q_0$ and
+$(\rho_i,\alpha_i,\rho_{i+1})\in\Delta$ for every $i\geq 0$.
+
+The run is \textbf{accepting} if
+\[
+  \inf(\rho)\cap F\neq\emptyset.
+\]
+The word $\alpha$ is accepted if there exists at least one accepting run
+on $\alpha$.
+\end{definition}
+
+For finite words, we ask where the run ends.  For infinite words, there
+is no end.  B\"uchi acceptance instead asks whether the run visits some
+accepting state infinitely many times.
+
+\begin{definition}[$\omega$-regular language]
+\label{def:omega-regular-language}
+A language $L\subseteq\Sigma^\omega$ is \textbf{$\omega$-regular} if it
+is accepted by some B\"uchi automaton.
+\end{definition}
+
+\begin{example}[Infinitely many acknowledgements]
+\label{ex:buchi-infinitely-many}
+Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, the property
+``\texttt{ack} occurs infinitely often'' is B\"uchi-recognizable.
+Use two states: a non-accepting scanning state and an accepting state
+entered whenever the current symbol is \texttt{ack}.  The accepting
+state is visited infinitely often exactly when infinitely many
+\texttt{ack} symbols appear.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.2cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (s) {$q$};
+  \node[accepting, right=of s] (a) {$f$};
+  \draw[arr] ([xshift=-1.0cm]s.west) -- (s);
+  \draw[arr] (s) edge[loop above] node {\texttt{req}} (s);
+  \draw[arr, bend left=18] (s) to node[above] {\texttt{ack}} (a);
+  \draw[arr, bend left=18] (a) to node[below] {\texttt{req}} (s);
+  \draw[arr] (a) edge[loop above] node {\texttt{ack}} (a);
+\end{tikzpicture}
+\caption{A B\"uchi automaton for infinitely many acknowledgements.}
+\label{fig:infinitely-many-ack}
+\end{figure}
+
+
+% ============================================================
+\section{Closure and Expressions}
+\label{sec:omega-closure-expressions}
+% ============================================================
+
+\begin{theorem}[Basic closure properties]
+\label{thm:omega-basic-closure}
+$\omega$-regular languages are closed under finite union and
+intersection.  Moreover, if $U\subseteq\Sigma^*$ is regular and
+$L\subseteq\Sigma^\omega$ is $\omega$-regular, then $U\cdot L$ is
+$\omega$-regular; if $V\subseteq\Sigma^*$ is regular, then
+$V^\omega$ is $\omega$-regular.
+\end{theorem}
+
+The constructions mirror the finite case, but one detail changes:
+acceptance is about visiting final states infinitely often.  In product
+constructions, we must ensure that both automata satisfy their B\"uchi
+conditions, not just that both components are accepting at the same
+single time.
+
+\begin{definition}[$\omega$-regular expression]
+\label{def:omega-regular-expression}
+An \textbf{$\omega$-regular expression} denotes a finite union of
+languages of the form
+\[
+  U_i V_i^\omega,
+\]
+where each $U_i,V_i\subseteq\Sigma^*$ is regular.
+\end{definition}
+
+\begin{theorem}[B\"uchi-expression equivalence]
+\label{thm:buchi-expression-equivalence}
+A language $L\subseteq\Sigma^\omega$ is accepted by a B\"uchi automaton
+if and only if it can be denoted by an $\omega$-regular expression.
+\end{theorem}
+
+\begin{proof}
+We again prove both directions constructively.
+
+\medskip
+\noindent\textbf{Expression to automaton.}
+It is enough to handle one term $UV^\omega$, because B\"uchi automata
+are closed under finite union.  Let $A_U$ be an automaton for the regular
+finite-word language $U$, and let $A_V$ be an automaton for $V$.  The
+B\"uchi automaton first simulates $A_U$.  Whenever $A_U$ reaches an
+accepting state, the automaton may non-deterministically switch to a
+copy of $A_V$.  From then on, each time the $A_V$ copy accepts one block
+from $V$, the automaton returns to the beginning of the $A_V$ copy and
+passes through a B\"uchi accepting marker state.
+
+Thus a run is accepting exactly when it reads one prefix from $U$ and
+then completes infinitely many consecutive blocks from $V$.
+
+\medskip
+\noindent\textbf{Automaton to expression.}
+Let $A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  For states
+$p,q\in Q$, let $W_{p,q}$ be the regular language of finite words that
+label some path from $p$ to $q$ in the underlying finite automaton.  This
+language is regular because it is accepted by the same finite graph with
+initial state $p$ and accepting state $q$.
+
+If $\alpha$ is accepted, then some accepting run visits at least one
+state $f\in F$ infinitely many times.  Split the run at successive visits
+to that same $f$.  The finite prefix before the first selected visit is
+labelled by a word in $W_{q_0,f}$, and every later block is labelled by a
+non-empty word in $W_{f,f}$.  Therefore
+\[
+  \alpha\in W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega.
+\]
+Taking the union over all $f\in F$ gives an $\omega$-regular expression
+containing every accepted word.
+
+Conversely, any word in one of these products describes a path from
+$q_0$ to $f$, followed by infinitely many non-empty paths from $f$ back
+to $f$.  Following those paths gives a run that visits $f$ infinitely
+often, hence is accepting.  So the expression denotes exactly $L(A)$.
+\end{proof}
+
+
+% ============================================================
+\section{Emptiness and Lassos}
+\label{sec:buchi-emptiness}
+% ============================================================
+
+The most important algorithmic fact is that B\"uchi emptiness is still a
+graph problem.
+
+\begin{proposition}[B\"uchi emptiness]
+\label{prop:buchi-emptiness}
+Let $A$ be a B\"uchi automaton.  Then $L(A)\neq\emptyset$ if and only if
+some accepting state is reachable from $q_0$ and belongs to a directed
+cycle.
+\end{proposition}
+
+\begin{proof}
+If an accepting state $f$ is reachable and lies on a cycle, follow the
+path to $f$ once and then repeat the cycle forever.  This produces an
+infinite run that visits $f$ infinitely often.
+
+Conversely, any accepting run visits some accepting state $f$ infinitely
+many times.  Between two visits to $f$ there is a non-empty finite path
+from $f$ back to $f$, hence a cycle reachable from $q_0$.
+\end{proof}
+
+\aside{A counterexample in model checking
+often has this shape: a finite prefix
+followed by a repeated cycle.}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.2cm,
+  state/.style={circle, draw, thick, minimum size=9mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=9mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q0) {$q_0$};
+  \node[state, right=of q0] (q1) {$q_1$};
+  \node[acc, right=of q1] (f) {$f$};
+  \node[state, below=1.3cm of f] (q2) {$q_2$};
+  \draw[arr] (q0) -- node[above] {$u$} (q1);
+  \draw[arr] (q1) -- (f);
+  \draw[arr] (f) -- node[right] {$v$} (q2);
+  \draw[arr] (q2) -- (f);
+  \node[below=7mm of q2, font=\small, align=center]
+    {A reachable accepting cycle yields an infinite accepting run.};
+\end{tikzpicture}
+\caption{The lasso witness for non-emptiness: a finite prefix followed by a repeated cycle.}
+\label{fig:buchi-lasso}
+\end{figure}
+
+\begin{definition}[Ultimately periodic word]
+\label{def:ultimately-periodic}
+An $\omega$-word is \textbf{ultimately periodic} if it has the form
+\[
+  uv^\omega
+\]
+for finite words $u\in\Sigma^*$ and non-empty $v\in\Sigma^*$.
+\end{definition}
+
+Every non-empty $\omega$-regular language contains an ultimately periodic
+word.  The graph-theoretic lasso in \cref{prop:buchi-emptiness} is the
+automata reason: a finite path gives $u$, and the repeated cycle gives
+$v^\omega$.
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item Infinite behaviours are modelled as words in $\Sigma^\omega$.
+  \item B\"uchi automata accept runs that visit final states infinitely often.
+  \item $\omega$-regular languages are exactly finite unions of $UV^\omega$.
+  \item Emptiness reduces to finding a reachable accepting cycle.
+  \item The lasso shape is the finite witness behind many infinite counterexamples.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Computing an infinity set]
+Let
+\[
+  \alpha = a\,b\,b\,a\,b\,b\,b\,a\,b\,b\,b\,b\cdots,
+\]
+where the number of $b$'s between consecutive $a$'s increases by one.
+Compute $\inf(\alpha)$.  Is $\alpha$ ultimately periodic?
+\end{chapex}
+
+\begin{chapex}[B\"uchi acceptance]
+Modify \cref{fig:infinitely-many-ack} to accept the property
+``only finitely many \texttt{req} symbols occur''.  Hint: the automaton
+will need a non-deterministic guess.
+\end{chapex}
+
+\begin{chapex}[Finding a lasso]
+Given a B\"uchi automaton graph, explain how you would use strongly
+connected components to decide emptiness.  Which SCCs are relevant?
+\end{chapex}

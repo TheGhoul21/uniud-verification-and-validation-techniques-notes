@@ -1,0 +1,306 @@
+% ============================================================
+%  Chapter 4 -- Complementation of Omega-Regular Languages
+% ============================================================
+
+\chapter[Complementation of omega-Regular Languages]{Complementation of $\omega$-Regular Languages}
+\label{ch:omega-complementation}
+
+\aside{For finite words, complementing a
+DFA is easy.  For B\"uchi automata, this
+is where the theory becomes genuinely
+subtle.}
+
+Model checking naturally asks an inclusion question:
+\[
+  L(A_{\mathrm{sys}})\subseteq L(A_{\mathrm{spec}}).
+\]
+As in the finite-word case, we would like to rewrite it as
+\[
+  L(A_{\mathrm{sys}})\cap \overline{L(A_{\mathrm{spec}})}=\emptyset.
+\]
+Intersection and emptiness are manageable for B\"uchi automata.  The
+hard part is complementation.
+
+This chapter explains the algebraic proof idea used in the course:
+finite-index congruences, saturation, and a Ramsey-style decomposition
+of infinite words.
+
+
+% ============================================================
+\section{Why the Finite Trick Fails}
+\label{sec:buchi-complement-fails}
+% ============================================================
+
+For finite words, we determinize, complete, and swap final states.  For
+B\"uchi automata this route fails because deterministic B\"uchi automata
+are strictly weaker than non-deterministic B\"uchi automata.
+
+\begin{example}[Eventually always $a$]
+\label{ex:det-buchi-gap}
+Over $\Sigma=\{a,b\}$, the language
+\[
+  L=\{\alpha : \text{only finitely many }b\text{ occur in }\alpha\}
+\]
+is easy to recognize non-deterministically: guess a point after which no
+more $b$ appears, then stay in an accepting state while reading only
+$a$'s.  A deterministic B\"uchi automaton cannot make such a successful
+guess at the right finite time.
+\end{example}
+
+The lesson is not that complementation is impossible.  The class of
+$\omega$-regular languages is closed under complement.  The lesson is
+that the proof cannot be the finite-word proof.
+
+
+% ============================================================
+\section{Congruences and Saturation}
+\label{sec:congruence-saturation}
+% ============================================================
+
+The algebraic route partitions finite words into finitely many classes,
+then uses products of classes to describe infinite words.
+
+\begin{definition}[Congruence]
+\label{def:congruence}
+An equivalence relation $\equiv$ on $\Sigma^*$ is a
+\textbf{congruence} if
+\[
+  u\equiv v \text{ and } u'\equiv v'
+  \quad\Longrightarrow\quad
+  uu'\equiv vv'.
+\]
+It has \textbf{finite index} if it has finitely many equivalence classes.
+\end{definition}
+
+Congruence means that only the class matters when concatenating.  If two
+blocks are interchangeable now, they remain interchangeable in any
+larger finite context.
+
+\begin{definition}[Saturation]
+\label{def:saturation}
+Let $\equiv$ be a finite-index congruence on $\Sigma^*$.  An
+$\omega$-language $L\subseteq\Sigma^\omega$ is \textbf{saturated} by
+$\equiv$ if, for every pair of equivalence classes $U,V$, the language
+\[
+  U V^\omega
+\]
+is either entirely contained in $L$ or disjoint from $L$.
+\end{definition}
+
+This is a strong finiteness property.  It says that once we know the
+class of a finite prefix and the class repeated forever, the membership
+of the resulting infinite word is fixed.
+
+\begin{lemma}[Complement from saturation]
+\label{lem:complement-from-saturation}
+If $L$ is saturated by a finite-index congruence $\equiv$, then
+$\overline{L}$ is $\omega$-regular.
+\end{lemma}
+
+\begin{proof}
+First note that every equivalence class of a finite-index congruence is
+a regular finite-word language.  Indeed, build a DFA whose states are
+the equivalence classes, whose initial state is $[\varepsilon]$, and
+whose transition is $[u]\xrightarrow{a}[ua]$.  Congruence makes this
+transition well-defined.
+
+There are only finitely many pairs of classes $(U,V)$.  Since $L$ is
+saturated, each product $UV^\omega$ is either contained in $L$ or
+disjoint from $L$.  Therefore
+\[
+  \overline{L}
+  =
+  \bigcup\{UV^\omega : UV^\omega\cap L=\emptyset\}.
+\]
+This is a finite union.  Each $U$ and $V$ is regular, so each
+$UV^\omega$ is $\omega$-regular, and finite unions of $\omega$-regular
+languages are $\omega$-regular.
+\end{proof}
+
+So complementation reduces to finding a finite congruence that saturates
+the language of a B\"uchi automaton.
+
+
+% ============================================================
+\section{The Automaton Congruence}
+\label{sec:automaton-congruence}
+% ============================================================
+
+Let $A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  A finite word
+can be summarized by what it does to pairs of states.
+
+\begin{definition}[Transition profile]
+\label{def:transition-profile}
+For a finite word $u\in\Sigma^*$ and states $p,q\in Q$, record two
+facts:
+\begin{itemize}[nosep]
+  \item whether there exists a path from $p$ to $q$ labelled $u$;
+  \item whether there exists such a path that visits some state in $F$.
+\end{itemize}
+Two words are equivalent, written $u\approx_A v$, if they have the same
+answers for every pair $(p,q)$.
+\end{definition}
+
+The relation $\approx_A$ has finite index because each word determines a
+finite Boolean table over $Q\times Q$.  It is also a congruence: the
+transition profile of $uv$ is obtained by composing the profiles of $u$
+and $v$.
+
+\begin{example}[What the profile remembers]
+\label{ex:profile-remembers}
+Suppose $Q=\{p,q,r\}$ and $F=\{r\}$.  For a block $u$, the profile does
+not remember the exact path labelled by $u$.  It remembers whether $u$
+can take $p$ to $q$, $p$ to $r$, and so on, and whether an accepting
+state was seen along the way.
+\end{example}
+
+This is exactly the information needed to reason about repeating finite
+blocks inside an infinite run.
+
+
+% ============================================================
+\section{Ramsey Decomposition}
+\label{sec:ramsey-decomposition}
+% ============================================================
+
+The remaining difficulty is that an arbitrary infinite word need not be
+literally of the form $uv^\omega$.  Ramsey's theorem lets us cut it into
+blocks that are equivalent to each other.
+
+\begin{lemma}[Homogeneous decomposition]
+\label{lem:homogeneous-decomposition}
+Let $\equiv$ be a finite-index congruence on $\Sigma^*$.  Every
+$\omega$-word $\alpha$ can be decomposed as
+\[
+  \alpha = u_0u_1u_2\cdots
+\]
+where $u_0\in\Sigma^*$, each $u_i$ for $i\geq 1$ is non-empty, and all
+blocks $u_i$ with $i\geq 1$ belong to the same $\equiv$-class.
+\end{lemma}
+
+\begin{proof}
+Colour each pair of positions $(i,j)$ with the $\equiv$-class of the
+finite segment $\alpha[i,j]$.  Since there are finitely many classes,
+the infinite Ramsey theorem gives an infinite set of positions
+\[
+  i_0<i_1<i_2<\cdots
+\]
+such that all segments $\alpha[i_m,i_n]$ have the same colour.  Taking
+$u_0=\alpha[0,i_0]$ and $u_k=\alpha[i_{k-1},i_k]$ gives the desired
+decomposition.
+\end{proof}
+
+The point is conceptual: although the word may not be periodic, it can
+be partitioned into blocks that are indistinguishable by the finite
+congruence.
+
+
+% ============================================================
+\section{Closure under Complement}
+\label{sec:omega-complement-theorem}
+% ============================================================
+
+\begin{theorem}[Complementation of B\"uchi-recognizable languages]
+\label{thm:buchi-complementation}
+If $L\subseteq\Sigma^\omega$ is $\omega$-regular, then
+$\overline{L}$ is $\omega$-regular.
+\end{theorem}
+
+\begin{proof}
+Let $A$ be a B\"uchi automaton for $L$, and use the finite-index
+congruence $\approx_A$ from \cref{def:transition-profile}.  The Ramsey
+decomposition lemma lets every infinite word be represented by a finite
+prefix followed by infinitely many non-empty blocks from one
+$\approx_A$-class.
+
+It remains to justify saturation.  Consider a class product $UV^\omega$
+that intersects $L$.  Choose an accepted word in it and cut it into
+$u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$.  In an
+accepting run, look at the states reached at the block boundaries.
+Because $Q$ is finite and some accepting state is visited infinitely
+often, we can select infinitely many block boundaries with the same state
+$p$, and with an accepting state visited between consecutive selected
+boundaries.
+
+The block from one selected boundary to the next belongs to some product
+of words from $V$, hence to a class determined by $V$ under the
+congruence.  Its transition profile says: from $p$ back to $p$ there is
+a path that visits $F$.  Since all words in the same class have the same
+profile, the same accepting-cycle information is available for every
+choice of blocks from $V$.  Similarly, every prefix from $U$ has the same
+relevant reachability profile from $q_0$ into the selected state.
+
+Therefore any word in $UV^\omega$ can follow a prefix path to $p$ and
+then repeat accepting $p$-to-$p$ segments forever.  It is accepted by
+$A$.  Thus $UV^\omega\subseteq L$.  We have shown that every class
+product either misses $L$ or is contained in $L$, so $L$ is saturated by
+$\approx_A$.
+
+By \cref{lem:complement-from-saturation}, the complement is a finite
+union of class products $UV^\omega$, hence it is $\omega$-regular.
+\end{proof}
+
+\begin{remark}
+This proof establishes effectiveness in principle: the congruence has
+finitely many classes and the complement can be represented as a finite
+union of $\omega$-regular components.  Practical complementation
+constructions are intricate and can be expensive, but the closure result
+is enough for decidability of inclusion.
+\end{remark}
+
+
+% ============================================================
+\section{Model Checking Consequence}
+\label{sec:buchi-model-checking-consequence}
+% ============================================================
+
+The main verification payoff is the decidability of language inclusion.
+
+\begin{corollary}[B\"uchi inclusion]
+\label{cor:buchi-inclusion}
+Given B\"uchi automata $A$ and $B$, it is decidable whether
+\[
+  L(A)\subseteq L(B).
+\]
+\end{corollary}
+
+\begin{proof}
+Construct an automaton for $\overline{L(B)}$, then an automaton for
+$L(A)\cap\overline{L(B)}$, and finally test B\"uchi emptiness by looking
+for a reachable accepting cycle.
+\end{proof}
+
+This is the automata-theoretic backbone of model checking: search for an
+execution of the system that violates the specification.  If none
+exists, inclusion holds.
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item B\"uchi complementation cannot be done by simply swapping final states.
+  \item Finite-index congruences make infinite behaviours finitely classifiable.
+  \item Saturation turns complementation into a finite union construction.
+  \item Ramsey decomposition explains why arbitrary infinite words can be handled by repeated class products.
+  \item Inclusion of B\"uchi languages is decidable via complement, intersection, and emptiness.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Finite-index class automaton]
+Let $\equiv$ be equivalence modulo parity of word length.  Build the DFA
+whose states are the two equivalence classes and whose transitions append
+one symbol.  Which class contains $\varepsilon$?
+\end{chapex}
+
+\begin{chapex}[Why profiles need accepting information]
+Give two finite paths from a state $p$ back to $p$, one visiting an
+accepting state and one not.  Explain why ordinary reachability
+information is insufficient for B\"uchi complementation.
+\end{chapex}
+
+\begin{chapex}[Inclusion reduction]
+Write the three automata operations needed to decide
+$L(A)\subseteq L(B)$ for B\"uchi automata.  Which operation is the
+technically hardest one?
+\end{chapex}

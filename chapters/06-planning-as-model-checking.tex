@@ -1,0 +1,322 @@
+% ============================================================
+%  Chapter 6 -- Planning as Model Checking
+% ============================================================
+
+\chapter{Planning as Model Checking}
+\label{ch:planning-model-checking}
+
+\aside{Planning can be read as a
+controller-synthesis problem: find a
+strategy that drives the system to a
+goal despite uncertainty.}
+
+The last lecture of Course 88 connects the verification machinery with
+automated planning.  A planning problem describes a world, a set of
+actions, and a goal.  The task is to construct a plan that reaches the
+goal.  When actions are non-deterministic or the environment can
+interfere, a plan is no longer just a finite sequence of actions; it is a
+strategy.
+
+This chapter explains how planning can be formulated using the same
+state-transition and preimage ideas that underlie symbolic model
+checking.
+
+
+% ============================================================
+\section{Planning Domains}
+\label{sec:planning-domains}
+% ============================================================
+
+\begin{definition}[Fluent and state]
+\label{def:fluent-state}
+A \textbf{fluent} is a Boolean variable describing a property of the
+world.  A \textbf{state} is a valuation of all fluents.
+\end{definition}
+
+If the fluents are $\mathit{atA}$, $\mathit{loaded}$, and
+$\mathit{green}$, then a state records whether each of these facts is
+currently true.  With $n$ Boolean fluents, the explicit state space may
+contain up to $2^n$ states.
+
+\begin{definition}[Action-based planning domain]
+\label{def:planning-domain}
+An action-based planning domain consists of:
+\begin{itemize}[nosep]
+  \item a finite set of states $S$;
+  \item a set of initial states $I\subseteq S$;
+  \item a set of goal states $G\subseteq S$;
+  \item a finite set of actions $A$;
+  \item a transition relation $T\subseteq S\times A\times S$.
+\end{itemize}
+\end{definition}
+
+The transition relation may be non-deterministic: the same action in the
+same state can have several possible successor states.  This is where
+planning begins to look like a game against the environment.
+
+\begin{example}[Parcel and traffic light]
+\label{ex:parcel-traffic}
+A robot must move a parcel across a crossing.  Fluents may record the
+robot location, whether the parcel is loaded, and whether the traffic
+light is green.  An action such as \texttt{cross} may succeed only when
+the light is green; the light itself may change independently.
+\end{example}
+
+
+% ============================================================
+\section{Plans as Execution Structures}
+\label{sec:plans-execution-structures}
+% ============================================================
+
+\begin{definition}[Plan]
+\label{def:plan}
+In a deterministic domain, a \textbf{plan} may be a finite sequence of
+actions.  In a non-deterministic domain, a plan is more generally a
+policy that chooses an action based on the current state or on the
+history observed so far.
+\end{definition}
+
+The distinction matters.  If action outcomes are uncertain, the fixed
+sequence
+\[
+  a_1,a_2,\ldots,a_k
+\]
+may fail after an unlucky outcome.  A policy can branch and recover.
+
+\begin{definition}[Weak and strong solution]
+\label{def:weak-strong-plan}
+A \textbf{weak plan} has at least one execution that reaches the goal.
+A \textbf{strong plan} guarantees that every possible execution reaches
+the goal.
+\end{definition}
+
+Weak planning is existential.  Strong planning is universal.  Verification
+and synthesis care deeply about this difference: a safety-critical
+controller needs strong guarantees, not just one lucky successful run.
+
+
+% ============================================================
+\section{Preimage Operators}
+\label{sec:preimage-operators}
+% ============================================================
+
+Backward search is expressed with preimage operators.  Given a target
+set $X\subseteq S$, we ask which states can be made to reach $X$ in one
+step.
+
+\begin{definition}[Weak preimage]
+\label{def:weak-preimage}
+The weak preimage of $X$ is
+\[
+  \mathsf{Pre}_w(X)=
+  \{s\in S:\exists a\in A,\exists s'\in X
+        \text{ such that }(s,a,s')\in T\}.
+\]
+\end{definition}
+
+This is the one-step version of a weak plan: there exists an action and
+an outcome that reaches $X$.
+
+\begin{definition}[Strong preimage]
+\label{def:strong-preimage}
+The strong preimage of $X$ is
+\[
+  \mathsf{Pre}_s(X)=
+  \{s\in S:\exists a\in A,\;
+        \mathrm{Post}(s,a)\neq\emptyset
+        \text{ and }
+        \mathrm{Post}(s,a)\subseteq X\},
+\]
+where
+\[
+  \mathrm{Post}(s,a)=\{s'\in S:(s,a,s')\in T\}.
+\]
+\end{definition}
+
+This is the one-step version of a strong plan.  The planner chooses the
+action, but nature chooses the outcome.  Therefore every possible
+successor must be inside $X$.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  goal/.style={circle, draw, double, thick, minimum size=8mm, fill=accent!15},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (s) {$s$};
+  \node[goal, right=2.7cm of s, yshift=7mm] (x1) {$x_1$};
+  \node[goal, right=2.7cm of s, yshift=-7mm] (x2) {$x_2$};
+  \node[state, below=1.5cm of s] (t) {$t$};
+  \node[goal, right=2.7cm of t, yshift=7mm] (y1) {$y_1$};
+  \node[state, right=2.7cm of t, yshift=-7mm] (y2) {$y_2$};
+  \draw[arr] (s) -- node[above, font=\small] {$a$} (x1);
+  \draw[arr] (s) -- node[below, font=\small] {$a$} (x2);
+  \draw[arr] (t) -- node[above, font=\small] {$a$} (y1);
+  \draw[arr] (t) -- node[below, font=\small] {$a$} (y2);
+  \node[below=4mm of x2, font=\small, align=center] {all outcomes in $X$\\strong predecessor};
+  \node[below=4mm of y2, font=\small, align=center] {one outcome escapes\\not strong};
+\end{tikzpicture}
+\caption{Strong preimage requires all outcomes of the chosen action to stay inside the target set.}
+\label{fig:strong-preimage}
+\end{figure}
+
+
+% ============================================================
+\section{Backward Fixpoint Algorithms}
+\label{sec:planning-fixpoints}
+% ============================================================
+
+The goal set is the starting point.  Then we repeatedly add states from
+which the planner can force progress into the current winning set.
+
+\begin{formaldetails}[Strong backward planning]
+\begin{enumerate}[label=\textbf{Step \arabic*.}, leftmargin=2cm]
+  \item Initialize $W_0=G$.
+  \item Compute
+        \[
+          W_{i+1}=W_i\cup \mathsf{Pre}_s(W_i).
+        \]
+  \item Stop when $W_{i+1}=W_i$.
+  \item The resulting fixpoint $W$ is the set of states from which the
+        goal can be forced.
+\end{enumerate}
+\end{formaldetails}
+
+This is the same logical shape as an attractor computation in games.  At
+each step, we add states from which the controller has an action whose
+possible outcomes are already known to be winning.
+
+\begin{proposition}[Correctness intuition]
+\label{prop:strong-planning-fixpoint}
+If an initial state belongs to the fixpoint $W$, then a strong plan
+exists from that state.  If it does not belong to $W$, no memoryless
+strategy based on the represented state space can force the goal using
+the available transitions.
+\end{proposition}
+
+\begin{proof}
+For the first claim, assign a rank to each state according to the first
+iteration in which it enters the sequence $W_0,W_1,\ldots$.  States of
+rank $0$ are already goals.  If a state has rank $i+1$, then by
+definition it belongs to $\mathsf{Pre}_s(W_i)$, so there exists an
+action whose every successor lies in $W_i$.  Choose such an action.  No
+matter which successor occurs, the rank strictly decreases.  Since ranks
+are natural numbers, every execution reaches rank $0$, hence a goal.
+
+For the second claim, let $W$ be the fixpoint and consider a state
+outside $W$.  For every available action, either it has no valid
+successor or it has some successor outside $W$; otherwise the state
+would belong to $\mathsf{Pre}_s(W)$ and hence to $W$.  An adversarial
+environment can always choose such an outside successor, keeping the
+execution outside $W$ forever.  Therefore no state-based strong plan can
+force the goal from outside the fixpoint.
+\end{proof}
+
+The extracted policy chooses, at each newly added state, one action that
+witnessed membership in $\mathsf{Pre}_s(W_i)$.
+
+
+% ============================================================
+\section{Symbolic Representation}
+\label{sec:symbolic-planning}
+% ============================================================
+
+Explicit state graphs can be enormous.  Symbolic model checking avoids
+enumerating all states by representing sets and transitions with Boolean
+formulas.
+
+\begin{definition}[Symbolic transition relation]
+\label{def:symbolic-transition}
+Let $x$ be the vector of current-state variables, $a$ the action
+variables, and $x'$ the next-state variables.  A symbolic transition
+relation is a Boolean formula
+\[
+  T(x,a,x')
+\]
+that is true exactly for valid transitions.
+\end{definition}
+
+A set of states is represented by a formula $X(x)$.  The strong preimage
+can then be written logically as
+\[
+  \exists a\;
+  \Big(
+    \exists x'\,T(x,a,x')
+    \;\wedge\;
+    \forall x'\,(T(x,a,x')\rightarrow X(x'))
+  \Big).
+\]
+
+This formula says: choose an action with at least one possible successor,
+and require every possible successor to satisfy $X$.
+
+\begin{intermezzo}{Why Symbolic Methods Matter}
+If a domain has 40 Boolean fluents, the explicit state space may contain
+$2^{40}$ states.  Symbolic methods do not make the problem magically
+small, but they let us manipulate large regular sets of states at once,
+often using compact representations such as ordered binary decision
+diagrams.
+\end{intermezzo}
+
+
+% ============================================================
+\section{Action Description Languages}
+\label{sec:action-description-languages}
+% ============================================================
+
+Instead of writing the full transition relation by hand, planning tools
+often use an action description language.
+
+\begin{definition}[Action rule]
+\label{def:action-rule}
+An action rule describes when an action is executable and how it changes
+fluents.  It typically has a precondition part and an effect part.
+\end{definition}
+
+For example, an action \texttt{load} may require the robot and parcel to
+be at the same location, and its effect is that the fluent
+$\mathit{loaded}$ becomes true.  The semantics of the action language is
+then compiled into the symbolic transition relation $T(x,a,x')$.
+
+The course connection is now visible:
+\[
+\begin{gathered}
+  \text{planning}
+  \longrightarrow
+  \text{transition system}
+  \longrightarrow \\
+  \text{preimage/fixpoint computation}.
+\end{gathered}
+\]
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item Planning domains are finite transition systems with actions.
+  \item Non-deterministic actions turn plans into strategies.
+  \item Weak planning is existential; strong planning is universal.
+  \item Preimage operators compute one-step controllable predecessors.
+  \item Symbolic model checking represents large planning problems with formulas instead of explicit graphs.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Weak vs. strong]
+Construct a one-state action outcome example where a state belongs to
+$\mathsf{Pre}_w(G)$ but not to $\mathsf{Pre}_s(G)$.  Explain the
+difference in words.
+\end{chapex}
+
+\begin{chapex}[One fixpoint step]
+Let $G=\{g\}$ and suppose state $s$ has an action whose only successors
+are $g$ and another state already in $G$.  Does $s$ enter the strong
+winning set after one iteration?
+\end{chapex}
+
+\begin{chapex}[Symbolic preimage]
+In the symbolic strong preimage formula, identify the existential
+quantifier controlled by the planner and the universal quantifier
+representing action uncertainty.
+\end{chapex}

@@ -7,7 +7,9 @@ This document stores the database structure and necessary queries to retrieve le
 - **`Courses` Table**: 
   - Contains course metadata.
   - Important columns: `id`, `description` (holds the course name/title).
-  - *Example*: The ID for "VERIFICATION AND VALIDATION TECHNIQUES IN AI AND CYBERSECURITY MODULE 2" is `88`.
+  - Current V&V sources for this book:
+    - Course `88`: 12 lectures, Part I source.
+    - Course `89`: 28 lectures, Part II source.
 
 - **`Lectures` Table**:
   - Contains individual lessons.

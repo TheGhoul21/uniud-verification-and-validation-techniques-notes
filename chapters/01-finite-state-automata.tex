@@ -1,0 +1,393 @@
+% ============================================================
+%  Chapter 1 -- Finite-State Automata and Regular Languages
+% ============================================================
+
+\chapter{Finite Automata and Regular Languages}
+\label{ch:fsa}
+
+\aside{Automata are the first modelling
+language of the course: states are the
+possible configurations of a system, and
+transitions are the steps it can take.}
+
+Verification starts with a simple modelling decision.  We describe a
+system by listing the situations it can be in, and the events that move
+it from one situation to another.  This gives us a directed graph with a
+finite set of nodes, but with enough structure to process input words.
+That structure is a \textbf{finite-state automaton}.
+
+This chapter builds the basic language.  We begin with alphabets and
+words, define deterministic and non-deterministic finite automata, and
+prove the central fact that non-determinism does not add expressive
+power for finite words.
+
+
+% ============================================================
+\section{Alphabets, Words, and Languages}
+\label{sec:alphabets-words}
+% ============================================================
+
+Before an automaton can read anything, we need to say what its inputs
+look like.
+
+\begin{definition}[Alphabet and word]
+\label{def:alphabet-word}
+An \textbf{alphabet} is a finite non-empty set of symbols, usually
+denoted by $\Sigma$.
+
+A \textbf{word} over $\Sigma$ is a finite sequence of symbols from
+$\Sigma$.  The set of all finite words over $\Sigma$ is denoted by
+$\Sigma^*$.
+\end{definition}
+
+Think of $\Sigma$ as the vocabulary available to the automaton.  If
+$\Sigma=\{a,b\}$, then $aab$, $baba$, and $bb$ are words.  The special
+word with no symbols is the \textbf{empty word}, written $\varepsilon$.
+It has length $0$.
+
+\begin{example}[A small alphabet]
+\label{ex:small-alphabet}
+Let $\Sigma=\{\texttt{coin},\texttt{push}\}$.  A turnstile can observe
+words such as
+\[
+  \texttt{coin}\;\texttt{push}\;\texttt{push}\;\texttt{coin}.
+\]
+The symbols are events.  The word is the finite history of observed
+events.
+\end{example}
+
+\begin{definition}[Language]
+\label{def:finite-language}
+A \textbf{language} over $\Sigma$ is any set of finite words:
+\[
+  L \subseteq \Sigma^*.
+\]
+\end{definition}
+
+So a language is a property of words.  For instance, over
+$\Sigma=\{a,b\}$, the set of all words ending in $a$ is a language.  In
+verification terms, a language is often the set of behaviours that a
+model allows, or the set of behaviours that a specification permits.
+
+\begin{definition}[Basic operations on words]
+\label{def:word-ops}
+If $u,v\in\Sigma^*$, their \textbf{concatenation} is the word $uv$
+obtained by writing $v$ immediately after $u$.  The \textbf{length} of
+$w$ is denoted $|w|$.
+\end{definition}
+
+The empty word behaves like a neutral element:
+\[
+  \varepsilon w = w\varepsilon = w.
+\]
+This small fact is useful because many constructions need to handle the
+case where no input has been consumed yet.
+
+\begin{definition}[Kleene star]
+\label{def:kleene-star}
+If $W \subseteq \Sigma^*$ is a language, then
+\[
+  W^* =
+  \{w_1w_2\cdots w_k : k\geq 0,\; w_i\in W\text{ for all }i\}
+\]
+is the \textbf{Kleene closure} of $W$.
+\end{definition}
+
+In plain language, $W^*$ contains every word that can be built by
+concatenating finitely many blocks from $W$.  The case $k=0$ gives
+$\varepsilon$, so $\varepsilon\in W^*$ for every $W$.
+
+
+% ============================================================
+\section{Deterministic Finite Automata}
+\label{sec:dfa}
+% ============================================================
+
+A deterministic automaton has no choices.  Once we know the current
+state and the next input symbol, the next state is fixed.
+
+\begin{definition}[Deterministic finite automaton]
+\label{def:dfa}
+A \textbf{deterministic finite automaton} (DFA) is a tuple
+\[
+  A=(Q,\Sigma,\delta,q_0,F)
+\]
+where:
+\begin{itemize}[nosep]
+  \item $Q$ is a finite set of states;
+  \item $\Sigma$ is a finite alphabet;
+  \item $\delta:Q\times\Sigma\to Q$ is the transition function;
+  \item $q_0\in Q$ is the initial state;
+  \item $F\subseteq Q$ is the set of accepting states.
+\end{itemize}
+\end{definition}
+
+The tuple separates the static shape of the automaton from its
+behaviour.  The set $Q$ tells us which configurations exist.  The
+transition function $\delta$ tells us how the configuration evolves
+while reading a word.  The accepting set $F$ tells us which final states
+count as success.
+
+\begin{example}[Words with an even number of $a$'s]
+\label{ex:even-a-dfa}
+Over $\Sigma=\{a,b\}$, consider the language of words containing an
+even number of occurrences of $a$.  A DFA needs only two states:
+\[
+  Q=\{q_{\mathrm{even}},q_{\mathrm{odd}}\}.
+\]
+Reading $a$ toggles the state; reading $b$ leaves the state unchanged.
+The initial state is $q_{\mathrm{even}}$, and the only accepting state is
+$q_{\mathrm{even}}$.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.2cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=blue!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[accepting] (e) {$q_e$};
+  \node[state, right=of e] (o) {$q_o$};
+  \draw[arr] ([xshift=-1.0cm]e.west) -- (e);
+  \draw[arr, bend left=18] (e) to node[above] {$a$} (o);
+  \draw[arr, bend left=18] (o) to node[below] {$a$} (e);
+  \draw[arr] (e) edge[loop above] node {$b$} (e);
+  \draw[arr] (o) edge[loop above] node {$b$} (o);
+\end{tikzpicture}
+\caption{A DFA for words with an even number of $a$'s.}
+\label{fig:even-a-dfa}
+\end{figure}
+
+In \cref{fig:even-a-dfa}, the state records only the information that
+matters for the property: parity.  It forgets the exact number of $a$'s,
+because the language does not need that much detail.
+
+\begin{definition}[Extended transition function]
+\label{def:extended-delta}
+The transition function extends from symbols to words by defining
+$\widehat{\delta}:Q\times\Sigma^*\to Q$ recursively:
+\[
+  \widehat{\delta}(q,\varepsilon)=q,
+  \qquad
+  \widehat{\delta}(q,wa)=\delta(\widehat{\delta}(q,w),a).
+\]
+\end{definition}
+
+This simply says: to read the word $wa$, first read $w$, then process the
+last symbol $a$ from the state reached after $w$.
+
+\begin{definition}[Language of a DFA]
+\label{def:dfa-language}
+The language accepted by a DFA $A=(Q,\Sigma,\delta,q_0,F)$ is
+\[
+  L(A)=\{w\in\Sigma^* : \widehat{\delta}(q_0,w)\in F\}.
+\]
+\end{definition}
+
+So acceptance is a final-state test.  The automaton consumes the whole
+word; if the unique resulting state is accepting, the word belongs to
+the language.
+
+\subsection{Completeness and Sink States}
+\label{subsec:sink-state}
+
+Some automata are drawn with missing transitions.  Formally, a DFA has a
+total transition function, so every state-symbol pair must have a next
+state.  Missing transitions can always be repaired by adding a sink.
+
+\begin{definition}[Sink completion]
+\label{def:sink-completion}
+Given a partial deterministic automaton, its \textbf{completion} adds a
+fresh non-accepting sink state $\bot$.  Every missing transition goes to
+$\bot$, and every symbol loops from $\bot$ back to $\bot$.
+\end{definition}
+
+The sink state means ``we have already violated the pattern''.  Once the
+automaton enters it, no future input can make the word acceptable again.
+This completion matters later, because complementation of deterministic
+automata works only when the automaton is complete.
+
+
+% ============================================================
+\section{Non-Deterministic Finite Automata}
+\label{sec:nfa}
+% ============================================================
+
+Non-determinism changes the transition structure.  The automaton may
+have several possible next states for the same state and input symbol.
+
+\begin{definition}[Non-deterministic finite automaton]
+\label{def:nfa}
+A \textbf{non-deterministic finite automaton} (NFA) is a tuple
+\[
+  A=(Q,\Sigma,\Delta,q_0,F)
+\]
+where $Q$, $\Sigma$, $q_0$, and $F$ are as for a DFA, and
+\[
+  \Delta \subseteq Q\times\Sigma\times Q
+\]
+is a transition relation.
+\end{definition}
+
+Equivalently, we can view the transition structure as a function
+\[
+  \Delta:Q\times\Sigma\to 2^Q.
+\]
+The value $\Delta(q,a)$ is the set of all states that the automaton may
+move to after reading $a$ in state $q$.
+
+\begin{definition}[Run and acceptance for an NFA]
+\label{def:nfa-run}
+Let $w=a_0a_1\cdots a_{n-1}$.  A \textbf{run} of an NFA on $w$ is a
+sequence of states
+\[
+  r_0,r_1,\ldots,r_n
+\]
+such that $r_0=q_0$ and $(r_i,a_i,r_{i+1})\in\Delta$ for every
+$0\leq i<n$.
+
+The word $w$ is accepted if there exists at least one run on $w$ with
+$r_n\in F$.
+\end{definition}
+
+The key word is \emph{exists}.  An NFA may have many failing runs on the
+same input.  The word is accepted as soon as one run reaches an accepting
+state after consuming the whole word.
+
+\begin{example}[Guessing the last symbol]
+\label{ex:nfa-last-a}
+Over $\Sigma=\{a,b\}$, the language of words whose last symbol is $a$
+can be recognized by a small NFA that stays in a scanning state, and
+whenever it reads $a$, guesses that this might be the last symbol.
+That guess moves to an accepting state with no outgoing transitions.
+\end{example}
+
+This example illustrates why non-determinism is convenient: the automaton
+does not need to know in advance which $a$ is the last one.  It can try
+all possibilities at once.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=3.0cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (scan) {$q_s$};
+  \node[accepting, right=of scan] (last) {$q_a$};
+  \draw[arr] ([xshift=-1.0cm]scan.west) -- (scan);
+  \draw[arr] (scan) edge[loop above] node {$a,b$} (scan);
+  \draw[arr, bend left=12] (scan) to node[above] {$a$} (last);
+\end{tikzpicture}
+\caption{An NFA for words ending in $a$.  The transition to $q_a$ is the guess that the current $a$ is the last symbol.}
+\label{fig:nfa-last-a}
+\end{figure}
+
+Notice the visual difference between \cref{fig:even-a-dfa} and
+\cref{fig:nfa-last-a}.  The DFA has exactly one outgoing transition for
+each symbol at each state.  The NFA has two possible $a$-moves from
+$q_s$: keep scanning, or guess that this $a$ is final.
+
+
+% ============================================================
+\section{Determinizing an NFA}
+\label{sec:subset-construction}
+% ============================================================
+
+Non-determinism makes automata easier to design, but for finite words it
+does not recognize any new languages.
+
+\begin{theorem}[Subset construction]
+\label{thm:subset-construction}
+For every NFA $A$ there exists a DFA $D$ such that
+\[
+  L(D)=L(A).
+\]
+\end{theorem}
+
+\begin{formaldetails}[Construction]
+Let $A=(Q,\Sigma,\Delta,q_0,F)$ be an NFA.  Define the DFA
+\[
+  D=(2^Q,\Sigma,\delta_D,\{q_0\},F_D)
+\]
+as follows:
+\[
+  \delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a),
+  \qquad
+  F_D=\{S\subseteq Q:S\cap F\neq\emptyset\}.
+\]
+The deterministic state $S$ records the whole set of NFA states that can
+be active after reading the current input prefix.
+\end{formaldetails}
+
+The construction is called the \textbf{power-set construction} because
+the DFA states are subsets of the NFA state set.  If the NFA has $n$
+states, the resulting DFA can have up to $2^n$ states.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  setbox/.style={draw, rounded corners=4pt, fill=teal!8,
+                 minimum width=23mm, minimum height=10mm, align=center},
+  arr/.style={-Stealth, thick},
+]
+  \node[setbox] (s0) {$\{q_0\}$};
+  \node[setbox, right=2.3cm of s0] (s1) {$\{q_0,q_a\}$};
+  \node[setbox, right=2.3cm of s1] (s2) {$\emptyset$};
+  \draw[arr] (s0) -- node[above] {$a$} (s1);
+  \draw[arr] (s1) edge[loop above] node {$a$} (s1);
+  \draw[arr] (s0) edge[loop above] node {$b$} (s0);
+  \draw[arr, dashed, gray] (s2) edge[loop above] node {$a,b$} (s2);
+\end{tikzpicture}
+\caption{A determinized state is a set of currently possible NFA states.}
+\label{fig:subset-state}
+\end{figure}
+
+\begin{proof}
+We prove the invariant: after reading any word $w$, the state reached by
+the DFA is exactly the set of states reachable by some NFA run on $w$.
+For $w=\varepsilon$, both sides are $\{q_0\}$.  If the invariant holds
+for $w$, then after reading $wa$ the DFA applies
+\[
+  \delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a),
+\]
+which is precisely the set of all NFA successors reached by extending
+one valid run on $w$ with one $a$-transition.  Thus the invariant holds
+by induction on the word length.
+
+The NFA accepts $w$ exactly when the reachable set contains some final
+state, which is exactly the definition of $F_D$.
+\end{proof}
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item A language is a set of finite words over an alphabet.
+  \item A DFA has one run per input word.
+  \item An NFA may have many runs, and accepts if at least one succeeds.
+  \item Every NFA can be determinized by tracking sets of possible states.
+  \item The price of determinization can be exponential.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Simulating a DFA]
+For the DFA in \cref{fig:even-a-dfa}, compute the reached state after
+reading each prefix of the word $abbaab$.  Is the whole word accepted?
+\end{chapex}
+
+\begin{chapex}[One subset-construction step]
+Use the NFA in \cref{fig:nfa-last-a}.  Starting from the determinized
+state $\{q_s,q_a\}$, compute the next determinized state on input $b$.
+Explain why the accepting state disappears.
+\end{chapex}
+
+\begin{chapex}[Design]
+Design a DFA over $\{a,b\}$ for the language of words that contain the
+substring $ab$.  Use a sink-like state to record that the substring has
+already been seen.
+\end{chapex}
