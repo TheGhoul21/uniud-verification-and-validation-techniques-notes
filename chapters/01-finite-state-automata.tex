@@ -34,21 +34,21 @@ look like.
 \begin{definition}[Alphabet and word]
 \label{def:alphabet-word}
 An \textbf{alphabet} is a finite non-empty set of symbols, usually
-denoted by $\Sigma$.
+denoted by $A$.
 
-A \textbf{word} over $\Sigma$ is a finite sequence of symbols from
-$\Sigma$.  The set of all finite words over $\Sigma$ is denoted by
-$\Sigma^*$.
+A \textbf{word} over $A$ is a finite sequence of symbols from
+$A$.  The set of all finite words over $A$ is denoted by
+$A^*$.
 \end{definition}
 
-Think of $\Sigma$ as the vocabulary available to the automaton.  If
-$\Sigma=\{a,b\}$, then $aab$, $baba$, and $bb$ are words.  The special
+Think of $A$ as the vocabulary available to the automaton.  If
+$A=\{a,b\}$, then $aab$, $baba$, and $bb$ are words.  The special
 word with no symbols is the \textbf{empty word}, written $\varepsilon$.
 It has length $0$.
 
 \begin{example}[A small alphabet]
 \label{ex:small-alphabet}
-Let $\Sigma=\{\texttt{coin},\texttt{push}\}$.  A turnstile can observe
+Let $A=\{\texttt{coin},\texttt{push}\}$.  A turnstile can observe
 words such as
 \[
   \texttt{coin}\;\texttt{push}\;\texttt{push}\;\texttt{coin}.
@@ -59,20 +59,20 @@ events.
 
 \begin{definition}[Language]
 \label{def:finite-language}
-A \textbf{language} over $\Sigma$ is any set of finite words:
+A \textbf{language} over $A$ is any set of finite words:
 \[
-  L \subseteq \Sigma^*.
+  L \subseteq A^*.
 \]
 \end{definition}
 
 A language can be understood as a way of assigning a property to words:
 some words satisfy the property, while others do not. For example, over
-the alphabet \(\Sigma=\{a,b\}\), we can form words such as \(a\), \(b\),
+the alphabet \(A=\{a,b\}\), we can form words such as \(a\), \(b\),
 \(ab\), \(ba\), and \(abba\). The property ``ends in \(a\)'' selects
 exactly those words whose last symbol is \(a\). Thus, the corresponding
 language is the set of all and only the words satisfying that property:
 \[
-L = \{ w \in \Sigma^* \mid w \text{ ends in } a \}.
+L = \{ w \in A^* \mid w \text{ ends in } a \}.
 \]
 
 In verification, this viewpoint is useful because a word can represent a
@@ -84,7 +84,7 @@ that language.
 
 \begin{definition}[Basic operations on words]
 \label{def:word-ops}
-If $u,v\in\Sigma^*$, their \textbf{concatenation} is the word $uv$
+If $u,v\in A^*$, their \textbf{concatenation} is the word $uv$
 obtained by writing $v$ immediately after $u$.  The \textbf{length} of
 $w$ is denoted $|w|$.
 \end{definition}
@@ -97,7 +97,7 @@ This small fact is useful because many constructions need to handle the
 case where no input has been consumed yet.
 
 The same operation extends from words to languages.  If
-$L_1,L_2\subseteq\Sigma^*$, then
+$L_1,L_2\subseteq A^*$, then
 \[
   L_1L_2=\{uv:u\in L_1,\ v\in L_2\}.
 \]
@@ -112,7 +112,7 @@ word.  The empty language $\emptyset$ contains no word at all.
 
 \begin{definition}[Kleene star]
 \label{def:kleene-star}
-If $W \subseteq \Sigma^*$ is a language, then
+If $W \subseteq A^*$ is a language, then
 \[
   W^* =
   \{w_1w_2\cdots w_k : k\geq 0,\; w_i\in W\text{ for all }i\}
@@ -132,8 +132,17 @@ It is often useful to name the finite powers explicitly:
   \qquad
   W^*=\bigcup_{n\geq 0}W^n.
 \]
-The positive closure is $W^+=\bigcup_{n\geq 1}W^n$.  It contains the
-non-empty concatenations of blocks from $W$.
+For example, if $W=\{a,b\}$ and we want to describe words containing
+at least one symbol, then $W^+$ is the natural choice. Using $W^*$
+would also include the empty word $\varepsilon$, which would have to be
+treated as a special case.
+
+\begin{example}[Words from the alphabet $\{a\}$]
+\label{ex:unary-words}
+Let $A=\{a\}$.  Then $A^*=\{\varepsilon,a,aa,aaa,\ldots\}$ 
+is the set of all finite sequences of $a$'s.
+$A^+$ on the other hand is $\{a,aa,aaa,\ldots\}$, which excludes the empty word.
+\end{example}
 
 
 % ============================================================
@@ -147,7 +156,7 @@ writing the general definition, let us build one concretely.
 
 \begin{example}[Words with an even number of $a$'s]
 \label{ex:even-a-dfa}
-Over $\Sigma=\{a,b\}$, consider the language of words containing an
+Over $A=\{a,b\}$, consider the language of words containing an
 even number of occurrences of $a$.  To decide membership we only need
 to track the parity of the number of $a$'s seen so far.  This suggests
 two states,
@@ -191,13 +200,13 @@ formalize them.
 \label{def:dfa}
 A \textbf{deterministic finite automaton} (DFA) is a tuple
 \[
-  A=(Q,\Sigma,\delta,q_0,F)
+  \mathcal{A}=(Q,A,\delta,q_0,F)
 \]
 where:
 \begin{itemize}[nosep]
   \item $Q$ is a finite set of states;
-  \item $\Sigma$ is a finite alphabet;
-  \item $\delta:Q\times\Sigma\to Q$ is the transition function;
+  \item $A$ is a finite alphabet;
+  \item $\delta:Q\times A\to Q$ is the transition function;
   \item $q_0\in Q$ is the initial state;
   \item $F\subseteq Q$ is the set of accepting states.
 \end{itemize}
@@ -211,7 +220,7 @@ count as success.
 
 \begin{example}[Every $a$ is eventually followed by a $b$]
 \label{ex:a-eventually-followed-by-b}
-Over $\Sigma=\{a,b\}$, consider the language
+Over $A=\{a,b\}$, consider the language
 \[
   L=\{w : \text{every occurrence of }a\text{ is followed later by some }b\}.
 \]
@@ -250,7 +259,7 @@ finite automaton.
 \begin{definition}[Extended transition function]
 \label{def:extended-delta}
 The transition function extends from symbols to words by defining
-$\widehat{\delta}:Q\times\Sigma^*\to Q$ recursively:
+$\widehat{\delta}:Q\times A^*\to Q$ recursively:
 \[
   \widehat{\delta}(q,\varepsilon)=q,
   \qquad
@@ -263,9 +272,9 @@ last symbol $a$ from the state reached after $w$.
 
 \begin{definition}[Language of a DFA]
 \label{def:dfa-language}
-The language accepted by a DFA $A=(Q,\Sigma,\delta,q_0,F)$ is
+The language accepted by a DFA $\mathcal{A}=(Q,A,\delta,q_0,F)$ is
 \[
-  L(A)=\{w\in\Sigma^* : \widehat{\delta}(q_0,w)\in F\}.
+  L(\mathcal{A})=\{w\in A^* : \widehat{\delta}(q_0,w)\in F\}.
 \]
 \end{definition}
 
@@ -279,7 +288,7 @@ the language.
 Sometimes automata are drawn with some transitions omitted. This is often
 done to keep the picture simple, but formally a DFA must have a
 \emph{total} transition function. This means that for every state \(q\)
-and every input symbol \(a \in \Sigma\), the transition \(\delta(q,a)\)
+and every input symbol \(a \in A\), the transition \(\delta(q,a)\)
 must be defined.
 
 An omitted transition should therefore be understood as a transition that
@@ -313,18 +322,18 @@ have several possible next states for the same state and input symbol.
 \label{def:nfa}
 A \textbf{non-deterministic finite automaton} (NFA) is a tuple
 \[
-  A=(Q,\Sigma,\Delta,q_0,F)
+  \mathcal{A}=(Q,A,\Delta,q_0,F)
 \]
-where $Q$, $\Sigma$, $q_0$, and $F$ are as for a DFA, and
+where $Q$, $A$, $q_0$, and $F$ are as for a DFA, and
 \[
-  \Delta \subseteq Q\times\Sigma\times Q
+  \Delta \subseteq Q\times A\times Q
 \]
 is a transition relation.
 \end{definition}
 
 Equivalently, we can view the transition structure as a function
 \[
-  \Delta:Q\times\Sigma\to 2^Q.
+  \Delta:Q\times A\to 2^Q.
 \]
 The value $\Delta(q,a)$ is the set of all states that the automaton may
 move to after reading $a$ in state $q$.
@@ -362,14 +371,14 @@ same input.  The word is accepted as soon as one run reaches an accepting
 state after consuming the whole word.
 Equivalently,
 \[
-  w\in L(A)
+  w\in L(\mathcal{A})
   \quad\Longleftrightarrow\quad
   \widehat{\Delta}(q_0,w)\cap F\neq\emptyset.
 \]
 
 \begin{example}[Guessing the last symbol]
 \label{ex:nfa-last-a}
-Over $\Sigma=\{a,b\}$, the language of words whose last symbol is $a$
+Over $A=\{a,b\}$, the language of words whose last symbol is $a$
 can be recognized by a small NFA that stays in a scanning state, and
 whenever it reads $a$, guesses that this might be the last symbol.
 That guess moves to an accepting state with no outgoing transitions.
@@ -413,16 +422,16 @@ does not recognize any new languages.
 
 \begin{theorem}[Subset construction]
 \label{thm:subset-construction}
-For every NFA $A$ there exists a DFA $D$ such that
+For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
 \[
-  L(D)=L(A).
+  L(\mathcal{D})=L(\mathcal{A}).
 \]
 \end{theorem}
 
 \begin{formaldetails}[Construction]
-Let $A=(Q,\Sigma,\Delta,q_0,F)$ be an NFA.  Define the DFA
+Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  Define the DFA
 \[
-  D=(2^Q,\Sigma,\delta_D,\{q_0\},F_D)
+  \mathcal{D}=(2^Q,A,\delta_D,\{q_0\},F_D)
 \]
 as follows:
 \[
@@ -483,8 +492,8 @@ that finite automata recognize.
 
 \begin{definition}[Regular language]
 \label{def:regular-language}
-A language $L \subseteq \Sigma^*$ is \textbf{regular} if there exists a
-DFA $A$ with $L(A)=L$.
+A language $L \subseteq A^*$ is \textbf{regular} if there exists a
+DFA $\mathcal{A}$ with $L(\mathcal{A})=L$.
 \end{definition}
 
 \cref{thm:subset-construction} makes this definition robust to the
@@ -495,14 +504,14 @@ automaton, DFAs when we need a single run on each input, for example to
 complement the language by swapping accepting and non-accepting states.
 
 The class of regular languages is a \emph{strict} subset of all
-languages over $\Sigma$.  This boundary is exactly what the theory is
+languages over $A$.  This boundary is exactly what the theory is
 about: regular languages are the properties that a finite agent can
 check by reading the input once, using only a bounded amount of memory.
 The next example shows a natural language that slips through this net.
 
 \begin{example}[A non-regular language: $a^n b^n$]
 \label{ex:anbn-non-regular}
-Over $\Sigma=\{a,b\}$, consider
+Over $A=\{a,b\}$, consider
 \[
   L_{=}=\{a^n b^n : n\geq 0\},
 \]
