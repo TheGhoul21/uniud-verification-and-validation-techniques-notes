@@ -21,6 +21,10 @@ words, define deterministic and non-deterministic finite automata, and
 prove the central fact that non-determinism does not add expressive
 power for finite words.
 
+\aside{Finite automata are only one presentation of regular behaviour.
+Later we will see regular expressions as an equivalent syntax for
+describing the same class of languages.}
+
 \aside{Why start with finite words? Real-world systems like operating systems or network protocols often run continuously, effectively generating \emph{infinite} words. We build the foundations on finite sequences first, but will later extend this theory to infinite words to model systems that do not terminate.}
 
 % ============================================================
@@ -233,6 +237,10 @@ transition function $\delta$ tells us how the configuration evolves
 while reading a word.  The accepting set $F$ tells us which final states
 count as success.
 
+\aside{Using a single initial state is mostly a convenience.  Variants
+with several initial states can be converted into this form without
+changing the recognized language.}
+
 \begin{example}[Every $a$ is eventually followed by a $b$]
 \label{ex:a-eventually-followed-by-b}
 Over $A=\{a,b\}$, consider the language
@@ -301,6 +309,11 @@ the language.
 
 \subsection{Completeness and Sink States}
 \label{subsec:sink-state}
+
+\aside{Deterministic does not mean that every state has an outgoing
+transition for every symbol.  It means only that for each pair $(q,a)$
+there is at most one next state; missing transitions are a separate
+issue of completeness.}
 
 Sometimes automata are drawn with some transitions omitted. This is often
 done to keep the picture simple, but formally a DFA must have a
@@ -473,6 +486,10 @@ be active after reading the current input prefix.
 The construction is called the \textbf{power-set construction} because
 the DFA states are subsets of the NFA state set.  If the NFA has $n$
 states, the resulting DFA can have up to $2^n$ states.
+
+\aside{This theorem says that non-determinism buys convenience, not more
+expressive power.  The price is computational: removing non-determinism
+can require exponentially many states.}
 
 \begin{figure}[ht]
 \centering
