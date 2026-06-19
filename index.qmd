@@ -24,11 +24,6 @@ format:
   
     <div class="chapter-label">Course Materials</div>
     <div class="card-grid">
-      <a class="algo-card" href="chapters/01-intro.qmd">
-        <span class="card-num">Ch 1</span>
-        <span class="card-title">Introduction</span>
-        <span class="card-desc">Overview of V&V techniques</span>
-      </a>
       <a class="algo-card" href="notebooks/01-intro.qmd">
         <span class="card-num">NB 1</span>
         <span class="card-title">Interactive Intro</span>

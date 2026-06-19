@@ -1,7 +1,824 @@
 ---
-title: "Notebook 1: Introduction"
+title: "Notebook 1: Finite-State Automata"
+format:
+  html:
+    toc: true
+    toc-depth: 2
 ---
 
-# Introduction Notebook
+# Interactive Chapter 1 Notebook
 
-Interactive components for Chapter 1.
+This notebook turns the first chapter into a small laboratory. The focus is on the objects that matter early in automata theory:
+
+- alphabets
+- finite words
+- languages as sets of words
+- deterministic finite automata
+
+The page is intentionally concrete. Each section lets you manipulate the definition and immediately see what changes.
+
+```{=html}
+<style>
+.vv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.vv-card,
+.vv-panel {
+  background: #f2efe3;
+  border: 1px solid #d6d1be;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 20px rgba(41, 64, 35, 0.06);
+}
+
+.vv-card h3,
+.vv-panel h3 {
+  margin-top: 0;
+  margin-bottom: 0.55rem;
+  color: #294023;
+}
+
+.vv-card p:last-child,
+.vv-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.vv-lab {
+  background: linear-gradient(180deg, #f8f6ee 0%, #f1ecdb 100%);
+  border: 1px solid #d6d1be;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+}
+
+.vv-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.vv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vv-field label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #294023;
+}
+
+.vv-field input,
+.vv-field select {
+  border: 1px solid #b9b39d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fffdf7;
+  font-size: 0.98rem;
+}
+
+.vv-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vv-btn {
+  border: 1px solid #8c8225;
+  background: #c9ba38;
+  color: #1a1c1a;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vv-btn.alt {
+  background: #fffdf7;
+  border-color: #4a753d;
+  color: #294023;
+}
+
+.vv-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.vv-output {
+  background: #fffdf7;
+  border: 1px solid #ddd6bf;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.vv-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.vv-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: #e8ebd8;
+  color: #294023;
+}
+
+.vv-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vv-word {
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  border: 1px solid #d6d1be;
+  background: #f7f4e8;
+}
+
+.vv-word.accept {
+  background: #dff2d8;
+  border-color: #8eb07f;
+}
+
+.vv-word.reject {
+  background: #f7e7df;
+  border-color: #c99b86;
+}
+
+.vv-note {
+  font-size: 0.92rem;
+  color: #4c5247;
+}
+
+.vv-automaton {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.4fr) minmax(220px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.vv-svg-wrap {
+  background: #fffdf7;
+  border: 1px solid #ddd6bf;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.vv-state {
+  fill: #dfe8d8;
+  stroke: #294023;
+  stroke-width: 2.5;
+}
+
+.vv-state.active {
+  fill: #c9ba38;
+}
+
+.vv-state.accepting {
+  stroke-width: 5;
+}
+
+.vv-edge {
+  stroke: #4c5247;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.vv-edge.active {
+  stroke: #c46a2a;
+  stroke-width: 4;
+}
+
+.vv-edge-label {
+  font-size: 14px;
+  fill: #294023;
+  font-weight: 700;
+}
+
+.vv-word-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 14px;
+}
+
+.vv-symbol {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #c8c0a7;
+  background: #fffdf7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+}
+
+.vv-symbol.current {
+  background: #c9ba38;
+}
+
+.vv-symbol.done {
+  background: #dff2d8;
+}
+
+.vv-log {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.vv-log li {
+  margin-bottom: 0.35rem;
+}
+
+.vv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.vv-table th,
+.vv-table td {
+  border: 1px solid #d6d1be;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.vv-table th {
+  background: #ece8d8;
+}
+
+@media (max-width: 860px) {
+  .vv-automaton {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+```
+
+## Mental Model
+
+```{=html}
+<div class="vv-grid">
+  <div class="vv-card">
+    <h3>Alphabet</h3>
+    <p>A finite set of symbols. Example: <code>{a, b}</code>.</p>
+  </div>
+  <div class="vv-card">
+    <h3>Word</h3>
+    <p>A finite sequence built from the alphabet. Example: <code>abba</code>.</p>
+  </div>
+  <div class="vv-card">
+    <h3>Language</h3>
+    <p>A set of words sharing a property, such as “ends in <code>a</code>”.</p>
+  </div>
+  <div class="vv-card">
+    <h3>DFA</h3>
+    <p>A finite machine that reads a word left to right and decides whether that word belongs to a language.</p>
+  </div>
+</div>
+```
+
+## 1. Alphabet and Word Playground
+
+Use this section to build a finite alphabet and inspect the words it generates up to a bounded length.
+
+```{=html}
+<div class="vv-lab" id="alphabet-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="alphabet-input">Alphabet symbols</label>
+      <input id="alphabet-input" type="text" value="a,b" />
+    </div>
+    <div class="vv-field">
+      <label for="max-length-input">Maximum word length</label>
+      <select id="max-length-input">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="vv-output">
+    <div class="vv-meta" id="alphabet-meta"></div>
+    <div class="vv-words" id="alphabet-words"></div>
+    <p class="vv-note" id="alphabet-note"></p>
+  </div>
+</div>
+```
+
+The key definition here is $A^*$: the set of all finite words over the alphabet $A$. The playground only shows a finite prefix of $A^*$, because the full set is infinite as soon as the alphabet is non-empty.
+
+## 2. Language Explorer
+
+Now fix an alphabet and choose a property. The resulting language is the set of all words satisfying that property.
+
+```{=html}
+<div class="vv-lab" id="language-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="language-rule">Language property</label>
+      <select id="language-rule">
+        <option value="ends-a">Words ending in a</option>
+        <option value="even-a">Words with an even number of a's</option>
+        <option value="contains-bb">Words containing bb</option>
+        <option value="starts-ab">Words starting with ab</option>
+      </select>
+    </div>
+    <div class="vv-field">
+      <label for="language-max-length">Generate words up to length</label>
+      <select id="language-max-length">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected>3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="vv-output">
+    <div class="vv-meta" id="language-meta"></div>
+    <div class="vv-words" id="language-words"></div>
+    <p class="vv-note" id="language-note"></p>
+  </div>
+</div>
+```
+
+This is the main shift in viewpoint: a language is not one word, but a criterion for membership.
+
+## 3. DFA Simulator
+
+This DFA recognizes the language
+
+$$
+L = \{ w \in \{a,b\}^* \mid w \text{ contains an even number of } a \text{'s} \}.
+$$
+
+The machine has only two states because parity is the only information it needs to remember.
+
+```{=html}
+<div class="vv-lab" id="dfa-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="dfa-word">Input word over {a,b}</label>
+      <input id="dfa-word" type="text" value="abba" />
+    </div>
+  </div>
+
+  <div class="vv-button-row">
+    <button class="vv-btn" id="dfa-reset">Reset</button>
+    <button class="vv-btn alt" id="dfa-prev">Step Back</button>
+    <button class="vv-btn alt" id="dfa-next">Step Forward</button>
+    <button class="vv-btn alt" id="dfa-run">Run to End</button>
+  </div>
+
+  <div class="vv-word-track" id="dfa-track"></div>
+
+  <div class="vv-automaton">
+    <div class="vv-svg-wrap">
+      <svg viewBox="0 0 460 210" width="100%" aria-label="DFA for even number of a's">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+            <polygon points="0 0, 10 4, 0 8" fill="#4c5247"></polygon>
+          </marker>
+          <marker id="arrowhead-active" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+            <polygon points="0 0, 10 4, 0 8" fill="#c46a2a"></polygon>
+          </marker>
+        </defs>
+
+        <line x1="32" y1="105" x2="95" y2="105" class="vv-edge" marker-end="url(#arrowhead)"></line>
+
+        <path id="edge-even-odd" d="M 165 73 Q 230 24 295 73" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-odd-even" d="M 295 137 Q 230 186 165 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-even-loop" d="M 108 73 C 78 28, 78 182, 108 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-odd-loop" d="M 352 73 C 382 28, 382 182, 352 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+
+        <text x="230" y="42" class="vv-edge-label">a</text>
+        <text x="230" y="173" class="vv-edge-label">a</text>
+        <text x="72" y="104" class="vv-edge-label">b</text>
+        <text x="388" y="104" class="vv-edge-label">b</text>
+
+        <circle cx="130" cy="105" r="34" class="vv-state accepting" id="state-even-outer"></circle>
+        <circle cx="130" cy="105" r="25" class="vv-state" id="state-even"></circle>
+        <circle cx="330" cy="105" r="25" class="vv-state" id="state-odd"></circle>
+
+        <text x="130" y="111" text-anchor="middle" font-weight="700" fill="#294023">q_even</text>
+        <text x="330" y="111" text-anchor="middle" font-weight="700" fill="#294023">q_odd</text>
+      </svg>
+    </div>
+
+    <div class="vv-panel">
+      <h3>Current Configuration</h3>
+      <div class="vv-meta" id="dfa-meta"></div>
+      <p id="dfa-status"></p>
+      <h3>Transition Trace</h3>
+      <ol class="vv-log" id="dfa-log"></ol>
+      <h3>Transition Table</h3>
+      <table class="vv-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Read a</th>
+            <th>Read b</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>q_even</code></td>
+            <td><code>q_odd</code></td>
+            <td><code>q_even</code></td>
+          </tr>
+          <tr>
+            <td><code>q_odd</code></td>
+            <td><code>q_even</code></td>
+            <td><code>q_odd</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+```
+
+The deterministic point should be visible here: at every step there is exactly one next state.
+
+## Reading the Definitions Back Out of the Interaction
+
+The notebook is useful only if the interactions map back to the formal objects.
+
+::: {.vv-grid}
+::: {.vv-card}
+### $A^*$
+
+The alphabet playground shows finite prefixes of the set of all finite words over an alphabet.
+:::
+
+::: {.vv-card}
+### $L \subseteq A^*$
+
+The language explorer separates generated words into “in the language” and “not in the language”.
+:::
+
+::: {.vv-card}
+### $\delta$ and $\widehat{\delta}$
+
+The DFA simulator applies one-symbol transitions and accumulates them over a whole input word.
+:::
+
+::: {.vv-card}
+### Acceptance
+
+The final verdict depends only on the state reached after the full word is consumed.
+:::
+:::
+
+## Exercises to Try
+
+1. In the alphabet playground, compare the number of generated words for maximum lengths 2, 3, and 4.
+2. In the language explorer, check whether the empty word belongs to each sample language.
+3. In the DFA simulator, try `abba`, `aaa`, `bbbb`, and the empty word.
+4. Explain why the DFA only needs to remember parity, not the exact number of `a`'s.
+
+```{=html}
+<script>
+(function () {
+  function parseAlphabet(raw) {
+    const symbols = raw
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return [...new Set(symbols)];
+  }
+
+  function enumerateWords(alphabet, maxLength) {
+    const words = [];
+
+    function build(prefix, remaining) {
+      words.push(prefix);
+      if (remaining === 0) return;
+      for (const symbol of alphabet) {
+        build(prefix + symbol, remaining - 1);
+      }
+    }
+
+    if (alphabet.length === 0) {
+      return [""];
+    }
+
+    build("", maxLength);
+    return words.filter((word) => word.length <= maxLength);
+  }
+
+  function groupByLength(words) {
+    const counts = new Map();
+    for (const word of words) {
+      const len = word.length;
+      counts.set(len, (counts.get(len) || 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => a[0] - b[0]);
+  }
+
+  function displayWord(word) {
+    return word === "" ? "ε" : word;
+  }
+
+  function renderWordList(container, words, classifier) {
+    container.innerHTML = "";
+    for (const word of words) {
+      const span = document.createElement("span");
+      span.className = "vv-word";
+      if (classifier) {
+        span.classList.add(classifier(word) ? "accept" : "reject");
+      }
+      span.textContent = displayWord(word);
+      container.appendChild(span);
+    }
+  }
+
+  const alphabetInput = document.getElementById("alphabet-input");
+  const maxLengthInput = document.getElementById("max-length-input");
+  const alphabetMeta = document.getElementById("alphabet-meta");
+  const alphabetWords = document.getElementById("alphabet-words");
+  const alphabetNote = document.getElementById("alphabet-note");
+
+  function updateAlphabetLab() {
+    const alphabet = parseAlphabet(alphabetInput.value);
+    const maxLength = Number(maxLengthInput.value);
+    const words = enumerateWords(alphabet, maxLength);
+    const grouped = groupByLength(words);
+
+    alphabetMeta.innerHTML = "";
+    const pills = [
+      "Alphabet: {" + (alphabet.join(", ") || "∅") + "}",
+      "Generated words: " + words.length,
+      "Longest length shown: " + maxLength
+    ];
+
+    for (const text of pills) {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      alphabetMeta.appendChild(pill);
+    }
+
+    renderWordList(alphabetWords, words);
+    alphabetNote.textContent =
+      "Count by length: " +
+      grouped.map(([len, count]) => "length " + len + " → " + count).join(", ") +
+      ". The empty word ε is always present because it belongs to A* for every alphabet.";
+  }
+
+  alphabetInput.addEventListener("input", updateAlphabetLab);
+  maxLengthInput.addEventListener("change", updateAlphabetLab);
+  updateAlphabetLab();
+
+  const languageRule = document.getElementById("language-rule");
+  const languageMaxLength = document.getElementById("language-max-length");
+  const languageMeta = document.getElementById("language-meta");
+  const languageWords = document.getElementById("language-words");
+  const languageNote = document.getElementById("language-note");
+  const binaryAlphabet = ["a", "b"];
+
+  const languageDefinitions = {
+    "ends-a": {
+      label: "Words ending in a",
+      predicate: (word) => word.endsWith("a"),
+      explanation: "Acceptance depends only on the last symbol."
+    },
+    "even-a": {
+      label: "Words with an even number of a's",
+      predicate: (word) => (word.match(/a/g) || []).length % 2 === 0,
+      explanation: "This is the language used by the DFA simulator below."
+    },
+    "contains-bb": {
+      label: "Words containing bb",
+      predicate: (word) => word.includes("bb"),
+      explanation: "Membership means that the factor bb appears somewhere in the word."
+    },
+    "starts-ab": {
+      label: "Words starting with ab",
+      predicate: (word) => word.startsWith("ab"),
+      explanation: "A language can be defined by constraints on prefixes as well."
+    }
+  };
+
+  function updateLanguageLab() {
+    const rule = languageDefinitions[languageRule.value];
+    const maxLength = Number(languageMaxLength.value);
+    const words = enumerateWords(binaryAlphabet, maxLength).sort((a, b) => {
+      if (a.length !== b.length) return a.length - b.length;
+      return a.localeCompare(b);
+    });
+    const accepted = words.filter(rule.predicate);
+    const rejected = words.filter((word) => !rule.predicate(word));
+
+    languageMeta.innerHTML = "";
+    [
+      "Alphabet: {a, b}",
+      "Accepted: " + accepted.length,
+      "Rejected: " + rejected.length
+    ].forEach((text) => {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      languageMeta.appendChild(pill);
+    });
+
+    renderWordList(languageWords, words, rule.predicate);
+    languageNote.textContent =
+      rule.label + ". " + rule.explanation +
+      " Green words are in the language; red words are not.";
+  }
+
+  languageRule.addEventListener("change", updateLanguageLab);
+  languageMaxLength.addEventListener("change", updateLanguageLab);
+  updateLanguageLab();
+
+  const dfaWordInput = document.getElementById("dfa-word");
+  const dfaTrack = document.getElementById("dfa-track");
+  const dfaMeta = document.getElementById("dfa-meta");
+  const dfaStatus = document.getElementById("dfa-status");
+  const dfaLog = document.getElementById("dfa-log");
+  const dfaReset = document.getElementById("dfa-reset");
+  const dfaPrev = document.getElementById("dfa-prev");
+  const dfaNext = document.getElementById("dfa-next");
+  const dfaRun = document.getElementById("dfa-run");
+
+  const stateEven = document.getElementById("state-even");
+  const stateEvenOuter = document.getElementById("state-even-outer");
+  const stateOdd = document.getElementById("state-odd");
+  const edgeEvenOdd = document.getElementById("edge-even-odd");
+  const edgeOddEven = document.getElementById("edge-odd-even");
+  const edgeEvenLoop = document.getElementById("edge-even-loop");
+  const edgeOddLoop = document.getElementById("edge-odd-loop");
+
+  const dfa = {
+    start: "q_even",
+    accept: new Set(["q_even"]),
+    step(state, symbol) {
+      if (symbol === "a") {
+        return state === "q_even" ? "q_odd" : "q_even";
+      }
+      return state;
+    }
+  };
+
+  let stepIndex = 0;
+
+  function cleanWord(raw) {
+    return raw.replace(/[^ab]/g, "");
+  }
+
+  function buildRun(word) {
+    const symbols = word.split("");
+    const states = [dfa.start];
+    for (const symbol of symbols) {
+      states.push(dfa.step(states[states.length - 1], symbol));
+    }
+    return { symbols, states };
+  }
+
+  function activeEdge(previousState, symbol, nextState) {
+    if (symbol === "a" && previousState === "q_even" && nextState === "q_odd") return edgeEvenOdd;
+    if (symbol === "a" && previousState === "q_odd" && nextState === "q_even") return edgeOddEven;
+    if (symbol === "b" && previousState === "q_even" && nextState === "q_even") return edgeEvenLoop;
+    if (symbol === "b" && previousState === "q_odd" && nextState === "q_odd") return edgeOddLoop;
+    return null;
+  }
+
+  function setEdgeActive(edge, active) {
+    edge.classList.toggle("active", active);
+    edge.setAttribute("marker-end", active ? "url(#arrowhead-active)" : "url(#arrowhead)");
+  }
+
+  function updateDfaLab() {
+    const clean = cleanWord(dfaWordInput.value);
+    if (clean !== dfaWordInput.value) {
+      dfaWordInput.value = clean;
+    }
+
+    const run = buildRun(clean);
+    if (stepIndex > run.symbols.length) {
+      stepIndex = run.symbols.length;
+    }
+
+    const currentState = run.states[stepIndex];
+    const accepted = stepIndex === run.symbols.length && dfa.accept.has(currentState);
+
+    dfaTrack.innerHTML = "";
+    if (run.symbols.length === 0) {
+      const epsilon = document.createElement("span");
+      epsilon.className = "vv-symbol current";
+      epsilon.textContent = "ε";
+      dfaTrack.appendChild(epsilon);
+    } else {
+      run.symbols.forEach((symbol, index) => {
+        const chip = document.createElement("span");
+        chip.className = "vv-symbol";
+        if (index < stepIndex) chip.classList.add("done");
+        if (index === stepIndex) chip.classList.add("current");
+        chip.textContent = symbol;
+        dfaTrack.appendChild(chip);
+      });
+    }
+
+    dfaMeta.innerHTML = "";
+    [
+      "Current state: " + currentState,
+      "Processed symbols: " + stepIndex + "/" + run.symbols.length,
+      "Accepting state: " + (dfa.accept.has(currentState) ? "yes" : "no")
+    ].forEach((text) => {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      dfaMeta.appendChild(pill);
+    });
+
+    dfaStatus.textContent =
+      stepIndex === run.symbols.length
+        ? accepted
+          ? "The full word has been consumed and the automaton is in q_even, so the word is accepted."
+          : "The full word has been consumed and the automaton is in q_odd, so the word is rejected."
+        : "Step forward to consume the next symbol and apply the transition function.";
+
+    dfaLog.innerHTML = "";
+    for (let i = 0; i < stepIndex; i += 1) {
+      const item = document.createElement("li");
+      item.textContent =
+        "Read " + run.symbols[i] + ": " + run.states[i] + " → " + run.states[i + 1];
+      dfaLog.appendChild(item);
+    }
+    if (stepIndex === 0) {
+      const item = document.createElement("li");
+      item.textContent = "Start in q_even before reading any symbol.";
+      dfaLog.appendChild(item);
+    }
+
+    stateEven.classList.toggle("active", currentState === "q_even");
+    stateEvenOuter.classList.toggle("active", currentState === "q_even");
+    stateOdd.classList.toggle("active", currentState === "q_odd");
+
+    [edgeEvenOdd, edgeOddEven, edgeEvenLoop, edgeOddLoop].forEach((edge) => {
+      setEdgeActive(edge, false);
+    });
+
+    if (stepIndex > 0) {
+      const edge = activeEdge(run.states[stepIndex - 1], run.symbols[stepIndex - 1], run.states[stepIndex]);
+      if (edge) {
+        setEdgeActive(edge, true);
+      }
+    }
+
+    dfaPrev.disabled = stepIndex === 0;
+    dfaNext.disabled = stepIndex === run.symbols.length;
+    dfaRun.disabled = stepIndex === run.symbols.length;
+  }
+
+  dfaWordInput.addEventListener("input", () => {
+    stepIndex = 0;
+    updateDfaLab();
+  });
+
+  dfaReset.addEventListener("click", () => {
+    stepIndex = 0;
+    updateDfaLab();
+  });
+
+  dfaPrev.addEventListener("click", () => {
+    stepIndex = Math.max(0, stepIndex - 1);
+    updateDfaLab();
+  });
+
+  dfaNext.addEventListener("click", () => {
+    const max = cleanWord(dfaWordInput.value).length;
+    stepIndex = Math.min(max, stepIndex + 1);
+    updateDfaLab();
+  });
+
+  dfaRun.addEventListener("click", () => {
+    stepIndex = cleanWord(dfaWordInput.value).length;
+    updateDfaLab();
+  });
+
+  updateDfaLab();
+})();
+</script>
+```
