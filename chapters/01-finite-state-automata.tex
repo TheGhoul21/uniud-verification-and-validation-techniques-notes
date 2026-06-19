@@ -82,6 +82,14 @@ set of behaviours permitted by a specification. Saying that a behaviour
 belongs to the language means that it satisfies the property described by
 that language.
 
+From the automata perspective, a language is something a machine can
+\emph{accept}.  An automaton reads an input word and decides whether that
+word belongs to the language.  The languages accepted by finite automata
+are called \textbf{regular languages}.  Later in the chapter we will see
+that deterministic and non-deterministic finite automata recognize the
+same class of languages, so ``regular'' is the right name for the whole
+finite-state setting.
+
 \begin{definition}[Basic operations on words]
 \label{def:word-ops}
 If $u,v\in A^*$, their \textbf{concatenation} is the word $uv$
@@ -409,7 +417,10 @@ all possibilities at once.
 Notice the visual difference between \cref{fig:even-a-dfa} and
 \cref{fig:nfa-last-a}.  The DFA has exactly one outgoing transition for
 each symbol at each state.  The NFA has two possible $a$-moves from
-$q_s$: keep scanning, or guess that this $a$ is final.
+$q_s$: keep scanning, or guess that this $a$ is final.  If you draw a
+second outgoing arrow labeled $a$ from the same state to another state,
+you are already outside the DFA world, because one state-symbol pair
+would have two possible targets.
 
 
 % ============================================================
