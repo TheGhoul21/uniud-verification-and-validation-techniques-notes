@@ -65,6 +65,10 @@ A \textbf{language} over $A$ is any set of finite words:
 \]
 \end{definition}
 
+\aside{In practice, the languages we care about are usually infinite.  A
+language is still just a set of finite words, but it is typically an
+infinite subset of $A^*$.}
+
 A language can be understood as a way of assigning a property to words:
 some words satisfy the property, while others do not. For example, over
 the alphabet \(A=\{a,b\}\), we can form words such as \(a\), \(b\),
@@ -96,6 +100,9 @@ If $u,v\in A^*$, their \textbf{concatenation} is the word $uv$
 obtained by writing $v$ immediately after $u$.  The \textbf{length} of
 $w$ is denoted $|w|$.
 \end{definition}
+
+\aside{Concatenation is not commutative in general: usually $uv \neq vu$.
+It is also length-additive: $|uv|=|u|+|v|$.}
 
 The empty word behaves like a neutral element:
 \[
@@ -277,6 +284,8 @@ $\widehat{\delta}:Q\times A^*\to Q$ recursively:
 
 This simply says: to read the word $wa$, first read $w$, then process the
 last symbol $a$ from the state reached after $w$.
+The sequence of states visited while reading a word is called a
+\textbf{computation} of the automaton.
 
 \begin{definition}[Language of a DFA]
 \label{def:dfa-language}
@@ -339,6 +348,10 @@ where $Q$, $A$, $q_0$, and $F$ are as for a DFA, and
 is a transition relation.
 \end{definition}
 
+\aside{A DFA is just the special case where every pair $(q,a)$ has at
+most one outgoing transition.  In an NFA, the same pair may lead to
+several possible next states.}
+
 Equivalently, we can view the transition structure as a function
 \[
   \Delta:Q\times A\to 2^Q.
@@ -377,6 +390,9 @@ $r_n\in F$.
 The key word is \emph{exists}.  An NFA may have many failing runs on the
 same input.  The word is accepted as soon as one run reaches an accepting
 state after consuming the whole word.
+\aside{Other acceptance choices are possible in principle, but the
+standard NFA semantics is existential: one successful computation is
+enough.}
 Equivalently,
 \[
   w\in L(\mathcal{A})
