@@ -17,6 +17,9 @@ format:
     <p class="desc">
       Lecture notes and interactive companions for Verification and Validation Techniques.
     </p>
+    <p class="hero-links">
+      <a href="main.pdf" target="_blank" rel="noopener noreferrer">Open PDF Notes</a>
+    </p>
   </div>
 
   <!-- Canvas — card grid -->
