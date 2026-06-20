@@ -278,11 +278,15 @@ $L$, because their last $a$ has no later $b$.
 \end{figure}
 
 The state $q_{\mathrm{wait}}$ means ``some $a$ has been seen and no
-later $b$ has appeared yet''.  The automaton does not count how many
-$a$'s are waiting.  This is exactly the finite-memory point: requiring
-one distinct later $b$ for each earlier $a$ would be a matching problem,
-like balanced parentheses, and would need unbounded memory rather than a
-finite automaton.
+later $b$ has appeared yet''.  The automaton does not count the $a$'s
+and the $b$'s.  It remembers only one bit of information: whether there
+is currently an unresolved $a$.  This is exactly the finite-memory point.
+
+\aside{The contrast with balanced parentheses is important.  There,
+each opening parenthesis must be matched by the corresponding later
+closing parenthesis, possibly after nested openings.  That requires an
+unbounded stack of pending openings, so the language is not regular; it
+belongs to the world of pushdown automata.}
 
 \begin{definition}[Extended transition function]
 \label{def:extended-delta}
