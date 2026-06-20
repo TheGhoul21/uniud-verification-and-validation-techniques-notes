@@ -1,0 +1,492 @@
+---
+title: "Notebook 2: NFA Reachable States"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# NFA Reachable States
+
+This notebook focuses on the set-valued transition function of an NFA.
+The automaton is the blackboard example from the finite-automata lecture:
+for each input prefix, the active set is the set of all states reachable
+by at least one run.
+
+```{=html}
+<style>
+.nfa-lab {
+  background: #f8f6ee;
+  border: 1px solid #d6d1be;
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+}
+
+.nfa-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.nfa-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nfa-field label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #294023;
+}
+
+.nfa-field input {
+  border: 1px solid #b9b39d;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fffdf7;
+  font-size: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.nfa-btn {
+  border: 1px solid #4a753d;
+  background: #4a753d;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 86px;
+}
+
+.nfa-btn.alt {
+  background: #fffdf7;
+  color: #294023;
+}
+
+.nfa-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.nfa-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.1fr) minmax(260px, 0.9fr);
+  gap: 16px;
+}
+
+.nfa-graph-panel,
+.nfa-side-panel {
+  background: #fffdf7;
+  border: 1px solid #ddd6bf;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.nfa-graph {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.nfa-node circle {
+  fill: #e7f0df;
+  stroke: #496b3f;
+  stroke-width: 2;
+}
+
+.nfa-node.active circle {
+  fill: #f3d25f;
+  stroke: #8c6d00;
+  stroke-width: 3;
+}
+
+.nfa-node.dead circle {
+  fill: #f2e2df;
+  stroke: #b66055;
+}
+
+.nfa-node text {
+  fill: #1a1c1a;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.nfa-edge {
+  stroke: #526052;
+  stroke-width: 2;
+  fill: none;
+  marker-end: url(#arrow);
+}
+
+.nfa-edge.active {
+  stroke: #b08300;
+  stroke-width: 3;
+}
+
+.nfa-edge-label {
+  fill: #1a1c1a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nfa-word {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.nfa-symbol {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #c9c0a8;
+  border-radius: 7px;
+  background: #f4f0df;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+
+.nfa-symbol.current {
+  background: #f3d25f;
+  border-color: #8c6d00;
+}
+
+.nfa-state-set {
+  min-height: 42px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0 14px;
+}
+
+.nfa-pill {
+  background: #e7f0df;
+  border: 1px solid #9bb38d;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+
+.nfa-empty {
+  color: #6b6254;
+  font-style: italic;
+}
+
+.nfa-trace {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.nfa-trace th,
+.nfa-trace td {
+  border-bottom: 1px solid #e0d8c2;
+  padding: 8px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.nfa-trace th {
+  color: #294023;
+}
+
+.nfa-note {
+  margin-top: 12px;
+  color: #4f554d;
+}
+
+@media (max-width: 820px) {
+  .nfa-controls,
+  .nfa-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .nfa-btn {
+    width: 100%;
+  }
+}
+</style>
+
+<div class="nfa-lab">
+  <div class="nfa-controls">
+    <div class="nfa-field">
+      <label for="nfa-word-input">Input word over {a,b}</label>
+      <input id="nfa-word-input" value="bba" spellcheck="false" inputmode="text">
+    </div>
+    <button class="nfa-btn" id="nfa-step">Step</button>
+    <button class="nfa-btn alt" id="nfa-reset">Reset</button>
+  </div>
+
+  <div class="nfa-workspace">
+    <div class="nfa-graph-panel">
+      <svg class="nfa-graph" viewBox="0 0 620 360" role="img" aria-label="NFA graph">
+        <defs>
+          <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#526052"></path>
+          </marker>
+        </defs>
+
+        <path class="nfa-edge" data-edge="q-b-q2" d="M103 163 C140 112, 178 91, 224 78"></path>
+        <path class="nfa-edge" data-edge="q-b-q4" d="M106 197 C145 230, 177 250, 224 264"></path>
+        <path class="nfa-edge" data-edge="q2-b-q1" d="M262 74 L397 74"></path>
+        <path class="nfa-edge" data-edge="q1-a-q4" d="M411 101 C371 153, 323 201, 273 244"></path>
+        <path class="nfa-edge" data-edge="q4-b-q5" d="M262 258 L397 258"></path>
+        <path class="nfa-edge" data-edge="q4-b-q" d="M218 281 C136 333, 55 276, 69 207"></path>
+        <path class="nfa-edge" data-edge="q4-a-q1" d="M268 244 C321 197, 373 145, 409 101"></path>
+        <path class="nfa-edge" data-edge="q5-a-q1" d="M429 235 L429 105"></path>
+        <path class="nfa-edge" data-edge="q5-a-q3" d="M397 277 L337 312"></path>
+
+        <text class="nfa-edge-label" x="151" y="111">b</text>
+        <text class="nfa-edge-label" x="148" y="246">b</text>
+        <text class="nfa-edge-label" x="326" y="62">b</text>
+        <text class="nfa-edge-label" x="346" y="173">a</text>
+        <text class="nfa-edge-label" x="326" y="247">b</text>
+        <text class="nfa-edge-label" x="123" y="320">b</text>
+        <text class="nfa-edge-label" x="374" y="203">a</text>
+        <text class="nfa-edge-label" x="441" y="174">a</text>
+        <text class="nfa-edge-label" x="365" y="311">a</text>
+
+        <g class="nfa-node" data-node="q" transform="translate(78 180)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q</text>
+        </g>
+        <g class="nfa-node" data-node="q2" transform="translate(235 74)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q2</text>
+        </g>
+        <g class="nfa-node" data-node="q1" transform="translate(429 74)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q1</text>
+        </g>
+        <g class="nfa-node" data-node="q4" transform="translate(235 258)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q4</text>
+        </g>
+        <g class="nfa-node" data-node="q5" transform="translate(429 258)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q5</text>
+        </g>
+        <g class="nfa-node" data-node="q3" transform="translate(312 326)">
+          <circle r="28"></circle><text text-anchor="middle" dy="5">q3</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="nfa-side-panel">
+      <div class="nfa-word" id="nfa-word-track"></div>
+      <strong>Active states</strong>
+      <div class="nfa-state-set" id="nfa-active-set"></div>
+      <table class="nfa-trace">
+        <thead>
+          <tr>
+            <th>Prefix</th>
+            <th>Reachable states</th>
+          </tr>
+        </thead>
+        <tbody id="nfa-trace-body"></tbody>
+      </table>
+      <p class="nfa-note" id="nfa-explanation"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const order = ["q", "q1", "q2", "q3", "q4", "q5"];
+  const transitions = {
+    q: { b: ["q2", "q4"] },
+    q1: { a: ["q4"] },
+    q2: { b: ["q1"] },
+    q3: {},
+    q4: { a: ["q1"], b: ["q", "q5"] },
+    q5: { a: ["q1", "q3"] }
+  };
+  const edgeIds = {
+    "q|b|q2": "q-b-q2",
+    "q|b|q4": "q-b-q4",
+    "q1|a|q4": "q1-a-q4",
+    "q2|b|q1": "q2-b-q1",
+    "q4|a|q1": "q4-a-q1",
+    "q4|b|q": "q4-b-q",
+    "q4|b|q5": "q4-b-q5",
+    "q5|a|q1": "q5-a-q1",
+    "q5|a|q3": "q5-a-q3"
+  };
+
+  const input = document.getElementById("nfa-word-input");
+  const stepButton = document.getElementById("nfa-step");
+  const resetButton = document.getElementById("nfa-reset");
+  const track = document.getElementById("nfa-word-track");
+  const activeSet = document.getElementById("nfa-active-set");
+  const traceBody = document.getElementById("nfa-trace-body");
+  const explanation = document.getElementById("nfa-explanation");
+
+  let index = 0;
+  let current = ["q"];
+  let rows = [{ prefix: "ε", states: current }];
+  let activeEdges = [];
+
+  function sanitizeWord(value) {
+    return value.toLowerCase().replace(/[^ab]/g, "");
+  }
+
+  function formatSet(states) {
+    if (states.length === 0) return "∅";
+    return "{" + states.join(", ") + "}";
+  }
+
+  function sortStates(states) {
+    return Array.from(new Set(states)).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  }
+
+  function stepStates(states, symbol) {
+    const next = [];
+    const usedEdges = [];
+    const dead = [];
+
+    states.forEach((state) => {
+      const targets = (transitions[state] && transitions[state][symbol]) || [];
+      if (targets.length === 0) {
+        dead.push(state);
+      }
+      targets.forEach((target) => {
+        next.push(target);
+        usedEdges.push(edgeIds[state + "|" + symbol + "|" + target]);
+      });
+    });
+
+    return {
+      states: sortStates(next),
+      edges: usedEdges.filter(Boolean),
+      dead
+    };
+  }
+
+  function renderWord(word) {
+    track.innerHTML = "";
+    if (word.length === 0) {
+      const empty = document.createElement("span");
+      empty.className = "nfa-symbol";
+      empty.textContent = "ε";
+      track.appendChild(empty);
+      return;
+    }
+    word.split("").forEach((symbol, position) => {
+      const item = document.createElement("span");
+      item.className = "nfa-symbol" + (position === index ? " current" : "");
+      item.textContent = symbol;
+      track.appendChild(item);
+    });
+  }
+
+  function renderActiveSet() {
+    activeSet.innerHTML = "";
+    if (current.length === 0) {
+      const empty = document.createElement("span");
+      empty.className = "nfa-empty";
+      empty.textContent = "No run is still alive.";
+      activeSet.appendChild(empty);
+      return;
+    }
+    current.forEach((state) => {
+      const pill = document.createElement("span");
+      pill.className = "nfa-pill";
+      pill.textContent = state;
+      activeSet.appendChild(pill);
+    });
+  }
+
+  function renderTrace() {
+    traceBody.innerHTML = "";
+    rows.forEach((row) => {
+      const tr = document.createElement("tr");
+      const prefix = document.createElement("td");
+      const states = document.createElement("td");
+      prefix.textContent = row.prefix;
+      states.textContent = formatSet(row.states);
+      tr.append(prefix, states);
+      traceBody.appendChild(tr);
+    });
+  }
+
+  function renderGraph(deadStates) {
+    document.querySelectorAll(".nfa-node").forEach((node) => {
+      const id = node.getAttribute("data-node");
+      node.classList.toggle("active", current.includes(id));
+      node.classList.toggle("dead", deadStates.includes(id));
+    });
+    document.querySelectorAll(".nfa-edge").forEach((edge) => {
+      edge.classList.toggle("active", activeEdges.includes(edge.getAttribute("data-edge")));
+    });
+  }
+
+  function render(deadStates = []) {
+    const word = sanitizeWord(input.value);
+    if (word !== input.value) input.value = word;
+    renderWord(word);
+    renderActiveSet();
+    renderTrace();
+    renderGraph(deadStates);
+    stepButton.disabled = index >= word.length || current.length === 0;
+    if (word.length === 0) {
+      explanation.textContent = "The empty word consumes no symbols, so the reachable set remains {q}.";
+    } else if (index >= word.length) {
+      explanation.textContent = "The word has been consumed. The final reachable set is " + formatSet(current) + ".";
+    }
+  }
+
+  function reset() {
+    index = 0;
+    current = ["q"];
+    rows = [{ prefix: "ε", states: current }];
+    activeEdges = [];
+    explanation.textContent = "Start from the singleton set {q}.";
+    render();
+  }
+
+  function step() {
+    const word = sanitizeWord(input.value);
+    if (index >= word.length || current.length === 0) return;
+    const symbol = word[index];
+    const before = current;
+    const result = stepStates(before, symbol);
+    index += 1;
+    current = result.states;
+    activeEdges = result.edges;
+    rows.push({ prefix: word.slice(0, index), states: current });
+    const deadText = result.dead.length
+      ? " Branches in " + formatSet(result.dead) + " have no outgoing " + symbol + "-transition."
+      : "";
+    explanation.textContent =
+      "Read " + symbol + " from " + formatSet(before) + " and collect all successors: " +
+      formatSet(current) + "." + deadText;
+    render(result.dead);
+  }
+
+  input.addEventListener("input", reset);
+  stepButton.addEventListener("click", step);
+  resetButton.addEventListener("click", reset);
+  reset();
+})();
+</script>
+```
+
+## What To Notice
+
+For the default word `bba`, the reachable sets are:
+\[
+  \{q\},\qquad
+  \{q_2,q_4\},\qquad
+  \{q,q_1,q_5\},\qquad
+  \{q_1,q_3,q_4\}.
+\]
+
+The important point is the third step.  When the final `a` is read, the
+branch currently in `q` disappears because there is no outgoing
+`a`-transition from `q`; the other branches continue and their successors
+are unioned together.

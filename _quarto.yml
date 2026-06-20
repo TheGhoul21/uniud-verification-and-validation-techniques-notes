@@ -16,6 +16,8 @@ website:
         menu:
           - text: "NB 1 — Intro"
             href: notebooks/01-intro.qmd
+          - text: "NB 2 — NFA Reachable States"
+            href: notebooks/02-nfa-reachable-states.qmd
 
 format:
   html:

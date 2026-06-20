@@ -444,6 +444,63 @@ $\widehat{\Delta}(\{q\},w)$.  The set
 $\widehat{\Delta}(q_0,w)$ contains exactly the states reachable by some
 run on $w$.
 
+\begin{example}[Computing reachable states]
+\label{ex:nfa-reachable-states}
+Consider the NFA over $A=\{a,b\}$ shown in
+\cref{fig:nfa-reachable-states}.  Its initial state is $q$, and we use
+it only to compute reachability, so no accepting states are marked.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.1cm,
+  state/.style={circle, draw, thick, minimum size=10mm, fill=blue!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q) {$q$};
+  \node[state, above right=0.7cm and 1.7cm of q] (q2) {$q_2$};
+  \node[state, right=2.2cm of q2] (q1) {$q_1$};
+  \node[state, below right=0.7cm and 1.7cm of q] (q4) {$q_4$};
+  \node[state, right=2.2cm of q4] (q5) {$q_5$};
+  \node[state, below left=0.7cm and 0.3cm of q5] (q3) {$q_3$};
+
+  \draw[arr] ([xshift=-0.8cm]q.west) -- (q);
+  \draw[arr] (q) to node[above left] {$b$} (q2);
+  \draw[arr] (q) to node[below left] {$b$} (q4);
+  \draw[arr] (q2) to node[above] {$b$} (q1);
+  \draw[arr] (q1) to[bend left=12] node[above] {$a$} (q4);
+  \draw[arr] (q4) to node[above] {$b$} (q5);
+  \draw[arr, bend right=34] (q4) to node[below] {$b$} (q);
+  \draw[arr] (q4) to[bend left=12] node[right] {$a$} (q1);
+  \draw[arr] (q5) to node[right] {$a$} (q1);
+  \draw[arr] (q5) to node[left] {$a$} (q3);
+\end{tikzpicture}
+\caption{A small NFA used to compute $\widehat{\Delta}(q,bba)$ step by step.}
+\label{fig:nfa-reachable-states}
+\end{figure}
+
+Let us compute $\widehat{\Delta}(q,bba)$.
+After the first $b$,
+\[
+  \widehat{\Delta}(q,b)=\{q_2,q_4\}.
+\]
+From $q_2$ another $b$ reaches $q_1$, while from $q_4$ another $b$
+reaches both $q$ and $q_5$.  Hence
+\[
+  \widehat{\Delta}(q,bb)=\{q,q_1,q_5\}.
+\]
+The final $a$ kills the branch currently in $q$, because $q$ has no
+outgoing $a$-transition.  The branch in $q_1$ reaches $q_4$, and the
+branch in $q_5$ reaches both $q_1$ and $q_3$.  Therefore
+\[
+  \widehat{\Delta}(q,bba)=\{q_1,q_3,q_4\}.
+\]
+
+\aside{This is the set-based view of non-determinism: we do not choose
+one branch and forget the others.  At each prefix, we collect all states
+that are reachable by at least one run.}
+
 \begin{definition}[Run and acceptance for an NFA]
 \label{def:nfa-run}
 Let $w=a_0a_1\cdots a_{n-1}$.  A \textbf{run} of an NFA on $w$ is a

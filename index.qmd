@@ -32,6 +32,11 @@ format:
         <span class="card-title">Interactive Intro</span>
         <span class="card-desc">Interactive notebook for Chapter 1</span>
       </a>
+      <a class="algo-card" href="notebooks/02-nfa-reachable-states.qmd">
+        <span class="card-num">NB 2</span>
+        <span class="card-title">NFA Reachable States</span>
+        <span class="card-desc">Step through the blackboard NFA example</span>
+      </a>
     </div>
 
   </div>
