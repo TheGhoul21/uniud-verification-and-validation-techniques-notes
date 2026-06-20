@@ -243,13 +243,18 @@ changing the recognized language.}
 
 \begin{example}[Every $a$ is eventually followed by a $b$]
 \label{ex:a-eventually-followed-by-b}
-Over $A=\{a,b\}$, consider the language
+Over $A=\{a,b\}$, consider the language of all and only those words such
+that each occurrence of $a$ is followed later by an occurrence of $b$:
 \[
-  L=\{w : \text{every occurrence of }a\text{ is followed later by some }b\}.
+  L=\{w\in\{a,b\}^* :
+      \text{for every position }i,\;
+      w_i=a \Rightarrow \exists j>i \text{ with } w_j=b\}.
 \]
-This does not require matching each $a$ with a distinct $b$.  The word
-$aaab$ belongs to $L$, because the final $b$ witnesses all three pending
-$a$'s at once.
+The word $\varepsilon$ belongs to $L$, and so does every word made only
+of $b$'s, because there is no occurrence of $a$ to check.  The word
+$aaab$ also belongs to $L$: the final $b$ witnesses all three pending
+$a$'s at once.  By contrast, $a$, $aba$, and $baa$ do not belong to
+$L$, because their last $a$ has no later $b$.
 \end{example}
 
 \begin{figure}[ht]
