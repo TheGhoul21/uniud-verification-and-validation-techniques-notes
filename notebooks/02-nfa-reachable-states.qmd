@@ -16,8 +16,8 @@ by at least one run.
 ```{=html}
 <style>
 .nfa-lab {
-  background: #f8f6ee;
-  border: 1px solid #d6d1be;
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
   border-radius: 10px;
   padding: 18px;
   margin: 1.2rem 0 2rem;
@@ -40,22 +40,22 @@ by at least one run.
 .nfa-field label {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #294023;
+  color: #303036;
 }
 
 .nfa-field input {
-  border: 1px solid #b9b39d;
+  border: 1px solid #8ddaf5;
   border-radius: 8px;
   padding: 10px 12px;
-  background: #fffdf7;
+  background: #fffaff;
   font-size: 1rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .nfa-btn {
-  border: 1px solid #4a753d;
-  background: #4a753d;
-  color: #fff;
+  border: 1px solid #30bced;
+  background: #30bced;
+  color: #050401;
   border-radius: 8px;
   padding: 10px 12px;
   font-weight: 700;
@@ -64,8 +64,8 @@ by at least one run.
 }
 
 .nfa-btn.alt {
-  background: #fffdf7;
-  color: #294023;
+  background: #fffaff;
+  color: #303036;
 }
 
 .nfa-btn:disabled {
@@ -81,8 +81,8 @@ by at least one run.
 
 .nfa-graph-panel,
 .nfa-side-panel {
-  background: #fffdf7;
-  border: 1px solid #ddd6bf;
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
   border-radius: 10px;
   padding: 14px;
 }
@@ -94,42 +94,42 @@ by at least one run.
 }
 
 .nfa-node circle {
-  fill: #e7f0df;
-  stroke: #496b3f;
+  fill: #daf3fc;
+  stroke: #30bced;
   stroke-width: 2;
 }
 
 .nfa-node.active circle {
-  fill: #f3d25f;
-  stroke: #8c6d00;
+  fill: #30bced;
+  stroke: #1f8fb7;
   stroke-width: 3;
 }
 
 .nfa-node.dead circle {
-  fill: #f2e2df;
-  stroke: #b66055;
+  fill: #fee8e3;
+  stroke: #fc5130;
 }
 
 .nfa-node text {
-  fill: #1a1c1a;
+  fill: #050401;
   font-weight: 700;
   font-size: 15px;
 }
 
 .nfa-edge {
-  stroke: #526052;
+  stroke: #303036;
   stroke-width: 2;
   fill: none;
   marker-end: url(#arrow);
 }
 
 .nfa-edge.active {
-  stroke: #b08300;
+  stroke: #fc5130;
   stroke-width: 3;
 }
 
 .nfa-edge-label {
-  fill: #1a1c1a;
+  fill: #050401;
   font-size: 14px;
   font-weight: 700;
 }
@@ -147,16 +147,16 @@ by at least one run.
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #c9c0a8;
+  border: 1px solid #8ddaf5;
   border-radius: 7px;
-  background: #f4f0df;
+  background: #fffaff;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-weight: 700;
 }
 
 .nfa-symbol.current {
-  background: #f3d25f;
-  border-color: #8c6d00;
+  background: #30bced;
+  border-color: #1f8fb7;
 }
 
 .nfa-state-set {
@@ -169,8 +169,8 @@ by at least one run.
 }
 
 .nfa-pill {
-  background: #e7f0df;
-  border: 1px solid #9bb38d;
+  background: #daf3fc;
+  border: 1px solid #30bced;
   border-radius: 999px;
   padding: 5px 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -178,7 +178,7 @@ by at least one run.
 }
 
 .nfa-empty {
-  color: #6b6254;
+  color: #303036;
   font-style: italic;
 }
 
@@ -190,19 +190,19 @@ by at least one run.
 
 .nfa-trace th,
 .nfa-trace td {
-  border-bottom: 1px solid #e0d8c2;
+  border-bottom: 1px solid #d7d7dc;
   padding: 8px 6px;
   text-align: left;
   vertical-align: top;
 }
 
 .nfa-trace th {
-  color: #294023;
+  color: #303036;
 }
 
 .nfa-note {
   margin-top: 12px;
-  color: #4f554d;
+  color: #303036;
 }
 
 @media (max-width: 820px) {
@@ -232,7 +232,7 @@ by at least one run.
       <svg class="nfa-graph" viewBox="0 0 620 360" role="img" aria-label="NFA graph">
         <defs>
           <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-            <path d="M0,0 L0,6 L8,3 z" fill="#526052"></path>
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
           </marker>
         </defs>
 

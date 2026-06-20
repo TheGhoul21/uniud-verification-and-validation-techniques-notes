@@ -28,18 +28,18 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 
 .vv-card,
 .vv-panel {
-  background: #f2efe3;
-  border: 1px solid #d6d1be;
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
   border-radius: 10px;
   padding: 16px 18px;
-  box-shadow: 0 6px 20px rgba(41, 64, 35, 0.06);
+  box-shadow: 0 6px 20px rgba(48, 48, 54, 0.08);
 }
 
 .vv-card h3,
 .vv-panel h3 {
   margin-top: 0;
   margin-bottom: 0.55rem;
-  color: #294023;
+  color: #303036;
 }
 
 .vv-card p:last-child,
@@ -48,8 +48,8 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-lab {
-  background: linear-gradient(180deg, #f8f6ee 0%, #f1ecdb 100%);
-  border: 1px solid #d6d1be;
+  background: linear-gradient(180deg, #fffaff 0%, #daf3fc 100%);
+  border: 1px solid #d7d7dc;
   border-radius: 14px;
   padding: 18px;
   margin: 1.2rem 0 2rem;
@@ -71,15 +71,15 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 .vv-field label {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #294023;
+  color: #303036;
 }
 
 .vv-field input,
 .vv-field select {
-  border: 1px solid #b9b39d;
+  border: 1px solid #8ddaf5;
   border-radius: 8px;
   padding: 10px 12px;
-  background: #fffdf7;
+  background: #fffaff;
   font-size: 0.98rem;
 }
 
@@ -91,9 +91,9 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-btn {
-  border: 1px solid #8c8225;
-  background: #c9ba38;
-  color: #1a1c1a;
+  border: 1px solid #1f8fb7;
+  background: #30bced;
+  color: #050401;
   border-radius: 8px;
   padding: 8px 12px;
   font-weight: 700;
@@ -101,9 +101,9 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-btn.alt {
-  background: #fffdf7;
-  border-color: #4a753d;
-  color: #294023;
+  background: #fffaff;
+  border-color: #30bced;
+  color: #303036;
 }
 
 .vv-btn:disabled {
@@ -112,8 +112,8 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-output {
-  background: #fffdf7;
-  border: 1px solid #ddd6bf;
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
   border-radius: 10px;
   padding: 14px;
 }
@@ -132,8 +132,8 @@ The page is intentionally concrete. Each section lets you manipulate the definit
   padding: 4px 10px;
   font-size: 0.82rem;
   font-weight: 700;
-  background: #e8ebd8;
-  color: #294023;
+  background: #daf3fc;
+  color: #303036;
 }
 
 .vv-words {
@@ -147,23 +147,23 @@ The page is intentionally concrete. Each section lets you manipulate the definit
   padding: 5px 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9rem;
-  border: 1px solid #d6d1be;
-  background: #f7f4e8;
+  border: 1px solid #d7d7dc;
+  background: #fffaff;
 }
 
 .vv-word.accept {
-  background: #dff2d8;
-  border-color: #8eb07f;
+  background: #daf3fc;
+  border-color: #30bced;
 }
 
 .vv-word.reject {
-  background: #f7e7df;
-  border-color: #c99b86;
+  background: #fee8e3;
+  border-color: #fc5130;
 }
 
 .vv-note {
   font-size: 0.92rem;
-  color: #4c5247;
+  color: #303036;
 }
 
 .vv-automaton {
@@ -174,20 +174,20 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-svg-wrap {
-  background: #fffdf7;
-  border: 1px solid #ddd6bf;
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
   border-radius: 12px;
   padding: 10px;
 }
 
 .vv-state {
-  fill: #dfe8d8;
-  stroke: #294023;
+  fill: #daf3fc;
+  stroke: #303036;
   stroke-width: 2.5;
 }
 
 .vv-state.active {
-  fill: #c9ba38;
+  fill: #30bced;
 }
 
 .vv-state.accepting {
@@ -195,19 +195,19 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 }
 
 .vv-edge {
-  stroke: #4c5247;
+  stroke: #303036;
   stroke-width: 2.5;
   fill: none;
 }
 
 .vv-edge.active {
-  stroke: #c46a2a;
+  stroke: #fc5130;
   stroke-width: 4;
 }
 
 .vv-edge-label {
   font-size: 14px;
-  fill: #294023;
+  fill: #303036;
   font-weight: 700;
 }
 
@@ -225,18 +225,18 @@ The page is intentionally concrete. Each section lets you manipulate the definit
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #c8c0a7;
-  background: #fffdf7;
+  border: 1px solid #8ddaf5;
+  background: #fffaff;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-weight: 700;
 }
 
 .vv-symbol.current {
-  background: #c9ba38;
+  background: #30bced;
 }
 
 .vv-symbol.done {
-  background: #dff2d8;
+  background: #daf3fc;
 }
 
 .vv-log {
@@ -256,13 +256,13 @@ The page is intentionally concrete. Each section lets you manipulate the definit
 
 .vv-table th,
 .vv-table td {
-  border: 1px solid #d6d1be;
+  border: 1px solid #d7d7dc;
   padding: 8px 10px;
   text-align: center;
 }
 
 .vv-table th {
-  background: #ece8d8;
+  background: #daf3fc;
 }
 
 @media (max-width: 860px) {
@@ -397,10 +397,10 @@ The machine has only two states because parity is the only information it needs 
       <svg viewBox="0 0 460 210" width="100%" aria-label="DFA for even number of a's">
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-            <polygon points="0 0, 10 4, 0 8" fill="#4c5247"></polygon>
+            <polygon points="0 0, 10 4, 0 8" fill="#303036"></polygon>
           </marker>
           <marker id="arrowhead-active" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-            <polygon points="0 0, 10 4, 0 8" fill="#c46a2a"></polygon>
+            <polygon points="0 0, 10 4, 0 8" fill="#fc5130"></polygon>
           </marker>
         </defs>
 
@@ -420,8 +420,8 @@ The machine has only two states because parity is the only information it needs 
         <circle cx="130" cy="105" r="25" class="vv-state" id="state-even"></circle>
         <circle cx="330" cy="105" r="25" class="vv-state" id="state-odd"></circle>
 
-        <text x="130" y="111" text-anchor="middle" font-weight="700" fill="#294023">q_even</text>
-        <text x="330" y="111" text-anchor="middle" font-weight="700" fill="#294023">q_odd</text>
+        <text x="130" y="111" text-anchor="middle" font-weight="700" fill="#303036">q_even</text>
+        <text x="330" y="111" text-anchor="middle" font-weight="700" fill="#303036">q_odd</text>
       </svg>
     </div>
 
