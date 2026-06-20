@@ -1,18 +1,22 @@
 /*-- scss:defaults --*/
 
-// ── Palette (Lime based) ──────────────────────────────────────────────
-$lime-darkest: #111a0f;
-$lime-dark:    #294023; // main background
-$lime-mid:     #4a753d; // accent
-$lime-link:    #639c52;
-$lime-done:    #dff2d8;
-$gold:             #c9ba38; // warm gold
-$gold-dark:        #8c8225;
-$gold-light:       #f2eab5;
-$warm-white:       #fafaf7;
-$warm-off:         #e8ebd8;
-$warm-mid:         #d2d9c3;
-$text-main:        #1a1c1a;
+// ── Palette from preamble.tex: bright-sky / graphite / tomato ───────────────
+$brightsky:   #30bced;
+$graphite:    #303036;
+$ghostwhite:  #fffaff;
+$tomato:      #fc5130;
+$blackcolor:  #050401;
+
+$accent:      $brightsky;
+$accentgold:  $tomato;
+$accentdark:  $graphite;
+$accentmid:   #8ddaf5; // brightsky!55!white
+$accentlight: #daf3fc; // brightsky!18!white
+
+$codebg:      #f5f5f5;
+$codecomment: #646464;
+$codekw:      #0000c8;
+$codestr:     #a31515;
 
 // ── Typography ───────────────────────────────────────────────────────────────
 $font-family-sans-serif: 'Cabin', ui-sans-serif, system-ui, sans-serif;
@@ -21,26 +25,26 @@ $font-size-base:         1rem;
 $line-height-base:       1.65;
 
 // ── Bootstrap / Quarto overrides ─────────────────────────────────────────────
-$primary:          $lime-mid;
-$body-bg:          $warm-white;
-$body-color:       $text-main;
-$link-color:       $lime-link;
-$link-hover-color: $lime-dark;
+$primary:          $accent;
+$body-bg:          $ghostwhite;
+$body-color:       $blackcolor;
+$link-color:       $accent;
+$link-hover-color: $accentgold;
 
-$navbar-bg:        $lime-dark;
-$navbar-fg:        #fcfaf6;
-$navbar-hl:        $gold-light;
+$navbar-bg:        $accentdark;
+$navbar-fg:        $ghostwhite;
+$navbar-hl:        $accentlight;
 
 $headings-font-weight: 700;
-$headings-color:        $lime-dark;
+$headings-color:        $accentdark;
 
-$code-bg:    $warm-off;
-$code-color: #2a2a2a;
+$code-bg:    $codebg;
+$code-color: $codestr;
 
-$border-color: #d0cabb;
+$border-color: #d7d7dc;
 
-$toc-color:        $text-main;
-$toc-active-color: $lime-link;
+$toc-color:        $blackcolor;
+$toc-active-color: $accent;
 $toc-font-size:    0.85rem;
 
 /*-- scss:rules --*/
@@ -54,17 +58,17 @@ $toc-font-size:    0.85rem;
 
 body {
   font-family: 'Cabin', sans-serif;
-  background: $warm-white;
+  background: $ghostwhite;
 }
 
 #quarto-content {
-  background: $warm-white;
+  background: $ghostwhite;
 }
 
 /* ── Landing container ───────────────────────────────────────────────── */
 .landing {
   min-height: 100vh;
-  background: $warm-white;
+  background: $ghostwhite;
   font-family: 'Cabin', sans-serif;
   display: flex;
   flex-direction: column;
@@ -72,23 +76,23 @@ body {
 
 /* ── Hero section ────────────────────────────────────────────────────── */
 .landing-hero {
-  background: linear-gradient(160deg, #3d6632 0%, #294023 50%, #172613 100%);
+  background: linear-gradient(160deg, $accentdark 0%, #202025 55%, $blackcolor 100%);
   padding: 1.4rem 2.5rem 1.2rem;
-  border-bottom: 3px solid $gold;
+  border-bottom: 3px solid $accentgold;
   flex-shrink: 0;
 }
 .landing-hero .uni-label {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: $gold;
+  color: $accentmid;
   font-weight: 700;
   margin-bottom: 0.6rem;
 }
 .landing-hero h1 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #fff;
+  color: $ghostwhite;
   margin: 0 0 0.4rem 0;
   border: none;
   padding: 0;
@@ -96,7 +100,7 @@ body {
 }
 .landing-hero .desc {
   font-size: 0.88rem;
-  color: rgba(253,251,247,0.8);
+  color: rgba(218, 243, 252, 0.82);
   max-width: 560px;
   margin: 0;
   line-height: 1.55;
@@ -106,13 +110,13 @@ body {
 .landing-body {
   flex: 1;
   display: flex;
-  background: $warm-white;
+  background: $ghostwhite;
 }
 
 /* ── Canvas area — card grid ─────────────────────────────────────────── */
 .landing-canvas {
   flex: 1;
-  background: $warm-white;
+  background: $ghostwhite;
   padding: 2rem 2.5rem;
 }
 .chapter-label {
@@ -120,7 +124,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: $gold-dark;
+  color: $accent;
   margin-bottom: 1.2rem;
 }
 .card-grid {
@@ -130,11 +134,11 @@ body {
   margin-bottom: 1.5rem;
 }
 .algo-card {
-  background: #ece8d8;
+  background: #ffffff;
   border-radius: 6px;
   padding: 18px 20px;
   text-decoration: none;
-  border: 2px solid transparent;
+  border: 2px solid #e3e4e8;
   transition: all 0.18s;
   display: flex;
   flex-direction: column;
@@ -143,8 +147,8 @@ body {
   overflow: hidden;
 }
 .algo-card:hover {
-  background: #fff;
-  border-color: $gold;
+  background: $ghostwhite;
+  border-color: $accent;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   transform: translateY(-2px);
   text-decoration: none;
@@ -152,25 +156,25 @@ body {
 .algo-card .card-num {
   font-size: 11px;
   font-weight: 700;
-  color: $gold;
+  color: $accentgold;
   letter-spacing: 0.05em;
 }
 .algo-card .card-title {
   font-size: 15px;
   font-weight: 700;
-  color: $lime-dark;
+  color: $accentdark;
   line-height: 1.3;
 }
 .algo-card .card-desc {
   font-size: 12.5px;
-  color: #555;
+  color: rgba(48, 48, 54, 0.78);
   line-height: 1.5;
 }
 
 /* ── Bottom bar ──────────────────────────────────────────────────────── */
 .landing-bottom {
   height: 40px;
-  background: $gold;
+  background: $accentgold;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -180,14 +184,14 @@ body {
 .landing-bottom .bot-left {
   font-size: 11px;
   font-weight: 600;
-  color: #111;
+  color: $ghostwhite;
   display: flex;
   align-items: center;
   gap: 12px;
 }
 .landing-bottom .bot-right {
   font-size: 11px;
-  color: rgba(0,0,0,0.6);
+  color: rgba(255,250,255,0.72);
 }
 .landing-bottom .bot-pill {
   background: rgba(255,255,255,0.22);
@@ -195,16 +199,16 @@ body {
   border-radius: 3px;
   font-size: 10px;
   font-weight: 600;
-  color: #111;
+  color: $ghostwhite;
   letter-spacing: 0.02em;
 }
 
-/* ── Footer gold strip ───────────────────────────────────────────────────────── */
+/* ── Footer accent strip ─────────────────────────────────────────────────────── */
 body::after {
   content: '';
   display: block;
   height: 4px;
-  background: linear-gradient(90deg, #{$lime-dark} 0%, #{$lime-mid} 55%, #{$gold} 100%);
+  background: linear-gradient(90deg, #{$accentdark} 0%, #{$accent} 55%, #{$accentgold} 100%);
   position: fixed;
   bottom: 0;
   left: 0;

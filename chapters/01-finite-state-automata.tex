@@ -334,6 +334,55 @@ fresh non-accepting sink state $\bot$.  Every missing transition goes to
 $\bot$, and every symbol loops from $\bot$ back to $\bot$.
 \end{definition}
 
+A missing transition is therefore not a self-loop.  Replacing omitted
+arrows by self-loops can change the language.
+
+\begin{example}[Why omitted transitions are not self-loops]
+\label{ex:missing-transition-not-self-loop}
+Let $A=\{a,b\}$.  Consider the partially drawn automaton with two
+states:
+\[
+  q_0 \xrightarrow{a} q_1,
+  \qquad
+  q_1\in F.
+\]
+No other transition is drawn.  With sink completion, this automaton
+recognizes exactly the one-letter word $a$: any unexpected symbol, such
+as the first $b$ in $ba$ or the final $b$ in $ab$, sends the computation
+to $\bot$ and the word is rejected.
+
+If instead we completed the missing transitions by self-loops, the
+language would be different.  The word $ba$ would be accepted, because
+the missing $b$-transition from $q_0$ would keep the automaton in $q_0$,
+and the following $a$ would move it to $q_1$.  The word $ab$ would also
+be accepted, because the missing $b$-transition from the accepting state
+$q_1$ would keep the automaton accepting.  This is not the intended
+meaning of an omitted transition.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.8cm,
+  state/.style={circle, draw, thick, minimum size=11mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
+  sink/.style={circle, draw, thick, minimum size=11mm, fill=gray!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q0) {$q_0$};
+  \node[accepting, right=of q0] (q1) {$q_1$};
+  \node[sink, right=of q1] (bot) {$\bot$};
+
+  \draw[arr] ([xshift=-1.0cm]q0.west) -- (q0);
+  \draw[arr] (q0) -- node[above] {$a$} (q1);
+  \draw[arr] (q0) edge[bend right=22] node[below] {$b$} (bot);
+  \draw[arr] (q1) -- node[above] {$a,b$} (bot);
+  \draw[arr] (bot) edge[loop above] node {$a,b$} (bot);
+\end{tikzpicture}
+\caption{A concrete sink completion: every missing transition goes to the rejecting state $\bot$, and $\bot$ loops on every input symbol.}
+\label{fig:concrete-sink-completion}
+\end{figure}
+
 The sink state means ``we have already violated the pattern''.  Once the
 automaton enters it, no future input can make the word acceptable again.
 This completion matters later, because complementation of deterministic
