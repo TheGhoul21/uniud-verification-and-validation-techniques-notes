@@ -29,6 +29,36 @@ local step description becomes a global execution history.  The closing section
 shows how Tamarin states properties over traces and searches for proofs or
 counterexamples.
 
+\begin{chapteropening}
+\textbf{Where we are.}  Symbolic model checking compressed large Boolean state
+spaces into formulas and decision diagrams.  Security protocols need the same
+kind of compression, but their states are not fixed bit-vectors.
+
+\textbf{What this chapter adds.}  Tamarin represents protocol executions with
+terms, facts, multiset rewrite rules, and traces.  This lets us reason about
+fresh names, adversary knowledge, role instances, and long-lived secrets in a
+single symbolic framework.
+
+\textbf{Where it leads.}  The chapter closes the notes by showing how the
+verification ideas developed for automata and transition systems become a
+tool-supported workflow for real security protocols.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:tamarin-intuition} moves from state machines to protocol
+        histories.
+  \item \Cref{sec:tamarin-msr} defines terms, facts, and multiset rewriting
+        rules.
+  \item \Cref{sec:tamarin-roles-traces} connects local protocol roles to
+        global traces.
+  \item \Cref{sec:tamarin-unification} explains equational theories and
+        unification.
+  \item \Cref{sec:tamarin-properties} states secrecy, authentication, and
+        trace properties.
+  \item \Cref{sec:tamarin-summary} distils the modelling discipline.
+\end{itemize}
+\end{chapteropening}
+
 % =======================================================================
 \section{From State Machines to Protocol Histories}
 % Sources: Course 89, L27

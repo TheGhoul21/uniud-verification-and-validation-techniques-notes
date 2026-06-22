@@ -32,6 +32,35 @@ it keeps the theorem in view while explaining why the next chapter must
 enrich deterministic acceptance conditions rather than merely repeat the
 non-deterministic story.
 
+\begin{chapteropening}
+\textbf{Where we are.}  \Cref{ch:reactive-smv} introduced infinite executions
+as the behaviours of reactive systems.  Earlier, \cref{ch:omega-automata}
+gave us B\"uchi automata as operational recognisers for such behaviours.
+
+\textbf{What this chapter adds.}  S1S gives a logical language for talking
+directly about positions and sets of positions along an infinite execution.
+The B\"uchi theorem proves that this logical view and the automata view define
+the same $\omega$-regular behaviours.
+
+\textbf{Where it leads.}  The proof explains why temporal logics can be
+compiled to automata.  The deterministic B\"uchi limitation at the end also
+sets up the deterministic acceptance conditions of the next chapter.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:s1s-motivation,sec:s1s-def,sec:s1s-expressive} introduce the
+        time-flow view, the syntax of S1S, and representative specifications.
+  \item \Cref{sec:s1s-encoding} turns formulas with free variables into
+        bit-vector words.
+  \item \Cref{sec:buchi-theorem,sec:buchi-proof-fwd,sec:closure-projection,sec:buchi-proof-bwd}
+        prove both directions of the B\"uchi correspondence.
+  \item \Cref{sec:s1s-decidability,sec:s1s-extensions} extract decidability
+        and mark the boundary of decidable extensions.
+  \item \Cref{sec:dba,sec:towards-muller} explain why deterministic B\"uchi
+        automata are too weak and why richer conditions are needed.
+\end{itemize}
+\end{chapteropening}
+
 \begin{figure}[ht]
   \centering
   \resizebox{\textwidth}{!}{%

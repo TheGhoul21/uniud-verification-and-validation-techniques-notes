@@ -40,6 +40,34 @@ also translates into satisfiability checking (SAT), controller synthesis
 monitoring (detecting when the environment deviates from assumptions
 and dynamically re-planning).
 
+\begin{chapteropening}
+\textbf{Where we are.}  The previous chapters built automata, language
+operations, complementation, and games.  The key algorithmic pattern was
+already visible in reachability games: compute the states from which a player
+can force progress.
+
+\textbf{What this chapter adds.}  Planning recasts that pattern as an AI
+problem.  Actions change a finite world, uncertainty plays the role of an
+adversary, and a plan is a strategy for reaching a goal.
+
+\textbf{Where it leads.}  The same preimage and fixpoint ideas will return in
+Part~II as symbolic model checking, CTL fixed points, and tool-supported
+verification.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:action-vs-timeline-planning} compares action-based and
+        timeline-based modelling.
+  \item \Cref{sec:planning-domains} formalises fluents, states, and actions.
+  \item \Cref{sec:plans-execution-structures} explains plans as strategies.
+  \item \Cref{sec:preimage-operators,sec:planning-fixpoints} develop the
+        backward operators and algorithms.
+  \item \Cref{sec:symbolic-planning,sec:action-description-languages} show how
+        compact symbolic descriptions replace explicit graphs.
+  \item \Cref{sec:planning-towards-mc} connects planning back to model
+        checking and closes Part~I.
+\end{itemize}
+\end{chapteropening}
 
 % ============================================================
 \section{Action-Based and Timeline-Based Planning}

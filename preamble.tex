@@ -12,6 +12,17 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{microtype}
+\microtypesetup{
+  protrusion=true,
+  expansion=true,
+  tracking=true,
+  spacing=true,
+}
+\SetTracking{encoding={*}, shape=sc}{40}
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\brokenpenalty=10000
 % Palatino for main text (newpxtext must precede amsmath)
 \usepackage{newpxtext}
 % Cabin as humanist sans companion to Palatino
@@ -41,11 +52,24 @@
 \definecolor{ghostwhite}{RGB}{255,250,255}
 \definecolor{tomato}{RGB}{252,81,48}
 \definecolor{blackcolor}{RGB}{5,4,1}
+\definecolor{vvteal}{RGB}{0,137,123}
+\definecolor{vvorange}{RGB}{242,142,44}
+\definecolor{vvviolet}{RGB}{126,87,194}
+\definecolor{vvgray}{RGB}{128,134,139}
 \colorlet{accent}{brightsky}
 \colorlet{accentgold}{tomato}
 \colorlet{accentdark}{graphite}
 \colorlet{accentmid}{brightsky!55!white}
 \colorlet{accentlight}{brightsky!18!white}
+\colorlet{vvaccept}{vvteal}
+\colorlet{vvtarget}{vvteal}
+\colorlet{vvwin}{vvteal}
+\colorlet{vvcounter}{vvorange}
+\colorlet{vvenv}{vvorange}
+\colorlet{vvreject}{vvgray}
+\colorlet{vvsink}{vvgray}
+\colorlet{vvlogic}{vvviolet}
+\colorlet{vvsymbolic}{vvviolet}
 
 \lstset{
   backgroundcolor=\color{codebg},
@@ -53,10 +77,13 @@
   keywordstyle=\color{codekw}\bfseries,
   commentstyle=\color{codecomment}\itshape,
   stringstyle=\color{codestr},
-  numbers=left, numberstyle=\tiny\color{gray},
-  numbersep=6pt,
+  numbers=left, numberstyle=\scriptsize\color{gray!55},
+  numbersep=8pt,
   breaklines=true,
-  frame=single, framesep=4pt,
+  frame=single, framerule=0.35pt, rulecolor=\color{gray!25},
+  framesep=5pt,
+  xleftmargin=1.2em,
+  framexleftmargin=1.2em,
   captionpos=b,
   tabsize=4,
   showstringspaces=false,
@@ -78,6 +105,7 @@
 % --- booklet layout ---
 \usepackage{fancyhdr}
 \usepackage{titlesec}
+\usepackage{needspace}
 
 % --- hyperlinks ---
 \usepackage[colorlinks=true, linkcolor=accent,
@@ -86,6 +114,13 @@
 % --- misc ---
 \raggedbottom
 \usepackage{enumitem}
+\setlist{
+  topsep=5pt,
+  itemsep=2pt,
+  parsep=0pt,
+  partopsep=0pt,
+}
+\setlist[itemize,enumerate]{leftmargin=*}
 \usepackage{booktabs}
 \usepackage{eurosym}
 \usepackage{cleveref}
@@ -251,6 +286,32 @@
   }%
 }
 
+% ---- running examples ----
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=vvteal!5,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=vvteal,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+]{runningexampleframe}
+\newenvironment{runningexample}[1]{%
+  \begin{runningexampleframe}%
+  \noindent{\small\sffamily\bfseries\color{vvteal!80!black}%
+    \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
+    Running example\enspace---\enspace#1}%
+  \par\vspace{5pt}\small%
+}{%
+  \end{runningexampleframe}%
+}
+
 % ---- complexity shortcuts ----
 \newcommand{\Oh}[1]{\mathcal{O}\!\left(#1\right)}
 \newcommand{\Th}[1]{\Theta\!\left(#1\right)}
@@ -289,6 +350,58 @@
   cut line/.style={red, dashed, very thick},
   flow edge/.style={-Stealth, thick},
   flow label/.style={midway, font=\small, fill=white, inner sep=1pt},
+  vv state/.style={draw=graphite, circle, thick, minimum size=8mm, font=\small},
+  vv accepting/.style={vv state, fill=vvaccept!14, draw=vvaccept!80!black, line width=1.1pt},
+  vv target/.style={vv state, fill=vvtarget!14, draw=vvtarget!80!black, line width=1.1pt},
+  vv winning/.style={vv state, fill=vvwin!14, draw=vvwin!80!black, line width=1.1pt},
+  vv counterexample/.style={draw=vvcounter!85!black, fill=vvcounter!14, thick},
+  vv environment/.style={draw=vvenv!85!black, fill=vvenv!14, thick},
+  vv rejected/.style={draw=vvreject!85!black, fill=vvreject!14, thick},
+  vv sink/.style={vv state, fill=vvsink!14, draw=vvsink!80!black},
+  vv logic/.style={draw=vvlogic!85!black, fill=vvlogic!12, thick},
+  vv symbolic/.style={draw=vvsymbolic!85!black, fill=vvsymbolic!12, thick},
+  vv edge/.style={-Stealth, thick, draw=graphite},
+  vv dashed edge/.style={-Stealth, thick, dashed, draw=vvgray},
+  vv pipeline/.style={draw=graphite!55, rounded corners, align=center,
+    minimum width=2.55cm, minimum height=0.82cm, font=\scriptsize\sffamily,
+    fill=gray!6},
+  vv pipeline current/.style={vv pipeline, draw=vvteal!80!black,
+    fill=vvteal!12, line width=1.1pt, font=\scriptsize\sffamily\bfseries},
+}
+
+\newcommand{\vvPipelineNode}[5][]{%
+  \ifnum#2=#3
+    \node[vv pipeline current,#1] (#4) {#5};
+  \else
+    \node[vv pipeline,#1] (#4) {#5};
+  \fi
+}
+
+\newcommand{\constructionpipeline}[1]{%
+  \begin{figure}[ht]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[node distance=0.75cm]
+      \vvPipelineNode{#1}{1}{fsa}{finite\\automata}
+      \vvPipelineNode[right=of fsa]{#1}{2}{buchi}{B\"uchi\\automata}
+      \vvPipelineNode[right=of buchi]{#1}{3}{games}{games \&\\synthesis}
+      \vvPipelineNode[right=of games]{#1}{4}{logic}{temporal\\logic}
+      \vvPipelineNode[right=of logic]{#1}{5}{mc}{model\\checking}
+      \vvPipelineNode[right=of mc]{#1}{6}{sym}{symbolic\\methods}
+      \node[font=\scriptsize\sffamily\color{vvteal!80!black},
+            above=0.18cm of fsa] {construction path};
+      \draw[vv edge] (fsa) -- (buchi);
+      \draw[vv edge] (buchi) -- (games);
+      \draw[vv edge] (games) -- (logic);
+      \draw[vv edge] (logic) -- (mc);
+      \draw[vv edge] (mc) -- (sym);
+    \end{tikzpicture}%
+    }
+    \caption{Where this chapter sits in the construction path of the book.
+             Each step reuses the previous one as a representation or an
+             algorithmic primitive.}
+    \label{fig:construction-pipeline-#1}
+  \end{figure}
 }
 
 % ============================================================
@@ -309,6 +422,19 @@
 }
 % use "2.  Linear Programming" in the header (not all-caps default)
 \renewcommand{\chaptermark}[1]{\markboth{\thechapter.\enspace#1}{}}
+
+% --- part headings ---
+\titleformat{\part}[display]
+  {\thispagestyle{empty}\normalfont\sffamily\bfseries\centering}
+  {%
+    \vspace*{0.16\paperheight}%
+    {\small\color{accentmid}\MakeUppercase{\partname}\ \thepart}\\[10pt]%
+    {\color{accentlight}\rule{0.62\linewidth}{0.5pt}}%
+  }
+  {18pt}
+  {\Huge\color{graphite}}
+  [\vspace{10pt}{\color{accentgold}\rule{0.26\linewidth}{2.2pt}}]
+\titlespacing*{\part}{0pt}{0pt}{0.18\paperheight}
 
 % --- chapter headings ---
 % CHAPTER 2          (small accent label)
@@ -410,3 +536,39 @@
 }{%
   \end{summaryboxframe}%
 }
+
+% --- chapter opening orientation ---
+\newmdenv[
+  skipabove=4pt,
+  skipbelow=18pt,
+  backgroundcolor=graphite!4,
+  hidealllines=true,
+  innertopmargin=11pt,
+  innerbottommargin=11pt,
+  innerleftmargin=13pt,
+  innerrightmargin=13pt,
+]{chapteropeningframe}
+\newenvironment{chapteropening}{%
+  \begin{chapteropeningframe}%
+  \small%
+}{%
+  \end{chapteropeningframe}%
+}
+
+% --- page-break guards for semantic blocks ---
+\BeforeBeginEnvironment{definition}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{example}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{theorem}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{lemma}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{corollary}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{proposition}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{problem}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{exercise}{\Needspace{6\baselineskip}}
+\BeforeBeginEnvironment{remark}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{note}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{observation}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{intermezzo}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{formaldetails}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{runningexample}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{summarybox}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{chapteropening}{\Needspace{10\baselineskip}}

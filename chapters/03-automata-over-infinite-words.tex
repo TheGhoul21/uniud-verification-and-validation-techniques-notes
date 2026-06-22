@@ -20,6 +20,32 @@ Their behaviours are therefore not finite words but infinite words.  To
 model them we keep the finite-state graph, but change the acceptance
 condition.
 
+\begin{chapteropening}
+\textbf{Where we are.}  \Cref{ch:fsa,ch:regular-decision} developed the
+finite-word theory: automata recognise finite behaviours, regular
+expressions describe the same languages algebraically, and emptiness reduces
+verification questions to graph reachability.
+
+\textbf{What this chapter adds.}  We move from finite behaviours to infinite
+executions.  The graph remains finite, but acceptance must now describe what
+happens in the limit.
+
+\textbf{Where it leads.}  B\"uchi automata become the automata-theoretic
+model behind liveness, model checking, complementation, and temporal logic in
+the following chapters.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:omega-words} introduces infinite words as executions.
+  \item \Cref{sec:omega-language-ops} lifts language operations to
+        $\omega$-languages.
+  \item \Cref{sec:buchi-automata} defines B\"uchi automata and their runs.
+  \item \Cref{sec:omega-closure-expressions} gives closure constructions and
+        $\omega$-regular expressions.
+  \item \Cref{sec:buchi-emptiness} reduces non-emptiness to reachable lassos.
+\end{itemize}
+\end{chapteropening}
+
 \constructionpipeline{2}
 
 \begin{runningexample}{request/acknowledgement traces}

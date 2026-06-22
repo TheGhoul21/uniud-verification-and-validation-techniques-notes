@@ -10,6 +10,33 @@ However, compiling specifications written in $S1S$ is practically intractable du
 
 To bridge the gap between declarative convenience and algorithmic efficiency, we introduce \emph{Linear Temporal Logic (LTL)}, proposed by Amir Pnueli in 1977. LTL is a modal logic designed to specify properties over linear, infinite paths. It serves as the standard specification language in industrial model checking. In this chapter, we develop the syntax and semantics of LTL, analyze its expressive boundaries (star-free languages), prove the exponential succinctness of past-time operators, and detail the graph-theoretic tableau decision procedure for LTL satisfiability.
 
+\begin{chapteropening}
+\textbf{Where we are.}  S1S and B\"uchi automata gave a complete theory of
+$\omega$-regular specifications, and \cref{ch:deterministic-automata-star-free}
+showed how determinism and first-order restrictions shape that theory.
+
+\textbf{What this chapter adds.}  LTL keeps the infinite-trace viewpoint but
+replaces second-order quantification with temporal operators such as
+``next'', ``until'', ``eventually'', and ``always''.  The result is a language
+that engineers can write and model checkers can compile.
+
+\textbf{Where it leads.}  The tableau and automata translation here are the
+input to the LTL model checking algorithm in \cref{ch:ltl-mc-fairness}.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:ltl-motivation,sec:ltl-formal} introduce linear time and the
+        syntax/semantics of LTL.
+  \item \Cref{sec:ltl-equivalences,sec:ltl-expressivity} develop useful
+        equivalences and locate LTL's expressive boundary.
+  \item \Cref{sec:ltl-past} studies past operators and their succinctness.
+  \item \Cref{sec:ltl-tableau,sec:ltl-fulfilling} build the satisfiability
+        tableau and reduce eventualities to graph search.
+  \item \Cref{sec:ltl-automata} turns the tableau view into an automata
+        translation.
+\end{itemize}
+\end{chapteropening}
+
 \constructionpipeline{4}
 
 \begin{runningexample}{request/acknowledgement specifications}
