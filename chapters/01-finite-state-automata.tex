@@ -719,6 +719,38 @@ We will turn this pigeonhole sketch into a clean characterization ---
 the Myhill--Nerode theorem --- in \cref{ch:regular-decision}.
 \end{example}
 
+\section*{Notation Introduced in This Chapter}
+\addcontentsline{toc}{section}{Notation Introduced in This Chapter}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Notation} & \textbf{Meaning} \\
+\midrule
+$A$ & finite alphabet of input symbols \\
+$A^*$ & set of all finite words over $A$ \\
+$\varepsilon$ & empty word \\
+$L \subseteq A^*$ & language over $A$ \\
+$uv$ & concatenation of words $u$ and $v$ \\
+$|w|$ & length of the word $w$ \\
+$W^*$ & Kleene closure of the language $W$ \\
+$W^+$ & non-empty finite concatenations of words from $W$ \\
+$\mathcal{A}$ & finite automaton \\
+$Q$ & finite set of states \\
+$q_0$ & initial state \\
+$F$ & set of accepting states \\
+$\delta:Q\times A\to Q$ & DFA transition function \\
+$\widehat{\delta}:Q\times A^*\to Q$ & extended DFA transition function on words \\
+$L(\mathcal{A})$ & language accepted by the automaton $\mathcal{A}$ \\
+$\bot$ & rejecting sink state \\
+$\Delta \subseteq Q\times A\times Q$ & NFA transition relation \\
+$\Delta:Q\times A\to 2^Q$ & equivalent set-valued view of NFA transitions \\
+$\widehat{\Delta}$ & extended NFA transition map on words \\
+$2^Q$ & powerset of $Q$, used as the state space in determinization \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item A language is a set of finite words over an alphabet.

@@ -61,6 +61,16 @@ ultimately periodic traces where acknowledgements eventually disappear.
 \label{sec:omega-words}
 % ============================================================
 
+Consider the request/acknowledgement component from the running example.
+One possible execution is
+\[
+  \texttt{req}\ \texttt{ack}\ \texttt{req}\ \texttt{req}\ \texttt{ack}\cdots .
+\]
+The dots are not an omitted ending.  They are part of the model: the
+component is expected to keep receiving inputs and producing observations
+forever.  This is why we need words with positions $0,1,2,\ldots$ rather
+than words with a last symbol.
+
 \begin{definition}[$\omega$-word]
 \label{def:omega-word}
 Let $\Sigma$ be a finite alphabet.  An \textbf{$\omega$-word} over
@@ -221,6 +231,10 @@ state is visited infinitely often exactly when infinitely many
 \texttt{ack} symbols appear.
 \end{example}
 
+\Cref{fig:infinitely-many-ack} shows the whole construction.  The
+accepting state is not a final destination; it is a checkpoint that the
+run must keep returning to.
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
@@ -258,6 +272,10 @@ The B\"uchi automaton uses its states to track the parity of the non-$a$ symbols
 If the automaton reads an $a$ while in $q_2$, it transitions to a rejecting sink (omitted for clarity), because a forbidden odd-length block has been sealed by an $a$.
 \end{example}
 
+\Cref{fig:buchi-parity} makes the memory explicit: after the first $a$,
+the automaton only needs to remember whether the current block length is
+even or odd.
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
@@ -285,6 +303,15 @@ If the automaton reads an $a$ while in $q_2$, it transitions to a rejecting sink
 \section{Closure and Expressions}
 \label{sec:omega-closure-expressions}
 % ============================================================
+
+The examples above show how to design individual automata.  For
+verification, however, we also need to combine specifications.  If one
+automaton describes ``requests are acknowledged infinitely often'' and
+another describes a fairness assumption about the environment, then model
+checking will ask about their conjunction, disjunction, or about a finite
+initialisation phase followed by an infinite behaviour.  Closure
+properties tell us that these combinations stay inside the same automata
+model.
 
 \begin{theorem}[Basic closure properties]
 \label{thm:omega-basic-closure}
@@ -327,6 +354,11 @@ accepting states are the states that complete one of these obligations.
 An accepting run must therefore complete both obligations infinitely
 often.
 \end{formaldetails}
+
+\Cref{fig:buchi-intersection-phases} depicts only the control idea of the
+intersection product.  The actual product also carries the two automaton
+states; the phase records which acceptance obligation is currently being
+checked.
 
 \begin{figure}[ht]
 \centering
@@ -433,6 +465,10 @@ from $f$ back to $f$, hence a cycle reachable from $q_0$.
 often has this shape: a finite prefix
 followed by a repeated cycle.}
 
+\Cref{fig:buchi-lasso} is the finite witness hidden inside the infinite
+run: a prefix reaches an accepting cycle, and the cycle can then be
+repeated without end.
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
@@ -483,20 +519,28 @@ governed by one fixed period.
 
 Can we build a non-empty language that is not $\omega$-regular?
 
-We could simply take the singleton language $\{\beta\}$. If it were $\omega$-regular,
-by the lasso property, it would have to contain an ultimately periodic word. But
-its only word is $\beta$, which is not ultimately periodic. So $\{\beta\}$ is not $\omega$-regular.
-However, one might argue that building a finite B\"uchi automaton for a single infinite,
-aperiodic word feels trivially impossible anyway, making it a weak counterexample.
+We could simply take the singleton language $\{\beta\}$.  If it were
+$\omega$-regular, by the lasso property, it would have to contain an
+ultimately periodic word.  But its only word is $\beta$, which is not
+ultimately periodic.  So $\{\beta\}$ is not $\omega$-regular.
+
+That argument is correct, but it may feel too easy: a finite automaton for
+one fixed aperiodic word already sounds impossible.  A more robust
+counterexample should still have many words.
 
 To make the obstruction robust, consider Wolfgang Thomas's example:
 \[
   L_\beta = \{ u\beta : u\in\Sigma^* \}.
 \]
-This language is infinite---we can prepend any finite prefix to $\beta$. Is $L_\beta$ $\omega$-regular?
-If it were, it would have to contain an ultimately periodic word. But every word in $L_\beta$
-shares the suffix $\beta$, meaning it eventually behaves exactly like $\beta$ and cannot be ultimately periodic.
-Thus, $L_\beta$ is not $\omega$-regular. The absence of an ultimately periodic word is a fundamental structural barrier to $\omega$-regularity, even for rich, infinite languages.
+This language is infinite: we can prepend any finite prefix to $\beta$.
+Is $L_\beta$ $\omega$-regular?  If it were, it would have to contain an
+ultimately periodic word.  But every word in $L_\beta$ shares the suffix
+$\beta$, meaning it eventually behaves exactly like $\beta$ and cannot be
+ultimately periodic.
+
+Thus, $L_\beta$ is not $\omega$-regular.  The absence of an ultimately
+periodic word is a structural barrier to $\omega$-regularity, even for
+large infinite languages.
 \end{example}
 
 \begin{summarybox}

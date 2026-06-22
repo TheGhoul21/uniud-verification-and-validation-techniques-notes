@@ -58,21 +58,25 @@ answering a question forced by the previous one:
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
       cstep/.style={draw=graphite!65, rounded corners, align=center,
-        minimum width=2.9cm, minimum height=0.95cm, font=\small\sffamily,
-        fill=gray!6},
+        text width=2.65cm, minimum height=0.95cm, inner xsep=3pt,
+        font=\small\sffamily, fill=gray!6},
       hard/.style={cstep, vv logic},
-      arr/.style={vv edge}
+      acceptstep/.style={cstep, fill=vvaccept!14, draw=vvaccept!80!black,
+        line width=1.1pt},
+      arr/.style={vv edge},
+      arlbl/.style={midway, above=6pt, font=\tiny, align=center,
+        fill=white, inner sep=0.6pt}
     ]
     \node[cstep] (nba) at (0,0) {B\"uchi automaton\\$A$};
     \node[hard] (prof) at (3.7,0) {transition\\profiles};
     \node[hard] (ramsey) at (7.4,0) {Ramsey\\decomposition};
-    \node[cstep, vv counterexample] (sat) at (11.1,0) {saturated\\ultimately periodic\\blocks};
-    \node[cstep, vv accepting] (comp) at (14.8,0) {automaton for\\$\overline{L(A)}$};
+    \node[cstep, vv counterexample] (sat) at (11.1,0) {saturated\\rejecting\\classes};
+    \node[acceptstep] (comp) at (14.8,0) {automaton for\\$\overline{L(A)}$};
 
-    \draw[arr] (nba) -- node[above, font=\scriptsize] {summarise finite blocks} (prof);
-    \draw[arr] (prof) -- node[above, font=\scriptsize] {find stable colours} (ramsey);
-    \draw[arr] (ramsey) -- node[above, font=\scriptsize] {$uv^\omega$ witnesses} (sat);
-    \draw[arr] (sat) -- node[above, font=\scriptsize] {select rejecting classes} (comp);
+    \draw[arr] (nba) -- node[arlbl] {finite\\blocks} (prof);
+    \draw[arr] (prof) -- node[arlbl] {stable\\colours} (ramsey);
+    \draw[arr] (ramsey) -- node[arlbl] {$uv^\omega$\\blocks} (sat);
+    \draw[arr] (sat) -- node[arlbl] {build\\complement} (comp);
   \end{tikzpicture}%
   }
   \caption{The complementation proof is not a state-flipping construction.

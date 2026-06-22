@@ -76,10 +76,16 @@ body {
 
 /* ── Hero section ────────────────────────────────────────────────────── */
 .landing-hero {
-  background: linear-gradient(160deg, $accentdark 0%, #202025 55%, $blackcolor 100%);
-  padding: 1.4rem 2.5rem 1.2rem;
+  background:
+    linear-gradient(90deg, rgba(5, 4, 1, 0.86) 0%, rgba(48, 48, 54, 0.72) 48%, rgba(5, 4, 1, 0.32) 100%),
+    url("cover.jpg") center / cover no-repeat;
+  padding: 4.8rem 2.5rem 1.6rem;
   border-bottom: 3px solid $accentgold;
   flex-shrink: 0;
+  min-height: 54vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 .landing-hero .uni-label {
   font-size: 0.72rem;

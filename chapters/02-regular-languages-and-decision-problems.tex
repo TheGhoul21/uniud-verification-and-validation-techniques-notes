@@ -109,6 +109,21 @@ concatenation would force us to merge states by hand and keep track of
 spurious symbols; with it, we simply add free edges and let a later
 clean-up pass dissolve them.
 
+\begin{example}[Wiring two automata with an $\varepsilon$-move]
+\label{ex:epsilon-nfa-preview}
+Suppose we have an automaton $A_1$ recognizing $\{a\}$ (one transition
+$q_0\xrightarrow{a}q_1$ with $q_1$ accepting) and an automaton $A_2$
+recognizing $\{b\}$ ($r_0\xrightarrow{b}r_1$ with $r_1$ accepting).
+To build an automaton for the concatenation $\{ab\}$, we add a free
+edge $q_1\xrightarrow{\varepsilon}r_0$: after $A_1$ finishes, the
+machine silently jumps to $A_2$ without consuming input.  The result is
+an automaton with four states whose only accepted word is $ab$, built by
+wiring rather than redesigning.
+\end{example}
+
+The example above uses an edge labelled $\varepsilon$---a transition
+that fires without reading any symbol.  Let us make this precise.
+
 \begin{definition}[$\varepsilon$-NFA]
 \label{def:epsilon-nfa}
 An \textbf{$\varepsilon$-NFA} is an NFA whose transition function may
@@ -131,6 +146,11 @@ show next, it does not add any expressive power.
 To short-circuit every chain of free moves, we need to know, for each
 state, where it can reach by following only $\varepsilon$-edges.  This
 is the $\varepsilon$-closure.
+
+Returning to \cref{ex:epsilon-nfa-preview}, from $q_1$ we can follow
+the $\varepsilon$-edge to $r_0$, so $q_1$ can silently reach both
+itself and $r_0$.  Collecting all such silent destinations is exactly
+what the closure computes.
 
 \begin{definition}[$\varepsilon$-closure]
 \label{def:epsilon-closure}
@@ -191,6 +211,70 @@ Intersecting with $F'$ then yields exactly the same accepting verdict as
 intersecting with $F$ in $A$.
 \end{proof}
 
+\begin{example}[$\varepsilon$-removal on the concatenation automaton]
+\label{ex:epsilon-removal-worked}
+Consider the $\varepsilon$-NFA from \cref{ex:epsilon-nfa-preview} for
+$\{ab\}$: states $q_0,q_1,r_0,r_1$, transitions
+$q_0\xrightarrow{a}q_1$, $q_1\xrightarrow{\varepsilon}r_0$,
+$r_0\xrightarrow{b}r_1$, with $r_1$ accepting.
+The $\varepsilon$-closures are $\mathsf{ECl}(q_0)=\{q_0\}$,
+$\mathsf{ECl}(q_1)=\{q_1,r_0\}$, $\mathsf{ECl}(r_0)=\{r_0\}$,
+$\mathsf{ECl}(r_1)=\{r_1\}$.
+Applying the construction:
+\[
+  \Delta'(q_0,a)
+  =\mathsf{ECl}\bigl(\Delta(q_0,a)\bigr)
+  =\mathsf{ECl}(\{q_1\})
+  =\{q_1,r_0\},
+\]
+\[
+  \Delta'(q_1,b)
+  =\mathsf{ECl}\!\bigl(
+    \textstyle\bigcup_{p\in\{q_1,r_0\}}\Delta(p,b)\bigr)
+  =\mathsf{ECl}(\{r_1\})
+  =\{r_1\}.
+\]
+All other transitions are empty.  Since
+$\mathsf{ECl}(q_0)\cap F=\emptyset$, the final set stays $F'=\{r_1\}$.
+The resulting NFA accepts exactly $\{ab\}$, with no $\varepsilon$-edges.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=1.6cm,
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+  dead/.style={circle, draw, thick, minimum size=8mm, fill=gray!8},
+]
+  \node[state] (q0) {$q_0$};
+  \node[state, right=of q0] (q1) {$q_1$};
+  \node[state, right=of q1] (r0) {$r_0$};
+  \node[acc, right=of r0] (r1) {$r_1$};
+  \draw[arr] (q0) -- node[above, font=\small] {$a$} (q1);
+  \draw[arr, orange!70!black, dashed] (q1) -- node[above, font=\small] {$\varepsilon$} (r0);
+  \draw[arr] (r0) -- node[above, font=\small] {$b$} (r1);
+
+  \node[below=1.8cm of q0, xshift=0.8cm] (label) {\small After $\varepsilon$-removal:};
+
+  \node[state, below=2.6cm of q0] (q0b) {$q_0$};
+  \node[dead, right=of q0b] (q1b) {$q_1$};
+  \node[dead, right=of q1b] (r0b) {$r_0$};
+  \node[acc, right=of r0b] (r1b) {$r_1$};
+  \draw[arr] (q0b) to[bend left=18] node[above, font=\small] {$a$} (q1b);
+  \draw[arr] (q0b) to[bend right=24] node[below, font=\small] {$a$} (r0b);
+  \draw[arr] (r0b) -- node[above, font=\small] {$b$} (r1b);
+  \draw[arr] (q1b) to[bend left=18] node[above, font=\small] {$b$} (r1b);
+\end{tikzpicture}
+\caption{$\varepsilon$-removal applied to the concatenation automaton of
+\cref{ex:epsilon-nfa-preview}.  Top: the original $\varepsilon$-NFA,
+with the free edge shown dashed in orange.  Bottom: the resulting
+ordinary NFA---the $\varepsilon$-closure has been absorbed into the
+transition targets.}
+\label{fig:epsilon-removal-example}
+\end{figure}
+
 With $\varepsilon$-NFAs as a flexible intermediate model, we can equate
 the syntactic and operational views of regularity.
 
@@ -219,6 +303,7 @@ a fresh accepting sink via $\varepsilon$-moves).
   \item For $r+s$, create a fresh initial state with $\varepsilon$-moves
   to the initial states of the two automata, and $\varepsilon$-moves
   from each of their accepting states to a fresh accepting state.
+  \Cref{fig:regex-union} shows the wiring.
   \item For $rs$, connect the accepting state of the automaton for $r$
   to the initial state of the automaton for $s$ by an $\varepsilon$-move;
   the accepting state of $s$ becomes the accepting state of the combined
@@ -226,7 +311,7 @@ a fresh accepting sink via $\varepsilon$-moves).
   \item For $r^*$, add a fresh initial state that is already accepting,
   add an $\varepsilon$-move to the initial state of the automaton for
   $r$, and add an $\varepsilon$-move from the accepting state of $r$
-  back to that initial state.
+  back to that initial state.  \Cref{fig:regex-star} shows the wiring.
 \end{itemize}
 Each construction mirrors exactly the semantic operation: choose a
 branch for union, run one machine after the other for concatenation, and
@@ -293,9 +378,58 @@ again a regular expression.
 regex-to-automaton direction of \cref{thm:kleene}: the accepting state
 of $r$ and the initial state of $s$ are wired together by an
 $\varepsilon$-move, and the fresh accepting state $f_s$ inherits
-acceptance.  The other two operators (union, Kleene star) follow the
-same splicing idea.}
+acceptance.}
 \label{fig:regex-concat}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=1.6cm,
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (i) {$i$};
+  \node[state, above right=0.8cm and 1.6cm of i] (ir) {$i_r$};
+  \node[acc, right=of ir] (fr) {$f_r$};
+  \node[state, below right=0.8cm and 1.6cm of i] (is) {$i_s$};
+  \node[acc, right=of is] (fs) {$f_s$};
+  \node[acc, right=3.8cm of i] (f) {$f$};
+  \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
+  \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
+\end{tikzpicture}
+\caption{The $\varepsilon$-NFA construction for union $r+s$: a fresh
+initial state branches into the two sub-automata via $\varepsilon$-moves
+(orange), and both accepting states feed into a fresh common accepting
+state.}
+\label{fig:regex-union}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=1.6cm,
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[acc] (i) {$i$};
+  \node[state, right=of i] (ir) {$i_r$};
+  \node[acc, right=2.2cm of ir] (fr) {$f_r$};
+  \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
+\end{tikzpicture}
+\caption{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
+fresh initial state $i$ (already accepting, to cover the empty word) has
+an $\varepsilon$-move into the sub-automaton for~$r$, and the accepting
+state of $r$ loops back to $i_r$ via another $\varepsilon$-move.}
+\label{fig:regex-star}
 \end{figure}
 
 A useful consequence of \cref{thm:kleene}, combined with the closure
@@ -371,6 +505,49 @@ final and non-final states would not turn ``there exists an accepting
 branch'' into ``all branches reject''.  The standard route is therefore:
 determinize, complete, then swap final states.
 
+\begin{example}[Why swapping fails for NFAs]
+\label{ex:complement-nfa-failure}
+Consider the NFA over $\{a,b\}$ with states $q_0$ (initial) and $q_1$
+(accepting), transitions $q_0\xrightarrow{a}q_0$,
+$q_0\xrightarrow{a}q_1$, and $q_0\xrightarrow{b}q_0$.  This NFA
+accepts every word containing at least one~$a$.  If we naively swap
+final and non-final states, $q_0$ becomes accepting and $q_1$ becomes
+non-accepting.  Now the word $a$ is still accepted---via the branch
+$q_0\xrightarrow{a}q_0$, which stays in the (now accepting) state
+$q_0$.  The swapped automaton therefore accepts both $a$ and $b^*$,
+which is not the true complement $\{b\}^*$.  The error is that
+non-determinism provides an alternative accepting branch that the swap
+cannot suppress.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.2cm,
+  state/.style={circle, draw, thick, minimum size=9mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=9mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q0) {$q_0$};
+  \node[acc, right=of q0] (q1) {$q_1$};
+  \draw[arr] (q0) edge[loop above] node[above, font=\small] {$a,b$} ();
+  \draw[arr] (q0) -- node[above, font=\small] {$a$} (q1);
+
+  \node[right=1.6cm of q1, font=\Large] (arrow) {$\longrightarrow$};
+  \node[below=1mm of arrow, font=\small] {swap};
+
+  \node[acc, right=1.6cm of arrow] (q0s) {$q_0$};
+  \node[state, right=of q0s] (q1s) {$q_1$};
+  \draw[arr] (q0s) edge[loop above] node[above, font=\small] {$a,b$} ();
+  \draw[arr] (q0s) -- node[above, font=\small] {$a$} (q1s);
+\end{tikzpicture}
+\caption{Naively swapping final states in an NFA does not produce the
+complement.  Left: the original NFA accepts words with at least one~$a$.
+Right: after swapping, the self-loop on $q_0$ still accepts every word,
+including those without any~$a$.}
+\label{fig:complement-nfa-failure}
+\end{figure}
+
 \subsection{Intersection}
 \label{subsec:finite-intersection}
 
@@ -423,6 +600,54 @@ longer enough.
 \label{fig:product-grid}
 \end{figure}
 
+\begin{example}[Product of ``ends in $a$'' and ``even $a$'s'']
+\label{ex:product-worked}
+Let $A_1$ be the two-state DFA over $\{a,b\}$ that accepts words ending
+in~$a$: states $p_0$ (initial, not accepting) and $p_1$ (accepting),
+with $\delta_1(p_0,a)=p_1$, $\delta_1(p_0,b)=p_0$,
+$\delta_1(p_1,a)=p_1$, $\delta_1(p_1,b)=p_0$.  Let $A_2$ be the
+two-state DFA that accepts words with an even number of~$a$'s: states
+$r_0$ (initial, accepting) and $r_1$ (not accepting), toggling on each
+$a$ and staying put on each~$b$.
+
+The product automaton has four states
+$\{p_0,p_1\}\times\{r_0,r_1\}$.  A word is accepted when both
+components accept simultaneously: $p_1$ (last letter was $a$) and $r_0$
+(even count).  So $F=\{(p_1,r_0)\}$.
+
+The word $a$ reaches $(p_1,r_1)$---last letter is $a$ but the count is
+odd---so it is rejected.  The word $aa$ reaches $(p_1,r_0)$ and is
+accepted.  The word $aab$ reaches $(p_0,r_0)$: even count but the last
+letter is $b$, rejected.  The product enforces both conditions at once.
+\end{example}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.4cm,
+  state/.style={circle, draw, thick, minimum size=10mm, fill=blue!8, font=\footnotesize},
+  acc/.style={circle, draw, double, thick, minimum size=10mm, fill=teal!12, font=\footnotesize},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (00) {$p_0,r_0$};
+  \node[state, right=of 00] (11) {$p_1,r_1$};
+  \node[state, below=1.8cm of 00] (01) {$p_0,r_1$};
+  \node[acc, right=of 01] (10) {$p_1,r_0$};
+  \draw[arr] (00) -- node[above, font=\small] {$a$} (11);
+  \draw[arr] (00) edge[loop above] node[above, font=\small] {$b$} ();
+  \draw[arr, bend left=12] (11) to node[right, font=\small] {$a$} (10);
+  \draw[arr] (11) -- node[above, font=\small, pos=0.3] {$b$} (01);
+  \draw[arr] (01) -- node[below, font=\small] {$a$} (10);
+  \draw[arr] (01) edge[loop left] node[left, font=\small] {$b$} ();
+  \draw[arr, bend left=12] (10) to node[left, font=\small] {$a$} (11);
+  \draw[arr] (10) -- node[right, font=\small] {$b$} (00);
+\end{tikzpicture}
+\caption{The product automaton for ``ends in $a$'' $\cap$ ``even number
+of $a$'s'' from \cref{ex:product-worked}.  Only state
+$(p_1,r_0)$ is accepting (teal, double border).}
+\label{fig:product-worked}
+\end{figure}
+
 
 % ============================================================
 \section{Decision Problems}
@@ -432,7 +657,10 @@ longer enough.
 Once languages are represented by automata, many semantic questions
 become graph questions.
 
-\aside{Why care about emptiness? At first glance, asking whether an automaton accepts \emph{anything at all} seems trivial. But if we view automata as a way of compiling logical formulas, checking emptiness is exactly equivalent to solving the \textbf{satisfiability problem} in logic (a foundational connection you may recall from Professor Bopps's course). This simple graph property hides immense verification power.}
+\aside{Emptiness = satisfiability:
+if automata compile logical formulas,
+then checking whether $L(A)\neq\emptyset$
+is exactly solving SAT.}
 
 \begin{definition}[Core decision problems]
 \label{def:finite-decision-problems}
@@ -583,9 +811,43 @@ describes allowed behaviours.  Verification asks for language inclusion.
 \label{sec:myhill-nerode}
 % ============================================================
 
-Automata theory also tells us when a language has a finite-state
-representation at all.  The key idea is indistinguishability by
-continuations.
+So far we have a powerful toolkit---regular expressions to describe
+languages, closure properties to combine them, and decision procedures
+to answer questions about them.  But all of it rests on one assumption:
+the language is regular.  What if someone hands us a language defined by
+a predicate, not by an automaton?  How do we know whether a finite-state
+description is even possible?  And if it is, what is the smallest one?
+
+The Myhill--Nerode theorem answers both questions at once, by reducing
+regularity to a single combinatorial test: count how many genuinely
+different ``futures'' the language distinguishes.
+
+The central idea is best seen on an example before we formalize it.
+
+\begin{example}[Prefixes with the same future]
+\label{ex:myhill-nerode-preview}
+Consider the language $L$ of words over $\{a,b\}$ that end in~$a$.
+After reading the prefix $ba$, any continuation $z$ that keeps the word
+in $L$ must itself end in~$a$.  After reading the prefix $aa$, the
+situation is identical: exactly the same continuations work.  So from
+$L$'s point of view, $ba$ and $aa$ are indistinguishable---an automaton
+can merge them into a single state.
+
+By contrast, the prefix $b$ differs from $ba$: the empty continuation
+$z=\varepsilon$ puts $b\notin L$ but $ba\in L$.  No automaton can
+afford to confuse them.
+
+In fact, every prefix falls into one of two groups: those ending in~$a$
+(which need continuation ending in~$a$ or the empty continuation) and
+those ending in~$b$ or the empty word (which always need more input
+ending in~$a$).  Two groups means two states---exactly the minimal DFA
+for ``ends in~$a$.''
+\end{example}
+
+The example suggests a general recipe: group prefixes by their
+continuation behaviour.  If the number of groups is finite, a DFA
+exists; if it is infinite, no finite automaton suffices.  We now make
+this precise.
 
 \begin{definition}[Right congruence of a language]
 \label{def:myhill-nerode-relation}
@@ -704,14 +966,46 @@ swap final and non-final states without adding a sink state, what
 language do you get?  Compare it with the true complement of $\{a\}$.
 \end{chapex}
 
-\begin{chapex}[Product construction]
-Let $A_1$ recognize words ending in $a$, and let $A_2$ recognize words
-with an even number of $a$'s.  Describe the accepting states of the
-product automaton for $L(A_1)\cap L(A_2)$.
+\begin{chapex}[Product construction for the turnstile]
+The turnstile from \cref{ch:fsa} has two events: \texttt{coin} and
+\texttt{push}.  Let $A_1$ accept sequences in which every \texttt{push}
+is immediately preceded by a \texttt{coin}, and let $A_2$ accept
+sequences containing at least one~\texttt{push}.  Construct the product
+automaton for $L(A_1)\cap L(A_2)$ and list its accepting states.  Give
+the shortest accepted word.
 \end{chapex}
 
-\begin{chapex}[Myhill--Nerode classes]
-For the language of words over $\{a,b\}$ ending in $a$, list the
-different continuation behaviours of prefixes.  How many states should
-the minimal DFA have?
+\begin{chapex}[Myhill--Nerode classes for even-length words]
+For the language of words over $\{a,b\}$ whose length is even, list the
+$\equiv_L$-classes and build the quotient DFA.
+\end{chapex}
+
+\begin{chapex}[$\varepsilon$-removal]
+Build an $\varepsilon$-NFA for the expression $a+b^*$ using the union
+construction of \cref{fig:regex-union}.  Then apply the
+$\varepsilon$-removal algorithm of \cref{thm:epsilon-removal}: compute
+all $\varepsilon$-closures and write down the resulting ordinary NFA.
+\end{chapex}
+
+\begin{chapex}[Deciding inclusion]
+Let $A_1$ accept words over $\{a,b\}$ that start with~$a$, and let
+$A_2$ accept words containing at least one~$a$.  Is
+$L(A_1)\subseteq L(A_2)$?  Justify your answer by constructing the
+automaton for $L(A_1)\cap\overline{L(A_2)}$ and checking emptiness.
+\end{chapex}
+
+\begin{chapex}[Small model witness]
+A DFA with $4$ states over $\{a,b\}$ has the following transitions:
+$\delta(q_0,a)=q_1$, $\delta(q_0,b)=q_0$, $\delta(q_1,a)=q_2$,
+$\delta(q_1,b)=q_0$, $\delta(q_2,a)=q_3$, $\delta(q_2,b)=q_0$,
+$\delta(q_3,a)=q_3$, $\delta(q_3,b)=q_3$, with $F=\{q_3\}$.  Find the
+shortest accepted word.  Verify that its length is less than the number
+of states, as guaranteed by \cref{thm:small-model-finite}.
+\end{chapex}
+
+\begin{chapex}[Reachability fixpoint]
+For the DFA in the previous exercise, compute the fixpoint sequence
+$R_0,R_1,R_2,\ldots$ from \cref{subsec:reachability-fixpoint} and
+verify that the sequence stabilizes.  At which iteration does an
+accepting state first appear in $R_i$?
 \end{chapex}

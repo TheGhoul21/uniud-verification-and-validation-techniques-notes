@@ -11,6 +11,13 @@ checking, synthesis, and planning.
 - Prefer concrete examples before general definitions.
 - After each formal definition, add an intuitive paragraph explaining what each
   component means operationally.
+- Do not use a symbol before naming it in prose. When introducing notation, give
+  the symbol, its type, and its role before relying on it in definitions or
+  proofs. For example, introduce `F` as the set of accepting states before using
+  `$q \in F$` as an acceptance condition.
+- After a formal definition, add a short "how to read it" paragraph: identify
+  the object being defined, explain what question it answers, and state the
+  operational test it gives the reader.
 - Avoid transcript-like prose. Remove lecture logistics, filler, and repeated
   recaps unless they serve the exposition.
 - Use "we" and "let's" when walking through constructions.
@@ -48,6 +55,9 @@ To maintain high quality and pedagogical cohesion, every chapter must follow a s
   - planning: parcel delivery controlled by traffic lights.
 - When a formal definition is introduced, immediately verify it on a recurring
   example.
+- Each chapter should maintain one running example whenever possible. Reuse it
+  across definitions and constructions so the reader can track how the same
+  object changes as new machinery is introduced.
 - Show failure cases where they clarify why a new concept is needed.
 
 ## Figures
@@ -74,6 +84,11 @@ To maintain high quality and pedagogical cohesion, every chapter must follow a s
 - The book order is conceptual, not calendar order.
 - Keep `SOURCE_MAP.md` updated with course/lecture IDs and topic mapping.
 - Keep old extracted/generated files out of `main.tex` until reviewed.
+- Each chapter should include a compact notation recap near the end, before the
+  summary or exercises. List only notation introduced or heavily used in that
+  chapter, with short meanings and no duplicate glossary prose. This is meant as
+  a quick lookup table for symbols such as `$A^*$`, `$\widehat{\delta}$`, or
+  `$L(\mathcal{A})$`.
 
 ## Exercises
 
