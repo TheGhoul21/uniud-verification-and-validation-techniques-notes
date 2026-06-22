@@ -26,6 +26,14 @@ graph, fairness is handled by strongly connected component search, which is
 why the practical algorithms look so much like the emptiness test for
 B\"uchi automata from Part~I.
 
+\constructionpipeline{5}
+
+\begin{runningexample}{bad request/grant lassos}
+For model checking, the request/grant property is most useful through its
+negation.  A counterexample has a finite prefix that reaches a pending request,
+then a cycle where no grant ever appears.
+\end{runningexample}
+
 % =======================================================================
 \section{P-Validity and P-Satisfiability}
 \label{sec:ltl-mc-pipeline}
@@ -171,6 +179,37 @@ pair corresponding to $s_1$.  The checker reports the witness as the lasso
 The finite prefix gets us to the bad region; the cycle shows that we can stay
 there forever.
 \end{example}
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[
+      st/.style={vv state, minimum size=10mm},
+      bad/.style={vv accepting, minimum size=10mm},
+      arr/.style={vv edge},
+      tag/.style={font=\scriptsize\sffamily, align=center}
+    ]
+    \node[st] (s0) at (0,0) {$s_0$};
+    \node[bad] (s1) at (2.4,0) {$s_1$};
+    \node[tag] at (0,-1.1) {prefix\\no request yet};
+    \node[tag, text=vvcounter!80!black] at (2.4,-1.25)
+      {bad cycle\\$r$ true, $g$ absent};
+
+    \draw[arr] (s0) -- node[above, font=\scriptsize] {request appears} (s1);
+    \draw[arr, vvcounter!85!black] (s1) edge[loop right]
+      node[font=\scriptsize] {no grant} (s1);
+    \draw[decorate, decoration={brace, amplitude=5pt}, vvgray]
+      (-0.45,0.65) -- node[above=5pt, font=\scriptsize\sffamily]
+      {finite prefix} (1.0,0.65);
+    \draw[decorate, decoration={brace, amplitude=5pt}, vvcounter]
+      (1.65,0.85) -- node[above=5pt, font=\scriptsize\sffamily]
+      {repeated forever} (3.15,0.85);
+  \end{tikzpicture}
+  \caption{A lasso counterexample to
+           $\mathbf{G}(r \rightarrow \mathbf{F}g)$.  The prefix reaches a
+           state with a pending request; the orange accepting cycle witnesses
+           that no grant is forced afterwards.}
+  \label{fig:request-grant-lasso}
+\end{figure}
 
 \medskip\noindent
 \textbf{Why the witness is a lasso.}  The product graph is finite.  Any
@@ -397,3 +436,53 @@ the returned witness matches the scheduler assumptions encoded in the model.
         justice constraints and respects every compassion pair.
 \end{itemize}
 \end{summarybox}
+
+% =======================================================================
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Negating the property]
+Let $\varphi = \mathbf{G}(r \rightarrow \mathbf{F}g)$.
+Write an LTL formula for $\neg\varphi$ that makes the counterexample
+pattern explicit.  Then describe, in words, the shape of a trace
+accepted by an automaton for $\neg\varphi$.
+\end{chapex}
+
+\begin{chapex}[Reading a lasso]
+Consider the infinite trace $s_0\,s_1\,(s_2\,s_3)^\omega$ with labels
+$L(s_0)=\emptyset$, $L(s_1)=\{r\}$, $L(s_2)=\{r\}$, $L(s_3)=\emptyset$.
+Does this trace violate $\mathbf{G}(r \rightarrow \mathbf{F}g)$?
+Explain which part of the lasso is the finite prefix and which part
+is the repeating witness.
+\end{chapex}
+
+\begin{chapex}[Accepting SCC criterion]
+Suppose the reachable product graph contains an SCC with three nodes
+$u,v,w$, edges $u\to v$, $v\to w$, $w\to u$, and $v\to v$.  The
+accepting automaton states occur only at $v$.  Is this SCC enough to
+prove a counterexample?  How would the answer change if $v$ were not
+reachable from an initial product state?
+\end{chapex}
+
+\begin{chapex}[Justice pruning]
+An SCC consists of a single node $s$ with a self-loop labelled
+$\tau_{idle}$.  A transition $\tau_{go}$ is enabled at $s$ but no
+edge in the SCC is labelled $\tau_{go}$.  Does this SCC satisfy
+justice for $\tau_{go}$ under the fairness definitions in
+\cref{sec:ltl-mc-fairness}?
+Explain why the corresponding lasso should or should not survive.
+\end{chapex}
+
+\begin{chapex}[Compassion pruning]
+An SCC has two nodes $s$ and $t$.  Transition $\tau$ is enabled at
+$s$, disabled at $t$, and never taken inside the SCC.  Does the SCC
+satisfy justice for $\tau$?  Does it satisfy compassion for $\tau$?
+Use the definitions to justify the difference.
+\end{chapex}
+
+\begin{chapex}[Adequacy checklist]
+Build a three-row checklist for an SCC that might be returned as a
+fair LTL counterexample.  The rows should correspond to fulfillment,
+justice, and compassion.  For each row, write one concrete reason why
+the SCC could fail the check.
+\end{chapex}

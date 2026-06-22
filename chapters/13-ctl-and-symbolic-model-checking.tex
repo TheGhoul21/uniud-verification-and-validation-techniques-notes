@@ -34,6 +34,8 @@ we build the symbolic picture from Boolean formulas and transition relations.
 The last part introduces bounded model checking, OBDDs, and the fixed-point
 view that makes CTL model checking both elegant and implementable.
 
+\constructionpipeline{6}
+
 % =======================================================================
 \section{Branching Time and CTL}
 \label{sec:ctl-basics}
@@ -694,6 +696,46 @@ Consider an $n$-bit equality comparator:
 This dramatic difference gives rise to a crucial practical heuristic for choosing variable orderings in symbolic model checkers: \textbf{"Variables that are close together in the formula (strongly related) should be kept close together in the OBDD ordering."}
 \end{example}
 
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      bit/.style={draw=graphite!65, rounded corners, minimum width=1.0cm,
+        minimum height=0.65cm, align=center, font=\small\sffamily, fill=gray!6},
+      good/.style={bit, vv symbolic},
+      bad/.style={bit, vv counterexample},
+      brace/.style={decorate, decoration={brace, amplitude=5pt}},
+      arr/.style={vv edge}
+    ]
+    \node[font=\small\sffamily\bfseries] at (2.2,1.2) {interleaved order};
+    \node[good] (x1) at (0,0) {$x_1$};
+    \node[good] (y1) at (1.3,0) {$y_1$};
+    \node[good] (x2) at (2.6,0) {$x_2$};
+    \node[good] (y2) at (3.9,0) {$y_2$};
+    \draw[arr] (x1) -- (y1);
+    \draw[arr] (y1) -- (x2);
+    \draw[arr] (x2) -- (y2);
+    \draw[brace, vvlogic] (-0.45,-0.55) -- node[below=5pt, font=\scriptsize\sffamily]
+      {compare each pair immediately} (4.35,-0.55);
+
+    \node[font=\small\sffamily\bfseries] at (9.4,1.2) {separated order};
+    \node[bad] (sx1) at (7.2,0) {$x_1$};
+    \node[bad] (sx2) at (8.5,0) {$x_2$};
+    \node[bad] (sy1) at (9.8,0) {$y_1$};
+    \node[bad] (sy2) at (11.1,0) {$y_2$};
+    \draw[arr] (sx1) -- (sx2);
+    \draw[arr] (sx2) -- (sy1);
+    \draw[arr] (sy1) -- (sy2);
+    \draw[brace, vvcounter] (6.75,-0.55) -- node[below=5pt, font=\scriptsize\sffamily]
+      {remember all $x$ bits before checking $y$} (11.55,-0.55);
+  \end{tikzpicture}%
+  }
+  \caption{Variable order can dominate OBDD size.  Interleaving related bits
+           exposes sharing after each comparison; separating all $x$ bits from
+           all $y$ bits forces the diagram to remember many partial patterns.}
+  \label{fig:obdd-variable-ordering}
+\end{figure}
+
 \subsection{The restrict function}
 
 The recursive algorithms for OBDDs are built around variable restriction.
@@ -928,6 +970,52 @@ universal predecessor test would never be able to certify it.  If a state is
 in the limit, then some finite round has already established the bound on when
 $\varphi$ must appear.
 
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      st/.style={draw, circle, minimum size=9mm, font=\small, thick},
+      marked/.style={st, fill=teal!18},
+      pending/.style={st, fill=gray!10},
+      arr/.style={->, thick},
+      lab/.style={font=\small\bfseries}
+    ]
+    \node[lab] at (1.5,1.5) {$Z_1=\llbracket\varphi\rrbracket$};
+    \node[pending] (a1) at (0,0) {$a$};
+    \node[pending] (b1) at (1.5,0) {$b$};
+    \node[marked]  (c1) at (3.0,0) {$c$};
+    \draw[arr] (a1) -- (b1);
+    \draw[arr] (b1) -- (c1);
+    \draw[arr] (c1) edge[loop right] (c1);
+
+    \node[lab] at (6.0,1.5) {$Z_2=Z_1\cup Pre_A(Z_1)$};
+    \node[pending] (a2) at (4.5,0) {$a$};
+    \node[marked]  (b2) at (6.0,0) {$b$};
+    \node[marked]  (c2) at (7.5,0) {$c$};
+    \draw[arr] (a2) -- (b2);
+    \draw[arr] (b2) -- (c2);
+    \draw[arr] (c2) edge[loop right] (c2);
+
+    \node[lab] at (10.5,1.5) {$Z_3=Z_2\cup Pre_A(Z_2)$};
+    \node[marked] (a3) at (9.0,0) {$a$};
+    \node[marked] (b3) at (10.5,0) {$b$};
+    \node[marked] (c3) at (12.0,0) {$c$};
+    \draw[arr] (a3) -- (b3);
+    \draw[arr] (b3) -- (c3);
+    \draw[arr] (c3) edge[loop right] (c3);
+
+    \node[font=\small, align=center] at (6,-1.35)
+      {For $AF\,\varphi$, teal grows backward only through states whose
+       successors are already teal.};
+  \end{tikzpicture}
+  }
+  \caption{Least-fixed-point growth for $AF\,\varphi$.  The first
+           approximation marks states where $\varphi$ already holds.  Each
+           later round adds states whose every successor is already marked,
+           until no new state can be added.}
+  \label{fig:af-fixed-point-growth}
+\end{figure}
+
 The same style of argument works for $EG\,\varphi$, but with the quantifiers
 reversed.  There the loop starts from all states, keeps only those that have a
 successor still inside the candidate set, and converges to the largest region
@@ -957,3 +1045,58 @@ an abstract denotation: it is the exact form of the algorithm.
         greatest fixed points over predecessor transformers.
 \end{itemize}
 \end{summarybox}
+
+% =======================================================================
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[One-step CTL operators]
+In the microwave model of \cref{fig:microwave-ctl}, decide
+whether each formula holds at \texttt{idle}:
+$EX\,\texttt{ready}$, $AX\,\texttt{ready}$, $EF\,\texttt{done}$,
+$AF\,\texttt{done}$.
+For each answer, name the branch or successor that justifies it.
+\end{chapex}
+
+\begin{chapex}[Labelling $E[p\,U\,q]$]
+Consider a graph with edges $a\to b$, $a\to c$, $b\to d$,
+$c\to c$, and $d\to d$.  Let $q$ hold only at $d$, and let $p$ hold
+at $a$ and $b$.  Compute the set of states satisfying $E[p\,U\,q]$
+by the backward labelling algorithm.
+\end{chapex}
+
+\begin{chapex}[Why universal until is stricter]
+On the same graph, compute the set of states satisfying
+$A[p\,U\,q]$.  Explain why state $a$ should be treated differently
+for the existential and universal formulas.
+\end{chapex}
+
+\begin{chapex}[Symbolic encoding]
+Encode the four-state counter
+$00 \to 01 \to 10 \to 11 \to 00$
+with Boolean variables $b_1,b_0$.  Write formulas for $Init(V)$,
+$T(V,V')$, and the proposition $even$ that holds at states $00$ and
+$10$.
+\end{chapex}
+
+\begin{chapex}[Bounded counterexample]
+Using the counter from the previous exercise, write the bounded model
+checking formula for a bad state $11$ with bound $k=2$.  Is it
+satisfiable?  Repeat the answer for $k=3$ without rewriting the whole
+formula.
+\end{chapex}
+
+\begin{chapex}[OBDD ordering]
+For the equality function
+$(x_1 \leftrightarrow y_1) \land (x_2 \leftrightarrow y_2)$,
+compare the variable orders $x_1,y_1,x_2,y_2$ and
+$x_1,x_2,y_1,y_2$.  Which order should share more substructure, and
+why?
+\end{chapex}
+
+\begin{chapex}[Fixed-point iteration]
+For the graph $a\to b$, $b\to c$, $c\to c$, with $\varphi$ true only
+at $c$, compute the approximants for
+$AF\,\varphi = \mu Z.\ \llbracket\varphi\rrbracket \cup Pre_A(Z)$.
+List $Z_0,Z_1,Z_2,Z_3$ and identify the fixed point.
+\end{chapex}
