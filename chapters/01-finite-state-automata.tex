@@ -31,7 +31,10 @@ power for finite words.
 % ============================================================
 
 Before an automaton can read anything, we need to say what its inputs
-look like.
+look like.  For a turnstile, the relevant observations might be
+\texttt{coin} and \texttt{push}; for a tiny parity example, they might
+be just $a$ and $b$.  In both cases we first fix the symbols that may
+appear, and then we study finite sequences of those symbols.
 
 \begin{definition}[Alphabet and word]
 \label{def:alphabet-word}
@@ -151,7 +154,9 @@ It is often useful to name the finite powers explicitly:
   \qquad
   W^{n+1}=WW^n,
   \qquad
-  W^*=\bigcup_{n\geq 0}W^n.
+  W^*=\bigcup_{n\geq 0}W^n,
+  \qquad
+  W^+=\bigcup_{n\geq 1}W^n.
 \]
 For example, if $W=\{a,b\}$ and we want to describe words containing
 at least one symbol, then $W^+$ is the natural choice. Using $W^*$
@@ -321,10 +326,10 @@ the language.
 \subsection{Completeness and Sink States}
 \label{subsec:sink-state}
 
-\aside{Deterministic does not mean that every state has an outgoing
-transition for every symbol.  It means only that for each pair $(q,a)$
-there is at most one next state; missing transitions are a separate
-issue of completeness.}
+\aside{In a formal DFA, every pair $(q,a)$ has exactly one next state
+because $\delta$ is a total function.  In drawings, however, authors
+often omit some arrows.  The issue is then not determinism but how to
+complete the picture.}
 
 Sometimes automata are drawn with some transitions omitted. This is often
 done to keep the picture simple, but formally a DFA must have a
@@ -346,7 +351,11 @@ $\bot$, and every symbol loops from $\bot$ back to $\bot$.
 \end{definition}
 
 A missing transition is therefore not a self-loop.  Replacing omitted
-arrows by self-loops can change the language.
+arrows by self-loops can change the language.  To read this definition,
+ask what the automaton should do when the drawing gives no arrow for the
+next input symbol.  The operational test is simple: every missing case is
+sent to the rejecting state $\bot$, and once $\bot$ is reached, the word
+cannot be accepted.
 
 \begin{example}[Why omitted transitions are not self-loops]
 \label{ex:missing-transition-not-self-loop}
@@ -394,7 +403,9 @@ meaning of an omitted transition.
 \label{fig:concrete-sink-completion}
 \end{figure}
 
-The sink state means ``we have already violated the pattern''.  Once the
+\Cref{fig:concrete-sink-completion} shows the completed version of the
+partial automaton from \cref{ex:missing-transition-not-self-loop}.  The
+sink state means ``we have already violated the pattern''.  Once the
 automaton enters it, no future input can make the word acceptable again.
 This completion matters later, because complementation of deterministic
 automata works only when the automaton is complete.
@@ -407,6 +418,10 @@ automata works only when the automaton is complete.
 
 Non-determinism changes the transition structure.  The automaton may
 have several possible next states for the same state and input symbol.
+For example, while scanning a word, an automaton might keep reading as
+usual, or it might guess that the current symbol is the important one.
+The formal definition below records all such possible moves instead of
+choosing one immediately.
 
 \begin{definition}[Non-deterministic finite automaton]
 \label{def:nfa}
@@ -627,6 +642,10 @@ can require exponentially many states.}
 \label{fig:subset-state}
 \end{figure}
 
+\Cref{fig:subset-state} visualizes the key bookkeeping move: one
+deterministic state stands for a whole set of possible NFA states.  The
+picture is deliberately about sets, not individual branches.
+
 \begin{proof}
 We prove the invariant: after reading any word $w$, the state reached by
 the DFA is exactly the set of states reachable by some NFA run on $w$.
@@ -656,6 +675,12 @@ that finite automata recognize.
 A language $L \subseteq A^*$ is \textbf{regular} if there exists a
 DFA $\mathcal{A}$ with $L(\mathcal{A})=L$.
 \end{definition}
+
+This definition names the languages that can be checked with finite
+memory.  To read it, ask whether there is some finite automaton whose
+accept/reject behaviour matches the property exactly.  The operational
+test is: build a DFA, run it on the whole input word, and accept exactly
+when the final state lies in its accepting set.
 
 \cref{thm:subset-construction} makes this definition robust to the
 choice of model: a language is regular if and only if it is recognized
