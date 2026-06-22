@@ -1055,78 +1055,30 @@ This closes the automata-theoretic core of the book. The next chapter (\cref{ch:
 
 The exercises below check both sides of the chapter: the basic tree definitions and the automata constructions that recognize the resulting languages.
 
-\section{Exercises}
-\label{sec:tree-exercises}
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
 
-\begin{enumerate}
-    \item \textbf{Tree Domain Properties} \\
-    Verify whether the following sets of binary strings satisfy the prefix-closure and child-ordering properties to form a valid binary tree domain:
-    \begin{enumerate}
-        \item $D_1 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 11 \}$
-        \item $D_2 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 10 \}$
-    \end{enumerate}
-    \textbf{Solution Hint}:
-    \begin{itemize}
-        \item For $D_1$: The node $11 \in D_1$. By width-closure (child ordering), since $11$ exists and $0 < 1$, the node $10$ must also belong to the domain. Since $10 \notin D_1$, width-closure is violated. $D_1$ is not a valid domain.
-        \item For $D_2$: Check all prefixes: for $00, 01 \in D_2$, the parent is $0 \in D_2$. For $10 \in D_2$, the parent is $1 \in D_2$. All prefixes are present, so prefix-closure holds. Check child ordering: $01 \in D_2 \implies 00 \in D_2$ (holds since $0 < 1$). $10 \in D_2 \implies 10 \in D_2$ (holds). No other sibling nodes violate the ordering. $D_2$ is a valid domain.
-    \end{itemize}
-
-    \item \textbf{Binary Coding of 3-ary Trees} \\
-    Let $t$ be a 3-ary tree with domain $\text{dom}(t) = \{ \epsilon, \, 0, \, 1, \, 2 \}$ and labeling:
-    $$t(\epsilon) = f, \quad t(0) = a, \quad t(1) = b, \quad t(2) = a$$
-    Compute the domain and labeling of its binary coded tree $t_{bin}$ according to \cref{def:binary-coding}. \\
-    \textbf{Solution Hint}:
-    Recall the injection $f(n_1 \dots n_r) = 1^{n_1}0 \dots 1^{n_r}0$. Let us map the nodes:
-    \begin{itemize}
-        \item Root: $f(\epsilon) = \epsilon$. Thus, $t_{bin}(\epsilon) = t(\epsilon) = f$.
-        \item Child 0: $f(0) = 1^0 0 = 0$. Thus, $t_{bin}(0) = t(0) = a$.
-        \item Child 1: $f(1) = 1^1 0 = 10$. Thus, $t_{bin}(10) = t(1) = b$.
-        \item Child 2: $f(2) = 1^2 0 = 110$. Thus, $t_{bin}(110) = t(2) = a$.
-    \end{itemize}
-    The domain of $t_{bin}$ is the prefix closure of $\{ \epsilon, 0, 10, 110 \}$, which is:
-    $$\text{dom}(t_{bin}) = \{ \epsilon, \, 0, \, 1, \, 10, \, 11, \, 110 \}$$
-    The labels for the nodes are:
-    $$t_{bin}(\epsilon) = f, \quad t_{bin}(0) = a, \quad t_{bin}(10) = b, \quad t_{bin}(110) = a$$
-    For the remaining nodes (which are prefix completions not matching any original node):
-    $$t_{bin}(1) = \Omega, \quad t_{bin}(11) = \Omega$$
-
-    \item \textbf{Bottom-Up Automaton Construction} \\
-    Construct a deterministic bottom-up tree automaton (DBTA) that recognizes the language $T_{xor} = \{ f(a,b), \, f(b,a) \}$. Write down the transition table and explain how the automaton processes the tree $f(a,b)$. \\
-    \textbf{Solution Hint}:
-    We can define the DBTA states as $Q = \{q_\emptyset, q_a, q_b, q_{acc}, q_{err}\}$, with initial state $Q_0 = \{q_\emptyset\}$ (applied at the outer frontier), accepting states $F = \{q_{acc}\}$, and transitions:
-    \begin{itemize}
-        \item Leaf transitions (height 0, children in state $q_\emptyset$):
-        $$\delta'(q_\emptyset, q_\emptyset, a) = q_a, \quad \delta'(q_\emptyset, q_\emptyset, b) = q_b, \quad \delta'(q_\emptyset, q_\emptyset, f) = q_{err}$$
-        \item Node transitions:
-        $$\delta'(q_a, q_b, f) = q_{acc}, \quad \delta'(q_b, q_a, f) = q_{acc}$$
-        \item All other transitions route to $q_{err}$ (which loops to $q_{err}$).
-    \end{itemize}
-    When processing $t = f(a,b)$, the outer frontier nodes (children of $a$ and $b$) start in $q_\emptyset$. The leaf $a$ transitions to $\delta'(q_\emptyset, q_\emptyset, a) = q_a$, and the leaf $b$ transitions to $\delta'(q_\emptyset, q_\emptyset, b) = q_b$. At the root, the automaton evaluates $\delta'(q_a, q_b, f) = q_{acc}$. Since $q_{acc} \in F$, the tree is accepted.
-
-    \item \textbf{Büchi Tree Automaton Guessing} \\
-    Trace a successful run of the BTA from \cref{ex:buchi-infinitely-many-existential} on the tree $t$ where the left-most path $\pi = 0^\omega$ has infinitely many $a$'s, and all other paths contain only $b$'s. Show the state labels assigned to nodes of depth up to 2. \\
-    \textbf{Solution Hint}:
-    Since the path $0^\omega$ is the unique path with infinitely many $a$'s, the non-deterministic run $R$ must guess this path.
-    \begin{itemize}
-        \item Depth 0 (Root $\epsilon$): $R(\epsilon) = q_0$.
-        \item Depth 1: Since $0$ is the guessed path, the transition from the root must route the checked state to $0$ and the dummy state to $1$.
-        If $t(\epsilon) = a$, we use $q_0 \dots (q_a, q_T) \implies R(0) = q_a, \, R(1) = q_T$.
-        If $t(\epsilon) = b$, we use $q_0 \dots (q_0, q_T) \implies R(0) = q_0, \, R(1) = q_T$.
-        \item Depth 2:
-        - For children of $1$ (which is in state $q_T$): since $q_T \xrightarrow{\sigma} (q_T, q_T)$, we have $R(10) = q_T, \, R(11) = q_T$.
-        - For children of $0$ (which is in $q_0$ or $q_a$): we continue routing the checked path to $00$.
-        If $t(0) = a$, we route $R(00) = q_a, \, R(01) = q_T$.
-        If $t(0) = b$, we route $R(00) = q_0, \, R(01) = q_T$.
-    \end{itemize}
-    This routes the checked state sequence along the path $0^\omega$, where it will visit $q_a$ infinitely often because $0^\omega$ contains infinitely many $a$'s. All other paths branch off into state $q_T$, which is accepting.
-
-    \item \textbf{Rabin vs Büchi Tree Automata} \\
-    Let $A = (Q, \Sigma, q_0, \Delta, \Omega)$ be a Rabin tree automaton with a single Rabin pair $\Omega = \{ (L_1, U_1) \}$. Suppose that the state set $L_1 = \emptyset$. Write down the equivalent Büchi tree automaton and explain why the constructions are equivalent. \\
-    \textbf{Solution Hint}:
-    The Rabin condition for a single pair $(L_1, U_1)$ requires that for every path, the set of states visited infinitely often satisfies $\text{inf}(R|_\pi) \cap L_1 = \emptyset$ and $\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$.
-    Since $L_1 = \emptyset$, the first condition $\text{inf}(R|_\pi) \cap \emptyset = \emptyset$ is vacuously true for all paths.
-    Thus, the Rabin condition simplifies to:
-    $$\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$$
-    This is exactly the Büchi acceptance condition with $F = U_1$.
-    Therefore, the equivalent Büchi tree automaton is simply $A' = (Q, \Sigma, q_0, \Delta, U_1)$.
+\begin{chapex}[Tree domain properties]
+Verify whether the following sets of binary strings satisfy the prefix-closure and child-ordering properties to form a valid binary tree domain:
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item $D_1 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 11 \}$
+  \item $D_2 = \{ \epsilon, \, 0, \, 1, \, 00, \, 01, \, 10 \}$
 \end{enumerate}
+\end{chapex}
+\begin{chapex}[Binary coding of 3-ary trees]
+Let $t$ be a 3-ary tree with domain $\text{dom}(t) = \{ \epsilon, \, 0, \, 1, \, 2 \}$ and labeling
+$t(\epsilon) = f$, $t(0) = a$, $t(1) = b$, $t(2) = a$.
+Compute the domain and labeling of its binary coded tree $t_{bin}$ according to \cref{def:binary-coding}.
+\end{chapex}
+
+\begin{chapex}[Bottom-up automaton construction]
+Construct a deterministic bottom-up tree automaton (DBTA) that recognizes the language $T_{xor} = \{ f(a,b), \, f(b,a) \}$.  Write down the transition table and explain how the automaton processes the tree $f(a,b)$.
+\end{chapex}
+
+\begin{chapex}[B\"uchi tree automaton guessing]
+Trace a successful run of the BTA from \cref{ex:buchi-infinitely-many-existential} on the tree $t$ where the leftmost path $\pi = 0^\omega$ has infinitely many $a$'s, and all other paths contain only $b$'s.  Show the state labels assigned to nodes of depth up to~2.
+\end{chapex}
+
+\begin{chapex}[Rabin vs.\ B\"uchi tree automata]
+Let $A = (Q, \Sigma, q_0, \Delta, \Omega)$ be a Rabin tree automaton with a single Rabin pair $\Omega = \{ (L_1, U_1) \}$ and $L_1 = \emptyset$.  Write down the equivalent B\"uchi tree automaton and explain why the constructions are equivalent.
+\end{chapex}

@@ -32,6 +32,36 @@ it keeps the theorem in view while explaining why the next chapter must
 enrich deterministic acceptance conditions rather than merely repeat the
 non-deterministic story.
 
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      box/.style={draw=graphite!60, rounded corners, align=center,
+        minimum width=2.75cm, minimum height=0.9cm, font=\small\sffamily,
+        fill=gray!6},
+      logic/.style={box, vv logic},
+      aut/.style={box, vv accepting},
+      arr/.style={vv edge}
+    ]
+    \node[logic] (formula) at (0,0) {S1S formula\\$\varphi(X_1,\dots,X_k)$};
+    \node[box] (word) at (3.6,0) {bit-vector\\word encoding};
+    \node[aut] (base) at (7.2,0) {atomic-formula\\automata};
+    \node[aut] (ops) at (10.8,0) {closure operations\\$\cap,\cup,\neg$};
+    \node[aut] (proj) at (14.4,0) {projection for\\$\exists X$};
+
+    \draw[arr] (formula) -- node[above, font=\scriptsize] {free variables} (word);
+    \draw[arr] (word) -- node[above, font=\scriptsize] {local tests} (base);
+    \draw[arr] (base) -- node[above, font=\scriptsize] {Boolean structure} (ops);
+    \draw[arr] (ops) -- node[above, font=\scriptsize] {quantifiers} (proj);
+  \end{tikzpicture}%
+  }
+  \caption{The automata-theoretic reading of S1S.  Formulas are interpreted as
+           languages of bit-vector words; logical connectives become automata
+           closure operations, and existential second-order quantification
+           becomes projection.}
+  \label{fig:s1s-to-automata-roadmap}
+\end{figure}
+
 % -----------------------------------------------------------------------
 \section{The Time-Flow Perspective}
 \label{sec:s1s-motivation}
@@ -1289,75 +1319,103 @@ to NBAs in expressive power---which is exactly what we need.  We will
 study these automata and their connection to WS1S in
 Chapter~\ref{ch:deterministic-automata-star-free}.
 
-% -----------------------------------------------------------------------
-\section{Exercises}
-\label{sec:s1s-exercises}
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item \emph{S1S} is the monadic second-order logic of
+    $(\mathbb{N},0,{+1},{<})$; it reasons about positions of an
+    infinite execution using first-order variables (positions) and
+    second-order variables (sets of positions).
+  \item The \textbf{B\"uchi theorem} (1960): an $\omega$-language is
+    S1S-definable iff it is $\omega$-regular (recognised by an NBA).
+    Both directions are constructive.
+  \item The key encoding: free second-order variables become rows of a
+    bit-vector word over $\{0,1\}^n$; logical operations become automata
+    closure operations; existential quantification becomes projection.
+  \item S1S decidability follows from the B\"uchi theorem and NBA
+    emptiness, but the complexity is \emph{non-elementary} (a tower of
+    exponentials whose height equals the number of quantifier
+    alternations).
+  \item \emph{Deterministic} B\"uchi automata are strictly weaker: they
+    cannot recognise ``finitely many $a$'s''.  Richer acceptance
+    conditions (Muller, Rabin) are needed for deterministic
+    $\omega$-regular recognition.
+\end{itemize}
+\end{summarybox}
 
-\begin{enumerate}
-  \item \textit{(S1S formula writing)}
-        Write S1S$_A$ sentences for the following $\omega$-languages over
-        $A = \{a, b\}$:
-        \begin{enumerate}
-          \item $\alpha$ contains \emph{no} $a$'s.
-          \item $\alpha$ contains \emph{finitely many} $a$'s.
-                (Hint: ``there exists a last $a$''.)
-          \item $\alpha$ contains \emph{at least two} $a$'s.
-          \item Every $b$ is immediately preceded by an $a$.
-        \end{enumerate}
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
 
-  \item \textit{(Ordering definability)}
-        Show that the formula $\varphi(x,y)$ from
-        Example~\ref{ex:s1s-order} correctly defines $x < y$ by:
-        \begin{enumerate}
-          \item Verifying that $\varphi(3, 7)$ is true over $\mathbb{N}$.
-          \item Constructing an explicit counterexample set $X$ that refutes
-                the \emph{existential} version of the formula when $y = 1$
-                and $x = 5$.
-        \end{enumerate}
-
-  \item \textit{(Büchi theorem, easy direction)}
-        Given the NBA $\mathcal{A}$ with states $Q = \{q_0, q_1\}$,
-        initial state $q_0$, $F = \{q_1\}$, and transitions
-        $q_0 \xrightarrow{a} q_1$, $q_1 \xrightarrow{b} q_0$,
-        write the S1S$_A$ sentence $\Phi_{\mathcal{A}}$ using the
-        construction of Section~\ref{sec:buchi-proof-fwd}.
-        Identify $\varphi_1$, $\varphi_2$, $\varphi_3$ explicitly.
-
-  \item \textit{(S1S$_0$ translation)}
-        Translate the formula $\exists x.\;x \in Q_a \land (x+1) \in Q_b$
-        into S1S$_0$ following the four steps of
-        Section~\ref{sec:buchi-proof-bwd}.
-        Which auxiliary SO variables do you introduce, and why?
-
-  \item \textit{(Base automata)}
-        Draw the NBA for $X \subseteq Y$ (Figure~\ref{fig:nba-subset})
-        and verify that it accepts the word $(01)^\omega$ but rejects
-        $(10)^\omega$.  Verify the run on $00\,(10)\,11^\omega$ and
-        determine whether it is accepted.
-
-  \item \textit{(DBA closure)}
-        Let $L_1$ and $L_2$ be recognised by DBAs $\mathcal{A}_1$ and
-        $\mathcal{A}_2$ respectively.
-        \begin{enumerate}
-          \item Construct a DBA for $L_1 \cup L_2$.
-          \item Construct a DBA for $L_1 \cap L_2$.
-          \item Explain why the same product construction does \emph{not}
-                work for complementation.
-        \end{enumerate}
-
-  \item \textit{(NBA for finitely many A's)}
-        Trace the run of the NBA in Figure~\ref{fig:nba-lfin} on the word
-        $a b^3 a b^\omega$.
-        \begin{enumerate}
-          \item List all possible runs.
-          \item Identify which runs are accepting.
-          \item Conclude whether $ab^3 ab^\omega \in L_{\mathrm{fin}}$.
-        \end{enumerate}
-
-  \item \textit{(Non-elementary complexity, intuition)}
-        Suppose an S1S formula has exactly 3 quantifier alternations
-        (e.g., $\exists\ldots\forall\ldots\exists$) and size $n = 10$.
-        Estimate the size of the NBA produced by the Büchi construction
-        in the worst case (assume each complementation doubles the number
-        of states).  Compare this with $n$, $2^n$, and $\exp(3, n)$.
+\begin{chapex}[S1S formula writing]
+Write S1S$_A$ sentences for the following $\omega$-languages over
+$A = \{a, b\}$:
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item $\alpha$ contains \emph{no} $a$'s.
+  \item $\alpha$ contains \emph{finitely many} $a$'s.
+        \emph{Hint:} ``there exists a last $a$''.
+  \item $\alpha$ contains \emph{at least two} $a$'s.
+  \item Every $b$ is immediately preceded by an $a$.
 \end{enumerate}
+\end{chapex}
+
+\begin{chapex}[Ordering definability]
+Show that the formula $\varphi(x,y)$ from
+\cref{ex:s1s-order} correctly defines $x < y$ by:
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item Verifying that $\varphi(3, 7)$ is true over $\mathbb{N}$.
+  \item Constructing an explicit counterexample set $X$ that refutes
+        the \emph{existential} version of the formula when $y = 1$
+        and $x = 5$.
+\end{enumerate}
+\end{chapex}
+
+\begin{chapex}[B\"uchi theorem, easy direction]
+Given the NBA $\mathcal{A}$ with states $Q = \{q_0, q_1\}$,
+initial state $q_0$, $F = \{q_1\}$, and transitions
+$q_0 \xrightarrow{a} q_1$, $q_1 \xrightarrow{b} q_0$,
+write the S1S$_A$ sentence $\Phi_{\mathcal{A}}$ using the
+construction of \cref{sec:buchi-proof-fwd}.
+Identify $\varphi_1$, $\varphi_2$, $\varphi_3$ explicitly.
+\end{chapex}
+
+\begin{chapex}[S1S$_0$ translation]
+Translate the formula $\exists x.\;x \in Q_a \land (x+1) \in Q_b$
+into S1S$_0$ following the four steps of
+\cref{sec:buchi-proof-bwd}.
+Which auxiliary SO variables do you introduce, and why?
+\end{chapex}
+
+\begin{chapex}[Base automata]
+Draw the NBA for $X \subseteq Y$ (\cref{fig:nba-subset})
+and verify that it accepts the word $(01)^\omega$ but rejects
+$(10)^\omega$.  Verify the run on $00\,(10)\,11^\omega$ and
+determine whether it is accepted.
+\end{chapex}
+
+\begin{chapex}[DBA closure]
+Let $L_1$ and $L_2$ be recognised by DBAs $\mathcal{A}_1$ and
+$\mathcal{A}_2$ respectively.
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item Construct a DBA for $L_1 \cup L_2$.
+  \item Construct a DBA for $L_1 \cap L_2$.
+  \item Explain why the same product construction does \emph{not}
+        work for complementation.
+\end{enumerate}
+\end{chapex}
+
+\begin{chapex}[NBA for finitely many $a$'s]
+Trace the run of the NBA in \cref{fig:nba-lfin} on the word
+$a b^3 a b^\omega$.
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item List all possible runs.
+  \item Identify which runs are accepting.
+  \item Conclude whether $ab^3 ab^\omega \in L_{\mathrm{fin}}$.
+\end{enumerate}
+\end{chapex}
+
+\begin{chapex}[Non-elementary complexity]
+Suppose an S1S formula has exactly 3 quantifier alternations
+(e.g., $\exists\ldots\forall\ldots\exists$) and size $n = 10$.
+Estimate the size of the NBA produced by the B\"uchi construction
+in the worst case (assume each complementation doubles the number
+of states).  Compare this with $n$, $2^n$, and $\exp(3, n)$.
+\end{chapex}

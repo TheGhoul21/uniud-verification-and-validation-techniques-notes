@@ -773,3 +773,57 @@ facts model long-term configuration, action facts expose relevant events, and
 timepoints let the logic talk about order and causality.  That is the
 Tamarin viewpoint in one sentence: specify the protocol as rewrite rules, and
 specify the security claim as a property of the traces they produce.
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item Security protocols are modelled as \emph{multiset rewriting systems}:
+    terms represent symbolic messages, facts represent local and network
+    state, and rules describe protocol steps.
+  \item The \emph{Dolev--Yao attacker} controls the network: it can
+    intercept, replay, and forge messages using any cryptographic
+    operation whose key it knows.
+  \item A \emph{trace} is the observable history of a protocol run;
+    properties (secrecy, authentication, forward secrecy) are stated
+    as first-order formulas over traces.
+  \item \emph{Equational theories} capture algebraic properties of
+    cryptographic primitives; subterm-convergent theories keep
+    unification decidable.
+  \item \emph{Tamarin} automates this pipeline: protocol rules in,
+    proof or counterexample trace out.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Dolev--Yao deduction]
+The attacker knows the terms $\texttt{aenc}(m, \texttt{pk}(k))$ and $k$.
+List the sequence of Dolev--Yao rules the attacker applies to recover
+the plaintext~$m$.
+\end{chapex}
+
+\begin{chapex}[Trace reading]
+A Tamarin trace contains the action facts
+$\texttt{Secret}(m)$ at timepoint $\#i$ and
+$\texttt{K}(m)$ at timepoint $\#j$ with $\#i < \#j$.
+Does this trace satisfy the secrecy lemma
+$\forall m,\,\#i.\;\texttt{Secret}(m)\mathbin{@}\#i \Rightarrow
+  \neg(\exists\,\#j.\;\texttt{K}(m)\mathbin{@}\#j)$?
+Explain your answer.
+\end{chapex}
+
+\begin{chapex}[Authentication encoding]
+Write a Tamarin-style correspondence lemma expressing
+\emph{non-injective agreement}: whenever Bob completes a session with
+Alice on a shared key~$k$, Alice previously initiated a session with
+the same~$k$.  Then explain what additional quantifier structure is
+needed for \emph{injective} agreement.
+\end{chapex}
+
+\begin{chapex}[Forward secrecy]
+Consider a protocol that uses a long-term key $\texttt{ltk}(A)$ to
+encrypt a session key~$k_s$.  After the session, the attacker learns
+$\texttt{ltk}(A)$.  Can the attacker recover $k_s$?  What protocol
+mechanism would provide forward secrecy, and how would it change the
+Tamarin model?
+\end{chapex}

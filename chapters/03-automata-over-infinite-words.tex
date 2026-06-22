@@ -20,6 +20,15 @@ Their behaviours are therefore not finite words but infinite words.  To
 model them we keep the finite-state graph, but change the acceptance
 condition.
 
+\constructionpipeline{2}
+
+\begin{runningexample}{request/acknowledgement traces}
+Throughout the infinite-word chapters, think of a reactive component that
+observes requests and acknowledgements forever.  A typical liveness property is
+``acknowledgement occurs infinitely often'', and the counterexamples are
+ultimately periodic traces where acknowledgements eventually disappear.
+\end{runningexample}
+
 
 % ============================================================
 \section{Infinite Words}

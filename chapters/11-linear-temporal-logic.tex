@@ -10,6 +10,44 @@ However, compiling specifications written in $S1S$ is practically intractable du
 
 To bridge the gap between declarative convenience and algorithmic efficiency, we introduce \emph{Linear Temporal Logic (LTL)}, proposed by Amir Pnueli in 1977. LTL is a modal logic designed to specify properties over linear, infinite paths. It serves as the standard specification language in industrial model checking. In this chapter, we develop the syntax and semantics of LTL, analyze its expressive boundaries (star-free languages), prove the exponential succinctness of past-time operators, and detail the graph-theoretic tableau decision procedure for LTL satisfiability.
 
+\constructionpipeline{4}
+
+\begin{runningexample}{request/acknowledgement specifications}
+The running liveness requirement is now written directly as a formula:
+$\mathbf{G}(r \rightarrow \mathbf{F}g)$.  It says that every request must be
+followed by some future grant along the same execution trace.
+\end{runningexample}
+
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      box/.style={draw=graphite!60, rounded corners, align=center,
+        minimum width=2.45cm, minimum height=0.88cm, font=\small\sffamily,
+        fill=gray!6},
+      logic/.style={box, vv logic},
+      aut/.style={box, vv accepting},
+      arr/.style={vv edge}
+    ]
+    \node[logic] (formula) at (0,0) {LTL formula\\$\varphi$};
+    \node[logic] (closure) at (3.2,0) {closure\\$Cl(\varphi)$};
+    \node[logic] (atoms) at (6.4,0) {consistent\\atoms};
+    \node[logic] (tab) at (9.6,0) {tableau\\graph};
+    \node[aut] (buchi) at (12.8,0) {B\"uchi\\automaton};
+
+    \draw[arr] (formula) -- node[above, font=\scriptsize] {subformulas} (closure);
+    \draw[arr] (closure) -- node[above, font=\scriptsize] {truth choices} (atoms);
+    \draw[arr] (atoms) -- node[above, font=\scriptsize] {next/until consistency} (tab);
+    \draw[arr] (tab) -- node[above, font=\scriptsize] {fulfilling paths} (buchi);
+  \end{tikzpicture}%
+  }
+  \caption{The tableau construction for LTL satisfiability.  The formula is
+           decomposed into closure formulas, atoms choose locally consistent
+           truth values, tableau edges enforce next-step consistency, and
+           B\"uchi acceptance checks eventualities.}
+  \label{fig:ltl-tableau-roadmap}
+\end{figure}
+
 % =======================================================================
 % =======================================================================
 \section{The Logic of Linear Time}
@@ -784,9 +822,59 @@ The transition relation advances the counter from $i$ to $(i \bmod k) + 1$ if an
 \paragraph{Bridge to Chapter~\ref{ch:ltl-mc-fairness}.}
 This chapter stops at the specification side: syntax, semantics, expressiveness, past operators, satisfiability, and the automata viewpoint.  Chapter~\ref{ch:ltl-mc-fairness} takes the next step and uses those formulas for model checking over finite systems, with fairness handled there.
 
-% =======================================================================
-\section{Exercises}
-\label{sec:ltl-exercises}
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      box/.style={draw=graphite!60, rounded corners, align=center,
+        minimum width=3.1cm, minimum height=0.9cm, font=\small\sffamily,
+        fill=gray!6},
+      logic/.style={box, vv logic},
+      aut/.style={box, vv accepting},
+      arr/.style={vv edge}
+    ]
+    \node[aut] (omega) at (0,0) {$\omega$-regular\\languages};
+    \node[logic] (s1s) at (4.2,0.9) {S1S\\full MSO};
+    \node[logic] (fo) at (4.2,-0.9) {FO(S1S)\\star-free};
+    \node[logic] (ltl) at (8.4,-0.9) {LTL\\future operators};
+    \node[logic] (ltlp) at (12.6,-0.9) {LTL+past\\same expressiveness};
+
+    \draw[arr] (s1s) -- node[above, font=\scriptsize] {B\"uchi theorem} (omega);
+    \draw[arr] (ltl) -- node[above, font=\scriptsize] {Kamp} (fo);
+    \draw[arr] (ltlp) -- node[above, font=\scriptsize] {separation} (ltl);
+    \draw[vv dashed edge] (fo) -- node[left, font=\scriptsize] {proper fragment} (s1s);
+    \draw[vv dashed edge] (fo) -- node[below, font=\scriptsize] {subset} (omega);
+  \end{tikzpicture}%
+  }
+  \caption{Expressiveness map for the temporal-logic part of the book.  S1S
+           captures all $\omega$-regular languages; LTL corresponds to the
+           first-order/star-free fragment; adding past operators improves
+           succinctness but not expressiveness.}
+  \label{fig:temporal-logic-expressiveness}
+\end{figure}
+
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item \emph{LTL} is evaluated on a single infinite path; its core
+    operators are $X$ (next) and $U$ (until), from which $F$
+    (eventually) and $G$ (always) are derived.
+  \item LTL corresponds to the \emph{first-order} fragment of S1S and
+    to star-free $\omega$-regular languages.  Some $\omega$-regular
+    properties (e.g., ``$a$ at every even position'') are not
+    LTL-expressible.
+  \item Common specification patterns: $GF\,p$ (infinitely often),
+    $FG\,p$ (eventually always), $G(p \to F\,q)$ (every $p$
+    triggers a future $q$).
+  \item Past-time operators ($Y$, $S$) add succinctness but not
+    expressive power; every past LTL formula has a pure-future
+    equivalent.
+  \item LTL model checking is \textbf{PSPACE-complete} in the formula
+    and polynomial in the model.
+\end{itemize}
+\end{summarybox}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
 
 \begin{chapex}[Weak Yesterday Nesting]
 Let $\sigma$ be a state sequence.

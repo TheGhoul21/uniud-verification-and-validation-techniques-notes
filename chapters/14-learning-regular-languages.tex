@@ -614,5 +614,50 @@ This implies that $A$ accepts $w$ if and only if $w \in L$, which means $A$ corr
 This contradiction shows that the assumption of $T'$-completeness with the same set $S$ must be false. Therefore, adding the suffixes of $w$ to $T$ must break the completeness of the table, forcing the algorithm to add at least one new state representative to $S$ in the next iteration. Since the size of $S$ is bounded by $n$, the algorithm must terminate.
 \end{formaldetails}
 
+\begin{summarybox}
+\begin{itemize}[nosep]
+  \item The \emph{Myhill--Nerode theorem} characterises regular languages
+    via right-congruences of finite index; the number of equivalence
+    classes equals the number of states of the minimal DFA.
+  \item \emph{Passive learning} (from a fixed sample) cannot guarantee
+    correctness; \emph{active learning} uses a Minimally Adequate
+    Teacher (MAT) with membership and equivalence queries.
+  \item \emph{Angluin's $L^*$ algorithm} maintains an observation table,
+    ensures closedness and consistency, extracts a candidate DFA, and
+    refines on counterexamples.
+  \item $L^*$ terminates after at most $n$ counterexample rounds (where
+    $n$ is the size of the target DFA) and uses $O(n^2 m + n^3)$
+    membership queries, where $m$ is the longest counterexample.
+\end{itemize}
+\end{summarybox}
 
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{chapex}[Myhill--Nerode classes]
+Let $L = \{w \in \{a,b\}^* \mid w \text{ contains } ab\}$.
+List the equivalence classes of the Myhill--Nerode relation $\equiv_L$
+and draw the minimal DFA.
+\end{chapex}
+
+\begin{chapex}[Observation table step]
+Consider the target language $L = \{w \in \{a,b\}^* \mid |w| \text{ is even}\}$.
+Starting from $S = \{\varepsilon\}$ and $T = \{\varepsilon\}$, fill the
+initial observation table, check closedness, and perform one round of
+the $L^*$ algorithm until the table is closed and consistent.
+\end{chapex}
+
+\begin{chapex}[Counterexample processing]
+Suppose the current candidate DFA has two states and accepts $L' = \{a,b\}^*$
+but the target language is $L = \{w \mid w \text{ ends in } a\}$.
+The teacher returns the counterexample $b$.  Show how the suffixes
+of $b$ are added to $T$ and which new state representative emerges.
+\end{chapex}
+
+\begin{chapex}[Query complexity]
+A target DFA has $n=5$ states and the longest counterexample has
+$m=8$.  How many membership queries does the $L^*$ complexity bound
+predict?  Compare this to the number of queries needed to test all
+words up to length $m$ exhaustively.
+\end{chapex}
 

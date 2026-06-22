@@ -53,6 +53,35 @@ answering a question forced by the previous one:
         payoff (\cref{sec:buchi-model-checking-consequence}).
 \end{itemize}
 
+\begin{figure}[ht]
+  \centering
+  \resizebox{\textwidth}{!}{%
+  \begin{tikzpicture}[
+      cstep/.style={draw=graphite!65, rounded corners, align=center,
+        minimum width=2.9cm, minimum height=0.95cm, font=\small\sffamily,
+        fill=gray!6},
+      hard/.style={cstep, vv logic},
+      arr/.style={vv edge}
+    ]
+    \node[cstep] (nba) at (0,0) {B\"uchi automaton\\$A$};
+    \node[hard] (prof) at (3.7,0) {transition\\profiles};
+    \node[hard] (ramsey) at (7.4,0) {Ramsey\\decomposition};
+    \node[cstep, vv counterexample] (sat) at (11.1,0) {saturated\\ultimately periodic\\blocks};
+    \node[cstep, vv accepting] (comp) at (14.8,0) {automaton for\\$\overline{L(A)}$};
+
+    \draw[arr] (nba) -- node[above, font=\scriptsize] {summarise finite blocks} (prof);
+    \draw[arr] (prof) -- node[above, font=\scriptsize] {find stable colours} (ramsey);
+    \draw[arr] (ramsey) -- node[above, font=\scriptsize] {$uv^\omega$ witnesses} (sat);
+    \draw[arr] (sat) -- node[above, font=\scriptsize] {select rejecting classes} (comp);
+  \end{tikzpicture}%
+  }
+  \caption{The complementation proof is not a state-flipping construction.
+           It compresses finite blocks into profiles, uses Ramsey stability
+           to describe infinite words by ultimately periodic blocks, and then
+           builds the complement from the saturated rejecting classes.}
+  \label{fig:buchi-complementation-roadmap}
+\end{figure}
+
 
 % ============================================================
 \section{Why the Finite Trick Fails}
