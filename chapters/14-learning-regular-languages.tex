@@ -12,6 +12,33 @@ This chapter introduces the technique of \emph{learning regular languages} (or a
 
 We follow the progression of the lecture block. We begin with the mathematical foundations of the Myhill--Nerode theorem, which guarantees that a regular language has a unique minimal representation. Then we transition to the active learning paradigm, explaining how a learner can reconstruct this minimal representation by asking targeted questions to a teacher. We describe Angluin's $L^*$ active-learning algorithm in detail, complete with a step-by-step trace on a concrete language and a formal proof of its correctness and complexity.
 
+\begin{chapteropening}
+\textbf{Where we are.}  The model-checking chapters assumed that the model was
+available: as an automaton, a Kripke structure, an SMV program, or a symbolic
+transition relation.
+
+\textbf{What this chapter adds.}  Automata learning asks how to recover a
+finite-state model from observations.  Myhill--Nerode provides the semantic
+target, and active learning provides the algorithmic protocol for finding it.
+
+\textbf{Where it leads.}  This changes verification from analysing a known
+model to constructing one.  That perspective is useful whenever the system is
+legacy, black-box, or too poorly documented to model by hand.
+
+\textbf{Chapter map.}
+\begin{itemize}[nosep]
+  \item \Cref{sec:myhill-nerode-learning} recalls the equivalence classes that
+        define the minimal DFA.
+  \item \Cref{sec:active-learning} introduces membership and equivalence
+        queries.
+  \item \Cref{sec:lstar-algorithm} gives Angluin's $L^*$ algorithm.
+  \item \Cref{sec:lstar-walkthrough} traces the algorithm on a concrete
+        language.
+  \item \Cref{sec:lstar-correctness} proves correctness, termination, and
+        complexity bounds.
+\end{itemize}
+\end{chapteropening}
+
 % =======================================================================
 \section{The Myhill--Nerode Foundation}
 \label{sec:myhill-nerode-learning}
@@ -660,4 +687,3 @@ $m=8$.  How many membership queries does the $L^*$ complexity bound
 predict?  Compare this to the number of queries needed to test all
 words up to length $m$ exhaustively.
 \end{chapex}
-
