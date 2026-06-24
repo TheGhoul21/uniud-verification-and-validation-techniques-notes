@@ -83,6 +83,13 @@ The set of all infinite words over $\Sigma$ is denoted by
 $\Sigma^\omega$.
 \end{definition}
 
+An $\omega$-word is a function from the natural numbers to $\Sigma$:
+position $0$ gets a symbol, position $1$ gets a symbol, and so on
+without end.  The key operational difference from finite words is that
+there is no ``last symbol'' to inspect, so every property of an
+$\omega$-word must be phrased in terms of what happens eventually or
+repeatedly, never in terms of how the word ends.
+
 We use $u,v,w$ for finite words and Greek letters such as
 $\alpha,\beta$ for infinite words.  This distinction matters because
 finite words can be consumed completely, while infinite words have no
@@ -132,7 +139,10 @@ $\inf(\alpha)=\{a,b\}$.
 \label{sec:omega-language-ops}
 % ============================================================
 
-Some infinite languages can be built from finite-word languages.
+We now have infinite words, but no way to describe sets of them.  Rather
+than starting from scratch, we can lift familiar finite-word operations
+to the infinite setting.  Some infinite languages can be built directly
+from finite-word languages.
 
 \begin{definition}[$\omega$-power]
 \label{def:omega-power}
@@ -159,7 +169,18 @@ For $W\subseteq\Sigma^*$, define
 \end{definition}
 
 The language $\vec{W}$ contains the infinite words whose finite prefixes
-hit $W$ infinitely often.  It is a natural way to express recurrence:
+hit $W$ infinitely often.
+
+\begin{example}[Vectorial closure on the running example]
+\label{ex:vectorial-closure-ack}
+Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, let $W$ be the set of
+finite words that end with \texttt{ack}.  Then $\vec{W}$ is the set of
+infinite traces such that infinitely many finite prefixes end with
+\texttt{ack}---in other words, exactly the traces in which \texttt{ack}
+occurs infinitely often.
+\end{example}
+
+The vectorial closure makes the connection to acceptance explicit.  It is a natural way to express recurrence:
 not just ``a good prefix appears'', but ``good prefixes keep appearing''.
 For a deterministic B\"uchi automaton this is exactly the operational
 shape of acceptance: if $W$ is the set of finite prefixes that leave the
@@ -174,8 +195,15 @@ characterisation of deterministic B\"uchi languages.
 \label{sec:buchi-automata}
 % ============================================================
 
-A B\"uchi automaton has the same graph shape as an NFA, but reads an
-infinite input and uses an infinite-run acceptance condition.
+A B\"uchi automaton has the same graph shape as an NFA---a finite set of
+states, labelled transitions, an initial state, and a set of accepting
+states---but it reads an infinite input rather than a finite one.  Since
+the input never ends, there is no ``final state after the last symbol''.
+Instead, the automaton asks a long-run question: does the run keep
+returning to an accepting state, or does it eventually stay away
+forever?  The tuple below captures exactly this setup: the graph is
+finite, but the acceptance condition talks about what happens in the
+limit.
 
 \begin{definition}[B\"uchi automaton]
 \label{def:buchi}
@@ -186,6 +214,14 @@ A \textbf{B\"uchi automaton} is a tuple
 where $Q$ is finite, $\Delta\subseteq Q\times\Sigma\times Q$,
 $q_0\in Q$, and $F\subseteq Q$ is the set of accepting states.
 \end{definition}
+
+Read the tuple as a finite directed graph whose edges are labelled by
+symbols: $Q$ is the set of nodes, $\Delta$ is the set of labelled edges,
+$q_0$ marks the starting node, and $F$ marks the checkpoints that the
+run must keep visiting.  Everything is identical to an NFA except the
+role of $F$: in an NFA, $F$ says where a run must \emph{end}; in a
+B\"uchi automaton, $F$ says where a run must \emph{return} infinitely
+often.
 
 \begin{definition}[Run and B\"uchi acceptance]
 \label{def:buchi-run}
@@ -220,6 +256,11 @@ automaton, looking for a finite pattern that can repeat forever.
 A language $L\subseteq\Sigma^\omega$ is \textbf{$\omega$-regular} if it
 is accepted by some B\"uchi automaton.
 \end{definition}
+
+This is the infinite-word counterpart of ``regular language''.  It tells
+us that the class of properties expressible by B\"uchi automata has a
+name and will turn out to have the same robust characterisations
+(expressions, closure, decidable emptiness) that regular languages enjoy.
 
 \begin{example}[Infinitely many acknowledgements]
 \label{ex:buchi-infinitely-many}
@@ -387,6 +428,13 @@ languages of the form
 where each $U_i,V_i\subseteq\Sigma^*$ is regular.
 \end{definition}
 
+Each term $U_i V_i^\omega$ describes a two-phase behaviour: a finite
+initialisation from $U_i$, followed by an infinite repetition of blocks
+from $V_i$.  The full expression is a finite union of such terms, so it
+says ``the system does one of finitely many things: starts with some
+prefix, then loops forever in some pattern''.  This is the infinite-word
+analogue of a regular expression.
+
 \begin{theorem}[B\"uchi-expression equivalence]
 \label{thm:buchi-expression-equivalence}
 A language $L\subseteq\Sigma^\omega$ is accepted by a B\"uchi automaton
@@ -543,6 +591,27 @@ periodic word is a structural barrier to $\omega$-regularity, even for
 large infinite languages.
 \end{example}
 
+\subsection*{Notation Recap}
+\addcontentsline{toc}{subsection}{Notation Recap}
+
+\begin{center}
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$\Sigma^\omega$       & Set of all infinite words over $\Sigma$ \\
+$\alpha[i,j]$         & Finite segment $\alpha_i\cdots\alpha_{j-1}$ \\
+$\alpha[i,\omega]$    & Infinite suffix from position $i$ \\
+$\inf(\alpha)$        & Symbols occurring infinitely often in $\alpha$ \\
+$W^\omega$            & Infinite concatenation of blocks from $W\subseteq\Sigma^*$ \\
+$\vec{W}$             & Vectorial closure: $\omega$-words whose prefixes hit $W$ infinitely often \\
+$uv^\omega$           & Ultimately periodic word: finite prefix $u$, repeated cycle $v$ \\
+$(Q,\Sigma,\Delta,q_0,F)$ & B\"uchi automaton tuple \\
+$F$                   & Accepting states (must be visited infinitely often) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item Infinite behaviours are modelled as words in $\Sigma^\omega$.
@@ -574,4 +643,11 @@ will need a non-deterministic guess.
 \begin{chapex}[Finding a lasso]
 Given a B\"uchi automaton graph, explain how you would use strongly
 connected components to decide emptiness.  Which SCCs are relevant?
+\end{chapex}
+
+\begin{chapex}[Writing an $\omega$-regular expression]
+Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, write an $\omega$-regular
+expression for the language ``\texttt{ack} occurs infinitely often''.
+Write a second expression for ``\texttt{ack} occurs only finitely
+often''.
 \end{chapex}

@@ -52,6 +52,11 @@ searching text---a more algebraic syntax is preferable, one that builds
 the language out of pieces using a few combinators.  This is what
 regular expressions provide.
 
+The idea is to describe a language by saying how its words are built:
+start from individual letters, glue words together by concatenation,
+offer alternatives by union, and allow finite repetition by Kleene star.
+The following definition pins down exactly which expressions we allow.
+
 \begin{definition}[Restricted regular expressions]
 \label{def:restricted-regex}
 The \textbf{restricted regular expressions} over an alphabet $\Sigma$
@@ -590,10 +595,10 @@ longer enough.
   bad/.style={fill=gray!8},
 ]
   \matrix (m) [matrix of nodes, nodes={cell}, row sep=-\pgflinewidth, column sep=-\pgflinewidth] {
-    $p_0,r_0$ & $p_0,r_1$ & $p_0,r_2$ \\
-    $p_1,r_0$ & $p_1,r_1$ & $p_1,r_2$ \\
+    $p_0,r_0$ & $p_0,r_1$ \\
+    $p_1,r_0$ & $p_1,r_1$ \\
   };
-  \node[draw, rounded corners=3pt, fit=(m-2-2), inner sep=2pt, fill=teal!12] {};
+  \node[draw, rounded corners=3pt, fit=(m-2-1), inner sep=2pt, fill=teal!12] {};
   \node[below=6mm of m, font=\small] {A product state stores one state from each automaton.};
 \end{tikzpicture}
 \caption{The state space of a product automaton is a Cartesian product.}
@@ -654,8 +659,15 @@ $(p_1,r_0)$ is accepting (teal, double border).}
 \label{sec:finite-decision-problems}
 % ============================================================
 
-Once languages are represented by automata, many semantic questions
-become graph questions.
+We now have a rich toolkit for building automata: regular expressions
+give us a syntax, and closure under union, intersection, and complement
+lets us assemble compound properties from simpler ones.  The natural
+next question is: once we hold such an automaton, what can we actually
+\emph{ask} about it?  Can we decide whether two automata recognize the
+same language, or whether one language is contained in another?  It
+turns out that all of these semantic questions reduce to a single graph
+problem---reachability---making them not only decidable but efficiently
+so.
 
 \aside{Emptiness = satisfiability:
 if automata compile logical formulas,
@@ -872,6 +884,13 @@ if
 \]
 \end{definition}
 
+Operationally, right-invariance says that equivalence is preserved by
+appending: if two prefixes look the same to the language now, then
+reading one more symbol cannot make them look different.  This is
+exactly the property that lets an automaton store a single state for
+both prefixes---after the append, both transitions lead to the same
+next state.
+
 The relation $\equiv_L$ is right-invariant by definition: if no
 continuation separates $x$ and $y$, then no longer continuation can
 separate $xz$ and $yz$ either.
@@ -946,6 +965,29 @@ quotient automaton has exactly that many states, so it is minimal.
 The minimal DFA for $L$ is therefore canonical up to renaming of states:
 merge exactly the prefixes with the same continuation behaviour, and no
 more.
+
+\section*{Notation Recap}
+\addcontentsline{toc}{section}{Notation Recap}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$r+s$, $rs$, $r^*$ & Union, concatenation, Kleene star of regular expressions \\
+$\varepsilon$-NFA & NFA extended with $\varepsilon$-labelled (free) transitions \\
+$\mathsf{ECl}(q)$ & $\varepsilon$-closure: states reachable from $q$ by $\varepsilon$-moves \\
+$\overline{A}$ & Complement automaton (swap final/non-final in a complete DFA) \\
+$A_1\times A_2$ & Product automaton for intersection \\
+$F_1\times F_2$ & Accepting set of the product (both components accept) \\
+$\mathsf{Post}(X)$ & States reachable in one transition from $X$ \\
+$R^*$ & Reachability fixpoint from the initial state \\
+$R_{i,j}^k$ & Words taking $q_i$ to $q_j$ through intermediate states $q_1,\ldots,q_k$ \\
+$x\equiv_L y$ & Myhill--Nerode equivalence: $x$ and $y$ have the same continuations in $L$ \\
+$A_L$ & Quotient (minimal) DFA built from $\equiv_L$ \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \begin{summarybox}
 \begin{itemize}[nosep]
