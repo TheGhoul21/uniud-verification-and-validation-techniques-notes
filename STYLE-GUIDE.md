@@ -76,6 +76,22 @@ To maintain high quality and pedagogical cohesion, every chapter must follow a s
   - orange/violet for environment choices or highlighted transitions;
   - gray for rejected/sink/irrelevant structure.
 
+## Asides
+
+- Use `\aside{...}` for short margin or interstitial notes that add intuition,
+  context, or design motivation without interrupting the main narrative.
+- Most asides are **editorial commentary** written by the author. These need no
+  special attribution — just write the note directly.
+- When an aside paraphrases something the professor said or drew on the
+  whiteboard during a lecture, **open with an attribution phrase** such as
+  "In the lecture, ..." or "On the whiteboard, ...". This tells the reader the
+  note is sourced from a specific presentation, not general editorial context.
+- Do not use direct quotation marks unless the wording is verbatim from the
+  transcription. Prefer paraphrase.
+- Keep asides concise (1–3 sentences). If the content is substantial enough to
+  need a paragraph, consider promoting it to a `formaldetails` box or folding it
+  into the main prose.
+
 ## Structure
 
 - The book is one LaTeX book with two parts:
