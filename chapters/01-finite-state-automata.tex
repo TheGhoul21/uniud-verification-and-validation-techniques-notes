@@ -589,8 +589,17 @@ would have two possible targets.
 \label{sec:subset-construction}
 % ============================================================
 
-Non-determinism makes automata easier to design, but for finite words it
-does not recognize any new languages.
+Every DFA is trivially an NFA: if the transition function $\delta$ is
+total, we can view it as a relation $\Delta$ in which each pair $(q,a)$
+has exactly one successor.  So the class of languages recognizable by
+DFAs is contained in the class recognizable by NFAs.
+
+The interesting question is the converse.  Are there languages that an
+NFA can recognize but no DFA can?  Does non-determinism genuinely add
+expressive power, or does it only add design convenience?
+
+The answer is that it adds only convenience.  If we restrict ourselves to
+DFAs, we do not lose any language.
 
 \begin{theorem}[Subset construction]
 \label{thm:subset-construction}
@@ -616,12 +625,19 @@ be active after reading the current input prefix.
 \end{formaldetails}
 
 The construction is called the \textbf{power-set construction} because
-the DFA states are subsets of the NFA state set.  If the NFA has $n$
-states, the resulting DFA can have up to $2^n$ states.
+the DFA states are subsets of the NFA state set.  Each deterministic
+state $S$ is a subset of $Q$, so the DFA has at most $2^{|Q|}$ states.
+The intuition is direct: for every possible subset of NFA states that
+could be simultaneously active, the DFA introduces one dedicated state.
+There is a price to pay in size, but not in expressive power --- the two
+classes of automata define exactly the same set of languages.
 
-\aside{This theorem says that non-determinism buys convenience, not more
-expressive power.  The price is computational: removing non-determinism
-can require exponentially many states.}
+\aside{This equivalence between DFA and NFA is specific to finite words.
+When we move to automata over infinite words in
+\cref{ch:omega-automata}, we will see that deterministic and
+non-deterministic variants are \emph{not} always equivalent: the
+acceptance condition matters, and for some conditions non-determinism
+genuinely adds expressive power.}
 
 \begin{figure}[ht]
 \centering

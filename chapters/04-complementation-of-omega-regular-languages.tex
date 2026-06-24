@@ -144,6 +144,14 @@ Finite-index congruences are exactly that machinery.
 The algebraic route partitions finite words into finitely many classes,
 then uses products of classes to describe infinite words.
 
+The intuition is familiar from everyday arithmetic: we often care not
+about the exact value of a number but about a coarse summary --- even or
+odd, positive or negative, its residue modulo $7$.  Two numbers sharing
+the same summary can be swapped freely in any calculation that depends
+only on the summary.  A congruence on $\Sigma^*$ does the same thing
+for words: it assigns a finite label to every string, and the label of a
+concatenation depends only on the labels of the pieces.
+
 \begin{definition}[Congruence]
 \label{def:congruence}
 An equivalence relation $\equiv$ on $\Sigma^*$ is a
@@ -266,6 +274,13 @@ when there is such a path that visits at least one accepting state in
 $F$.
 \end{definition}
 
+How to read this: $p \xrightarrow{u} q$ answers ``can the automaton
+reach $q$ from $p$ by reading $u$?'', while
+$p \xrightarrow{u}_{F} q$ answers the sharper question ``can it do so
+while passing through an accepting state?''.  The first relation is
+ordinary reachability; the second is the acceptance-aware refinement that
+B\"uchi complementation will need.
+
 Here ``visits'' includes the endpoints of the finite path.  Thus, for
 $u=\varepsilon$, we have $p\xrightarrow{\varepsilon}_{F}p$ exactly when
 $p\in F$.  The convention is harmless but important: when transition
@@ -287,6 +302,14 @@ facts:
 Two words are equivalent, written $u\approx_A v$, if they have the same
 answers for every pair $(p,q)$.
 \end{definition}
+
+The operational test is: given two finite words $u$ and $v$, check every
+ordered pair of states $(p,q)$ and ask three questions --- is $q$
+reachable from $p$ via $u$?  via $v$?  and in each case, does an
+accepting path exist?  If $u$ and $v$ give identical answers on every
+pair, they are $\approx_A$-equivalent.  Equivalent words are
+interchangeable as finite blocks inside any infinite run without
+affecting acceptance.
 
 The relation $\approx_A$ has finite index because each word determines a
 finite Boolean table over $Q\times Q$.  It is also a congruence: the
@@ -476,6 +499,25 @@ be partitioned into blocks that are indistinguishable by the finite
 congruence, and the repeated block class is closed under concatenating
 its own blocks.
 
+\begin{example}[Ramsey decomposition on the running automaton]
+\label{ex:ramsey-running}
+Return to the automaton $A$ of \cref{fig:profile-automaton}.  Consider
+the $\omega$-word
+\[
+  \alpha = a\underbrace{bc}_{\textstyle v_1}\underbrace{abc}_{\textstyle v_2}
+           \underbrace{abc}_{\textstyle v_3}\cdots
+\]
+which is \emph{not} ultimately periodic (we could scatter extra $c$'s
+irregularly), yet we can cut it after the initial $a$ and then into
+blocks $bc, abc, abc, \ldots$  The blocks $abc$ all have the same
+$\approx_A$-profile: they take $s_0$ to $s_2$ while visiting
+$s_1\in F$, and take $s_2$ to $s_2$ while visiting $s_1\in F$.  The
+first block $bc$ may differ, but every block from the second onward
+shares the same class $V$.  This is exactly the decomposition promised by
+\cref{lem:homogeneous-decomposition}: a finite prefix $u_0=a$, then
+infinitely many blocks from the same idempotent class $V$.
+\end{example}
+
 \aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha[k,m]$ and $\alpha[k',m]$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
 
 Two remarks will help when reading the proof below.  First, the
@@ -534,6 +576,18 @@ is accepting.
 We have shown that an arbitrary $\beta\in UV^\omega$ is accepted, so
 $UV^\omega\subseteq L(A)$.
 \end{proof}
+
+\begin{example}[Saturation on the running automaton]
+\label{ex:saturation-running}
+In the automaton of \cref{fig:profile-automaton}, let $U$ be the
+$\approx_A$-class of $a$ and $V$ the class of $abc$.  The word
+$\alpha = a(abc)^\omega$ is accepted: the run visits $s_1\in F$ during
+every $abc$ block.  By \cref{lem:profile-saturation}, the entire product
+$UV^\omega$ is contained in $L(A)$.  Now let $V'$ be the class of $c$.
+No word in $UV'^\omega$ is accepted, because blocks from $V'$ never
+visit $s_1$.  Hence $UV'^\omega\subseteq\overline{L(A)}$: this class
+product belongs entirely to the complement.
+\end{example}
 
 \begin{theorem}[Complementation of B\"uchi-recognizable languages]
 \label{thm:buchi-complementation}
@@ -672,6 +726,21 @@ This is the automata-theoretic backbone of model checking: search for an
 execution of the system that violates the specification.  If none
 exists, inclusion holds.
 
+\subsection*{Notation Recap}
+
+\begin{tabular}{@{}l@{\quad}l@{}}
+  $\equiv$, $\approx_A$ & congruence on $\Sigma^*$; automaton-induced congruence \\
+  $[u]_\equiv$ & equivalence class of the finite word $u$ \\
+  $U, V$ & equivalence classes (sets of finite words) \\
+  $UV^\omega$ & class product: a word from $U$ followed by $\omega$-many from $V$ \\
+  $p \xrightarrow{u} q$ & there is a path from $p$ to $q$ labelled $u$ \\
+  $p \xrightarrow{u}_{F} q$ & such a path exists and visits an accepting state \\
+  $3^{n^2}$ & upper bound on the number of $\approx_A$-classes ($n=|Q|$) \\
+  $\overline{L}$ & complement $\Sigma^\omega\setminus L$ \\
+\end{tabular}
+
+\bigskip
+
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item B\"uchi complementation cannot be done by simply swapping final
@@ -706,9 +775,13 @@ one symbol.  Which class contains $\varepsilon$?
 \end{chapex}
 
 \begin{chapex}[Why profiles need accepting information]
-Give two finite paths from a state $p$ back to $p$, one visiting an
-accepting state and one not.  Explain why ordinary reachability
-information is insufficient for B\"uchi complementation.
+In the automaton of \cref{fig:profile-automaton}, find two finite words
+$u$ and $v$ such that $s_2\xrightarrow{u}s_2$ and
+$s_2\xrightarrow{v}s_2$ (same endpoints), but one path visits $F$ and
+the other does not.  Write the transition profile of each word and show
+that if we dropped the accepting-path column, the two profiles would
+coincide.  Construct an $\omega$-word accepted via $u$-blocks and argue
+that replacing them with $v$-blocks breaks acceptance.
 \end{chapex}
 
 \begin{chapex}[Inclusion reduction]

@@ -47,6 +47,66 @@ the winning condition says which infinite interactions are acceptable.
 \label{sec:verification-to-synthesis}
 % ============================================================
 
+Before defining synthesis in the abstract, let us start with a small
+problem that shows the flavour of the task.
+
+\begin{example}[A three-property specification]
+\label{ex:three-properties}
+An infinite binary input stream $\alpha=\alpha_0\alpha_1\cdots$ arrives
+one bit at a time.  We must build a machine that produces an infinite
+binary output stream $\beta=\beta_0\beta_1\cdots$ satisfying three
+requirements simultaneously:
+\begin{enumerate}[nosep,label=(\roman*)]
+  \item \emph{Echo ones:} for every $t$, if $\alpha_t=1$ then
+        $\beta_t=1$.
+  \item \emph{No consecutive output zeros:} for every $t$, not both
+        $\beta_t=0$ and $\beta_{t+1}=0$.
+  \item \emph{Liveness:} if $\alpha$ contains infinitely many zeros, then
+        $\beta$ must also contain infinitely many zeros.
+\end{enumerate}
+Condition~(i) alone is trivially solved by the constant function
+$\beta_t=1$ for all $t$: every input one is echoed, and no input
+constrains the output on zeros.  This candidate also satisfies~(ii), but
+it fails~(iii): if the input has infinitely many zeros, the constant-one
+output has \emph{no} zeros at all.
+
+Can we do better?  The identity function $\beta_t=\alpha_t$ satisfies
+(i) and~(iii) but fails~(ii) whenever two consecutive input zeros
+appear.
+
+The trick is to alternate: upon seeing an input zero, output zero if the
+\emph{previous} output on an input zero was one, and output one
+otherwise.  This requires exactly one bit of memory---which zero-output
+was last.  The result is a two-state Mealy transducer:
+\begin{center}
+\begin{tikzpicture}[
+  state/.style={circle, draw, thick, minimum size=12mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (L) {$L_0$};
+  \node[state, right=35mm of L] (R) {$L_1$};
+  \draw[arr] (L) edge[loop above] node[above,font=\small] {$1/1$} (L);
+  \draw[arr] (R) edge[loop above] node[above,font=\small] {$1/1$} (R);
+  \draw[arr] (L) edge[bend left=20] node[above,font=\small] {$0/1$} (R);
+  \draw[arr] (R) edge[bend left=20] node[below,font=\small] {$0/0$} (L);
+  \draw[arr] ([xshift=-12mm]L.west) -- (L);
+\end{tikzpicture}
+\end{center}
+State $L_0$ means ``the last output on an input zero was~$0$'';
+$L_1$ means ``the last output on an input zero was~$1$''.  On input~$1$,
+both states output~$1$ and stay put.  On input~$0$, the machine
+alternates between outputting~$0$ and~$1$, switching state each time.
+All three conditions are met for every input stream.
+\end{example}
+
+The example already exposes the two structural constraints that any
+synthesis solution must satisfy.  First, the machine reacts \emph{bit by
+bit}: when the $n$-th input arrives, the $n$-th output must be produced
+immediately, using only the input prefix seen so far.  Second, the
+machine is \emph{finite-state}: all relevant history is compressed into
+finitely many memory states (here, two).  The rest of this section makes
+both constraints precise.
+
 \begin{definition}[Reactive synthesis]
 \label{def:reactive-synthesis}
 \textbf{Reactive synthesis} asks whether there exists a finite-state
@@ -70,13 +130,30 @@ history up to time $n$, but not future inputs.  A specification that can
 only be satisfied by looking into the future is not realizable by a
 reactive device.
 
+Not every specification that \emph{has} a solution as a relation between
+two infinite sequences can be realized by a causal, finite-state device.
+Three failure modes illustrate the constraints:
+
 \begin{example}[Satisfiability is not realizability]
 \label{ex:sat-vs-realizable}
-The requirement ``output exactly the next input bit'' is satisfiable as a
-relation between two infinite sequences: for every input sequence there
-exists an output sequence shifted one step earlier.  But it is not
-realizable by a causal transducer, because the system would need to know
-tomorrow's input today.
+\leavevmode
+\begin{enumerate}[nosep,label=(\alph*)]
+  \item \emph{Future dependence.}
+        The requirement ``output exactly the next input bit''
+        ($\beta_t=\alpha_{t+1}$) is satisfiable as a relation, but not
+        realizable: the system would need to know tomorrow's input
+        today.  This violates the bit-to-bit constraint.
+  \item \emph{Unbounded memory.}
+        The requirement $\beta_{2t}=\beta_{2t+1}=\alpha_t$ for all $t$
+        forces the machine to remember $\alpha_t$ until time $2t$.  As
+        $t$ grows, the gap between input and output grows without bound,
+        so no finite memory suffices.
+  \item \emph{Infinite lookahead.}
+        ``Output all ones if the input contains infinitely many ones;
+        otherwise output all zeros.''  No finite prefix of the input
+        determines which case applies, so no causal device can commit to
+        its very first output bit.
+\end{enumerate}
 \end{example}
 
 \begin{definition}[Church's synthesis problem]
@@ -336,16 +413,46 @@ appeared once.  A M\"uller condition ignores them because they do not
 appear infinitely often.
 \end{example}
 
-\begin{formaldetails}[Memory for weak M\"uller]
-For a weak M\"uller objective, finite memory can record the set $R$ of
-states visited so far.  Initially $R=\{v_0\}$, and after visiting $v$ we
-update $R:=R\cup\{v\}$.  There are at most $2^{|V|}$ such memory values.
+\begin{formaldetails}[Appearance record: from weak M\"uller to weak parity]
+\label{formal:weak-muller-to-parity}
+We can reduce a weak M\"uller game to a weak parity game by building a
+strategy automaton that records which arena states have appeared so far.
+This is the \emph{appearance record} construction, and it serves as a
+warmup for the more involved latest appearance record used for full
+M\"uller games.
 
-This memory turns the weak M\"uller game into a weak parity game.  One
-convenient coloring is: assign color $2|R|$ when the currently recorded
-set $R$ is winning, and color $2|R|-1$ otherwise.  Since $R$ only grows,
-the play eventually stabilizes on one recorded set, and the parity
-condition reads whether that final recorded set is winning.
+\medskip\noindent\textbf{The appearance record automaton.}
+Build a Mealy automaton whose state set is $2^V$ (the power set of arena
+vertices).  The initial state is $\emptyset$.  On reading a vertex $v$
+from the play, the automaton updates $R:=R\cup\{v\}$.  Because only
+unions are taken, $R$ grows monotonically and stabilizes after at most
+$|V|$ steps.  The final value of $R$ is exactly $\mathrm{Occ}(\rho)$.
+
+\medskip\noindent\textbf{Coloring.}
+The weak M\"uller winning condition asks whether $\mathrm{Occ}(\rho)
+\in\mathcal{F}$.  We encode this as a weak parity condition by
+assigning each appearance record $R$ a color:
+\[
+  \textit{color}(R)=
+  \begin{cases}
+    2|R|   & \text{if } R\in\mathcal{F}, \\
+    2|R|-1 & \text{otherwise}.
+  \end{cases}
+\]
+Since $R$ only grows, the sequence of colors along a play is
+non-decreasing.  The play eventually stabilizes on a final color
+$c=\textit{color}(\mathrm{Occ}(\rho))$.  The system wins the weak
+parity game if and only if the maximum color seen (equivalently, the
+final color) is even, which happens precisely when
+$\mathrm{Occ}(\rho)\in\mathcal{F}$.
+
+\medskip\noindent\textbf{Memory cost.}
+The expanded arena has $|V|\cdot 2^{|V|}$ vertices (original vertex plus
+appearance record), so the finite-state strategy uses at most $2^{|V|}$
+memory states---the bound stated in \cref{cor:muller-finite-state} for
+the weak case.  A positional winning strategy on the expanded arena
+projects to a finite-state strategy on the original arena via the game
+simulation of \cref{def:game-simulation}.
 \end{formaldetails}
 
 
@@ -594,6 +701,28 @@ With $n$ arena states, the LAR memory has at most $n!\cdot n$ records:
 an ordering of states, plus the hit position.  The construction is an
 \emph{exponential blow-up}, but it stays finite.
 
+\begin{example}[Request-grant as a M\"uller game]
+\label{ex:request-grant-muller}
+Return to the request-grant arena of \cref{ex:request-grant-game}.
+Suppose the arena has three relevant states:
+$\mathit{idle}$ (no pending request),
+$\mathit{pending}$ (request raised, not yet granted), and
+$\mathit{granted}$ (grant just issued).
+The M\"uller family for ``every request is eventually granted'' contains
+exactly the sets that include $\mathit{granted}$\,:
+\[
+  \mathcal{F}=\bigl\{S\subseteq Q : \mathit{granted}\in S\bigr\}.
+\]
+As the play loops through these states, the LAR tracks recency.  If the
+system keeps granting, $\mathit{granted}$ periodically returns to the
+front of the list, producing a hit set that contains $\mathit{granted}$
+and therefore belongs to $\mathcal{F}$---an even color.  If the
+environment keeps requesting but the system never grants,
+$\mathit{granted}$ sinks to the tail of the LAR and vanishes from the
+recurring hit sets, producing an odd color.  The parity condition thus
+captures exactly the liveness requirement.
+\end{example}
+
 \begin{theorem}[B\"uchi--Landweber; positional determinacy of parity games]
 \label{thm:buchi-landweber}
 Every parity game on a finite arena is determined, and the winner has a
@@ -601,9 +730,9 @@ Every parity game on a finite arena is determined, and the winner has a
 region.
 \end{theorem}
 
-\begin{formaldetails}[Proof roadmap]
-The proof is by induction on the number of distinct priorities.  Let
-$c$ be the greatest priority, on a vertex $q$.
+\begin{formaldetails}[Proof roadmap (Zielonka's recursive algorithm)]
+The proof, due to Zielonka (1998), is by induction on the number of
+distinct priorities.  Let $c$ be the greatest priority, on a vertex $q$.
 
 If $c$ is even, the system tries to attract the play to $q$
 infinitely often.  Let $A=\mathsf{Attr}_S(\{q\})$ be the system
@@ -624,6 +753,12 @@ The full argument carefully treats the case where one player cannot
 force the play back into the top-priority vertex; we then recurse on
 the residual subarena where the top priority is absent.
 \end{formaldetails}
+
+\aside{The decision problem ``does the system win from vertex $v$?''
+lies in $\mathrm{NP}\cap\mathrm{coNP}$, but whether it can be solved
+in polynomial time remains a long-standing open question.  The problem
+is equivalent to model checking the modal $\mu$-calculus, so a
+polynomial algorithm for parity games would settle that question too.}
 
 \begin{corollary}[M\"uller games are finite-state determined]
 \label{cor:muller-finite-state}
@@ -648,6 +783,14 @@ determinacy the environment has a counter-strategy, and the
 specification is not realizable.  The pipeline of
 \cref{sec:synthesis-pipeline} therefore returns a sharp yes/no answer,
 plus a witnessing transducer when the answer is yes.
+
+For the request-grant game of \cref{ex:request-grant-muller}, the system
+does have a winning strategy from the initial vertex: always grant
+within finitely many steps.  After the LAR-to-parity reduction and
+Zielonka's algorithm, that strategy is positional in the expanded arena
+and projects back to a finite-state controller---a Mealy transducer
+that solves the original synthesis problem, just as the two-state
+machine solved the three-property example that opened this chapter.
 
 At this point we are using one automata-theoretic result as a black box.
 The logic-to-automaton translation for S1S gives an automaton over
@@ -763,6 +906,31 @@ Synthesis pushes this idea further.  Instead of verifying code after it
 has been written, we try to generate a correct-by-construction
 finite-state controller from the specification.
 
+\section*{Notation Recap}
+\addcontentsline{toc}{section}{Notation Recap}
+
+\begin{center}
+\begin{tabular}{@{}l l@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} \\
+\midrule
+$\Phi(X,Y)$                  & S1S specification with input streams $X$, output streams $Y$ \\
+$M$                          & Mealy transducer (finite-state machine with output) \\
+$G=(V_E,V_S,E)$             & Game arena: environment vertices, system vertices, edges \\
+$V_E$, $V_S$                & Vertices owned by the environment / the system \\
+$T$                          & Target set in a reachability game \\
+$\mathsf{Attr}(T)$          & System attractor to $T$ (least fixed point) \\
+$\mathcal{F}\subseteq 2^Q$  & M\"uller acceptance family \\
+$\inf(\rho)$                & States occurring infinitely often in play $\rho$ \\
+$\mathrm{Occ}(\rho)$        & States occurring at least once in play $\rho$ \\
+LAR                          & Latest appearance record (recency-ordered state list) \\
+hit position                 & Position in the old LAR where a revisited state is found \\
+hit set                      & Prefix of the old LAR up to the hit position \\
+$W_S$, $W_E$                & Winning regions for the system / the environment \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item Synthesis constructs a finite-state system from a specification.
@@ -790,4 +958,21 @@ starting from $T$.  Why is $e_1$ not immediately added?
 \begin{chapex}[Strategy memory]
 Give an example of a property where reacting only to the current input
 symbol is insufficient, but one bit of memory is enough.
+\end{chapex}
+
+\begin{chapex}[LAR update]
+Starting from the empty LAR on state set $\{a,b,c\}$, trace the latest
+appearance record, hit position, and hit set for the visit sequence
+$b,\,c,\,a,\,b,\,c,\,b$.  What is the hit set at the last step, and
+which states would it identify as recurring if the pattern continued?
+\end{chapex}
+
+\begin{chapex}[Solving a small parity game]
+Consider a four-vertex arena with $V_S=\{s_1,s_2\}$,
+$V_E=\{e_1,e_2\}$, priorities $s_1\mapsto 2$, $e_1\mapsto 1$,
+$s_2\mapsto 2$, $e_2\mapsto 3$, and edges
+$s_1\to e_1$, $s_1\to e_2$, $e_1\to s_2$, $e_2\to s_1$,
+$s_2\to e_1$.  Apply the attractor-based induction from the proof
+roadmap of \cref{thm:buchi-landweber} to determine the winning region
+for each player and give a positional winning strategy for the system.
 \end{chapex}
