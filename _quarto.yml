@@ -20,6 +20,12 @@ website:
             href: notebooks/02-nfa-reachable-states.qmd
           - text: "NB 3 — Subset Construction"
             href: notebooks/03-subset-construction.qmd
+          - text: "NB 4 — ε-Closure & ε-Removal"
+            href: notebooks/04-epsilon-closure-removal.qmd
+          - text: "NB 5 — Product Automaton"
+            href: notebooks/05-product-automaton.qmd
+          - text: "NB 6 — Reachability Fixpoint"
+            href: notebooks/06-reachability-fixpoint.qmd
 
 format:
   html:
