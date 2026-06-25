@@ -663,19 +663,46 @@ deterministic state stands for a whole set of possible NFA states.  The
 picture is deliberately about sets, not individual branches.
 
 \begin{proof}
-We prove the invariant: after reading any word $w$, the state reached by
-the DFA is exactly the set of states reachable by some NFA run on $w$.
-For $w=\varepsilon$, both sides are $\{q_0\}$.  If the invariant holds
-for $w$, then after reading $wa$ the DFA applies
+We prove the following invariant by induction on $|w|$: for every
+word $w\in A^*$,
 \[
-  \delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a),
+  \widehat{\delta}_D(\{q_0\},\,w) \;=\; \widehat{\Delta}(q_0,\,w).
 \]
-which is precisely the set of all NFA successors reached by extending
-one valid run on $w$ with one $a$-transition.  Thus the invariant holds
-by induction on the word length.
+A small but important remark about types.  On the left-hand side,
+$\widehat{\delta}_D(\{q_0\},w)$ is a single state of the DFA
+$\mathcal{D}$ --- but every such state is, by construction, a subset of
+$Q$.  On the right-hand side, $\widehat{\Delta}(q_0,w)$ is directly a
+subset of $Q$.  The invariant claims these two subsets coincide.
 
-The NFA accepts $w$ exactly when the reachable set contains some final
-state, which is exactly the definition of $F_D$.
+\medskip
+\noindent\textit{Base case ($w=\varepsilon$).}  The DFA starts in its
+initial state $\{q_0\}$.  The NFA, having consumed no input, can only
+be in $q_0$.  So both sides equal $\{q_0\}$.
+
+\medskip
+\noindent\textit{Inductive step.}  Suppose the invariant holds for some
+word $w$, so that
+\[
+  \widehat{\delta}_D(\{q_0\},w) = \widehat{\Delta}(q_0,w) = S.
+\]
+After reading one more symbol $a$, the DFA applies $\delta_D$:
+\[
+  \widehat{\delta}_D(\{q_0\},wa)
+  \;=\; \delta_D(S,\,a)
+  \;=\; \bigcup_{q\in S}\Delta(q,a).
+\]
+This union is precisely $\widehat{\Delta}(q_0,wa)$: every state it
+contains is reached by extending some NFA run on $w$ with one
+$a$-transition, and every such extension contributes its target to the
+union.  The invariant therefore holds for $wa$.
+
+\medskip
+The invariant immediately gives the language equivalence.  The NFA
+accepts $w$ if and only if $\widehat{\Delta}(q_0,w)\cap F\neq\emptyset$.
+By the invariant this is $\widehat{\delta}_D(\{q_0\},w)\cap
+F\neq\emptyset$, which holds if and only if
+$\widehat{\delta}_D(\{q_0\},w)\in F_D$ --- exactly the DFA acceptance
+condition.  Hence $L(\mathcal{D})=L(\mathcal{A})$.
 \end{proof}
 
 % ============================================================
