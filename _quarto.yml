@@ -18,6 +18,8 @@ website:
             href: notebooks/01-intro.qmd
           - text: "NB 2 — NFA Reachable States"
             href: notebooks/02-nfa-reachable-states.qmd
+          - text: "NB 3 — Subset Construction"
+            href: notebooks/03-subset-construction.qmd
 
 format:
   html:

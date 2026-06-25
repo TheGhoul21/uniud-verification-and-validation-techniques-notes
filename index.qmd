@@ -37,6 +37,12 @@ format:
         <span class="card-title">NFA Reachable States</span>
         <span class="card-desc">Step through the blackboard NFA example</span>
       </a>
+      <a class="algo-card" href="notebooks/02-subset-construction.qmd">
+        <span class="card-num">NB 3</span>
+        <span class="card-title">Subset Construction</span>
+        <span class="card-desc"></span>
+      </a>
+
     </div>
 
   </div>
