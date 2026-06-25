@@ -265,6 +265,73 @@ A word $w\in\Sigma^*$ is accepted by $A$ if and only if
 \]
 \end{definition}
 
+\begin{example}[Tracing $\widehat{\Delta}$ on the word $ab$]
+\label{ex:hat-delta-trace}
+We trace the definition on the $\varepsilon$-NFA from
+\cref{ex:epsilon-nfa-preview}, whose components are:
+\[
+  Q=\{q_0,q_1,r_0,r_1\},\qquad
+  \Sigma=\{a,b\},\qquad
+  q_0\text{ initial},\qquad
+  F=\{r_1\}.
+\]
+The transitions are
+$\Delta(q_0,a)=\{q_1\}$,
+$\Delta(q_1,\varepsilon)=\{r_0\}$,
+$\Delta(r_0,b)=\{r_1\}$,
+and every other entry is $\emptyset$.
+
+\medskip\noindent
+We compute $\widehat{\Delta}(\{q_0\},ab)$ by decomposing the word
+as $w=a$ and the last symbol $b$, then further decomposing $w=\varepsilon$
+followed by $a$.
+
+\medskip\noindent
+\textbf{Step 1 --- base case ($w=\varepsilon$).}
+\[
+  \widehat{\Delta}(\{q_0\},\varepsilon)
+  =\mathsf{ECl}(\{q_0\})
+  =\{q_0\}.
+\]
+State $q_0$ has no outgoing $\varepsilon$-edges, so its closure is
+just itself.
+
+\medskip\noindent
+\textbf{Step 2 --- read $a$ (inductive step with $w=\varepsilon$,
+$a=a$).}
+\[
+  \widehat{\Delta}(\{q_0\},a)
+  =\mathsf{ECl}\!\Bigl(
+      \bigcup_{p\,\in\,\{q_0\}}\Delta(p,a)
+   \Bigr)
+  =\mathsf{ECl}\!\bigl(\Delta(q_0,a)\bigr)
+  =\mathsf{ECl}(\{q_1\})
+  =\{q_1,r_0\}.
+\]
+After reading $a$ we are in $q_1$; the $\varepsilon$-closure then adds
+$r_0$ because $q_1\xrightarrow{\varepsilon}r_0$.
+
+\medskip\noindent
+\textbf{Step 3 --- read $b$ (inductive step with $w=a$, $a=b$).}
+\[
+  \widehat{\Delta}(\{q_0\},ab)
+  =\mathsf{ECl}\!\Bigl(
+      \bigcup_{p\,\in\,\{q_1,r_0\}}\Delta(p,b)
+   \Bigr)
+  =\mathsf{ECl}\!\bigl(\Delta(q_1,b)\cup\Delta(r_0,b)\bigr)
+  =\mathsf{ECl}(\emptyset\cup\{r_1\})
+  =\{r_1\}.
+\]
+From $q_1$ there is no $b$-transition ($\Delta(q_1,b)=\emptyset$);
+from $r_0$ we get $r_1$.  Since $r_1$ has no outgoing
+$\varepsilon$-edges, the closure is $\{r_1\}$.
+
+\medskip\noindent
+\textbf{Acceptance check.}
+$\widehat{\Delta}(\{q_0\},ab)\cap F
+=\{r_1\}\cap\{r_1\}=\{r_1\}\neq\emptyset$,
+so $ab$ is accepted.
+\end{example}
 
 \begin{theorem}[$\varepsilon$-removal]
 \label{thm:epsilon-removal}
