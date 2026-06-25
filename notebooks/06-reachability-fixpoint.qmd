@@ -1,0 +1,673 @@
+---
+title: "Notebook 6: Reachability Fixpoint & Decision Problems"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# Reachability Fixpoint & Decision Problems
+
+This notebook walks through the **reachability fixpoint** algorithm for
+deciding language emptiness, and then shows how **universality**, **inclusion**,
+and **equivalence** all reduce to emptiness checks.
+
+**Running example -- DFA that accepts words containing "aaa":**
+
+- States: $q_0, q_1, q_2, q_3$
+- $\delta(q_0,a)=q_1,\; \delta(q_0,b)=q_0,\; \delta(q_1,a)=q_2,\; \delta(q_1,b)=q_0,\; \delta(q_2,a)=q_3,\; \delta(q_2,b)=q_0,\; \delta(q_3,a)=q_3,\; \delta(q_3,b)=q_3$
+- $F = \{q_3\}$
+
+---
+
+## Widget 1: Reachability Fixpoint Iteration
+
+Click **Step &rarr;** to advance the fixpoint computation one iteration at a time.
+
+```{=html}
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-node-fill: #daf3fc;
+  --sc-active-fill: #30bced;
+  --sc-active-stroke: #1f8fb7;
+  --sc-dead-fill: #fee8e3;
+  --sc-dead-stroke: #fc5130;
+  --sc-new-fill: #fff3b0;
+  --sc-new-border: #e9c46a;
+  --sc-proc-fill: #d4f7ef;
+  --sc-proc-border: #2ec4b6;
+  --sc-text: #050401;
+  --sc-label: #303036;
+  --rf-reached: #2ec4b6;
+  --rf-reached-fill: #d4f7ef;
+  --rf-new: #d4860b;
+  --rf-new-fill: #fff3b0;
+  --rf-unreached: #999;
+  --rf-unreached-fill: #e8e8e8;
+  --rf-fixpoint: #30bced;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-btn:disabled { opacity: 0.4; cursor: default; }
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-progress { font-size: 0.85rem; color: var(--sc-label); margin-left: auto; }
+.sc-explain {
+  background: #f0faff;
+  border-left: 4px solid var(--sc-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  min-height: 52px;
+}
+.sc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+.sc-table th, .sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 7px 8px;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.sc-table th { color: var(--sc-label); font-family: system-ui, sans-serif; }
+.sc-table td.highlight { background: #fff3b0; }
+.sc-workspace {
+  display: grid;
+  grid-template-columns: minmax(340px, 1.2fr) minmax(260px, 0.8fr);
+  gap: 16px;
+}
+@media (max-width: 820px) { .sc-workspace { grid-template-columns: 1fr; } }
+
+/* Widget 2 tabs */
+.rf-tab-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+}
+.rf-tab {
+  border: 1px solid var(--sc-border);
+  border-bottom: none;
+  background: var(--sc-bg);
+  color: var(--sc-label);
+  border-radius: 8px 8px 0 0;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.93rem;
+  margin-right: -1px;
+}
+.rf-tab.active {
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-color: var(--sc-primary);
+}
+.rf-tab-panel {
+  display: none;
+  border: 1px solid var(--sc-border);
+  border-radius: 0 10px 10px 10px;
+  padding: 16px;
+  background: var(--sc-bg);
+}
+.rf-tab-panel.active { display: block; }
+</style>
+
+<!-- WIDGET 1 -->
+<div class="sc-lab" id="rf-w1-lab">
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="rf-w1-step">Step &#x2192;</button>
+    <button class="sc-btn alt" id="rf-w1-reset">Reset</button>
+    <span class="sc-progress" id="rf-w1-progress">Iteration 0 / 5</span>
+  </div>
+  <div class="sc-explain" id="rf-w1-explain"></div>
+  <div class="sc-workspace">
+    <div class="sc-panel">
+      <h4>DFA &mdash; "contains aaa"</h4>
+      <svg id="rf-w1-svg" style="width:100%;height:auto;display:block;" viewBox="0 0 620 160" role="img" aria-label="DFA for words containing aaa">
+        <defs>
+          <marker id="rf-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <!-- initial arrow -->
+        <line x1="30" y1="80" x2="68" y2="80" stroke="#303036" stroke-width="2" marker-end="url(#rf-arrow)"/>
+
+        <!-- edges: a-transitions (top arcs) -->
+        <path class="rf-edge" d="M 118 68 C 140 20, 200 20, 222 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="165" y="25">a</text>
+
+        <path class="rf-edge" d="M 258 68 C 280 20, 340 20, 362 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="305" y="25">a</text>
+
+        <path class="rf-edge" d="M 398 68 C 420 20, 480 20, 502 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="445" y="25">a</text>
+
+        <!-- edges: b-transitions (bottom arcs back to q0) -->
+        <path class="rf-edge" d="M 222 92 C 200 140, 140 140, 118 92" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="165" y="152">b</text>
+
+        <path class="rf-edge" d="M 362 92 C 340 150, 160 150, 118 95" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="230" y="158">b</text>
+
+        <!-- b self-loop on q0 -->
+        <path class="rf-edge" d="M 80 62 C 60 15, 120 15, 100 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="78" y="12">b</text>
+
+        <!-- a,b self-loop on q3 -->
+        <path class="rf-edge" d="M 510 62 C 490 10, 560 10, 540 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"/>
+        <text fill="#303036" font-size="13" font-weight="700" x="510" y="8">a,b</text>
+
+        <!-- nodes -->
+        <g id="rf-node-q0" transform="translate(90,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"/>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2080;</text>
+        </g>
+        <g id="rf-node-q1" transform="translate(230,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"/>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2081;</text>
+        </g>
+        <g id="rf-node-q2" transform="translate(370,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"/>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2082;</text>
+        </g>
+        <g id="rf-node-q3" transform="translate(520,80)">
+          <circle r="34" fill="none" stroke="#999" stroke-width="1.5"/>
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"/>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2083;</text>
+        </g>
+      </svg>
+    </div>
+    <div class="sc-panel">
+      <h4>Iteration Table</h4>
+      <table class="sc-table">
+        <thead><tr><th>i</th><th>R&#x1D62;</th><th>Post(R&#x1D62;)</th><th>New</th></tr></thead>
+        <tbody id="rf-w1-table"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STEPS = [
+    {
+      explain: "<b>Iteration 0 &mdash; Initialise.</b> R&#x2080; = {q&#x2080;} (the initial state). No Post computed yet.",
+      reached: ["q0"], newStates: ["q0"], iter: [],
+      tableRows: [{i:"0", r:"{q₀}", post:"—", news:"{q₀}"}]
+    },
+    {
+      explain: "<b>Iteration 1 &mdash; Compute Post(R&#x2080;).</b> Post({q&#x2080;}) = {q&#x2080;, q&#x2081;} (q&#x2080; &xrarr;b q&#x2080;, q&#x2080; &xrarr;a q&#x2081;). R&#x2081; = R&#x2080; &cup; Post(R&#x2080;) = <code>{q&#x2080;, q&#x2081;}</code>. New state: <b>q&#x2081;</b>.",
+      reached: ["q0","q1"], newStates: ["q1"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 2 &mdash; Compute Post(R&#x2081;).</b> Post({q&#x2080;, q&#x2081;}) = {q&#x2080;, q&#x2081;, q&#x2082;} (adds q&#x2081; &xrarr;a q&#x2082;). R&#x2082; = <code>{q&#x2080;, q&#x2081;, q&#x2082;}</code>. New state: <b>q&#x2082;</b>.",
+      reached: ["q0","q1","q2"], newStates: ["q2"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 3 &mdash; Compute Post(R&#x2082;).</b> Post({q&#x2080;, q&#x2081;, q&#x2082;}) = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} (adds q&#x2082; &xrarr;a q&#x2083;). R&#x2083; = <code>{q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}</code>. New state: <b>q&#x2083;</b>.",
+      reached: ["q0","q1","q2","q3"], newStates: ["q3"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}"},
+        {i:"3", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"{q₃}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 4 &mdash; Compute Post(R&#x2083;).</b> Post({q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}) = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} = R&#x2083;. <b>FIXPOINT REACHED!</b><br><br>R* &cap; F = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} &cap; {q&#x2083;} = {q&#x2083;} &ne; &empty; &rarr; <b>Language is NON-EMPTY.</b> Shortest witness: <code>aaa</code> (length 3, first reaching q&#x2083; at iteration 3).",
+      reached: ["q0","q1","q2","q3"], newStates: [], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}"},
+        {i:"3", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"{q₃}"},
+        {i:"4", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"∅", hl:true}
+      ]
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn    = document.getElementById("rf-w1-step");
+  var resetBtn   = document.getElementById("rf-w1-reset");
+  var progressEl = document.getElementById("rf-w1-progress");
+  var explainEl  = document.getElementById("rf-w1-explain");
+  var tableEl    = document.getElementById("rf-w1-table");
+
+  var nodeIds = ["q0","q1","q2","q3"];
+
+  function colorNode(id, mode) {
+    var g = document.getElementById("rf-node-" + id);
+    var circles = g.querySelectorAll("circle");
+    if (mode === "new") {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#fff3b0");
+          c.setAttribute("stroke", "#d4860b");
+          c.setAttribute("stroke-width", "3");
+        } else {
+          c.setAttribute("stroke", "#d4860b");
+        }
+      });
+    } else if (mode === "reached") {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#d4f7ef");
+          c.setAttribute("stroke", "#2ec4b6");
+          c.setAttribute("stroke-width", "3");
+        } else {
+          c.setAttribute("stroke", "#2ec4b6");
+        }
+      });
+    } else {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#e8e8e8");
+          c.setAttribute("stroke", "#999");
+          c.setAttribute("stroke-width", "2");
+        } else {
+          c.setAttribute("stroke", "#999");
+        }
+      });
+    }
+  }
+
+  function renderTable(rows) {
+    tableEl.innerHTML = "";
+    rows.forEach(function(row) {
+      var tr = document.createElement("tr");
+      ["i","r","post","news"].forEach(function(key) {
+        var td = document.createElement("td");
+        td.textContent = row[key];
+        if (row.hl && key !== "i") td.className = "highlight";
+        tr.appendChild(td);
+      });
+      tableEl.appendChild(tr);
+    });
+  }
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Iteration " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    nodeIds.forEach(function(nid) {
+      if (s.newStates.indexOf(nid) >= 0) {
+        colorNode(nid, "new");
+      } else if (s.reached.indexOf(nid) >= 0) {
+        colorNode(nid, "reached");
+      } else {
+        colorNode(nid, "unreached");
+      }
+    });
+    renderTable(s.tableRows);
+    stepBtn.disabled  = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+```
+
+---
+
+## Widget 2: Decision Problem Reductions
+
+All standard decision problems for regular languages reduce to **emptiness**.
+Click the tabs below to see each reduction in action.
+
+```{=html}
+<div class="sc-lab" id="rf-w2-lab">
+  <div class="rf-tab-row">
+    <button class="rf-tab active" id="rf-tab-univ" onclick="rfShowTab('univ')">Universality</button>
+    <button class="rf-tab" id="rf-tab-incl" onclick="rfShowTab('incl')">Inclusion</button>
+    <button class="rf-tab" id="rf-tab-equiv" onclick="rfShowTab('equiv')">Equivalence</button>
+  </div>
+
+  <!-- PANEL A: Universality -->
+  <div class="rf-tab-panel active" id="rf-panel-univ">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-univ-step">Step &#x2192;</button>
+      <button class="sc-btn alt" id="rf-univ-reset">Reset</button>
+      <span class="sc-progress" id="rf-univ-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-univ-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4>Complement DFA &mdash; swap accepting states</h4>
+        <svg id="rf-univ-svg" style="width:100%;height:auto;display:block;" viewBox="0 0 620 160" role="img" aria-label="Complement DFA">
+          <defs>
+            <marker id="rf-univ-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+              <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+            </marker>
+          </defs>
+          <line x1="30" y1="80" x2="68" y2="80" stroke="#303036" stroke-width="2" marker-end="url(#rf-univ-arrow)"/>
+          <!-- a-transitions -->
+          <path d="M 118 68 C 140 20, 200 20, 222 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="165" y="25">a</text>
+          <path d="M 258 68 C 280 20, 340 20, 362 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="305" y="25">a</text>
+          <path d="M 398 68 C 420 20, 480 20, 502 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="445" y="25">a</text>
+          <!-- b-transitions -->
+          <path d="M 222 92 C 200 140, 140 140, 118 92" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="165" y="152">b</text>
+          <path d="M 362 92 C 340 150, 160 150, 118 95" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="230" y="158">b</text>
+          <path d="M 80 62 C 60 15, 120 15, 100 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="78" y="12">b</text>
+          <path d="M 510 62 C 490 10, 560 10, 540 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"/>
+          <text fill="#303036" font-size="13" font-weight="700" x="510" y="8">a,b</text>
+          <!-- nodes: q0,q1,q2 are now accepting (double circle), q3 is non-accepting -->
+          <g id="rf-univ-q0" transform="translate(90,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"/>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2080;</text>
+          </g>
+          <g id="rf-univ-q1" transform="translate(230,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"/>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2081;</text>
+          </g>
+          <g id="rf-univ-q2" transform="translate(370,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"/>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2082;</text>
+          </g>
+          <g id="rf-univ-q3" transform="translate(520,80)">
+            <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"/>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q&#x2083;</text>
+          </g>
+        </svg>
+      </div>
+      <div class="sc-panel">
+        <h4>Reduction summary</h4>
+        <div id="rf-univ-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL B: Inclusion -->
+  <div class="rf-tab-panel" id="rf-panel-incl">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-incl-step">Step &#x2192;</button>
+      <button class="sc-btn alt" id="rf-incl-reset">Reset</button>
+      <span class="sc-progress" id="rf-incl-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-incl-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4>Setup</h4>
+        <div id="rf-incl-diagrams" style="font-size:0.93rem;line-height:1.7;">
+        </div>
+      </div>
+      <div class="sc-panel">
+        <h4>Reduction summary</h4>
+        <div id="rf-incl-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL C: Equivalence -->
+  <div class="rf-tab-panel" id="rf-panel-equiv">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-equiv-step">Step &#x2192;</button>
+      <button class="sc-btn alt" id="rf-equiv-reset">Reset</button>
+      <span class="sc-progress" id="rf-equiv-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-equiv-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4>Two inclusion checks</h4>
+        <div id="rf-equiv-diagrams" style="font-size:0.93rem;line-height:1.7;">
+        </div>
+      </div>
+      <div class="sc-panel">
+        <h4>Reduction summary</h4>
+        <div id="rf-equiv-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Tab switching */
+function rfShowTab(name) {
+  ["univ","incl","equiv"].forEach(function(t) {
+    document.getElementById("rf-tab-" + t).className = "rf-tab" + (t === name ? " active" : "");
+    document.getElementById("rf-panel-" + t).className = "rf-tab-panel" + (t === name ? " active" : "");
+  });
+}
+
+/* ---- PANEL A: Universality ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A) = &Sigma;*? Reduction: check whether L(complement(A)) = &empty;.",
+      summary: "<b>Reduction:</b><br>L(A) = &Sigma;* &hArr; &Sigma;* &setminus; L(A) = &empty; &hArr; L(complement(A)) = &empty;<br><br>Complement construction: swap accepting and non-accepting states.<br>Original F = {q&#x2083;} &rarr; Complement F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;}"
+    },
+    {
+      explain: "<b>Step 1 &mdash; Run reachability on complement(A).</b> From Widget 1 we know R* = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} (all states are reachable).",
+      summary: "<b>Reachability:</b><br>R* = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}<br><br>Same fixpoint as in Widget 1 &mdash; complementation does not change the transition structure."
+    },
+    {
+      explain: "<b>Step 2 &mdash; Check emptiness.</b> R* &cap; F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} &cap; {q&#x2080;, q&#x2081;, q&#x2082;} = {q&#x2080;, q&#x2081;, q&#x2082;} &ne; &empty;.",
+      summary: "<b>Emptiness check:</b><br>R* &cap; F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;} &ne; &empty;<br><br>&rarr; complement(A) is <b>non-empty</b>"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Conclude.</b> Since L(complement(A)) &ne; &empty;, we have L(A) &ne; &Sigma;*. The language is <b>NOT universal</b>.",
+      summary: "<b>Result:</b> L(A) &ne; &Sigma;* &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Counterexample:</b> The word <code>b</code>. Reading &lsquo;b&rsquo; from q&#x2080; stays in q&#x2080;, which is accepting in the complement (non-accepting in the original). So <code>b</code> &notin; L(A)."
+    },
+    {
+      explain: "<b>Done.</b> Universality fails because words not containing <code>aaa</code> exist (e.g., <code>b</code>, <code>aa</code>, <code>ab</code>, &hellip;).",
+      summary: "<b>Result:</b> L(A) &ne; &Sigma;* &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Counterexample:</b> <code>b</code> &notin; L(A)<br><br><em>Intuition:</em> L(A) only contains words with &lsquo;aaa&rsquo; as a substring &mdash; clearly not every word."
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-univ-step");
+  var resetBtn = document.getElementById("rf-univ-reset");
+  var progressEl = document.getElementById("rf-univ-progress");
+  var explainEl = document.getElementById("rf-univ-explain");
+  var summaryEl = document.getElementById("rf-univ-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+
+/* ---- PANEL B: Inclusion ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A&#x2081;) &sube; L(A&#x2082;)? where A&#x2081; accepts &ldquo;contains aaa&rdquo; and A&#x2082; accepts &ldquo;contains aa&rdquo;.",
+      diagrams: "<b>A&#x2081;:</b> &ldquo;contains aaa&rdquo; &mdash; 4 states (q&#x2080;&hellip;q&#x2083;), F={q&#x2083;}<br><b>A&#x2082;:</b> &ldquo;contains aa&rdquo; &mdash; 3 states (p&#x2080;, p&#x2081;, p&#x2082;), F={p&#x2082;}<br>&nbsp;&nbsp;&delta;(p&#x2080;,a)=p&#x2081;, &delta;(p&#x2080;,b)=p&#x2080;, &delta;(p&#x2081;,a)=p&#x2082;, &delta;(p&#x2081;,b)=p&#x2080;, &delta;(p&#x2082;,a)=p&#x2082;, &delta;(p&#x2082;,b)=p&#x2082;",
+      summary: "<b>Reduction:</b><br>L(A&#x2081;) &sube; L(A&#x2082;) &hArr; L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;<br><br>Build the product automaton A&#x2081; &times; complement(A&#x2082;) and check emptiness."
+    },
+    {
+      explain: "<b>Step 1 &mdash; Complement A&#x2082;.</b> Swap accepting states: complement(A&#x2082;) has F&#x0304; = {p&#x2080;, p&#x2081;}. It accepts words that do <em>not</em> contain &ldquo;aa&rdquo;.",
+      diagrams: "<b>complement(A&#x2082;):</b> same transitions, F&#x0304; = {p&#x2080;, p&#x2081;}<br><br>Accepts words where no two consecutive &lsquo;a&rsquo;s appear.",
+      summary: "<b>Step 1:</b> complement(A&#x2082;) built.<br>F&#x0304; = {p&#x2080;, p&#x2081;}"
+    },
+    {
+      explain: "<b>Step 2 &mdash; Product automaton A&#x2081; &times; complement(A&#x2082;).</b> States are pairs (q&#x1D62;, p&#x2C7C;). Accepting iff q&#x1D62; &isin; {q&#x2083;} AND p&#x2C7C; &isin; {p&#x2080;, p&#x2081;}.",
+      diagrams: "<b>Product states:</b> (q&#x1D62;, p&#x2C7C;) for i &isin; {0,1,2,3}, j &isin; {0,1,2}.<br>Up to 12 states, but reachability will prune them.<br><br><b>Key insight:</b> To reach q&#x2083; in A&#x2081; we need three consecutive a&rsquo;s, but after two consecutive a&rsquo;s A&#x2082; is already in p&#x2082; (accepting), so complement(A&#x2082;) is in a non-accepting state.",
+      summary: "<b>Step 2:</b> Product A&#x2081; &times; complement(A&#x2082;) constructed.<br><br>Accepting states: (q&#x2083;, p&#x2080;) and (q&#x2083;, p&#x2081;)"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Reachability on the product.</b> From (q&#x2080;, p&#x2080;), reading &lsquo;aa&rsquo; reaches (q&#x2082;, p&#x2082;). Since p&#x2082; &notin; F&#x0304;, the third &lsquo;a&rsquo; goes to (q&#x2083;, p&#x2082;) &mdash; not accepting in the product. No path reaches (q&#x2083;, p&#x2080;) or (q&#x2083;, p&#x2081;).",
+      diagrams: "<b>Reachability trace:</b><br>(q&#x2080;,p&#x2080;) &xrarr;a (q&#x2081;,p&#x2081;) &xrarr;a (q&#x2082;,p&#x2082;) &xrarr;a (q&#x2083;,p&#x2082;)<br><br>To reach q&#x2083; we need &lsquo;aaa&rsquo;, but after &lsquo;aa&rsquo; A&#x2082; is already in p&#x2082; (accepting in A&#x2082;, non-accepting in complement). So (q&#x2083;, p&#x2080;) and (q&#x2083;, p&#x2081;) are <b>unreachable</b>.",
+      summary: "<b>Step 3:</b> R* &cap; F<sub>product</sub> = &empty;<br><br>No accepting product state is reachable."
+    },
+    {
+      explain: "<b>Step 4 &mdash; Conclude.</b> L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;, so L(A&#x2081;) &sube; L(A&#x2082;). Every word containing &ldquo;aaa&rdquo; also contains &ldquo;aa&rdquo;. <b>Inclusion holds!</b>",
+      diagrams: "<b>Result:</b> L(&ldquo;contains aaa&rdquo;) &sube; L(&ldquo;contains aa&rdquo;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br><em>Intuition:</em> &ldquo;aaa&rdquo; literally contains &ldquo;aa&rdquo; as a prefix substring.",
+      summary: "<b>Result:</b> L(A&#x2081;) &sube; L(A&#x2082;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br>The product automaton&rsquo;s language is empty &rarr; inclusion holds."
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-incl-step");
+  var resetBtn = document.getElementById("rf-incl-reset");
+  var progressEl = document.getElementById("rf-incl-progress");
+  var explainEl = document.getElementById("rf-incl-explain");
+  var diagramsEl = document.getElementById("rf-incl-diagrams");
+  var summaryEl = document.getElementById("rf-incl-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    diagramsEl.innerHTML = s.diagrams;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+
+/* ---- PANEL C: Equivalence ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A&#x2081;) = L(A&#x2082;)? Reduction: check both L(A&#x2081;) &sube; L(A&#x2082;) AND L(A&#x2082;) &sube; L(A&#x2081;).",
+      diagrams: "<b>A&#x2081;:</b> &ldquo;contains aaa&rdquo;<br><b>A&#x2082;:</b> &ldquo;contains aa&rdquo;<br><br>Equivalence = mutual inclusion = two emptiness checks.",
+      summary: "<b>Reduction:</b><br>L(A&#x2081;) = L(A&#x2082;) &hArr; L(A&#x2081;) &sube; L(A&#x2082;) AND L(A&#x2082;) &sube; L(A&#x2081;)<br><br>Each inclusion is an emptiness check on a product automaton."
+    },
+    {
+      explain: "<b>Step 1 &mdash; Check L(A&#x2081;) &sube; L(A&#x2082;).</b> From the Inclusion panel, we know this holds: L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;.",
+      diagrams: "<b>Check 1:</b> L(A&#x2081;) &sube; L(A&#x2082;)<br><br>L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty; &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br>Every word with &ldquo;aaa&rdquo; also has &ldquo;aa&rdquo;.",
+      summary: "<b>Check 1:</b> L(A&#x2081;) &sube; L(A&#x2082;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span> PASS"
+    },
+    {
+      explain: "<b>Step 2 &mdash; Check L(A&#x2082;) &sube; L(A&#x2081;).</b> Build A&#x2082; &times; complement(A&#x2081;). We need a word in L(A&#x2082;) but not in L(A&#x2081;).",
+      diagrams: "<b>Check 2:</b> L(A&#x2082;) &sube; L(A&#x2081;)?<br><br>Build A&#x2082; &times; complement(A&#x2081;).<br>complement(A&#x2081;) has F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;}.<br><br>Product accepting states: (p&#x2082;, q&#x1D62;) where q&#x1D62; &isin; {q&#x2080;, q&#x2081;, q&#x2082;}.",
+      summary: "<b>Check 2:</b> L(A&#x2082;) &sube; L(A&#x2081;)?<br><br>Building product automaton&hellip;"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Reachability on A&#x2082; &times; complement(A&#x2081;).</b> From (p&#x2080;, q&#x2080;), reading &ldquo;aa&rdquo;: (p&#x2080;,q&#x2080;) &xrarr;a (p&#x2081;,q&#x2081;) &xrarr;a (p&#x2082;,q&#x2082;). The state (p&#x2082;, q&#x2082;) IS accepting in the product (p&#x2082; &isin; F&#x2082; and q&#x2082; &isin; F&#x0304;&#x2081;).",
+      diagrams: "<b>Reachability trace:</b><br>(p&#x2080;,q&#x2080;) &xrarr;a (p&#x2081;,q&#x2081;) &xrarr;a <b>(p&#x2082;,q&#x2082;)</b><br><br>(p&#x2082;, q&#x2082;) is <b>accepting</b> in the product!<br>p&#x2082; &isin; {p&#x2082;} = F&#x2082; &nbsp;&#x2714;<br>q&#x2082; &isin; {q&#x2080;, q&#x2081;, q&#x2082;} = F&#x0304;&#x2081; &nbsp;&#x2714;",
+      summary: "<b>Check 2:</b> R* &cap; F<sub>product</sub> &ne; &empty;<br><br>Witness: <code>aa</code> &isin; L(A&#x2082;) but <code>aa</code> &notin; L(A&#x2081;)<br><br>L(A&#x2082;) &nsube; L(A&#x2081;) &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span> FAIL"
+    },
+    {
+      explain: "<b>Step 4 &mdash; Conclude.</b> L(A&#x2081;) &sube; L(A&#x2082;) holds, but L(A&#x2082;) &sube; L(A&#x2081;) fails. Therefore L(A&#x2081;) &ne; L(A&#x2082;). The languages are <b>NOT equivalent</b>.",
+      diagrams: "<b>Result:</b> L(A&#x2081;) &ne; L(A&#x2082;) &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Separating word:</b> <code>aa</code><br>&bull; <code>aa</code> &isin; L(&ldquo;contains aa&rdquo;) = L(A&#x2082;) &nbsp;&#x2714;<br>&bull; <code>aa</code> &notin; L(&ldquo;contains aaa&rdquo;) = L(A&#x2081;) &nbsp;&#x2718;<br><br>L(A&#x2081;) &subne; L(A&#x2082;): &ldquo;contains aaa&rdquo; is a <em>strict</em> subset of &ldquo;contains aa&rdquo;.",
+      summary: "<b>Final verdict:</b><br><br><table class='sc-table' style='text-align:left;'><tr><td>L(A&#x2081;) &sube; L(A&#x2082;)</td><td><span style='color:#2ec4b6;font-weight:900;'>&#x2714; PASS</span></td></tr><tr><td>L(A&#x2082;) &sube; L(A&#x2081;)</td><td><span style='color:#fc5130;font-weight:900;'>&#x2718; FAIL</span></td></tr><tr><td style='font-weight:900;'>L(A&#x2081;) = L(A&#x2082;)</td><td><span style='color:#fc5130;font-weight:900;'>&#x2718; NOT EQUIVALENT</span></td></tr></table>"
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-equiv-step");
+  var resetBtn = document.getElementById("rf-equiv-reset");
+  var progressEl = document.getElementById("rf-equiv-progress");
+  var explainEl = document.getElementById("rf-equiv-explain");
+  var diagramsEl = document.getElementById("rf-equiv-diagrams");
+  var summaryEl = document.getElementById("rf-equiv-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    diagramsEl.innerHTML = s.diagrams;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+```
+
+---
+
+## What To Notice
+
+1. **The fixpoint converges in at most |Q| iterations.**
+   Here we have 4 states, and the fixpoint is reached in exactly 4 steps
+   (iterations 0 through 3 discover one new state each; iteration 4 confirms
+   the fixpoint). In general $R_i \subseteq R_{i+1} \subseteq Q$, so the chain
+   stabilises after at most $|Q|$ steps.
+
+2. **The iteration discovers states in BFS order from $q_0$.**
+   $R_0 = \{q_0\}$, then $q_1$ appears at distance 1, $q_2$ at distance 2,
+   $q_3$ at distance 3 -- exactly the breadth-first layers of the transition
+   graph. The iteration counter $i$ at which a state first appears equals its
+   shortest-path distance from $q_0$, which is why the shortest witness for
+   non-emptiness has length 3.
+
+3. **All decision problems reduce to emptiness via closure constructions.**
+   Universality uses complementation, inclusion uses product with complement,
+   equivalence uses two inclusion checks. The only "engine" is
+   $L(\mathcal{A}) \stackrel{?}{=} \varnothing$, which is reachability.
+
+4. **Emptiness itself is just graph reachability.**
+   The fixpoint iteration $R_{i+1} = R_i \cup \mathrm{Post}(R_i)$ is a
+   standard BFS on the state graph. This is the fundamental algorithm
+   underlying model checking: verify a property by exploring the reachable
+   state space and checking whether any "bad" (or "accepting") state is
+   reachable.

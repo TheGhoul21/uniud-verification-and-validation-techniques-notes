@@ -1,0 +1,971 @@
+---
+title: "Notebook 5: Product Automaton — Intersection of DFAs"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# Product Automaton (DFA Intersection)
+
+This notebook walks through the **product automaton** construction that builds
+a DFA recognising $L(A_1) \cap L(A_2)$ from two given DFAs.  The running
+example uses two automata over $\Sigma = \{a,b\}$:
+
+**$A_1$ — "ends in $a$":**
+
+- States: $p_0$ (initial, non-accepting), $p_1$ (accepting)
+- $\delta_1(p_0,a)=p_1$, $\delta_1(p_0,b)=p_0$, $\delta_1(p_1,a)=p_1$, $\delta_1(p_1,b)=p_0$
+
+**$A_2$ — "even number of $a$'s":**
+
+- States: $r_0$ (initial, accepting), $r_1$ (non-accepting)
+- $\delta_2(r_0,a)=r_1$, $\delta_2(r_0,b)=r_0$, $\delta_2(r_1,a)=r_0$, $\delta_2(r_1,b)=r_1$
+
+**Product automaton:** 4 states $\{(p_0,r_0),\,(p_0,r_1),\,(p_1,r_0),\,(p_1,r_1)\}$, with accepting set $F = F_1 \times F_2 = \{(p_1,r_0)\}$.
+
+---
+
+## Widget 1: Step-by-Step Product Construction
+
+Click **Step →** to advance through the product construction one micro-step at a time.
+
+```{=html}
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-node-fill: #daf3fc;
+  --sc-active-fill: #30bced;
+  --sc-active-stroke: #1f8fb7;
+  --sc-dead-fill: #fee8e3;
+  --sc-dead-stroke: #fc5130;
+  --sc-new-fill: #fff3b0;
+  --sc-new-border: #e9c46a;
+  --sc-proc-fill: #d4f7ef;
+  --sc-proc-border: #2ec4b6;
+  --sc-text: #050401;
+  --sc-label: #303036;
+  --sc-accept-fill: #b6e8c8;
+  --sc-accept-stroke: #2a9d5c;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-btn:disabled { opacity: 0.4; cursor: default; }
+.sc-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(260px, 0.9fr);
+  gap: 16px;
+}
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-progress { font-size: 0.85rem; color: var(--sc-label); margin-left: auto; }
+.sc-explain {
+  background: #f0faff;
+  border-left: 4px solid var(--sc-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  min-height: 52px;
+}
+.sc-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 12px;
+  min-height: 28px;
+  align-items: center;
+}
+.sc-badge {
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: 1px solid;
+}
+.sc-badge.worklist { background: var(--sc-new-fill); border-color: var(--sc-new-border); }
+.sc-badge.processed { background: var(--sc-proc-fill); border-color: var(--sc-proc-border); }
+.sc-badge-empty { font-style: italic; color: var(--sc-label); font-size: 0.88rem; }
+.sc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+.sc-table th, .sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 7px 8px;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.sc-table th { color: var(--sc-label); font-family: system-ui, sans-serif; }
+.sc-table td.highlight { background: #fff3b0; }
+.sc-table tr.final-row td:first-child { color: #d4860b; font-weight: 900; }
+@media (max-width: 820px) { .sc-workspace { grid-template-columns: 1fr; } }
+
+/* Source automata side-by-side */
+.pa-source-graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 700px) { .pa-source-graphs { grid-template-columns: 1fr; } }
+.sc-graph-wrap {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 10px;
+}
+.sc-graph-wrap h4 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-nfa-node circle {
+  fill: var(--sc-node-fill);
+  stroke: var(--sc-primary);
+  stroke-width: 2;
+  transition: fill .25s, stroke .25s;
+}
+.sc-nfa-node.active circle { fill: var(--sc-active-fill); stroke: var(--sc-active-stroke); stroke-width: 3; }
+.sc-nfa-node text { fill: var(--sc-text); font-weight: 700; font-size: 14px; }
+.sc-nfa-edge { stroke: var(--sc-label); stroke-width: 2; fill: none; }
+.sc-nfa-edge.active { stroke: #fc5130; stroke-width: 3; }
+.sc-nfa-edge-label { fill: var(--sc-label); font-size: 13px; font-weight: 700; }
+
+/* Product automaton graph */
+.pa-prod-node circle {
+  fill: var(--sc-node-fill);
+  stroke: var(--sc-primary);
+  stroke-width: 2;
+  transition: fill .25s, stroke .25s, opacity .25s;
+}
+.pa-prod-node.active circle { fill: var(--sc-active-fill); stroke: var(--sc-active-stroke); stroke-width: 3; }
+.pa-prod-node.accept circle { fill: var(--sc-accept-fill); stroke: var(--sc-accept-stroke); stroke-width: 2.5; }
+.pa-prod-node.hidden { opacity: 0; }
+.pa-prod-node text { fill: var(--sc-text); font-weight: 700; font-size: 12px; transition: opacity .25s; }
+.pa-prod-edge { stroke: var(--sc-label); stroke-width: 2; fill: none; transition: opacity .25s; }
+.pa-prod-edge.hidden { opacity: 0; }
+.pa-prod-edge.active { stroke: #fc5130; stroke-width: 3; }
+.pa-prod-edge-label { fill: var(--sc-label); font-size: 11px; font-weight: 700; transition: opacity .25s; }
+.pa-prod-edge-label.hidden { opacity: 0; }
+
+/* Widget 2 */
+.sc-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.sc-field label { font-size: 0.88rem; font-weight: 700; color: var(--sc-label); }
+.sc-field input {
+  border: 1px solid #8ddaf5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--sc-bg);
+  font-size: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  max-width: 180px;
+}
+.sc-symbol-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  min-height: 36px;
+  align-items: center;
+}
+.sc-sym {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #8ddaf5;
+  border-radius: 7px;
+  background: var(--sc-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+.sc-sym.current { background: var(--sc-primary); border-color: var(--sc-primary-dark); }
+.sc-three-graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 900px) { .sc-three-graphs { grid-template-columns: 1fr; } }
+</style>
+
+<!-- WIDGET 1 -->
+<div class="sc-lab" id="pa-w1-lab">
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="pa-w1-step">Step &#x2192;</button>
+    <button class="sc-btn alt" id="pa-w1-reset">Reset</button>
+    <span class="sc-progress" id="pa-w1-progress">Step 0 / 14</span>
+  </div>
+  <div class="sc-explain" id="pa-w1-explain"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--sc-label);margin-bottom:4px;">WORKLIST</div>
+      <div class="sc-badge-row" id="pa-w1-worklist"></div>
+    </div>
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--sc-label);margin-bottom:4px;">PROCESSED</div>
+      <div class="sc-badge-row" id="pa-w1-processed"></div>
+    </div>
+  </div>
+
+  <!-- Source automata -->
+  <div class="pa-source-graphs">
+    <div class="sc-graph-wrap">
+      <h4>A&#x2081; &mdash; ends in <i>a</i></h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 420 180" role="img" aria-label="DFA A1: ends in a">
+        <defs>
+          <marker id="pa-a1-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="pa-a1-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <!-- initial arrow -->
+        <line x1="40" y1="90" x2="88" y2="90" stroke="#303036" stroke-width="2" marker-end="url(#pa-a1-arrow)"/>
+        <!-- p0 self-loop (b) -->
+        <path id="pa-a1-p0b" class="sc-nfa-edge" d="M 104 66 C 70 5, 172 5, 138 66" marker-end="url(#pa-a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="112" y="14">b</text>
+        <!-- p0 -> p1 (a) -->
+        <path id="pa-a1-p0a" class="sc-nfa-edge" d="M 148 80 L 268 80" marker-end="url(#pa-a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="202" y="73">a</text>
+        <!-- p1 -> p0 (b) -->
+        <path id="pa-a1-p1b" class="sc-nfa-edge" d="M 274 108 L 152 108" marker-end="url(#pa-a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="202" y="127">b</text>
+        <!-- p1 self-loop (a) -->
+        <path id="pa-a1-p1a" class="sc-nfa-edge" d="M 282 66 C 248 5, 350 5, 316 66" marker-end="url(#pa-a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="290" y="14">a</text>
+        <!-- p0 node -->
+        <g class="sc-nfa-node" id="pa-a1-p0" transform="translate(120,90)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">p&#x2080;</text>
+        </g>
+        <!-- p1 node (accepting) -->
+        <g class="sc-nfa-node" id="pa-a1-p1" transform="translate(300,90)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">p&#x2081;</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="sc-graph-wrap">
+      <h4>A&#x2082; &mdash; even # of <i>a</i>'s</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 420 180" role="img" aria-label="DFA A2: even number of a's">
+        <defs>
+          <marker id="pa-a2-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="pa-a2-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <!-- initial arrow -->
+        <line x1="40" y1="90" x2="88" y2="90" stroke="#303036" stroke-width="2" marker-end="url(#pa-a2-arrow)"/>
+        <!-- r0 self-loop (b) -->
+        <path id="pa-a2-r0b" class="sc-nfa-edge" d="M 104 66 C 70 5, 172 5, 138 66" marker-end="url(#pa-a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="112" y="14">b</text>
+        <!-- r0 -> r1 (a) -->
+        <path id="pa-a2-r0a" class="sc-nfa-edge" d="M 148 80 L 268 80" marker-end="url(#pa-a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="202" y="73">a</text>
+        <!-- r1 -> r0 (a) -->
+        <path id="pa-a2-r1a" class="sc-nfa-edge" d="M 274 108 L 152 108" marker-end="url(#pa-a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="202" y="127">a</text>
+        <!-- r1 self-loop (b) -->
+        <path id="pa-a2-r1b" class="sc-nfa-edge" d="M 282 66 C 248 5, 350 5, 316 66" marker-end="url(#pa-a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="290" y="14">b</text>
+        <!-- r0 node (accepting) -->
+        <g class="sc-nfa-node" id="pa-a2-r0" transform="translate(120,90)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">r&#x2080;</text>
+        </g>
+        <!-- r1 node -->
+        <g class="sc-nfa-node" id="pa-a2-r1" transform="translate(300,90)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">r&#x2081;</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Product automaton and table -->
+  <div class="sc-workspace">
+    <div class="sc-panel">
+      <h4>Product Automaton</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 500 400" role="img" aria-label="Product automaton" id="pa-w1-prod-svg">
+        <defs>
+          <marker id="pa-prod-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="pa-prod-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+
+        <!-- Layout: 2x2 grid
+             (p0,r0) at (130,100)   (p0,r1) at (370,100)
+             (p1,r0) at (130,300)   (p1,r1) at (370,300)
+        -->
+
+        <!-- Initial arrow to (p0,r0) -->
+        <line id="pa-prod-init" class="pa-prod-edge hidden" x1="30" y1="100" x2="88" y2="100" stroke="#303036" stroke-width="2" marker-end="url(#pa-prod-arrow)"/>
+
+        <!-- Edges: horizontal -->
+        <!-- (p0,r0) -a-> (p1,r1): diagonal top-left to bottom-right -->
+        <path id="pa-prod-e-p0r0-a" class="pa-prod-edge hidden" d="M 158 116 L 342 284" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p0r0-a" class="pa-prod-edge-label hidden" x="260" y="188">a</text>
+
+        <!-- (p0,r0) -b-> (p0,r0): self-loop -->
+        <path id="pa-prod-e-p0r0-b" class="pa-prod-edge hidden" d="M 114 76 C 80 15, 182 15, 148 76" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p0r0-b" class="pa-prod-edge-label hidden" x="122" y="22">b</text>
+
+        <!-- (p1,r1) -a-> (p1,r0): horizontal right to left bottom row -->
+        <path id="pa-prod-e-p1r1-a" class="pa-prod-edge hidden" d="M 342 290 L 168 290" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p1r1-a" class="pa-prod-edge-label hidden" x="248" y="283">a</text>
+
+        <!-- (p1,r1) -b-> (p0,r1): vertical bottom to top right col -->
+        <path id="pa-prod-e-p1r1-b" class="pa-prod-edge hidden" d="M 380 272 L 380 128" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p1r1-b" class="pa-prod-edge-label hidden" x="388" y="200">b</text>
+
+        <!-- (p1,r0) -a-> (p1,r1): horizontal left to right bottom row -->
+        <path id="pa-prod-e-p1r0-a" class="pa-prod-edge hidden" d="M 168 310 L 342 310" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p1r0-a" class="pa-prod-edge-label hidden" x="248" y="330">a</text>
+
+        <!-- (p1,r0) -b-> (p0,r0): vertical bottom to top left col -->
+        <path id="pa-prod-e-p1r0-b" class="pa-prod-edge hidden" d="M 120 272 L 120 128" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p1r0-b" class="pa-prod-edge-label hidden" x="95" y="200">b</text>
+
+        <!-- (p0,r1) -a-> (p1,r0): diagonal top-right to bottom-left -->
+        <path id="pa-prod-e-p0r1-a" class="pa-prod-edge hidden" d="M 342 116 L 158 284" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p0r1-a" class="pa-prod-edge-label hidden" x="230" y="218">a</text>
+
+        <!-- (p0,r1) -b-> (p0,r1): self-loop -->
+        <path id="pa-prod-e-p0r1-b" class="pa-prod-edge hidden" d="M 354 76 C 320 15, 422 15, 388 76" marker-end="url(#pa-prod-arrow)"/>
+        <text id="pa-prod-el-p0r1-b" class="pa-prod-edge-label hidden" x="362" y="22">b</text>
+
+        <!-- Nodes -->
+        <g class="pa-prod-node hidden" id="pa-prod-p0r0" transform="translate(130,100)">
+          <circle r="32"></circle>
+          <text text-anchor="middle" dy="5">(p&#x2080;,r&#x2080;)</text>
+        </g>
+        <g class="pa-prod-node hidden" id="pa-prod-p0r1" transform="translate(370,100)">
+          <circle r="32"></circle>
+          <text text-anchor="middle" dy="5">(p&#x2080;,r&#x2081;)</text>
+        </g>
+        <g class="pa-prod-node hidden" id="pa-prod-p1r0" transform="translate(130,300)">
+          <circle r="38" fill="none" stroke="transparent" stroke-width="1.5" id="pa-prod-p1r0-outer"></circle>
+          <circle r="32"></circle>
+          <text text-anchor="middle" dy="5">(p&#x2081;,r&#x2080;)</text>
+        </g>
+        <g class="pa-prod-node hidden" id="pa-prod-p1r1" transform="translate(370,300)">
+          <circle r="32"></circle>
+          <text text-anchor="middle" dy="5">(p&#x2081;,r&#x2081;)</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="sc-panel">
+      <h4>Product Transition Table</h4>
+      <table class="sc-table">
+        <thead><tr><th>State</th><th>a</th><th>b</th></tr></thead>
+        <tbody id="pa-w1-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* Each step: explain, worklist, processed, highlight nodes in A1 (hn1) and A2 (hn2),
+     visible product nodes/edges, table rows, highlight cell, active product edges */
+  var STEPS = [
+    {
+      explain: "<b>Step 0 &mdash; Initialise.</b> The initial product state is (&delta;&#x2081;-start, &delta;&#x2082;-start) = <code>(p&#x2080;,r&#x2080;)</code>. Add it to the worklist.",
+      worklist: ["(p₀,r₀)"], processed: [],
+      hn1: [], hn2: [],
+      showNodes: ["p0r0"], showEdges: [], showInit: true,
+      rows: [], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 1 &mdash; Pop (p&#x2080;,r&#x2080;).</b> Dequeue and begin computing its transitions.",
+      worklist: [], processed: [],
+      hn1: ["p0"], hn2: ["r0"],
+      showNodes: ["p0r0"], showEdges: [], showInit: true,
+      rows: [], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 2 &mdash; Compute &delta;((p&#x2080;,r&#x2080;), a).</b> &delta;&#x2081;(p&#x2080;,a) = p&#x2081; and &delta;&#x2082;(r&#x2080;,a) = r&#x2081;. Result: <code>(p&#x2081;,r&#x2081;)</code> &mdash; new state!",
+      worklist: ["(p₁,r₁)"], processed: [],
+      hn1: ["p0","p1"], hn2: ["r0","r1"],
+      showNodes: ["p0r0","p1r1"], showEdges: ["p0r0-a"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:null}], hc: "(p₀,r₀)|a", activeEdge: "p0r0-a"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Compute &delta;((p&#x2080;,r&#x2080;), b).</b> &delta;&#x2081;(p&#x2080;,b) = p&#x2080; and &delta;&#x2082;(r&#x2080;,b) = r&#x2080;. Result: <code>(p&#x2080;,r&#x2080;)</code> &mdash; self-loop, already known.",
+      worklist: ["(p₁,r₁)"], processed: [],
+      hn1: ["p0"], hn2: ["r0"],
+      showNodes: ["p0r0","p1r1"], showEdges: ["p0r0-a","p0r0-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"}], hc: "(p₀,r₀)|b", activeEdge: "p0r0-b"
+    },
+    {
+      explain: "<b>Step 4 &mdash; (p&#x2080;,r&#x2080;) fully processed.</b> Both symbols handled. Move to <em>processed</em>.",
+      worklist: ["(p₁,r₁)"], processed: ["(p₀,r₀)"],
+      hn1: [], hn2: [],
+      showNodes: ["p0r0","p1r1"], showEdges: ["p0r0-a","p0r0-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"}], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 5 &mdash; Pop (p&#x2081;,r&#x2081;).</b> Compute transitions from this state.",
+      worklist: [], processed: ["(p₀,r₀)"],
+      hn1: ["p1"], hn2: ["r1"],
+      showNodes: ["p0r0","p1r1"], showEdges: ["p0r0-a","p0r0-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"}], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 6 &mdash; Compute &delta;((p&#x2081;,r&#x2081;), a).</b> &delta;&#x2081;(p&#x2081;,a) = p&#x2081; and &delta;&#x2082;(r&#x2081;,a) = r&#x2080;. Result: <code>(p&#x2081;,r&#x2080;)</code> &mdash; new state!",
+      worklist: ["(p₁,r₀)"], processed: ["(p₀,r₀)"],
+      hn1: ["p1"], hn2: ["r1","r0"],
+      showNodes: ["p0r0","p1r1","p1r0"], showEdges: ["p0r0-a","p0r0-b","p1r1-a"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:null}], hc: "(p₁,r₁)|a", activeEdge: "p1r1-a"
+    },
+    {
+      explain: "<b>Step 7 &mdash; Compute &delta;((p&#x2081;,r&#x2081;), b).</b> &delta;&#x2081;(p&#x2081;,b) = p&#x2080; and &delta;&#x2082;(r&#x2081;,b) = r&#x2081;. Result: <code>(p&#x2080;,r&#x2081;)</code> &mdash; new state!",
+      worklist: ["(p₁,r₀)","(p₀,r₁)"], processed: ["(p₀,r₀)"],
+      hn1: ["p1","p0"], hn2: ["r1"],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"}], hc: "(p₁,r₁)|b", activeEdge: "p1r1-b"
+    },
+    {
+      explain: "<b>Step 8 &mdash; (p&#x2081;,r&#x2081;) fully processed.</b> Move to <em>processed</em>.",
+      worklist: ["(p₁,r₀)","(p₀,r₁)"], processed: ["(p₀,r₀)","(p₁,r₁)"],
+      hn1: [], hn2: [],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"}], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 9 &mdash; Pop (p&#x2081;,r&#x2080;). Compute &delta;((p&#x2081;,r&#x2080;), a).</b> &delta;&#x2081;(p&#x2081;,a) = p&#x2081;, &delta;&#x2082;(r&#x2080;,a) = r&#x2081;. Result: <code>(p&#x2081;,r&#x2081;)</code> &mdash; already known.",
+      worklist: ["(p₀,r₁)"], processed: ["(p₀,r₀)","(p₁,r₁)"],
+      hn1: ["p1"], hn2: ["r0","r1"],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"},{from:"(p₁,r₀)",a:"(p₁,r₁)",b:null}], hc: "(p₁,r₀)|a", activeEdge: "p1r0-a"
+    },
+    {
+      explain: "<b>Step 10 &mdash; Compute &delta;((p&#x2081;,r&#x2080;), b).</b> &delta;&#x2081;(p&#x2081;,b) = p&#x2080;, &delta;&#x2082;(r&#x2080;,b) = r&#x2080;. Result: <code>(p&#x2080;,r&#x2080;)</code> &mdash; already known.",
+      worklist: ["(p₀,r₁)"], processed: ["(p₀,r₀)","(p₁,r₁)"],
+      hn1: ["p1","p0"], hn2: ["r0"],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a","p1r0-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"},{from:"(p₁,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"}], hc: "(p₁,r₀)|b", activeEdge: "p1r0-b"
+    },
+    {
+      explain: "<b>Step 11 &mdash; Pop (p&#x2080;,r&#x2081;). Compute &delta;((p&#x2080;,r&#x2081;), a).</b> &delta;&#x2081;(p&#x2080;,a) = p&#x2081;, &delta;&#x2082;(r&#x2081;,a) = r&#x2080;. Result: <code>(p&#x2081;,r&#x2080;)</code> &mdash; already known.",
+      worklist: [], processed: ["(p₀,r₀)","(p₁,r₁)","(p₁,r₀)"],
+      hn1: ["p0","p1"], hn2: ["r1","r0"],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a","p1r0-b","p0r1-a"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"},{from:"(p₁,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₀,r₁)",a:"(p₁,r₀)",b:null}], hc: "(p₀,r₁)|a", activeEdge: "p0r1-a"
+    },
+    {
+      explain: "<b>Step 12 &mdash; Compute &delta;((p&#x2080;,r&#x2081;), b).</b> &delta;&#x2081;(p&#x2080;,b) = p&#x2080;, &delta;&#x2082;(r&#x2081;,b) = r&#x2081;. Result: <code>(p&#x2080;,r&#x2081;)</code> &mdash; self-loop. Worklist empty &mdash; algorithm terminates.</b>",
+      worklist: [], processed: ["(p₀,r₀)","(p₁,r₁)","(p₁,r₀)","(p₀,r₁)"],
+      hn1: ["p0"], hn2: ["r1"],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a","p1r0-b","p0r1-a","p0r1-b"], showInit: true,
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"},{from:"(p₁,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)"},{from:"(p₀,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)"}], hc: "(p₀,r₁)|b", activeEdge: "p0r1-b"
+    },
+    {
+      explain: "<b>Step 13 &mdash; Identify accepting states.</b> F = F&#x2081; &times; F&#x2082; = {p&#x2081;} &times; {r&#x2080;} = {(p&#x2081;,r&#x2080;)}.<br>&bull; (p&#x2080;,r&#x2080;): p&#x2080; &notin; F&#x2081; &rarr; non-accepting<br>&bull; (p&#x2081;,r&#x2081;): r&#x2081; &notin; F&#x2082; &rarr; non-accepting<br>&bull; (p&#x2081;,r&#x2080;): p&#x2081; &in; F&#x2081; AND r&#x2080; &in; F&#x2082; &rarr; <b>ACCEPTING &#x2605;</b><br>&bull; (p&#x2080;,r&#x2081;): p&#x2080; &notin; F&#x2081; &rarr; non-accepting",
+      worklist: [], processed: ["(p₀,r₀)","(p₁,r₁)","(p₁,r₀)","(p₀,r₁)"],
+      hn1: [], hn2: [],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a","p1r0-b","p0r1-a","p0r1-b"], showInit: true,
+      acceptNode: "p1r0",
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)",final:false},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)",final:false},{from:"★ (p₁,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)",final:true},{from:"(p₀,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)",final:false}], hc: null, activeEdge: null
+    },
+    {
+      explain: "<b>Step 14 &mdash; Construction complete! &#x2713;</b> The product automaton has 4 states. Initial: (p&#x2080;,r&#x2080;). Accepting: (p&#x2081;,r&#x2080;) &#x2605;. It recognises L(A&#x2081;) &cap; L(A&#x2082;): words that end in <i>a</i> <b>and</b> have an even number of <i>a</i>'s.",
+      worklist: [], processed: ["(p₀,r₀)","(p₁,r₁)","(p₁,r₀)","(p₀,r₁)"],
+      hn1: [], hn2: [],
+      showNodes: ["p0r0","p1r1","p1r0","p0r1"], showEdges: ["p0r0-a","p0r0-b","p1r1-a","p1r1-b","p1r0-a","p1r0-b","p0r1-a","p0r1-b"], showInit: true,
+      acceptNode: "p1r0",
+      rows: [{from:"(p₀,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)",final:false},{from:"(p₁,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)",final:false},{from:"★ (p₁,r₀)",a:"(p₁,r₁)",b:"(p₀,r₀)",final:true},{from:"(p₀,r₁)",a:"(p₁,r₀)",b:"(p₀,r₁)",final:false}], hc: null, activeEdge: null
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn    = document.getElementById("pa-w1-step");
+  var resetBtn   = document.getElementById("pa-w1-reset");
+  var progressEl = document.getElementById("pa-w1-progress");
+  var explainEl  = document.getElementById("pa-w1-explain");
+  var worklistEl = document.getElementById("pa-w1-worklist");
+  var procEl     = document.getElementById("pa-w1-processed");
+  var tableBody  = document.getElementById("pa-w1-table-body");
+
+  // A1 elements
+  var a1Nodes = { p0: document.getElementById("pa-a1-p0"), p1: document.getElementById("pa-a1-p1") };
+  // A2 elements
+  var a2Nodes = { r0: document.getElementById("pa-a2-r0"), r1: document.getElementById("pa-a2-r1") };
+
+  // Product nodes
+  var prodNodes = {
+    p0r0: document.getElementById("pa-prod-p0r0"),
+    p0r1: document.getElementById("pa-prod-p0r1"),
+    p1r0: document.getElementById("pa-prod-p1r0"),
+    p1r1: document.getElementById("pa-prod-p1r1")
+  };
+
+  // Product edges (path + label pairs)
+  var prodEdges = {
+    "p0r0-a": [document.getElementById("pa-prod-e-p0r0-a"), document.getElementById("pa-prod-el-p0r0-a")],
+    "p0r0-b": [document.getElementById("pa-prod-e-p0r0-b"), document.getElementById("pa-prod-el-p0r0-b")],
+    "p1r1-a": [document.getElementById("pa-prod-e-p1r1-a"), document.getElementById("pa-prod-el-p1r1-a")],
+    "p1r1-b": [document.getElementById("pa-prod-e-p1r1-b"), document.getElementById("pa-prod-el-p1r1-b")],
+    "p1r0-a": [document.getElementById("pa-prod-e-p1r0-a"), document.getElementById("pa-prod-el-p1r0-a")],
+    "p1r0-b": [document.getElementById("pa-prod-e-p1r0-b"), document.getElementById("pa-prod-el-p1r0-b")],
+    "p0r1-a": [document.getElementById("pa-prod-e-p0r1-a"), document.getElementById("pa-prod-el-p0r1-a")],
+    "p0r1-b": [document.getElementById("pa-prod-e-p0r1-b"), document.getElementById("pa-prod-el-p0r1-b")]
+  };
+
+  var prodInit = document.getElementById("pa-prod-init");
+  var prodP1r0Outer = document.getElementById("pa-prod-p1r0-outer");
+
+  function badges(el, items, cls) {
+    el.innerHTML = "";
+    if (!items.length) {
+      var s = document.createElement("span");
+      s.className = "sc-badge-empty"; s.textContent = "∅";
+      el.appendChild(s);
+    } else {
+      items.forEach(function(it) {
+        var b = document.createElement("span");
+        b.className = "sc-badge " + cls; b.textContent = it;
+        el.appendChild(b);
+      });
+    }
+  }
+
+  function renderTable(rows, hc) {
+    tableBody.innerHTML = "";
+    rows.forEach(function(row) {
+      var tr = document.createElement("tr");
+      if (row.final === true) tr.className = "final-row";
+      var tdS = document.createElement("td"); tdS.textContent = row.from;
+      var tdA = document.createElement("td"); tdA.textContent = row.a || "—";
+      if (hc === row.from + "|a" || (row.final && hc === "★ " + row.from + "|a")) tdA.className = "highlight";
+      /* match hc against the from field exactly */
+      var fromKey = row.from.replace("★ ", "");
+      if (hc === fromKey + "|a") tdA.className = "highlight";
+      var tdB = document.createElement("td"); tdB.textContent = row.b || "—";
+      if (hc === fromKey + "|b") tdB.className = "highlight";
+      tr.append(tdS, tdA, tdB);
+      tableBody.appendChild(tr);
+    });
+  }
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    badges(worklistEl, s.worklist, "worklist");
+    badges(procEl, s.processed, "processed");
+    renderTable(s.rows, s.hc);
+
+    // Highlight A1 nodes
+    ["p0","p1"].forEach(function(n) {
+      a1Nodes[n].className.baseVal = "sc-nfa-node" + (s.hn1.indexOf(n) >= 0 ? " active" : "");
+    });
+    // Highlight A2 nodes
+    ["r0","r1"].forEach(function(n) {
+      a2Nodes[n].className.baseVal = "sc-nfa-node" + (s.hn2.indexOf(n) >= 0 ? " active" : "");
+    });
+
+    // Product nodes visibility
+    ["p0r0","p0r1","p1r0","p1r1"].forEach(function(n) {
+      var visible = s.showNodes.indexOf(n) >= 0;
+      var isAccept = s.acceptNode === n;
+      prodNodes[n].className.baseVal = "pa-prod-node" + (visible ? "" : " hidden") + (isAccept ? " accept" : "");
+    });
+
+    // Show accept ring on (p1,r0)
+    if (s.acceptNode === "p1r0") {
+      prodP1r0Outer.setAttribute("stroke", "#2a9d5c");
+    } else {
+      prodP1r0Outer.setAttribute("stroke", "transparent");
+    }
+
+    // Product edges visibility + active
+    Object.keys(prodEdges).forEach(function(key) {
+      var pair = prodEdges[key];
+      var visible = s.showEdges.indexOf(key) >= 0;
+      var isActive = s.activeEdge === key;
+      pair[0].className.baseVal = "pa-prod-edge" + (visible ? "" : " hidden") + (isActive ? " active" : "");
+      pair[0].setAttribute("marker-end", isActive ? "url(#pa-prod-arrow-red)" : "url(#pa-prod-arrow)");
+      pair[1].className.baseVal = "pa-prod-edge-label" + (visible ? "" : " hidden");
+    });
+
+    // Initial arrow
+    prodInit.className.baseVal = "pa-prod-edge" + (s.showInit ? "" : " hidden");
+
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+```
+
+---
+
+## Widget 2: Word Simulation
+
+Type a word over $\{a,b\}$ (default `aab`) and step through it on all three
+automata simultaneously: $A_1$, $A_2$, and the product.  The **invariant**:
+the product state always equals $(A_1\text{ state},\, A_2\text{ state})$.
+
+```{=html}
+<div class="sc-lab" id="pa-w2-lab">
+  <div class="sc-field">
+    <label for="pa-w2-input">Input word over {a,b}</label>
+    <input id="pa-w2-input" value="aab" spellcheck="false" inputmode="text">
+  </div>
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="pa-w2-step">Step &#x2192;</button>
+    <button class="sc-btn alt" id="pa-w2-reset">Reset</button>
+    <span class="sc-progress" id="pa-w2-progress"></span>
+  </div>
+  <div class="sc-explain" id="pa-w2-explain"></div>
+  <div class="sc-symbol-track" id="pa-w2-track"></div>
+
+  <div class="sc-three-graphs">
+    <!-- A1 -->
+    <div class="sc-graph-wrap">
+      <h4>A&#x2081; &mdash; ends in <i>a</i></h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 340 180" role="img" aria-label="A1 simulation">
+        <defs>
+          <marker id="pa-w2a1-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <line x1="20" y1="90" x2="62" y2="90" stroke="#303036" stroke-width="2" marker-end="url(#pa-w2a1-arrow)"/>
+        <path class="sc-nfa-edge" d="M 80 66 C 46 5, 148 5, 114 66" marker-end="url(#pa-w2a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="88" y="14">b</text>
+        <path class="sc-nfa-edge" d="M 120 80 L 216 80" marker-end="url(#pa-w2a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="162" y="73">a</text>
+        <path class="sc-nfa-edge" d="M 222 108 L 126 108" marker-end="url(#pa-w2a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="162" y="127">b</text>
+        <path class="sc-nfa-edge" d="M 232 66 C 198 5, 300 5, 266 66" marker-end="url(#pa-w2a1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="240" y="14">a</text>
+        <g class="sc-nfa-node" id="pa-w2-a1-p0" transform="translate(96,90)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">p&#x2080;</text>
+        </g>
+        <g class="sc-nfa-node" id="pa-w2-a1-p1" transform="translate(250,90)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">p&#x2081;</text>
+        </g>
+      </svg>
+    </div>
+    <!-- A2 -->
+    <div class="sc-graph-wrap">
+      <h4>A&#x2082; &mdash; even # of <i>a</i>'s</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 340 180" role="img" aria-label="A2 simulation">
+        <defs>
+          <marker id="pa-w2a2-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <line x1="20" y1="90" x2="62" y2="90" stroke="#303036" stroke-width="2" marker-end="url(#pa-w2a2-arrow)"/>
+        <path class="sc-nfa-edge" d="M 80 66 C 46 5, 148 5, 114 66" marker-end="url(#pa-w2a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="88" y="14">b</text>
+        <path class="sc-nfa-edge" d="M 120 80 L 216 80" marker-end="url(#pa-w2a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="162" y="73">a</text>
+        <path class="sc-nfa-edge" d="M 222 108 L 126 108" marker-end="url(#pa-w2a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="162" y="127">a</text>
+        <path class="sc-nfa-edge" d="M 232 66 C 198 5, 300 5, 266 66" marker-end="url(#pa-w2a2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="240" y="14">b</text>
+        <g class="sc-nfa-node" id="pa-w2-a2-r0" transform="translate(96,90)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">r&#x2080;</text>
+        </g>
+        <g class="sc-nfa-node" id="pa-w2-a2-r1" transform="translate(250,90)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">r&#x2081;</text>
+        </g>
+      </svg>
+    </div>
+    <!-- Product -->
+    <div class="sc-graph-wrap">
+      <h4>Product &mdash; A&#x2081; &cap; A&#x2082;</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 340 340" role="img" aria-label="Product simulation">
+        <defs>
+          <marker id="pa-w2p-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <!-- Layout: (p0,r0)@(90,80) (p0,r1)@(250,80) (p1,r0)@(90,260) (p1,r1)@(250,260) -->
+        <line x1="20" y1="80" x2="56" y2="80" stroke="#303036" stroke-width="2" marker-end="url(#pa-w2p-arrow)"/>
+        <!-- (p0,r0) self-loop b -->
+        <path class="pa-prod-edge" d="M 74 56 C 40 -5, 142 -5, 108 56" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="82" y="4">b</text>
+        <!-- (p0,r0) -> (p1,r1) a diagonal -->
+        <path class="pa-prod-edge" d="M 114 96 L 226 244" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="178" y="162">a</text>
+        <!-- (p0,r1) self-loop b -->
+        <path class="pa-prod-edge" d="M 234 56 C 200 -5, 302 -5, 268 56" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="242" y="4">b</text>
+        <!-- (p0,r1) -> (p1,r0) a diagonal -->
+        <path class="pa-prod-edge" d="M 226 96 L 114 244" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="152" y="182">a</text>
+        <!-- (p1,r1) -> (p1,r0) a horizontal -->
+        <path class="pa-prod-edge" d="M 222 252 L 118 252" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="164" y="245">a</text>
+        <!-- (p1,r1) -> (p0,r1) b vertical -->
+        <path class="pa-prod-edge" d="M 260 232 L 260 108" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="268" y="170">b</text>
+        <!-- (p1,r0) -> (p1,r1) a horizontal -->
+        <path class="pa-prod-edge" d="M 118 268 L 222 268" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="164" y="288">a</text>
+        <!-- (p1,r0) -> (p0,r0) b vertical -->
+        <path class="pa-prod-edge" d="M 80 232 L 80 108" marker-end="url(#pa-w2p-arrow)"/>
+        <text class="pa-prod-edge-label" x="58" y="170">b</text>
+        <!-- Nodes -->
+        <g class="pa-prod-node" id="pa-w2-prod-p0r0" transform="translate(90,80)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="4" font-size="11">(p&#x2080;,r&#x2080;)</text>
+        </g>
+        <g class="pa-prod-node" id="pa-w2-prod-p0r1" transform="translate(250,80)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="4" font-size="11">(p&#x2080;,r&#x2081;)</text>
+        </g>
+        <g class="pa-prod-node" id="pa-w2-prod-p1r0" transform="translate(90,260)">
+          <circle r="34" fill="none" stroke="#2a9d5c" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="4" font-size="11">(p&#x2081;,r&#x2080;)</text>
+        </g>
+        <g class="pa-prod-node" id="pa-w2-prod-p1r1" transform="translate(250,260)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="4" font-size="11">(p&#x2081;,r&#x2081;)</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sc-panel" style="margin-top:0;">
+    <h4>Simulation Trace</h4>
+    <table class="sc-table">
+      <thead><tr><th>Prefix</th><th>A&#x2081; state</th><th>A&#x2082; state</th><th>Product state</th><th>A&#x2081; acc?</th><th>A&#x2082; acc?</th><th>Product acc?</th></tr></thead>
+      <tbody id="pa-w2-trace"></tbody>
+    </table>
+    <p style="margin-top:10px;font-size:0.88rem;color:var(--sc-label);" id="pa-w2-invariant"></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  // A1: ends in a
+  // delta1(p0,a)=p1, delta1(p0,b)=p0, delta1(p1,a)=p1, delta1(p1,b)=p0
+  var delta1 = { p0: { a: "p1", b: "p0" }, p1: { a: "p1", b: "p0" } };
+  var f1 = { p1: true };
+
+  // A2: even number of a's
+  // delta2(r0,a)=r1, delta2(r0,b)=r0, delta2(r1,a)=r0, delta2(r1,b)=r1
+  var delta2 = { r0: { a: "r1", b: "r0" }, r1: { a: "r0", b: "r1" } };
+  var f2 = { r0: true };
+
+  function fmtP(s) { return s === "p0" ? "p₀" : "p₁"; }
+  function fmtR(s) { return s === "r0" ? "r₀" : "r₁"; }
+  function fmtProd(p, r) { return "(" + fmtP(p) + "," + fmtR(r) + ")"; }
+
+  function sanitize(v) { return v.toLowerCase().replace(/[^ab]/g, ""); }
+
+  var inputEl    = document.getElementById("pa-w2-input");
+  var stepBtn    = document.getElementById("pa-w2-step");
+  var resetBtn   = document.getElementById("pa-w2-reset");
+  var progressEl = document.getElementById("pa-w2-progress");
+  var explainEl  = document.getElementById("pa-w2-explain");
+  var trackEl    = document.getElementById("pa-w2-track");
+  var traceEl    = document.getElementById("pa-w2-trace");
+  var invEl      = document.getElementById("pa-w2-invariant");
+
+  // Graph nodes
+  var a1p0 = document.getElementById("pa-w2-a1-p0");
+  var a1p1 = document.getElementById("pa-w2-a1-p1");
+  var a2r0 = document.getElementById("pa-w2-a2-r0");
+  var a2r1 = document.getElementById("pa-w2-a2-r1");
+  var prodP0r0 = document.getElementById("pa-w2-prod-p0r0");
+  var prodP0r1 = document.getElementById("pa-w2-prod-p0r1");
+  var prodP1r0 = document.getElementById("pa-w2-prod-p1r0");
+  var prodP1r1 = document.getElementById("pa-w2-prod-p1r1");
+
+  var a1Map = { p0: a1p0, p1: a1p1 };
+  var a2Map = { r0: a2r0, r1: a2r1 };
+  var prodMap = {
+    "p0-r0": prodP0r0, "p0-r1": prodP0r1,
+    "p1-r0": prodP1r0, "p1-r1": prodP1r1
+  };
+
+  var symIdx, curP, curR, rows;
+
+  function renderTrack(word) {
+    trackEl.innerHTML = "";
+    if (!word.length) {
+      var sp = document.createElement("span");
+      sp.className = "sc-sym"; sp.textContent = "ε";
+      trackEl.appendChild(sp); return;
+    }
+    word.split("").forEach(function(c, i) {
+      var sp = document.createElement("span");
+      sp.className = "sc-sym" + (i === symIdx ? " current" : "");
+      sp.textContent = c; trackEl.appendChild(sp);
+    });
+  }
+
+  function renderTrace() {
+    traceEl.innerHTML = "";
+    rows.forEach(function(r, i) {
+      var tr = document.createElement("tr");
+      if (i === rows.length - 1) tr.style.fontWeight = "bold";
+      [r.prefix, r.a1, r.a2, r.prod, r.a1acc, r.a2acc, r.pacc].forEach(function(v) {
+        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      });
+      traceEl.appendChild(tr);
+    });
+  }
+
+  function applyGraphs(p, r) {
+    // A1
+    ["p0","p1"].forEach(function(n) {
+      a1Map[n].className.baseVal = "sc-nfa-node" + (n === p ? " active" : "");
+    });
+    // A2
+    ["r0","r1"].forEach(function(n) {
+      a2Map[n].className.baseVal = "sc-nfa-node" + (n === r ? " active" : "");
+    });
+    // Product
+    Object.keys(prodMap).forEach(function(k) {
+      var active = k === p + "-" + r;
+      prodMap[k].className.baseVal = "pa-prod-node" + (active ? " active" : "");
+    });
+  }
+
+  function accStr(b) { return b ? "✅ Yes" : "❌ No"; }
+
+  function reset() {
+    var word = sanitize(inputEl.value);
+    if (word !== inputEl.value) inputEl.value = word;
+    symIdx = 0; curP = "p0"; curR = "r0";
+    var a1acc = !!f1[curP]; var a2acc = !!f2[curR]; var pacc = a1acc && a2acc;
+    rows = [{ prefix: "ε", a1: fmtP(curP), a2: fmtR(curR), prod: fmtProd(curP, curR), a1acc: accStr(a1acc), a2acc: accStr(a2acc), pacc: accStr(pacc) }];
+    explainEl.innerHTML = "<b>Initialised.</b> A₁ in " + fmtP(curP) + ", A₂ in " + fmtR(curR) + ", product in " + fmtProd(curP, curR) + ".";
+    invEl.textContent = "Invariant: product state " + fmtProd(curP, curR) + " = (" + fmtP(curP) + ", " + fmtR(curR) + ") ✓";
+    progressEl.textContent = "Symbol 0 / " + word.length;
+    renderTrack(word); renderTrace();
+    applyGraphs(curP, curR);
+    stepBtn.disabled = word.length === 0;
+  }
+
+  function step() {
+    var word = sanitize(inputEl.value);
+    if (symIdx >= word.length) return;
+    var sym = word[symIdx];
+    var prevP = curP; var prevR = curR;
+    curP = delta1[prevP][sym];
+    curR = delta2[prevR][sym];
+    symIdx++;
+
+    var a1acc = !!f1[curP]; var a2acc = !!f2[curR]; var pacc = a1acc && a2acc;
+    var prefix = word.slice(0, symIdx);
+    rows.push({ prefix: prefix, a1: fmtP(curP), a2: fmtR(curR), prod: fmtProd(curP, curR), a1acc: accStr(a1acc), a2acc: accStr(a2acc), pacc: accStr(pacc) });
+
+    explainEl.innerHTML =
+      "<b>Read ‘" + sym + "’.</b> " +
+      "A₁: " + fmtP(prevP) + " → " + fmtP(curP) + ". " +
+      "A₂: " + fmtR(prevR) + " → " + fmtR(curR) + ". " +
+      "Product: " + fmtProd(prevP, prevR) + " → " + fmtProd(curP, curR) + ". " +
+      (pacc ? "<b>Accepted ✅</b>" : "Not accepted ❌");
+
+    invEl.textContent = "Invariant: product state " + fmtProd(curP, curR) + " = (" + fmtP(curP) + ", " + fmtR(curR) + ") ✓";
+    progressEl.textContent = "Symbol " + symIdx + " / " + word.length;
+    renderTrack(word); renderTrace();
+    applyGraphs(curP, curR);
+    stepBtn.disabled = symIdx >= word.length;
+
+    if (symIdx >= word.length) {
+      explainEl.innerHTML +=
+        "<br><b>Word fully consumed.</b> A₁ " + (a1acc ? "accepts" : "rejects") +
+        ", A₂ " + (a2acc ? "accepts" : "rejects") +
+        ". Product: <b>" + (pacc ? "ACCEPTED ✅" : "REJECTED ❌") + "</b>";
+    }
+  }
+
+  inputEl.addEventListener("input", reset);
+  stepBtn.addEventListener("click", step);
+  resetBtn.addEventListener("click", reset);
+  reset();
+})();
+</script>
+```
+
+---
+
+## What To Notice
+
+1. **The product state is always the pair of component states — no information
+   is lost or added.**
+   At every moment in Widget 2 the product state equals
+   $(\text{A}_1\text{ state},\,\text{A}_2\text{ state})$.  The product
+   construction simply runs both automata in lock-step and packages the two
+   states into one.
+
+2. **Only $(p_1,r_0)$ is accepting: the word must end in $a$ AND have an even
+   count of $a$'s.**
+   Acceptance in the product requires membership in $F_1 \times F_2$, i.e.\
+   the current state must be accepting in *both* components simultaneously.
+
+3. **The word "a" reaches $(p_1,r_1)$ — ends in $a$ but odd count — rejected.**
+   One condition is met ($A_1$ accepts) but the other fails ($A_2$ rejects),
+   so the product rejects.  Try it in Widget 2.
+
+4. **The word "aa" reaches $(p_1,r_0)$ — accepted by both conditions.**
+   Two $a$'s give an even count and the word ends in $a$.
+   This is the simplest accepted word.
