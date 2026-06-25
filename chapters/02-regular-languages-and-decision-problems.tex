@@ -46,10 +46,14 @@ that we actually know how to perform.
 \label{sec:regular-expressions}
 % ============================================================
 
-Drawing a DFA is an operational act: we specify how the machine moves.
-For many purposes---communicating a property, composing specifications,
-searching text---a more algebraic syntax is preferable, one that builds
-the language out of pieces using a few combinators.  This is what
+Drawing a DFA is an \emph{operational} act: we specify, state by state
+and symbol by symbol, how the machine moves through a computation.
+The description answers the question ``what does the machine do at each
+step?'' rather than ``what does the language look like?''  For many
+purposes---communicating a property to a colleague, composing
+specifications from sub-properties, searching text---a more algebraic
+syntax is preferable, one that builds the language out of pieces using a
+few combinators and says nothing about machine states.  This is what
 regular expressions provide.
 
 The idea is to describe a language by saying how its words are built:
@@ -70,8 +74,15 @@ and, if $r$ and $s$ are regular expressions, by:
 \]
 \end{definition}
 
-The semantics is the expected one.  The expression $r+s$ denotes union,
-$rs$ denotes concatenation, and $r^*$ denotes finite repetition.
+The semantics maps each expression to the language it describes.  The
+base cases are: $\emptyset$ denotes the empty language (no word at all),
+$\varepsilon$ denotes the language $\{\varepsilon\}$ containing only the
+empty word, and a symbol $a$ denotes the singleton language $\{a\}$.
+For the combinators: $r+s$ denotes the union of the languages of $r$ and
+$s$, $rs$ denotes their concatenation (every word of $r$ followed by
+every word of $s$), and $r^*$ denotes finite repetition---zero or more
+concatenations of the language of $r$ with itself, so $r^*$ always
+includes the empty word.
 
 \begin{example}[A simple regular expression]
 \label{ex:regex-even-a}
@@ -109,10 +120,13 @@ Before proving the equivalence between expressions and automata, we
 need a more flexible automaton model that lets us wire pieces together
 without consuming input.  The wiring device is the
 \emph{$\varepsilon$-move}: a transition that changes state while the
-reading head stays put.  Without it, splicing two automata for
-concatenation would force us to merge states by hand and keep track of
-spurious symbols; with it, we simply add free edges and let a later
-clean-up pass dissolve them.
+reading head stays put.  Without it, building an automaton for the concatenation of two languages
+would require us to redesign the state spaces by hand---deciding which
+states of the first automaton should transfer control to the second, and
+carefully re-routing transitions so that the handoff happens at the right
+moment.  With $\varepsilon$-moves, we simply add a free edge from the
+accepting state of the first automaton to the initial state of the
+second, and let a later clean-up pass dissolve the free edges.
 
 \begin{example}[Wiring two automata with an $\varepsilon$-move]
 \label{ex:epsilon-nfa-preview}
@@ -148,14 +162,19 @@ purely a construction device---it gives us the wiring freedom needed to
 compose automata for union, concatenation, and Kleene star---but, as we
 show next, it does not add any expressive power.
 
-To short-circuit every chain of free moves, we need to know, for each
-state, where it can reach by following only $\varepsilon$-edges.  This
-is the $\varepsilon$-closure.
+Our goal is to eliminate $\varepsilon$-moves: we want an ordinary NFA
+that accepts the same language but uses only real-symbol transitions.
+The key step is to pre-compute, for each state, the full set of states
+it can reach by following only $\varepsilon$-edges---so that we can
+``short-circuit'' every chain of free moves into a single jump.  This
+set is called the $\varepsilon$-closure.
 
 Returning to \cref{ex:epsilon-nfa-preview}, from $q_1$ we can follow
-the $\varepsilon$-edge to $r_0$, so $q_1$ can silently reach both
-itself and $r_0$.  Collecting all such silent destinations is exactly
-what the closure computes.
+the $\varepsilon$-edge to $r_0$.  Since every state trivially reaches
+itself in zero steps, the full set of states that $q_1$ can silently
+reach is $\{q_1, r_0\}$.  Collecting all such silent destinations---both
+the state itself and everything reachable through one or more
+$\varepsilon$-edges---is exactly what the closure computes.
 
 \begin{definition}[$\varepsilon$-closure]
 \label{def:epsilon-closure}
