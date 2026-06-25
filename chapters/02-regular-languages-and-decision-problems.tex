@@ -172,6 +172,50 @@ monotone operator $X\mapsto\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$.
 This is the same fixpoint flavour that will return, scaled up, in the
 symbolic reachability algorithms of \cref{subsec:reachability-fixpoint}.
 
+\begin{formaldetails}[Least fixpoint: what it means and how to compute it]
+A set $X\subseteq Q$ is a \textbf{fixpoint} of an operator $F$ if
+$F(X)=X$, i.e.\ applying $F$ once does not change $X$.  Here
+$F(X)=\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$: it adds $q$ and
+all states reachable from $X$ by one $\varepsilon$-step.
+
+\medskip
+\noindent\textit{Iterative construction.}
+Start from the empty set and keep applying $F$:
+\[
+  X_0 = \emptyset,\qquad
+  X_{i+1} = F(X_i) = \{q\}\cup\bigcup_{p\in X_i}\Delta(p,\varepsilon).
+\]
+Because $F$ is \emph{monotone} ($X\subseteq Y\Rightarrow F(X)\subseteq
+F(Y)$), the sequence $X_0\subseteq X_1\subseteq X_2\subseteq\cdots$ is
+non-decreasing.  Since $Q$ is finite the sequence cannot grow
+indefinitely: it stabilises at some step $k\le|Q|$, meaning
+$X_{k+1}=X_k$.  That stable value is the fixpoint produced by the
+iteration.
+
+\medskip
+\noindent\textit{Why \emph{least}?}
+$F$ may have many fixpoints: the full set $Q$ always satisfies $F(Q)=Q$
+trivially.  The iteration, starting from $\emptyset$, accumulates only
+what is strictly forced---first $q$ itself, then its
+$\varepsilon$-successors, then their $\varepsilon$-successors, and so
+on.  Any other fixpoint $Y$ must already contain $q$ and must be closed
+under $\varepsilon$-moves, so it contains every $X_i$; hence
+$X_k\subseteq Y$.  The result of the iteration is therefore included in
+\emph{every} fixpoint of $F$: it is the \textbf{least} (i.e.\ smallest
+by $\subseteq$) fixpoint, written $\mu X.\,F(X)$ in the fixpoint
+calculus.
+
+\medskip
+\noindent\textit{Connection to reachability.}
+In \cref{subsec:reachability-fixpoint} exactly the same pattern appears
+at the level of the whole automaton: $\mathsf{Post}(X)$ plays the role
+of $\bigcup_{p\in X}\Delta(p,\varepsilon)$, the initial state $q_0$
+plays the role of $q$, and the iteration $R_{i+1}=R_i\cup\mathsf{Post}(R_i)$
+converges to the set of \emph{all} reachable states $R^*$.
+$\mathsf{ECl}(q)$ is thus a miniature instance of global reachability,
+restricted to $\varepsilon$-moves alone.
+\end{formaldetails}
+
 With the closure in hand we can define how an $\varepsilon$-NFA reads a
 whole word.  The pattern is: take all free moves, read one real symbol,
 take all free moves again, and repeat.
