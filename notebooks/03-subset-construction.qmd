@@ -1,0 +1,642 @@
+---
+title: "Notebook 3: From NFA to DFA — the Subset Construction"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# Subset Construction (NFA → DFA)
+
+This notebook walks through the **subset construction** algorithm that converts
+any NFA into an equivalent DFA.  The running example is the NFA that accepts
+exactly the words over $\{a,b\}$ that end in the letter $a$.
+
+**NFA states:**
+
+- $q_s$ — *scanning* (initial, non-accepting)
+- $q_a$ — *accept* (accepting)
+
+**NFA transitions:**
+$\Delta(q_s,a)=\{q_s,q_a\}$,  $\Delta(q_s,b)=\{q_s\}$,  $\Delta(q_a,\cdot)=\varnothing$.
+
+---
+
+## Widget 1: Step-by-Step Worklist Construction
+
+Click **Step →** to advance the algorithm one micro-step at a time.
+
+```{=html}
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-node-fill: #daf3fc;
+  --sc-active-fill: #30bced;
+  --sc-active-stroke: #1f8fb7;
+  --sc-dead-fill: #fee8e3;
+  --sc-dead-stroke: #fc5130;
+  --sc-new-fill: #fff3b0;
+  --sc-new-border: #e9c46a;
+  --sc-proc-fill: #d4f7ef;
+  --sc-proc-border: #2ec4b6;
+  --sc-text: #050401;
+  --sc-label: #303036;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-btn:disabled { opacity: 0.4; cursor: default; }
+.sc-workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(260px, 0.9fr);
+  gap: 16px;
+}
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-progress { font-size: 0.85rem; color: var(--sc-label); margin-left: auto; }
+.sc-explain {
+  background: #f0faff;
+  border-left: 4px solid var(--sc-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  min-height: 52px;
+}
+.sc-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 12px;
+  min-height: 28px;
+  align-items: center;
+}
+.sc-badge {
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: 1px solid;
+}
+.sc-badge.worklist { background: var(--sc-new-fill); border-color: var(--sc-new-border); }
+.sc-badge.processed { background: var(--sc-proc-fill); border-color: var(--sc-proc-border); }
+.sc-badge-empty { font-style: italic; color: var(--sc-label); font-size: 0.88rem; }
+.sc-nfa-node circle {
+  fill: var(--sc-node-fill);
+  stroke: var(--sc-primary);
+  stroke-width: 2;
+  transition: fill .25s, stroke .25s;
+}
+.sc-nfa-node.active circle { fill: var(--sc-active-fill); stroke: var(--sc-active-stroke); stroke-width: 3; }
+.sc-nfa-node.dead   circle { fill: var(--sc-dead-fill);   stroke: var(--sc-dead-stroke);   stroke-width: 2.5; }
+.sc-nfa-node text { fill: var(--sc-text); font-weight: 700; font-size: 14px; }
+.sc-nfa-edge { stroke: var(--sc-label); stroke-width: 2; fill: none; }
+.sc-nfa-edge.active { stroke: #fc5130; stroke-width: 3; }
+.sc-nfa-edge-label { fill: var(--sc-label); font-size: 13px; font-weight: 700; }
+.sc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+.sc-table th, .sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 7px 8px;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.sc-table th { color: var(--sc-label); font-family: system-ui, sans-serif; }
+.sc-table td.highlight { background: #fff3b0; }
+.sc-table tr.final-row td:first-child { color: #d4860b; font-weight: 900; }
+@media (max-width: 820px) { .sc-workspace { grid-template-columns: 1fr; } }
+
+/* Widget 2 */
+.sc-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.sc-field label { font-size: 0.88rem; font-weight: 700; color: var(--sc-label); }
+.sc-field input {
+  border: 1px solid #8ddaf5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--sc-bg);
+  font-size: 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  max-width: 180px;
+}
+.sc-symbol-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  min-height: 36px;
+  align-items: center;
+}
+.sc-sym {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #8ddaf5;
+  border-radius: 7px;
+  background: var(--sc-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 700;
+}
+.sc-sym.current { background: var(--sc-primary); border-color: var(--sc-primary-dark); }
+.sc-two-graphs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 700px) { .sc-two-graphs { grid-template-columns: 1fr; } }
+.sc-graph-wrap {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 10px;
+}
+.sc-graph-wrap h4 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-dfa-node circle {
+  fill: var(--sc-node-fill);
+  stroke: var(--sc-primary);
+  stroke-width: 2;
+  transition: fill .25s;
+}
+.sc-dfa-node.active circle { fill: var(--sc-active-fill); stroke: var(--sc-active-stroke); stroke-width: 3; }
+.sc-dfa-node text { fill: var(--sc-text); font-weight: 700; font-size: 13px; }
+.sc-dfa-edge { stroke: var(--sc-label); stroke-width: 2; fill: none; }
+.sc-dfa-edge.active { stroke: #fc5130; stroke-width: 3; }
+.sc-dfa-edge-label { fill: var(--sc-label); font-size: 12px; font-weight: 700; }
+</style>
+
+<!-- WIDGET 1 -->
+<div class="sc-lab" id="w1-lab">
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="w1-step">Step &#x2192;</button>
+    <button class="sc-btn alt" id="w1-reset">Reset</button>
+    <span class="sc-progress" id="w1-progress">Step 0 / 20</span>
+  </div>
+  <div class="sc-explain" id="w1-explain"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--sc-label);margin-bottom:4px;">WORKLIST</div>
+      <div class="sc-badge-row" id="w1-worklist"></div>
+    </div>
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:var(--sc-label);margin-bottom:4px;">PROCESSED</div>
+      <div class="sc-badge-row" id="w1-processed"></div>
+    </div>
+  </div>
+  <div class="sc-workspace">
+    <div class="sc-panel">
+      <h4>NFA</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 530 200" role="img" aria-label="NFA for words ending in a">
+        <defs>
+          <marker id="w1-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="w1-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <line x1="52" y1="100" x2="112" y2="100" stroke="#303036" stroke-width="2" marker-end="url(#w1-arrow)"/>
+        <path id="w1-edge-loop" class="sc-nfa-edge" d="M 126 76 C 90 15, 192 15, 155 76" marker-end="url(#w1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="132" y="22">a, b</text>
+        <path id="w1-edge-qa" class="sc-nfa-edge" d="M 168 100 L 372 100" marker-end="url(#w1-arrow)"/>
+        <text class="sc-nfa-edge-label" x="263" y="93">a</text>
+        <g class="sc-nfa-node" id="nfa-node-qs" transform="translate(140,100)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">q&#x209B;</text>
+        </g>
+        <g class="sc-nfa-node" id="nfa-node-qa" transform="translate(400,100)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">q&#x2090;</text>
+        </g>
+      </svg>
+    </div>
+    <div class="sc-panel">
+      <h4>DFA Transition Table</h4>
+      <table class="sc-table">
+        <thead><tr><th>State</th><th>a</th><th>b</th></tr></thead>
+        <tbody id="w1-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STEPS = [
+    { explain: "<b>Step 0 &mdash; Initialise.</b> The initial DFA state is the set of NFA start states: <code>{q&#x209B;}</code>. Add it to the <em>worklist</em>.", worklist:["{qs}"], processed:[], hn:[], dn:[], he:[], rows:[], hc:null },
+    { explain: "<b>Step 1 &mdash; Pop {q&#x209B;}.</b> Dequeue the first element and start computing its outgoing transitions.", worklist:[], processed:[], hn:["qs"], dn:[], he:[], rows:[], hc:null },
+    { explain: "<b>Step 2 &mdash; Compute &Delta;(q&#x209B;, a).</b> From q&#x209B; reading <code>a</code> we follow the self-loop (q&#x209B;&rarr;q&#x209B;) <em>and</em> the arc to q&#x2090;. Result: <code>{q&#x209B;, q&#x2090;}</code>.", worklist:[], processed:[], hn:["qs","qa"], dn:[], he:["loop","qa"], rows:[], hc:null },
+    { explain: "<b>Step 3 &mdash; {q&#x209B;, q&#x2090;} is new!</b> This macro-state has never been seen, so add it to the worklist.", worklist:["{qs,qa}"], processed:[], hn:["qa"], dn:[], he:[], rows:[], hc:null },
+    { explain: "<b>Step 4 &mdash; Record &delta;({q&#x209B;}, a) = {q&#x209B;, q&#x2090;}.</b> Enter this transition into the DFA table (highlighted in gold).", worklist:["{qs,qa}"], processed:[], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:null}], hc:"{qs}|a" },
+    { explain: "<b>Step 5 &mdash; Compute &Delta;(q&#x209B;, b).</b> From q&#x209B; reading <code>b</code> only the self-loop fires. Result: <code>{q&#x209B;}</code>.", worklist:["{qs,qa}"], processed:[], hn:["qs"], dn:[], he:["loop"], rows:[{from:"{qs}",a:"{qs,qa}",b:null}], hc:null },
+    { explain: "<b>Step 6 &mdash; {q&#x209B;} already known.</b> The result is already in our state set &mdash; no new state is added.", worklist:["{qs,qa}"], processed:[], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:null}], hc:null },
+    { explain: "<b>Step 7 &mdash; Record &delta;({q&#x209B;}, b) = {q&#x209B;}.</b> Self-loop on DFA state {q&#x209B;} under <code>b</code>.", worklist:["{qs,qa}"], processed:[], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:"{qs}|b" },
+    { explain: "<b>Step 8 &mdash; {q&#x209B;} fully processed.</b> Both symbols handled. {q&#x209B;} moves to <em>processed</em>.", worklist:["{qs,qa}"], processed:["{qs}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 9 &mdash; Pop {q&#x209B;, q&#x2090;}.</b> Dequeue the next element and begin processing its transitions.", worklist:[], processed:["{qs}"], hn:["qs","qa"], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 10 &mdash; Compute &Delta;(q&#x209B;, a) for symbol a.</b> The q&#x209B; component contributes {q&#x209B;, q&#x2090;} (self-loop + arc highlighted).", worklist:[], processed:["{qs}"], hn:["qs","qa"], dn:[], he:["loop","qa"], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 11 &mdash; Compute &Delta;(q&#x2090;, a) = &empty;.</b> q&#x2090; has <em>no</em> outgoing transitions &mdash; it is a dead end (shown in red). Contribution: &empty;.", worklist:[], processed:["{qs}"], hn:[], dn:["qa"], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 12 &mdash; Union: {q&#x209B;, q&#x2090;} &cup; &empty; = {q&#x209B;, q&#x2090;}.</b> Already a known DFA state &mdash; nothing added to the worklist.", worklist:[], processed:["{qs}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 13 &mdash; Record &delta;({q&#x209B;,q&#x2090;}, a) = {q&#x209B;, q&#x2090;}.</b> Self-loop on DFA state {q&#x209B;,q&#x2090;} under <code>a</code>.", worklist:[], processed:["{qs}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:null}], hc:"{qs,qa}|a" },
+    { explain: "<b>Step 14 &mdash; Compute &Delta;(q&#x209B;, b).</b> The q&#x209B; component under <code>b</code> gives {q&#x209B;} via the self-loop.", worklist:[], processed:["{qs}"], hn:["qs"], dn:[], he:["loop"], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:null}], hc:null },
+    { explain: "<b>Step 15 &mdash; Compute &Delta;(q&#x2090;, b) = &empty;.</b> q&#x2090; contributes nothing under <code>b</code> either (dead end, shown in red).", worklist:[], processed:["{qs}"], hn:[], dn:["qa"], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:null}], hc:null },
+    { explain: "<b>Step 16 &mdash; Union: {q&#x209B;} &cup; &empty; = {q&#x209B;}.</b> Already known &mdash; no addition to the worklist.", worklist:[], processed:["{qs}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:null}], hc:null },
+    { explain: "<b>Step 17 &mdash; Record &delta;({q&#x209B;,q&#x2090;}, b) = {q&#x209B;}.</b> Transition from {q&#x209B;,q&#x2090;} under <code>b</code> recorded.", worklist:[], processed:["{qs}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:"{qs}"}], hc:"{qs,qa}|b" },
+    { explain: "<b>Step 18 &mdash; {q&#x209B;,q&#x2090;} fully processed. Worklist is empty &mdash; the algorithm terminates.</b>", worklist:[], processed:["{qs}","{qs,qa}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}"},{from:"{qs,qa}",a:"{qs,qa}",b:"{qs}"}], hc:null },
+    { explain: "<b>Step 19 &mdash; Identify accepting DFA states.</b> A DFA state S is accepting iff S &cap; F &ne; &empty;, where F = {q&#x2090;}.<br>&bull; {q&#x209B;} &cap; {q&#x2090;} = &empty; &rarr; <em>non-accepting</em><br>&bull; {q&#x209B;,q&#x2090;} &cap; {q&#x2090;} &ne; &empty; &rarr; <b>ACCEPTING &#x2605;</b>", worklist:[], processed:["{qs}","{qs,qa}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}",final:false},{from:"{qs,qa}",a:"{qs,qa}",b:"{qs}",final:true}], hc:null },
+    { explain: "<b>Step 20 &mdash; Construction complete! &#x2713;</b> The DFA has exactly 2 reachable states. Initial: {q&#x209B;} (non-accepting). Accepting: {q&#x209B;,q&#x2090;} &#x2605;.", worklist:[], processed:["{qs}","{qs,qa}"], hn:[], dn:[], he:[], rows:[{from:"{qs}",a:"{qs,qa}",b:"{qs}",final:false},{from:"{qs,qa}",a:"{qs,qa}",b:"{qs}",final:true}], hc:null }
+  ];
+
+  var idx = 0;
+  var stepBtn   = document.getElementById("w1-step");
+  var resetBtn  = document.getElementById("w1-reset");
+  var progressEl= document.getElementById("w1-progress");
+  var explainEl = document.getElementById("w1-explain");
+  var worklistEl= document.getElementById("w1-worklist");
+  var procEl    = document.getElementById("w1-processed");
+  var tableBody = document.getElementById("w1-table-body");
+
+  function badges(el, items, cls) {
+    el.innerHTML = "";
+    if (!items.length) {
+      var s = document.createElement("span");
+      s.className = "sc-badge-empty"; s.textContent = "\u2205";
+      el.appendChild(s);
+    } else {
+      items.forEach(function(it) {
+        var b = document.createElement("span");
+        b.className = "sc-badge " + cls; b.textContent = it;
+        el.appendChild(b);
+      });
+    }
+  }
+
+  function renderTable(rows, hc) {
+    tableBody.innerHTML = "";
+    rows.forEach(function(row) {
+      var tr = document.createElement("tr");
+      if (row.final === true) tr.className = "final-row";
+      var label = row.final === true ? "\u2605 " + row.from : row.from;
+      var tdS = document.createElement("td"); tdS.textContent = label;
+      var tdA = document.createElement("td"); tdA.textContent = row.a || "\u2014";
+      if (hc === row.from + "|a") tdA.className = "highlight";
+      var tdB = document.createElement("td"); tdB.textContent = row.b || "\u2014";
+      if (hc === row.from + "|b") tdB.className = "highlight";
+      tr.append(tdS, tdA, tdB);
+      tableBody.appendChild(tr);
+    });
+  }
+
+  function applyNfa(s) {
+    var qs = document.getElementById("nfa-node-qs");
+    var qa = document.getElementById("nfa-node-qa");
+    qs.className.baseVal = "sc-nfa-node" + (s.hn.includes("qs") ? " active" : "") + (s.dn.includes("qs") ? " dead" : "");
+    qa.className.baseVal = "sc-nfa-node" + (s.hn.includes("qa") ? " active" : "") + (s.dn.includes("qa") ? " dead" : "");
+    var loop = document.getElementById("w1-edge-loop");
+    var arc  = document.getElementById("w1-edge-qa");
+    loop.className.baseVal = "sc-nfa-edge" + (s.he.includes("loop") ? " active" : "");
+    arc.className.baseVal  = "sc-nfa-edge" + (s.he.includes("qa")   ? " active" : "");
+    loop.setAttribute("marker-end", s.he.includes("loop") ? "url(#w1-arrow-red)" : "url(#w1-arrow)");
+    arc.setAttribute ("marker-end", s.he.includes("qa")   ? "url(#w1-arrow-red)" : "url(#w1-arrow)");
+  }
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML    = s.explain;
+    badges(worklistEl, s.worklist, "worklist");
+    badges(procEl,     s.processed, "processed");
+    renderTable(s.rows, s.hc);
+    applyNfa(s);
+    stepBtn.disabled  = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click",  function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+```
+
+---
+
+## Widget 2: Word Simulation
+
+Type a word over $\{a,b\}$ (default `aba`) and step through it.
+Each step reads one symbol and shows both the NFA active-state set and the
+current DFA state — demonstrating the **invariant**: *DFA state = set of active NFA states*.
+
+```{=html}
+<div class="sc-lab" id="w2-lab">
+  <div class="sc-field">
+    <label for="w2-input">Input word over {a,b}</label>
+    <input id="w2-input" value="aba" spellcheck="false" inputmode="text">
+  </div>
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="w2-step">Step &#x2192;</button>
+    <button class="sc-btn alt" id="w2-reset">Reset</button>
+    <span class="sc-progress" id="w2-progress"></span>
+  </div>
+  <div class="sc-explain" id="w2-explain"></div>
+  <div class="sc-symbol-track" id="w2-track"></div>
+
+  <div class="sc-two-graphs">
+    <div class="sc-graph-wrap">
+      <h4>NFA &mdash; active states</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 530 200" role="img" aria-label="NFA active states">
+        <defs>
+          <marker id="w2-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="w2-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <line x1="52" y1="100" x2="112" y2="100" stroke="#303036" stroke-width="2" marker-end="url(#w2-arrow)"/>
+        <path id="w2-nfa-loop" class="sc-nfa-edge" d="M 126 76 C 90 15, 192 15, 155 76" marker-end="url(#w2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="132" y="22">a, b</text>
+        <path id="w2-nfa-arc" class="sc-nfa-edge" d="M 168 100 L 372 100" marker-end="url(#w2-arrow)"/>
+        <text class="sc-nfa-edge-label" x="263" y="93">a</text>
+        <g class="sc-nfa-node" id="w2-nfa-qs" transform="translate(140,100)">
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">q&#x209B;</text>
+        </g>
+        <g class="sc-nfa-node" id="w2-nfa-qa" transform="translate(400,100)">
+          <circle r="34" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="28"></circle>
+          <text text-anchor="middle" dy="5">q&#x2090;</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="sc-graph-wrap">
+      <h4>DFA &mdash; current state</h4>
+      <svg style="width:100%;height:auto;display:block;" viewBox="0 0 530 230" role="img" aria-label="DFA current state">
+        <defs>
+          <marker id="w2-dfa-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="w2-dfa-arrow-red" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <line x1="42" y1="120" x2="88" y2="120" stroke="#303036" stroke-width="2" marker-end="url(#w2-dfa-arrow)"/>
+        <path id="dfa-s0b" class="sc-dfa-edge" d="M 114 95 C 80 40, 182 40, 148 95" marker-end="url(#w2-dfa-arrow)"/>
+        <text class="sc-dfa-edge-label" x="118" y="42">b</text>
+        <path id="dfa-s0a" class="sc-dfa-edge" d="M 164 120 L 358 120" marker-end="url(#w2-dfa-arrow)"/>
+        <text class="sc-dfa-edge-label" x="252" y="112">a</text>
+        <path id="dfa-s1a" class="sc-dfa-edge" d="M 374 95 C 340 40, 442 40, 408 95" marker-end="url(#w2-dfa-arrow)"/>
+        <text class="sc-dfa-edge-label" x="385" y="42">a</text>
+        <path id="dfa-s1b" class="sc-dfa-edge" d="M 366 138 C 320 185, 210 185, 162 138" marker-end="url(#w2-dfa-arrow)"/>
+        <text class="sc-dfa-edge-label" x="252" y="185">b</text>
+        <g class="sc-dfa-node" id="dfa-node-s0" transform="translate(130,120)">
+          <circle r="34"></circle>
+          <text text-anchor="middle" dy="-4" font-size="11">S&#x2080;</text>
+          <text text-anchor="middle" dy="11" font-size="10">{q&#x209B;}</text>
+        </g>
+        <g class="sc-dfa-node" id="dfa-node-s1" transform="translate(400,120)">
+          <circle r="40" fill="none" stroke="#30bced" stroke-width="1.5"></circle>
+          <circle r="34"></circle>
+          <text text-anchor="middle" dy="-4" font-size="11">S&#x2081; &#x2605;</text>
+          <text text-anchor="middle" dy="11" font-size="10">{q&#x209B;,q&#x2090;}</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="sc-panel" style="margin-top:0;">
+    <h4>Simulation trace</h4>
+    <table class="sc-table">
+      <thead><tr><th>Prefix</th><th>NFA active states</th><th>DFA state</th><th>Accepted?</th></tr></thead>
+      <tbody id="w2-trace"></tbody>
+    </table>
+    <p style="margin-top:10px;font-size:0.88rem;color:var(--sc-label);" id="w2-invariant"></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  function nfaStep(states, sym) {
+    var next = {};
+    states.forEach(function(s) {
+      if (s === "qs") {
+        next["qs"] = true;
+        if (sym === "a") next["qa"] = true;
+      }
+    });
+    return Object.keys(next).sort();
+  }
+
+  function dfaOf(nfaStates) { return nfaStates.indexOf("qa") >= 0 ? "s1" : "s0"; }
+
+  function fmtNfa(states) {
+    if (!states.length) return "\u2205";
+    return "{" + states.map(function(s){ return s === "qs" ? "q\u209B" : "q\u2090"; }).join(", ") + "}";
+  }
+
+  function sanitize(v) { return v.toLowerCase().replace(/[^ab]/g, ""); }
+
+  var inputEl   = document.getElementById("w2-input");
+  var stepBtn   = document.getElementById("w2-step");
+  var resetBtn  = document.getElementById("w2-reset");
+  var progressEl= document.getElementById("w2-progress");
+  var explainEl = document.getElementById("w2-explain");
+  var trackEl   = document.getElementById("w2-track");
+  var traceEl   = document.getElementById("w2-trace");
+  var invEl     = document.getElementById("w2-invariant");
+
+  var w2NfaQs   = document.getElementById("w2-nfa-qs");
+  var w2NfaQa   = document.getElementById("w2-nfa-qa");
+  var w2NfaLoop = document.getElementById("w2-nfa-loop");
+  var w2NfaArc  = document.getElementById("w2-nfa-arc");
+  var dfaS0     = document.getElementById("dfa-node-s0");
+  var dfaS1     = document.getElementById("dfa-node-s1");
+  var edgeS0b   = document.getElementById("dfa-s0b");
+  var edgeS0a   = document.getElementById("dfa-s0a");
+  var edgeS1a   = document.getElementById("dfa-s1a");
+  var edgeS1b   = document.getElementById("dfa-s1b");
+
+  var symIdx, nfaActive, dfaCur, rows;
+
+  function renderTrack(word) {
+    trackEl.innerHTML = "";
+    if (!word.length) {
+      var sp = document.createElement("span");
+      sp.className = "sc-sym"; sp.textContent = "\u03b5";
+      trackEl.appendChild(sp); return;
+    }
+    word.split("").forEach(function(c, i) {
+      var sp = document.createElement("span");
+      sp.className = "sc-sym" + (i === symIdx ? " current" : "");
+      sp.textContent = c; trackEl.appendChild(sp);
+    });
+  }
+
+  function renderTrace() {
+    traceEl.innerHTML = "";
+    rows.forEach(function(r, i) {
+      var tr = document.createElement("tr");
+      if (i === rows.length - 1) tr.style.fontWeight = "bold";
+      [r.prefix, r.nfa, r.dfa, r.accepted ? "\u2705 Yes" : "\u274c No"].forEach(function(v) {
+        var td = document.createElement("td"); td.textContent = v; tr.appendChild(td);
+      });
+      traceEl.appendChild(tr);
+    });
+  }
+
+  function applyNfaGraph(active, usedEdges) {
+    w2NfaQs.className.baseVal = "sc-nfa-node" + (active.indexOf("qs") >= 0 ? " active" : "");
+    w2NfaQa.className.baseVal = "sc-nfa-node" + (active.indexOf("qa") >= 0 ? " active" : "");
+    var loopA = usedEdges.indexOf("loop") >= 0;
+    var arcA  = usedEdges.indexOf("arc") >= 0;
+    w2NfaLoop.className.baseVal = "sc-nfa-edge" + (loopA ? " active" : "");
+    w2NfaArc.className.baseVal  = "sc-nfa-edge" + (arcA  ? " active" : "");
+    w2NfaLoop.setAttribute("marker-end", loopA ? "url(#w2-arrow-red)" : "url(#w2-arrow)");
+    w2NfaArc.setAttribute ("marker-end", arcA  ? "url(#w2-arrow-red)" : "url(#w2-arrow)");
+  }
+
+  function applyDfaGraph(state, usedEdge) {
+    dfaS0.className.baseVal = "sc-dfa-node" + (state === "s0" ? " active" : "");
+    dfaS1.className.baseVal = "sc-dfa-node" + (state === "s1" ? " active" : "");
+    [edgeS0b, edgeS0a, edgeS1a, edgeS1b].forEach(function(e) {
+      e.className.baseVal = "sc-dfa-edge";
+      e.setAttribute("marker-end", "url(#w2-dfa-arrow)");
+    });
+    if (usedEdge) {
+      usedEdge.className.baseVal = "sc-dfa-edge active";
+      usedEdge.setAttribute("marker-end", "url(#w2-dfa-arrow-red)");
+    }
+  }
+
+  function reset() {
+    var word = sanitize(inputEl.value);
+    if (word !== inputEl.value) inputEl.value = word;
+    symIdx = 0; nfaActive = ["qs"]; dfaCur = "s0";
+    rows = [{ prefix: "\u03b5", nfa: "{q\u209B}", dfa: "S\u2080", accepted: false }];
+    explainEl.innerHTML = "<b>Initialised.</b> Start in NFA state {q\u209B}, corresponding to DFA state S\u2080.";
+    invEl.textContent = "Invariant: DFA state S\u2080 = NFA active set {q\u209B} \u2713";
+    progressEl.textContent = "Symbol 0 / " + word.length;
+    renderTrack(word); renderTrace();
+    applyNfaGraph(["qs"], []); applyDfaGraph("s0", null);
+    stepBtn.disabled = word.length === 0;
+  }
+
+  function step() {
+    var word = sanitize(inputEl.value);
+    if (symIdx >= word.length) return;
+    var sym = word[symIdx];
+    var prevNfa = nfaActive; var prevDfa = dfaCur;
+    nfaActive = nfaStep(prevNfa, sym);
+    dfaCur = dfaOf(nfaActive);
+    symIdx++;
+
+    var usedEdges = [];
+    if (sym === "a" && prevNfa.indexOf("qs") >= 0) { usedEdges.push("loop"); usedEdges.push("arc"); }
+    else if (sym === "b" && prevNfa.indexOf("qs") >= 0) { usedEdges.push("loop"); }
+
+    var dfaEdge = null;
+    if (prevDfa === "s0" && sym === "b") dfaEdge = edgeS0b;
+    if (prevDfa === "s0" && sym === "a") dfaEdge = edgeS0a;
+    if (prevDfa === "s1" && sym === "a") dfaEdge = edgeS1a;
+    if (prevDfa === "s1" && sym === "b") dfaEdge = edgeS1b;
+
+    var accepted = nfaActive.indexOf("qa") >= 0;
+    var prefix   = word.slice(0, symIdx);
+    var dfaLabel = dfaCur === "s1" ? "S\u2081 \u2605" : "S\u2080";
+    var prevDfaL = prevDfa === "s1" ? "S\u2081" : "S\u2080";
+    rows.push({ prefix: prefix, nfa: fmtNfa(nfaActive), dfa: dfaLabel, accepted: accepted });
+
+    explainEl.innerHTML =
+      "<b>Read \u2018" + sym + "\u2019.</b> From NFA states " + fmtNfa(prevNfa) +
+      ", applying \u0394(\u00b7, " + sym + ") gives " + fmtNfa(nfaActive) + ". " +
+      "DFA: " + prevDfaL + " \u2192<sup>" + sym + "</sup>\u2192 " + dfaLabel + ". " +
+      (accepted ? "<b>Prefix accepted \u2705</b>" : "Prefix not accepted \u274c");
+
+    invEl.textContent = "Invariant: DFA state " + dfaLabel + " = NFA active set " + fmtNfa(nfaActive) + " \u2713";
+    progressEl.textContent = "Symbol " + symIdx + " / " + word.length;
+    renderTrack(word); renderTrace();
+    applyNfaGraph(nfaActive, usedEdges);
+    applyDfaGraph(dfaCur, dfaEdge);
+    stepBtn.disabled = symIdx >= word.length;
+
+    if (symIdx >= word.length) {
+      explainEl.innerHTML +=
+        "<br><b>Word fully consumed.</b> Final DFA state: " + dfaLabel + ". " +
+        (accepted ? "Ends in <code>a</code> \u2192 <b>ACCEPTED \u2705</b>" : "Does not end in <code>a</code> \u2192 <b>REJECTED \u274c</b>");
+    }
+  }
+
+  inputEl.addEventListener("input", reset);
+  stepBtn.addEventListener("click", step);
+  resetBtn.addEventListener("click", reset);
+  reset();
+})();
+</script>
+```
+
+---
+
+## What To Notice
+
+1. **Only 2 reachable DFA states out of 4 possible.**
+   A 2-state NFA could produce up to $2^2 = 4$ subset states
+   ($\varnothing$, $\{q_s\}$, $\{q_a\}$, $\{q_s,q_a\}$), but the worklist
+   algorithm discovered only $\{q_s\}$ and $\{q_s,q_a\}$.
+
+2. **$\{q_a\}$ is unreachable.**
+   $q_a$ is only reached from $q_s$ via the $a$-arc.
+   Since $q_a$ has no outgoing transitions, it can never appear *alone* in an
+   active set — it always arrives together with $q_s$ (which keeps itself alive
+   via the self-loop).  Hence $\{q_a\}$ is never generated by the worklist.
+
+3. **The invariant in action.**
+   At every moment in Widget 2 the DFA-state label *is* the NFA active set.
+   The subset construction packages the power-set computation into a single
+   deterministic state name.
+
+4. **Acceptance corresponds to $S \cap F \neq \varnothing$.**
+   A DFA state $S$ is accepting precisely when it contains at least one NFA
+   accepting state ($q_a \in S$).  That is why only $\{q_s,q_a\}$ is a DFA
+   accepting state, reflecting that the word prefix read so far ends in $a$.
