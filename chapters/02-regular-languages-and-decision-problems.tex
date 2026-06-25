@@ -172,6 +172,37 @@ monotone operator $X\mapsto\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$.
 This is the same fixpoint flavour that will return, scaled up, in the
 symbolic reachability algorithms of \cref{subsec:reachability-fixpoint}.
 
+With the closure in hand we can define how an $\varepsilon$-NFA reads a
+whole word.  The pattern is: take all free moves, read one real symbol,
+take all free moves again, and repeat.
+
+\begin{definition}[Extended transition function of an $\varepsilon$-NFA]
+\label{def:epsilon-nfa-hat-delta}
+Let $A=(Q,\Sigma,\Delta,q_0,F)$ be an $\varepsilon$-NFA.  The
+\textbf{extended transition function}
+$\widehat{\Delta}:2^Q\times\Sigma^*\to 2^Q$ is defined recursively on
+the length of the input word:
+\[
+  \widehat{\Delta}(S,\varepsilon)=\mathsf{ECl}(S),
+\]
+\[
+  \widehat{\Delta}(S,wa)=
+    \mathsf{ECl}\!\left(
+      \bigcup_{p\,\in\,\widehat{\Delta}(S,w)}\Delta(p,a)
+    \right).
+\]
+The base case says: if no real symbol is consumed, apply free moves
+until no more are possible.  The inductive step says: compute the states
+reachable on the prefix~$w$, follow every real $a$-transition from
+each of them, and then apply free moves again.
+
+A word $w\in\Sigma^*$ is accepted by $A$ if and only if
+\[
+  \widehat{\Delta}(\{q_0\},w)\cap F\neq\emptyset.
+\]
+\end{definition}
+
+
 \begin{theorem}[$\varepsilon$-removal]
 \label{thm:epsilon-removal}
 For every $\varepsilon$-NFA $A$ there exists an NFA $A'$ without
@@ -209,11 +240,33 @@ real symbol.  We correct the final set:
     F, & \text{otherwise.}
   \end{cases}
 \]
-A straightforward induction on the length of the input word $w$ now
-shows that the set of states reached by $A'$ on $w$ from $q_0$ equals
-the $\varepsilon$-closure of the set of states reached by $A$ on $w$.
-Intersecting with $F'$ then yields exactly the same accepting verdict as
-intersecting with $F$ in $A$.
+It remains to show $L(A')=L(A)$.  We prove the following invariant by
+induction on $|w|$: for every $w\in\Sigma^*$,
+\[
+  \widehat{\Delta}_{A'}(\{q_0\},w)
+  =
+  \widehat{\Delta}_A(\{q_0\},w),
+\]
+where $\widehat{\Delta}_A$ is the extended function of
+\cref{def:epsilon-nfa-hat-delta} and $\widehat{\Delta}_{A'}$ is the
+ordinary NFA extension of \cref{def:extended-delta} applied to $A'$.
+For $w=\varepsilon$: $\widehat{\Delta}_{A'}(\{q_0\},\varepsilon)=\{q_0\}$
+and $\widehat{\Delta}_A(\{q_0\},\varepsilon)=\mathsf{ECl}(q_0)$; these
+differ only if $q_0\notin\mathsf{ECl}(q_0)$, which cannot happen since
+every state reaches itself in zero steps.  For the inductive step,
+suppose the invariant holds for $w$ and let $S=\widehat{\Delta}_A(\{q_0\},w)$.
+Then
+\[
+  \widehat{\Delta}_{A'}(\{q_0\},wa)
+  = \bigcup_{p\in S}\Delta'(p,a)
+  = \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right)
+  = \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right)
+  = \widehat{\Delta}_A(\{q_0\},wa),
+\]
+where the last step follows from the definition of $\widehat{\Delta}_A$
+and the fact that $\mathsf{ECl}(S)=S$ (the induction hypothesis already
+included closure).  Intersecting with $F'$ then yields exactly the same
+accepting verdict as intersecting with $F$ in $A$.
 \end{proof}
 
 \begin{example}[$\varepsilon$-removal on the concatenation automaton]
