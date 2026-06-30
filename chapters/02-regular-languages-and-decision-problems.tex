@@ -376,8 +376,13 @@ real symbol.  We correct the final set:
     F, & \text{otherwise.}
   \end{cases}
 \]
-It remains to show $L(A')=L(A)$.  We prove the following invariant by
-induction on $|w|$: for every $w\in\Sigma^*$,
+It remains to show $L(A')=L(A)$.  Since $A'$ and $A$ share the same
+state set, it suffices to show that reading any non-empty word always
+lands them in the same reachable-state set; acceptance then coincides
+because $F'$ was built to match $F$'s verdict on every word (including
+$\varepsilon$, which is handled by the correction above).  Formally, we
+prove the following invariant by induction on $|w|$: for every
+$w\in\Sigma^*$,
 \[
   \widehat{\Delta}_{A'}(\{q_0\},w)
   =
@@ -388,21 +393,33 @@ where $\widehat{\Delta}_A$ is the extended function of
 ordinary NFA extension of \cref{def:extended-delta} applied to $A'$.
 For $w=\varepsilon$: $\widehat{\Delta}_{A'}(\{q_0\},\varepsilon)=\{q_0\}$
 and $\widehat{\Delta}_A(\{q_0\},\varepsilon)=\mathsf{ECl}(q_0)$; these
-differ only if $q_0\notin\mathsf{ECl}(q_0)$, which cannot happen since
-every state reaches itself in zero steps.  For the inductive step,
-suppose the invariant holds for $w$ and let $S=\widehat{\Delta}_A(\{q_0\},w)$.
-Then
-\[
+sets need not be equal in general, but acceptance of the empty word is
+handled entirely by the $F'$ correction above, so no further argument
+is needed here.
+
+For the inductive step, suppose the invariant holds for $w$ and let
+$S=\widehat{\Delta}_A(\{q_0\},w)$.  Before expanding the chain, note
+that $S$ is already $\varepsilon$-closed: every output of
+$\widehat{\Delta}_A$ ends with an application of $\mathsf{ECl}$, so
+$\mathsf{ECl}(S)=S$ and in particular $\mathsf{ECl}(p)\subseteq S$ for
+every $p\in S$.  This is what licenses the third equality below.  Then
+\begin{align*}
   \widehat{\Delta}_{A'}(\{q_0\},wa)
-  = \bigcup_{p\in S}\Delta'(p,a)
-  = \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right)
-  = \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right)
-  = \widehat{\Delta}_A(\{q_0\},wa),
-\]
-where the last step follows from the definition of $\widehat{\Delta}_A$
-and the fact that $\mathsf{ECl}(S)=S$ (the induction hypothesis already
-included closure).  Intersecting with $F'$ then yields exactly the same
-accepting verdict as intersecting with $F$ in $A$.
+  &= \bigcup_{p\in S}\Delta'(p,a)
+     &&\text{(NFA extended function, using IH)}\\
+  &= \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right)
+     &&\text{(definition of $\Delta'$)}\\
+  &= \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right)
+     &&\text{($\mathsf{ECl}(S)=S$, so $\bigcup_{p\in S}\mathsf{ECl}(p)=S$)}\\
+  &= \widehat{\Delta}_A(\{q_0\},wa).
+     &&\text{(definition of $\widehat{\Delta}_A$)}
+\end{align*}
+The third step is the key one: because $S$ is already closed, ranging
+over $\mathsf{ECl}(p)$ for each $p\in S$ adds no states beyond $S$
+itself, so the inner per-$p$ closures collapse into a single outer
+$\mathsf{ECl}$ over the direct $a$-successors.  Intersecting with $F'$
+then yields exactly the same accepting verdict as intersecting with $F$
+in $A$.
 \end{proof}
 
 \begin{example}[$\varepsilon$-removal on the concatenation automaton]
