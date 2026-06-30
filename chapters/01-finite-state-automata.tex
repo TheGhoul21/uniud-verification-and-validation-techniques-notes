@@ -609,17 +609,15 @@ For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
 \]
 \end{theorem}
 
-\aside{Some presentations use primed names for the DFA components:
-$Q'$, $\Delta'$, $q_0'$, $F'$, and $P$ for a generic deterministic
-state.  Here we use $2^Q$, $\delta_D$, $\{q_0\}$, $F_D$, and $S$.
-The objects are identical; only the names differ.}
-
 \begin{formaldetails}[Construction]
 Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  We build a DFA
 $\mathcal{D}=(2^Q,A,\delta_D,\{q_0\},F_D)$ whose states are subsets of
 $Q$.  Each such subset $S$ represents the set of NFA states that could
 simultaneously be active after reading some input prefix — the DFA keeps
 track of all possibilities at once rather than choosing one.
+(Some presentations write the DFA components as $Q'$, $\Delta'$,
+$q_0'$, $F'$ and use $P$ for a generic state; the objects are
+identical, only the names differ.)
 
 \medskip
 \noindent\textbf{Initial state.}  Before any input is consumed, the only
