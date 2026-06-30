@@ -609,6 +609,15 @@ For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
 \]
 \end{theorem}
 
+\begin{remark}[Notation map]
+\label{rem:subset-notation}
+Some presentations of this construction use primed names for the DFA
+components: $Q'$, $\Delta'$, $q_0'$, $F'$, and the letter $P$ for a
+generic deterministic state.  Here we use $2^Q$, $\delta_D$, $\{q_0\}$,
+$F_D$, and $S$ instead.  The objects are identical; only the names
+differ.
+\end{remark}
+
 \begin{formaldetails}[Construction]
 Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  Define the DFA
 \[
