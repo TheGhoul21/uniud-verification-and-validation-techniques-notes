@@ -42,9 +42,12 @@ that we actually know how to perform.
 
 
 % ============================================================
-\section{Regular Expressions}
+\section{Regular Expressions and Kleene's Theorem}
 \label{sec:regular-expressions}
 % ============================================================
+
+\subsection{Regular Expressions}
+\label{subsec:regular-expressions-syntax}
 
 Drawing a DFA is an \emph{operational} act: we specify, state by state
 and symbol by symbol, how the machine moves through a computation.
@@ -115,6 +118,9 @@ regular language is star-free.  Later, when logic enters the course,
 this fragment becomes visible as the finite-word shadow of first-order
 definability.
 \end{formaldetails}
+
+\subsection{The \texorpdfstring{$\varepsilon$}{ε}-NFA Model}
+\label{subsec:epsilon-nfa}
 
 Before proving the equivalence between expressions and automata, we
 need a more flexible automaton model that lets us wire pieces together
@@ -485,6 +491,9 @@ ordinary NFA---the $\varepsilon$-closure has been absorbed into the
 transition targets.}
 \label{fig:epsilon-removal-example}
 \end{figure}
+
+\subsection{Kleene's Theorem}
+\label{subsec:kleene-theorem}
 
 With $\varepsilon$-NFAs as a flexible intermediate model, we can equate
 the syntactic and operational views of regularity.
