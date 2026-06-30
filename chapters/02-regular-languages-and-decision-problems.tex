@@ -247,8 +247,10 @@ take all free moves again, and repeat.
 \label{def:epsilon-nfa-hat-delta}
 Let $A=(Q,\Sigma,\Delta,q_0,F)$ be an $\varepsilon$-NFA.  The
 \textbf{extended transition function}
-$\widehat{\Delta}:2^Q\times\Sigma^*\to 2^Q$ is defined recursively on
-the length of the input word:
+$\widehat{\Delta}:2^Q\times\Sigma^*\to 2^Q$ encodes the rhythm
+described above: close the current set under $\varepsilon$-moves, read
+one real symbol, close again, and repeat for each symbol in the word.
+Formally, by recursion on word length:
 \[
   \widehat{\Delta}(S,\varepsilon)=\mathsf{ECl}(S),
 \]
@@ -258,10 +260,10 @@ the length of the input word:
       \bigcup_{p\,\in\,\widehat{\Delta}(S,w)}\Delta(p,a)
     \right).
 \]
-The base case says: if no real symbol is consumed, apply free moves
-until no more are possible.  The inductive step says: compute the states
-reachable on the prefix~$w$, follow every real $a$-transition from
-each of them, and then apply free moves again.
+Reading the empty word simply resolves any pending free moves.  For a
+word ending in~$a$: find all states reachable after the prefix~$w$,
+follow every real $a$-transition from those states, then close under
+$\varepsilon$-moves once more.
 
 A word $w\in\Sigma^*$ is accepted by $A$ if and only if
 \[
