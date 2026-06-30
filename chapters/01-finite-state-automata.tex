@@ -615,18 +615,35 @@ state.  Here we use $2^Q$, $\delta_D$, $\{q_0\}$, $F_D$, and $S$.
 The objects are identical; only the names differ.}
 
 \begin{formaldetails}[Construction]
-Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  Define the DFA
+Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  We build a DFA
+$\mathcal{D}=(2^Q,A,\delta_D,\{q_0\},F_D)$ whose states are subsets of
+$Q$.  Each such subset $S$ represents the set of NFA states that could
+simultaneously be active after reading some input prefix — the DFA keeps
+track of all possibilities at once rather than choosing one.
+
+\medskip
+\noindent\textbf{Initial state.}  Before any input is consumed, the only
+active NFA state is $q_0$, so the DFA starts in the singleton
+$\{q_0\}\in 2^Q$.
+
+\medskip
+\noindent\textbf{Transition function.}  When the DFA is in state $S$ and
+reads symbol $a$, it must account for every NFA transition that any
+state in $S$ could take on $a$:
 \[
-  \mathcal{D}=(2^Q,A,\delta_D,\{q_0\},F_D)
+  \delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a).
 \]
-as follows:
+The result is the set of all NFA states reachable from any member of $S$
+by consuming $a$.
+
+\medskip
+\noindent\textbf{Accepting states.}  The NFA accepts a word
+\emph{existentially}: it succeeds if \emph{at least one} active state is
+final.  We mirror this in the DFA by declaring $S$ accepting whenever it
+contains at least one NFA final state:
 \[
-  \delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a),
-  \qquad
   F_D=\{S\subseteq Q:S\cap F\neq\emptyset\}.
 \]
-The deterministic state $S$ records the whole set of NFA states that can
-be active after reading the current input prefix.
 \end{formaldetails}
 
 The construction is called the \textbf{power-set construction} because
