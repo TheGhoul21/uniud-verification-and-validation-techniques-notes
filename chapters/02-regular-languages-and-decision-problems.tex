@@ -192,47 +192,51 @@ This is the same fixpoint flavour that will return, scaled up, in the
 symbolic reachability algorithms of \cref{subsec:reachability-fixpoint}.
 
 \begin{formaldetails}[Least fixpoint: what it means and how to compute it]
-A set $X\subseteq Q$ is a \textbf{fixpoint} of an operator $F$ if
-$F(X)=X$, i.e.\ applying $F$ once does not change $X$.  Here
-$F(X)=\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$: it adds $q$ and
-all states reachable from $X$ by one $\varepsilon$-step.
+The $\varepsilon$-closure is defined by a self-referential condition---a
+state belongs to $\mathsf{ECl}(q)$ if it is reachable from other states
+that are already in $\mathsf{ECl}(q)$---so we need a principled way to
+solve it.  The answer is to start small and expand until nothing new can
+be added.
 
 \medskip
-\noindent\textit{Iterative construction.}
-Start from the empty set and keep applying $F$:
+\noindent\textit{How the iteration works.}
+Begin with $\{q\}$, then repeatedly ask: can we reach any new state from
+the current set by taking one $\varepsilon$-step?  If yes, add it and
+ask again; if no, stop.  Written out:
 \[
-  X_0 = \emptyset,\qquad
-  X_{i+1} = F(X_i) = \{q\}\cup\bigcup_{p\in X_i}\Delta(p,\varepsilon).
+  X_0 = \{q\},\qquad
+  X_{i+1} = X_i\cup\bigcup_{p\in X_i}\Delta(p,\varepsilon).
 \]
-Because $F$ is \emph{monotone} ($X\subseteq Y\Rightarrow F(X)\subseteq
-F(Y)$), the sequence $X_0\subseteq X_1\subseteq X_2\subseteq\cdots$ is
-non-decreasing.  Since $Q$ is finite the sequence cannot grow
-indefinitely: it stabilises at some step $k\le|Q|$, meaning
-$X_{k+1}=X_k$.  That stable value is the fixpoint produced by the
-iteration.
+Since we only ever add states and $Q$ is finite, the sequence
+$X_0\subseteq X_1\subseteq\cdots$ must eventually stabilise: some step
+$k\le|Q|$ produces $X_{k+1}=X_k$.  That stable set is $\mathsf{ECl}(q)$.
+A set where re-applying the expansion leaves it unchanged is called a
+\textbf{fixpoint}.
 
 \medskip
 \noindent\textit{Why \emph{least}?}
-$F$ may have many fixpoints: the full set $Q$ always satisfies $F(Q)=Q$
-trivially.  The iteration, starting from $\emptyset$, accumulates only
-what is strictly forced---first $q$ itself, then its
-$\varepsilon$-successors, then their $\varepsilon$-successors, and so
-on.  Any other fixpoint $Y$ must already contain $q$ and must be closed
-under $\varepsilon$-moves, so it contains every $X_i$; hence
-$X_k\subseteq Y$.  The result of the iteration is therefore included in
-\emph{every} fixpoint of $F$: it is the \textbf{least} (i.e.\ smallest
-by $\subseteq$) fixpoint, written $\mu X.\,F(X)$ in the fixpoint
-calculus.
+There are many fixpoints.  The entire state set $Q$ is one: following
+$\varepsilon$-edges from every state can never escape $Q$.  But $Q$
+overapproximates wildly---it claims every state is
+$\varepsilon$-reachable from $q$, which is almost never true.
+
+The iteration above is disciplined: it starts with only $q$ and admits
+a state only when an $\varepsilon$-path from $q$ genuinely forces it in.
+Any other fixpoint must contain $q$ and must be closed under
+$\varepsilon$-moves, so it must include everything our iteration
+accumulated.  Our answer is therefore the \textbf{least}
+(i.e.\ smallest by $\subseteq$) fixpoint of the expansion operator---the
+tightest correct answer, denoted $\mu X.\,F(X)$ in the fixpoint calculus.
 
 \medskip
-\noindent\textit{Connection to reachability.}
-In \cref{subsec:reachability-fixpoint} exactly the same pattern appears
-at the level of the whole automaton: $\mathsf{Post}(X)$ plays the role
-of $\bigcup_{p\in X}\Delta(p,\varepsilon)$, the initial state $q_0$
-plays the role of $q$, and the iteration $R_{i+1}=R_i\cup\mathsf{Post}(R_i)$
-converges to the set of \emph{all} reachable states $R^*$.
-$\mathsf{ECl}(q)$ is thus a miniature instance of global reachability,
-restricted to $\varepsilon$-moves alone.
+\noindent\textit{Connection to global reachability.}
+The same pattern reappears in \cref{subsec:reachability-fixpoint}:
+$\mathsf{Post}(X)$ plays the role of
+$\bigcup_{p\in X}\Delta(p,\varepsilon)$, the initial state $q_0$ plays
+the role of $q$, and the iteration $R_{i+1}=R_i\cup\mathsf{Post}(R_i)$
+converges to the full reachable set $R^*$.  Computing $\mathsf{ECl}(q)$
+is therefore a miniature instance of that global reachability algorithm,
+narrowed to $\varepsilon$-labelled edges alone.
 \end{formaldetails}
 
 With the closure in hand we can define how an $\varepsilon$-NFA reads a
