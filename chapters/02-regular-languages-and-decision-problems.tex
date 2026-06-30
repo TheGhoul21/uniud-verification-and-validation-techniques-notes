@@ -103,20 +103,48 @@ This is the same language recognized by the DFA in
 \cref{fig:even-a-dfa}.  The expression describes the structure of the
 word; the automaton describes how to scan it.
 
-\begin{formaldetails}[Restricted, general, and star-free expressions]
-The word \emph{restricted} is used because the syntax above contains
-only union, concatenation, and Kleene star.  A more liberal syntax may
-also include Boolean operations such as intersection and complement.
-This does not add expressive power: once we can translate expressions to
-automata, closure under intersection and complement lets us compile the
-Boolean operations away and return to a restricted expression.
+The restricted syntax is not the only option.  A more liberal variant
+admits Boolean operations directly inside expressions.
 
-There is, however, an important smaller fragment.  A \textbf{star-free}
-expression may use union, concatenation, complement, and intersection,
-but not Kleene star.  Star-free languages are regular, but not every
-regular language is star-free.  Later, when logic enters the course,
-this fragment becomes visible as the finite-word shadow of first-order
-definability.
+\begin{definition}[General regular expressions]
+\label{def:general-regex}
+The \textbf{general regular expressions} over $\Sigma$ extend the
+restricted syntax of \cref{def:restricted-regex} with two Boolean
+combinators: if $r$ and $s$ are general regular expressions, so are
+\[
+  r \cap s \qquad\text{and}\qquad \overline{r}.
+\]
+The semantics extends naturally: $r \cap s$ denotes the intersection of
+the languages of $r$ and $s$, and $\overline{r}$ denotes the complement
+of the language of $r$ with respect to $\Sigma^*$.
+\end{definition}
+
+Within the general syntax there is an important sublanguage obtained by
+dropping star rather than Boolean operations.
+
+\begin{definition}[Star-free expressions]
+\label{def:star-free}
+A \textbf{star-free expression} is a general regular expression that
+contains no occurrence of Kleene star.  It may use union, concatenation,
+complement, and intersection freely, but repetition is forbidden.
+\end{definition}
+
+\begin{formaldetails}[Expressive power of the three classes]
+The three syntactic classes---restricted, general, and star-free---are
+not equally expressive.  General expressions add no power over
+restricted ones: once we can translate expressions to automata, closure
+under intersection and complement (\cref{sec:regular-closure}) lets us
+compile the Boolean operators away and return to a restricted expression.
+This is exactly \cref{cor:regex-classes}.
+
+Removing star, however, does cost expressive power.  Star-free
+expressions define a \emph{strictly smaller} class: the language of
+words with an even number of $a$'s (\cref{ex:regex-even-a}) is regular
+but cannot be described without star.  By Sch\"utzenberger's theorem
+(see \cref{ch:deterministic-automata-star-free}), the star-free
+languages are exactly the \emph{aperiodic} regular languages---and,
+when logic enters the course, they reappear as the finite-word shadow of
+first-order definability.
 \end{formaldetails}
 
 \subsection{The \texorpdfstring{$\varepsilon$}{ε}-NFA Model}
@@ -654,7 +682,8 @@ state of $r$ loops back to $i_r$ via another $\varepsilon$-move.}
 
 A useful consequence of \cref{thm:kleene}, combined with the closure
 constructions we are about to develop in \cref{sec:regular-closure}, is
-that the two syntactic classes introduced above---restricted and
+that the two syntactic classes of
+\cref{def:restricted-regex,def:general-regex}---restricted and
 general---recognize exactly the same languages.
 
 \begin{corollary}[Restricted and general expressions coincide]
@@ -672,17 +701,6 @@ a complete DFA, and intersection becomes the product construction of
 \cref{thm:kleene} converts back into a restricted expression.
 \end{proof}
 
-The star-free fragment is more subtle.  Removing Kleene star does cost
-expressive power: there are regular languages that no star-free
-expression can denote.  Our running example
-\cref{ex:regex-even-a}---words with an even number of $a$'s---is the
-canonical witness.  Its minimal DFA cycles between two states and is
-not \emph{aperiodic}; by Sch\"utzenberger's theorem, which we will meet
-in \cref{ch:deterministic-automata-star-free}, this is exactly the
-obstruction that keeps it out of the star-free fragment.  Star-free
-languages are therefore a \emph{strictly weaker} subclass of the regular
-languages, and they will reappear later as the finite-word shadow of
-first-order definability.
 
 
 % ============================================================
