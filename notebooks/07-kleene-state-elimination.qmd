@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 7: Kleene State Elimination",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Kleene's Theorem: DFA to Regular Expression
 
 This notebook focuses on the state-elimination half of Kleene's theorem.

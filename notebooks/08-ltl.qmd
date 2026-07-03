@@ -1,0 +1,43 @@
+---
+title: "Notebook 8: Linear Temporal Logic (LTL)"
+pagetitle: "Linear Temporal Logic (LTL) — Formal Verification | VVT UniUD"
+description: "Learn the basics of Linear Temporal Logic (LTL). Explore syntax, semantics, and how temporal operators are used in formal verification. Lecture notes companion."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Linear Temporal Logic (LTL)",
+  "learningResourceType": "Lecture Notes"
+}
+</script>
+```
+
+# Linear Temporal Logic (LTL)
+
+Welcome to the section on **Linear Temporal Logic (LTL)**. 
+
+While the first part of the course focuses on automata theory as a foundation, formal verification relies heavily on temporal logics to express the properties that systems must satisfy over time. LTL allows us to state requirements such as "eventually a request will be granted" or "a process never enters a critical section twice concurrently".
+
+## Course Materials for LTL
+
+Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.
+
+### What you will learn in this chapter:
+- **LTL Syntax**: Propositional variables and temporal operators (Next, Until, Globally, Finally).
+- **Semantics**: Evaluating LTL formulas over infinite traces (words).
+- **Equivalences**: Standard logical equivalences and how to rewrite formulas.
+- **Verification**: How LTL formulas translate into automata for model checking.
+
+> [!TIP]
+> **Read the full chapter in the PDF**
+> 
+> The comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF. 
+> <br><br>
+> [**Download the Full Lecture Notes (PDF)**](../main.pdf)

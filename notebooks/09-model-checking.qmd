@@ -1,0 +1,41 @@
+---
+title: "Notebook 9: Model Checking Basics"
+pagetitle: "Model Checking Algorithms and Basics — Formal Verification | VVT UniUD"
+description: "Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Model Checking Basics",
+  "learningResourceType": "Lecture Notes"
+}
+</script>
+```
+
+# Model Checking Basics
+
+**Model Checking** is the core automated technique studied in Verification and Validation. It is the algorithmic process of determining whether a given finite-state model of a system meets a given formal specification (typically expressed in temporal logic like LTL or CTL).
+
+## Course Materials for Model Checking
+
+The theoretical foundations of model checking algorithms, state-space explosion problems, and practical approaches are detailed in the course notes.
+
+### Key concepts covered:
+- **Kripke Structures & Transition Systems**: Modeling hardware and software systems.
+- **Automata-Theoretic Approach**: Intersecting the system model with the negation of the specification automaton.
+- **On-the-fly Verification**: Checking properties without building the entire state space upfront.
+- **Complexity**: Why model checking is computationally hard (PSPACE-complete for LTL) and how abstractions help.
+
+> [!TIP]
+> **Read the full chapter in the PDF**
+> 
+> For a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes.
+> <br><br>
+> [**Download the Full Lecture Notes (PDF)**](../main.pdf)

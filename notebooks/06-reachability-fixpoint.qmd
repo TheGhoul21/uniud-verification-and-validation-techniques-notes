@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 6: Reachability Fixpoint & Decision Problems",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Reachability Fixpoint & Decision Problems
 
 This notebook walks through the **reachability fixpoint** algorithm for

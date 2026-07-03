@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Interactive notebook on computing reachable states via a least-fixpoint algorithm and exploring decision problems for finite automata. From the Verification and Validation Techniques course at UniUD.">
+
+<title>NB 6: Reachability Fixpoint &amp; Decision Problems — VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d00319d308c31c207189055c0d327ca9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="NB 6: Reachability Fixpoint &amp; Decision Problems — VVT UniUD">
+<meta property="og:description" content="Interactive notebook on computing reachable states via a least-fixpoint algorithm and exploring decision problems for finite automata. From the Verification and Validation Techniques course at UniUD.">
+<meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="NB 6: Reachability Fixpoint &amp; Decision Problems — VVT UniUD">
+<meta name="twitter:description" content="Interactive notebook on computing reachable states via a least-fixpoint algorithm and exploring decision problems for finite automata. From the Verification and Validation Techniques course at UniUD.">
+<meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Notebooks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
+        <li>
+    <a class="dropdown-item" href="../notebooks/01-intro.html">
+ <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/02-nfa-reachable-states.html">
+ <span class="dropdown-text">2. NFA Reachable States</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/03-subset-construction.html">
+ <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/04-epsilon-closure-removal.html">
+ <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/05-product-automaton.html">
+ <span class="dropdown-text">5. Product Automaton</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/06-reachability-fixpoint.html">
+ <span class="dropdown-text">6. Reachability Fixpoint</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/07-kleene-state-elimination.html">
+ <span class="dropdown-text">7. Kleene State Elimination</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/08-ltl.html">
+ <span class="dropdown-text">8. Linear Temporal Logic (LTL)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/09-model-checking.html">
+ <span class="dropdown-text">9. Model Checking Basics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#reachability-fixpoint-decision-problems" id="toc-reachability-fixpoint-decision-problems" class="nav-link active" data-scroll-target="#reachability-fixpoint-decision-problems">Reachability Fixpoint &amp; Decision Problems</a>
+  <ul class="collapse">
+  <li><a href="#widget-1-reachability-fixpoint-iteration" id="toc-widget-1-reachability-fixpoint-iteration" class="nav-link" data-scroll-target="#widget-1-reachability-fixpoint-iteration">Widget 1: Reachability Fixpoint Iteration</a></li>
+  <li><a href="#widget-2-decision-problem-reductions" id="toc-widget-2-decision-problem-reductions" class="nav-link" data-scroll-target="#widget-2-decision-problem-reductions">Widget 2: Decision Problem Reductions</a></li>
+  <li><a href="#what-to-notice" id="toc-what-to-notice" class="nav-link" data-scroll-target="#what-to-notice">What To Notice</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Notebook 6: Reachability Fixpoint &amp; Decision Problems</h1>
+</div>
+
+<div>
+  <div class="description">
+    Interactive notebook on computing reachable states via a least-fixpoint algorithm and exploring decision problems for finite automata. From the Verification and Validation Techniques course at UniUD.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 6: Reachability Fixpoint & Decision Problems",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+<section id="reachability-fixpoint-decision-problems" class="level1">
+<h1>Reachability Fixpoint &amp; Decision Problems</h1>
+<p>This notebook walks through the <strong>reachability fixpoint</strong> algorithm for deciding language emptiness, and then shows how <strong>universality</strong>, <strong>inclusion</strong>, and <strong>equivalence</strong> all reduce to emptiness checks.</p>
+<p><strong>Running example – DFA that accepts words containing “aaa”:</strong></p>
+<ul>
+<li>States: <span class="math inline">\(q_0, q_1, q_2, q_3\)</span></li>
+<li><span class="math inline">\(\delta(q_0,a)=q_1,\; \delta(q_0,b)=q_0,\; \delta(q_1,a)=q_2,\; \delta(q_1,b)=q_0,\; \delta(q_2,a)=q_3,\; \delta(q_2,b)=q_0,\; \delta(q_3,a)=q_3,\; \delta(q_3,b)=q_3\)</span></li>
+<li><span class="math inline">\(F = \{q_3\}\)</span></li>
+</ul>
+<hr>
+<section id="widget-1-reachability-fixpoint-iteration" class="level2">
+<h2 class="anchored" data-anchor-id="widget-1-reachability-fixpoint-iteration">Widget 1: Reachability Fixpoint Iteration</h2>
+<p>Click <strong>Step →</strong> to advance the fixpoint computation one iteration at a time.</p>
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-node-fill: #daf3fc;
+  --sc-active-fill: #30bced;
+  --sc-active-stroke: #1f8fb7;
+  --sc-dead-fill: #fee8e3;
+  --sc-dead-stroke: #fc5130;
+  --sc-new-fill: #fff3b0;
+  --sc-new-border: #e9c46a;
+  --sc-proc-fill: #d4f7ef;
+  --sc-proc-border: #2ec4b6;
+  --sc-text: #050401;
+  --sc-label: #303036;
+  --rf-reached: #2ec4b6;
+  --rf-reached-fill: #d4f7ef;
+  --rf-new: #d4860b;
+  --rf-new-fill: #fff3b0;
+  --rf-unreached: #999;
+  --rf-unreached-fill: #e8e8e8;
+  --rf-fixpoint: #30bced;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-btn:disabled { opacity: 0.4; cursor: default; }
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-progress { font-size: 0.85rem; color: var(--sc-label); margin-left: auto; }
+.sc-explain {
+  background: #f0faff;
+  border-left: 4px solid var(--sc-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  min-height: 52px;
+}
+.sc-table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+.sc-table th, .sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 7px 8px;
+  text-align: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.sc-table th { color: var(--sc-label); font-family: system-ui, sans-serif; }
+.sc-table td.highlight { background: #fff3b0; }
+.sc-workspace {
+  display: grid;
+  grid-template-columns: minmax(340px, 1.2fr) minmax(260px, 0.8fr);
+  gap: 16px;
+}
+@media (max-width: 820px) { .sc-workspace { grid-template-columns: 1fr; } }
+
+/* Widget 2 tabs */
+.rf-tab-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 0;
+}
+.rf-tab {
+  border: 1px solid var(--sc-border);
+  border-bottom: none;
+  background: var(--sc-bg);
+  color: var(--sc-label);
+  border-radius: 8px 8px 0 0;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.93rem;
+  margin-right: -1px;
+}
+.rf-tab.active {
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-color: var(--sc-primary);
+}
+.rf-tab-panel {
+  display: none;
+  border: 1px solid var(--sc-border);
+  border-radius: 0 10px 10px 10px;
+  padding: 16px;
+  background: var(--sc-bg);
+}
+.rf-tab-panel.active { display: block; }
+</style>
+
+<!-- WIDGET 1 -->
+<div class="sc-lab" id="rf-w1-lab">
+  <div class="sc-btn-row">
+    <button class="sc-btn" id="rf-w1-step">Step →</button>
+    <button class="sc-btn alt" id="rf-w1-reset">Reset</button>
+    <span class="sc-progress" id="rf-w1-progress">Iteration 0 / 5</span>
+  </div>
+  <div class="sc-explain" id="rf-w1-explain"></div>
+  <div class="sc-workspace">
+    <div class="sc-panel">
+      <h4 class="anchored">DFA — "contains aaa"</h4>
+      <svg id="rf-w1-svg" style="width:100%;height:auto;display:block;" viewbox="0 0 620 160" role="img" aria-label="DFA for words containing aaa">
+        <defs>
+          <marker id="rf-arrow" markerwidth="9" markerheight="9" refx="8" refy="3" orient="auto" markerunits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <!-- initial arrow -->
+        <line x1="30" y1="80" x2="68" y2="80" stroke="#303036" stroke-width="2" marker-end="url(#rf-arrow)"></line>
+
+        <!-- edges: a-transitions (top arcs) -->
+        <path class="rf-edge" d="M 118 68 C 140 20, 200 20, 222 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="165" y="25">a</text>
+
+        <path class="rf-edge" d="M 258 68 C 280 20, 340 20, 362 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="305" y="25">a</text>
+
+        <path class="rf-edge" d="M 398 68 C 420 20, 480 20, 502 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="445" y="25">a</text>
+
+        <!-- edges: b-transitions (bottom arcs back to q0) -->
+        <path class="rf-edge" d="M 222 92 C 200 140, 140 140, 118 92" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="165" y="152">b</text>
+
+        <path class="rf-edge" d="M 362 92 C 340 150, 160 150, 118 95" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="230" y="158">b</text>
+
+        <!-- b self-loop on q0 -->
+        <path class="rf-edge" d="M 80 62 C 60 15, 120 15, 100 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="78" y="12">b</text>
+
+        <!-- a,b self-loop on q3 -->
+        <path class="rf-edge" d="M 510 62 C 490 10, 560 10, 540 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-arrow)"></path>
+        <text fill="#303036" font-size="13" font-weight="700" x="510" y="8">a,b</text>
+
+        <!-- nodes -->
+        <g id="rf-node-q0" transform="translate(90,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"></circle>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₀</text>
+        </g>
+        <g id="rf-node-q1" transform="translate(230,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"></circle>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₁</text>
+        </g>
+        <g id="rf-node-q2" transform="translate(370,80)">
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"></circle>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₂</text>
+        </g>
+        <g id="rf-node-q3" transform="translate(520,80)">
+          <circle r="34" fill="none" stroke="#999" stroke-width="1.5"></circle>
+          <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"></circle>
+          <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₃</text>
+        </g>
+      </svg>
+    </div>
+    <div class="sc-panel">
+      <h4 class="anchored">Iteration Table</h4>
+      
+<table class="sc-table caption-top" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">i</th>
+<th data-quarto-table-cell-role="th">Rᵢ</th>
+<th data-quarto-table-cell-role="th">Post(Rᵢ)</th>
+<th data-quarto-table-cell-role="th">New</th>
+</tr>
+</thead>
+<tbody id="rf-w1-table">
+</tbody>
+</table>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STEPS = [
+    {
+      explain: "<b>Iteration 0 &mdash; Initialise.</b> R&#x2080; = {q&#x2080;} (the initial state). No Post computed yet.",
+      reached: ["q0"], newStates: ["q0"], iter: [],
+      tableRows: [{i:"0", r:"{q₀}", post:"—", news:"{q₀}"}]
+    },
+    {
+      explain: "<b>Iteration 1 &mdash; Compute Post(R&#x2080;).</b> Post({q&#x2080;}) = {q&#x2080;, q&#x2081;} (q&#x2080; &xrarr;b q&#x2080;, q&#x2080; &xrarr;a q&#x2081;). R&#x2081; = R&#x2080; &cup; Post(R&#x2080;) = <code>{q&#x2080;, q&#x2081;}</code>. New state: <b>q&#x2081;</b>.",
+      reached: ["q0","q1"], newStates: ["q1"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 2 &mdash; Compute Post(R&#x2081;).</b> Post({q&#x2080;, q&#x2081;}) = {q&#x2080;, q&#x2081;, q&#x2082;} (adds q&#x2081; &xrarr;a q&#x2082;). R&#x2082; = <code>{q&#x2080;, q&#x2081;, q&#x2082;}</code>. New state: <b>q&#x2082;</b>.",
+      reached: ["q0","q1","q2"], newStates: ["q2"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 3 &mdash; Compute Post(R&#x2082;).</b> Post({q&#x2080;, q&#x2081;, q&#x2082;}) = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} (adds q&#x2082; &xrarr;a q&#x2083;). R&#x2083; = <code>{q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}</code>. New state: <b>q&#x2083;</b>.",
+      reached: ["q0","q1","q2","q3"], newStates: ["q3"], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}"},
+        {i:"3", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"{q₃}", hl:true}
+      ]
+    },
+    {
+      explain: "<b>Iteration 4 &mdash; Compute Post(R&#x2083;).</b> Post({q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}) = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} = R&#x2083;. <b>FIXPOINT REACHED!</b><br><br>R* &cap; F = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} &cap; {q&#x2083;} = {q&#x2083;} &ne; &empty; &rarr; <b>Language is NON-EMPTY.</b> Shortest witness: <code>aaa</code> (length 3, first reaching q&#x2083; at iteration 3).",
+      reached: ["q0","q1","q2","q3"], newStates: [], iter: [],
+      tableRows: [
+        {i:"0", r:"{q₀}", post:"—", news:"{q₀}"},
+        {i:"1", r:"{q₀;, q₁}", post:"{q₀;, q₁}", news:"{q₁}"},
+        {i:"2", r:"{q₀;, q₁;, q₂}", post:"{q₀;, q₁;, q₂}", news:"{q₂}"},
+        {i:"3", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"{q₃}"},
+        {i:"4", r:"{q₀;, q₁;, q₂;, q₃}", post:"{q₀;, q₁;, q₂;, q₃}", news:"∅", hl:true}
+      ]
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn    = document.getElementById("rf-w1-step");
+  var resetBtn   = document.getElementById("rf-w1-reset");
+  var progressEl = document.getElementById("rf-w1-progress");
+  var explainEl  = document.getElementById("rf-w1-explain");
+  var tableEl    = document.getElementById("rf-w1-table");
+
+  var nodeIds = ["q0","q1","q2","q3"];
+
+  function colorNode(id, mode) {
+    var g = document.getElementById("rf-node-" + id);
+    var circles = g.querySelectorAll("circle");
+    if (mode === "new") {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#fff3b0");
+          c.setAttribute("stroke", "#d4860b");
+          c.setAttribute("stroke-width", "3");
+        } else {
+          c.setAttribute("stroke", "#d4860b");
+        }
+      });
+    } else if (mode === "reached") {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#d4f7ef");
+          c.setAttribute("stroke", "#2ec4b6");
+          c.setAttribute("stroke-width", "3");
+        } else {
+          c.setAttribute("stroke", "#2ec4b6");
+        }
+      });
+    } else {
+      circles.forEach(function(c) {
+        if (c.getAttribute("r") === "28") {
+          c.setAttribute("fill", "#e8e8e8");
+          c.setAttribute("stroke", "#999");
+          c.setAttribute("stroke-width", "2");
+        } else {
+          c.setAttribute("stroke", "#999");
+        }
+      });
+    }
+  }
+
+  function renderTable(rows) {
+    tableEl.innerHTML = "";
+    rows.forEach(function(row) {
+      var tr = document.createElement("tr");
+      ["i","r","post","news"].forEach(function(key) {
+        var td = document.createElement("td");
+        td.textContent = row[key];
+        if (row.hl && key !== "i") td.className = "highlight";
+        tr.appendChild(td);
+      });
+      tableEl.appendChild(tr);
+    });
+  }
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Iteration " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    nodeIds.forEach(function(nid) {
+      if (s.newStates.indexOf(nid) >= 0) {
+        colorNode(nid, "new");
+      } else if (s.reached.indexOf(nid) >= 0) {
+        colorNode(nid, "reached");
+      } else {
+        colorNode(nid, "unreached");
+      }
+    });
+    renderTable(s.tableRows);
+    stepBtn.disabled  = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+<hr>
+</section>
+<section id="widget-2-decision-problem-reductions" class="level2">
+<h2 class="anchored" data-anchor-id="widget-2-decision-problem-reductions">Widget 2: Decision Problem Reductions</h2>
+<p>All standard decision problems for regular languages reduce to <strong>emptiness</strong>. Click the tabs below to see each reduction in action.</p>
+<div class="sc-lab" id="rf-w2-lab">
+  <div class="rf-tab-row">
+    <button class="rf-tab active" id="rf-tab-univ" onclick="rfShowTab('univ')">Universality</button>
+    <button class="rf-tab" id="rf-tab-incl" onclick="rfShowTab('incl')">Inclusion</button>
+    <button class="rf-tab" id="rf-tab-equiv" onclick="rfShowTab('equiv')">Equivalence</button>
+  </div>
+
+  <!-- PANEL A: Universality -->
+  <div class="rf-tab-panel active" id="rf-panel-univ">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-univ-step">Step →</button>
+      <button class="sc-btn alt" id="rf-univ-reset">Reset</button>
+      <span class="sc-progress" id="rf-univ-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-univ-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4 class="anchored">Complement DFA — swap accepting states</h4>
+        <svg id="rf-univ-svg" style="width:100%;height:auto;display:block;" viewbox="0 0 620 160" role="img" aria-label="Complement DFA">
+          <defs>
+            <marker id="rf-univ-arrow" markerwidth="9" markerheight="9" refx="8" refy="3" orient="auto" markerunits="strokeWidth">
+              <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+            </marker>
+          </defs>
+          <line x1="30" y1="80" x2="68" y2="80" stroke="#303036" stroke-width="2" marker-end="url(#rf-univ-arrow)"></line>
+          <!-- a-transitions -->
+          <path d="M 118 68 C 140 20, 200 20, 222 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="165" y="25">a</text>
+          <path d="M 258 68 C 280 20, 340 20, 362 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="305" y="25">a</text>
+          <path d="M 398 68 C 420 20, 480 20, 502 68" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="445" y="25">a</text>
+          <!-- b-transitions -->
+          <path d="M 222 92 C 200 140, 140 140, 118 92" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="165" y="152">b</text>
+          <path d="M 362 92 C 340 150, 160 150, 118 95" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="230" y="158">b</text>
+          <path d="M 80 62 C 60 15, 120 15, 100 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="78" y="12">b</text>
+          <path d="M 510 62 C 490 10, 560 10, 540 62" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#rf-univ-arrow)"></path>
+          <text fill="#303036" font-size="13" font-weight="700" x="510" y="8">a,b</text>
+          <!-- nodes: q0,q1,q2 are now accepting (double circle), q3 is non-accepting -->
+          <g id="rf-univ-q0" transform="translate(90,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"></circle>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"></circle>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₀</text>
+          </g>
+          <g id="rf-univ-q1" transform="translate(230,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"></circle>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"></circle>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₁</text>
+          </g>
+          <g id="rf-univ-q2" transform="translate(370,80)">
+            <circle r="34" fill="none" stroke="#2ec4b6" stroke-width="1.5"></circle>
+            <circle r="28" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"></circle>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₂</text>
+          </g>
+          <g id="rf-univ-q3" transform="translate(520,80)">
+            <circle r="28" fill="#e8e8e8" stroke="#999" stroke-width="2"></circle>
+            <text text-anchor="middle" dy="5" fill="#050401" font-weight="700" font-size="14">q₃</text>
+          </g>
+        </svg>
+      </div>
+      <div class="sc-panel">
+        <h4 class="anchored">Reduction summary</h4>
+        <div id="rf-univ-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL B: Inclusion -->
+  <div class="rf-tab-panel" id="rf-panel-incl">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-incl-step">Step →</button>
+      <button class="sc-btn alt" id="rf-incl-reset">Reset</button>
+      <span class="sc-progress" id="rf-incl-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-incl-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4 class="anchored">Setup</h4>
+        <div id="rf-incl-diagrams" style="font-size:0.93rem;line-height:1.7;">
+        </div>
+      </div>
+      <div class="sc-panel">
+        <h4 class="anchored">Reduction summary</h4>
+        <div id="rf-incl-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL C: Equivalence -->
+  <div class="rf-tab-panel" id="rf-panel-equiv">
+    <div class="sc-btn-row">
+      <button class="sc-btn" id="rf-equiv-step">Step →</button>
+      <button class="sc-btn alt" id="rf-equiv-reset">Reset</button>
+      <span class="sc-progress" id="rf-equiv-progress">Step 0 / 4</span>
+    </div>
+    <div class="sc-explain" id="rf-equiv-explain"></div>
+    <div class="sc-workspace">
+      <div class="sc-panel">
+        <h4 class="anchored">Two inclusion checks</h4>
+        <div id="rf-equiv-diagrams" style="font-size:0.93rem;line-height:1.7;">
+        </div>
+      </div>
+      <div class="sc-panel">
+        <h4 class="anchored">Reduction summary</h4>
+        <div id="rf-equiv-summary" style="font-size:0.93rem;line-height:1.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Tab switching */
+function rfShowTab(name) {
+  ["univ","incl","equiv"].forEach(function(t) {
+    document.getElementById("rf-tab-" + t).className = "rf-tab" + (t === name ? " active" : "");
+    document.getElementById("rf-panel-" + t).className = "rf-tab-panel" + (t === name ? " active" : "");
+  });
+}
+
+/* ---- PANEL A: Universality ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A) = &Sigma;*? Reduction: check whether L(complement(A)) = &empty;.",
+      summary: "<b>Reduction:</b><br>L(A) = &Sigma;* &hArr; &Sigma;* &setminus; L(A) = &empty; &hArr; L(complement(A)) = &empty;<br><br>Complement construction: swap accepting and non-accepting states.<br>Original F = {q&#x2083;} &rarr; Complement F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;}"
+    },
+    {
+      explain: "<b>Step 1 &mdash; Run reachability on complement(A).</b> From Widget 1 we know R* = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} (all states are reachable).",
+      summary: "<b>Reachability:</b><br>R* = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;}<br><br>Same fixpoint as in Widget 1 &mdash; complementation does not change the transition structure."
+    },
+    {
+      explain: "<b>Step 2 &mdash; Check emptiness.</b> R* &cap; F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;, q&#x2083;} &cap; {q&#x2080;, q&#x2081;, q&#x2082;} = {q&#x2080;, q&#x2081;, q&#x2082;} &ne; &empty;.",
+      summary: "<b>Emptiness check:</b><br>R* &cap; F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;} &ne; &empty;<br><br>&rarr; complement(A) is <b>non-empty</b>"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Conclude.</b> Since L(complement(A)) &ne; &empty;, we have L(A) &ne; &Sigma;*. The language is <b>NOT universal</b>.",
+      summary: "<b>Result:</b> L(A) &ne; &Sigma;* &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Counterexample:</b> The word <code>b</code>. Reading &lsquo;b&rsquo; from q&#x2080; stays in q&#x2080;, which is accepting in the complement (non-accepting in the original). So <code>b</code> &notin; L(A)."
+    },
+    {
+      explain: "<b>Done.</b> Universality fails because words not containing <code>aaa</code> exist (e.g., <code>b</code>, <code>aa</code>, <code>ab</code>, &hellip;).",
+      summary: "<b>Result:</b> L(A) &ne; &Sigma;* &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Counterexample:</b> <code>b</code> &notin; L(A)<br><br><em>Intuition:</em> L(A) only contains words with &lsquo;aaa&rsquo; as a substring &mdash; clearly not every word."
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-univ-step");
+  var resetBtn = document.getElementById("rf-univ-reset");
+  var progressEl = document.getElementById("rf-univ-progress");
+  var explainEl = document.getElementById("rf-univ-explain");
+  var summaryEl = document.getElementById("rf-univ-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+
+/* ---- PANEL B: Inclusion ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A&#x2081;) &sube; L(A&#x2082;)? where A&#x2081; accepts &ldquo;contains aaa&rdquo; and A&#x2082; accepts &ldquo;contains aa&rdquo;.",
+      diagrams: "<b>A&#x2081;:</b> &ldquo;contains aaa&rdquo; &mdash; 4 states (q&#x2080;&hellip;q&#x2083;), F={q&#x2083;}<br><b>A&#x2082;:</b> &ldquo;contains aa&rdquo; &mdash; 3 states (p&#x2080;, p&#x2081;, p&#x2082;), F={p&#x2082;}<br>&nbsp;&nbsp;&delta;(p&#x2080;,a)=p&#x2081;, &delta;(p&#x2080;,b)=p&#x2080;, &delta;(p&#x2081;,a)=p&#x2082;, &delta;(p&#x2081;,b)=p&#x2080;, &delta;(p&#x2082;,a)=p&#x2082;, &delta;(p&#x2082;,b)=p&#x2082;",
+      summary: "<b>Reduction:</b><br>L(A&#x2081;) &sube; L(A&#x2082;) &hArr; L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;<br><br>Build the product automaton A&#x2081; &times; complement(A&#x2082;) and check emptiness."
+    },
+    {
+      explain: "<b>Step 1 &mdash; Complement A&#x2082;.</b> Swap accepting states: complement(A&#x2082;) has F&#x0304; = {p&#x2080;, p&#x2081;}. It accepts words that do <em>not</em> contain &ldquo;aa&rdquo;.",
+      diagrams: "<b>complement(A&#x2082;):</b> same transitions, F&#x0304; = {p&#x2080;, p&#x2081;}<br><br>Accepts words where no two consecutive &lsquo;a&rsquo;s appear.",
+      summary: "<b>Step 1:</b> complement(A&#x2082;) built.<br>F&#x0304; = {p&#x2080;, p&#x2081;}"
+    },
+    {
+      explain: "<b>Step 2 &mdash; Product automaton A&#x2081; &times; complement(A&#x2082;).</b> States are pairs (q&#x1D62;, p&#x2C7C;). Accepting iff q&#x1D62; &isin; {q&#x2083;} AND p&#x2C7C; &isin; {p&#x2080;, p&#x2081;}.",
+      diagrams: "<b>Product states:</b> (q&#x1D62;, p&#x2C7C;) for i &isin; {0,1,2,3}, j &isin; {0,1,2}.<br>Up to 12 states, but reachability will prune them.<br><br><b>Key insight:</b> To reach q&#x2083; in A&#x2081; we need three consecutive a&rsquo;s, but after two consecutive a&rsquo;s A&#x2082; is already in p&#x2082; (accepting), so complement(A&#x2082;) is in a non-accepting state.",
+      summary: "<b>Step 2:</b> Product A&#x2081; &times; complement(A&#x2082;) constructed.<br><br>Accepting states: (q&#x2083;, p&#x2080;) and (q&#x2083;, p&#x2081;)"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Reachability on the product.</b> From (q&#x2080;, p&#x2080;), reading &lsquo;aa&rsquo; reaches (q&#x2082;, p&#x2082;). Since p&#x2082; &notin; F&#x0304;, the third &lsquo;a&rsquo; goes to (q&#x2083;, p&#x2082;) &mdash; not accepting in the product. No path reaches (q&#x2083;, p&#x2080;) or (q&#x2083;, p&#x2081;).",
+      diagrams: "<b>Reachability trace:</b><br>(q&#x2080;,p&#x2080;) &xrarr;a (q&#x2081;,p&#x2081;) &xrarr;a (q&#x2082;,p&#x2082;) &xrarr;a (q&#x2083;,p&#x2082;)<br><br>To reach q&#x2083; we need &lsquo;aaa&rsquo;, but after &lsquo;aa&rsquo; A&#x2082; is already in p&#x2082; (accepting in A&#x2082;, non-accepting in complement). So (q&#x2083;, p&#x2080;) and (q&#x2083;, p&#x2081;) are <b>unreachable</b>.",
+      summary: "<b>Step 3:</b> R* &cap; F<sub>product</sub> = &empty;<br><br>No accepting product state is reachable."
+    },
+    {
+      explain: "<b>Step 4 &mdash; Conclude.</b> L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;, so L(A&#x2081;) &sube; L(A&#x2082;). Every word containing &ldquo;aaa&rdquo; also contains &ldquo;aa&rdquo;. <b>Inclusion holds!</b>",
+      diagrams: "<b>Result:</b> L(&ldquo;contains aaa&rdquo;) &sube; L(&ldquo;contains aa&rdquo;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br><em>Intuition:</em> &ldquo;aaa&rdquo; literally contains &ldquo;aa&rdquo; as a prefix substring.",
+      summary: "<b>Result:</b> L(A&#x2081;) &sube; L(A&#x2082;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br>The product automaton&rsquo;s language is empty &rarr; inclusion holds."
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-incl-step");
+  var resetBtn = document.getElementById("rf-incl-reset");
+  var progressEl = document.getElementById("rf-incl-progress");
+  var explainEl = document.getElementById("rf-incl-explain");
+  var diagramsEl = document.getElementById("rf-incl-diagrams");
+  var summaryEl = document.getElementById("rf-incl-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    diagramsEl.innerHTML = s.diagrams;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+
+/* ---- PANEL C: Equivalence ---- */
+(function() {
+  var STEPS = [
+    {
+      explain: "<b>Question:</b> Is L(A&#x2081;) = L(A&#x2082;)? Reduction: check both L(A&#x2081;) &sube; L(A&#x2082;) AND L(A&#x2082;) &sube; L(A&#x2081;).",
+      diagrams: "<b>A&#x2081;:</b> &ldquo;contains aaa&rdquo;<br><b>A&#x2082;:</b> &ldquo;contains aa&rdquo;<br><br>Equivalence = mutual inclusion = two emptiness checks.",
+      summary: "<b>Reduction:</b><br>L(A&#x2081;) = L(A&#x2082;) &hArr; L(A&#x2081;) &sube; L(A&#x2082;) AND L(A&#x2082;) &sube; L(A&#x2081;)<br><br>Each inclusion is an emptiness check on a product automaton."
+    },
+    {
+      explain: "<b>Step 1 &mdash; Check L(A&#x2081;) &sube; L(A&#x2082;).</b> From the Inclusion panel, we know this holds: L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty;.",
+      diagrams: "<b>Check 1:</b> L(A&#x2081;) &sube; L(A&#x2082;)<br><br>L(A&#x2081;) &cap; L(complement(A&#x2082;)) = &empty; &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span><br><br>Every word with &ldquo;aaa&rdquo; also has &ldquo;aa&rdquo;.",
+      summary: "<b>Check 1:</b> L(A&#x2081;) &sube; L(A&#x2082;) &nbsp;<span style='color:#2ec4b6;font-weight:900;'>&#x2714;</span> PASS"
+    },
+    {
+      explain: "<b>Step 2 &mdash; Check L(A&#x2082;) &sube; L(A&#x2081;).</b> Build A&#x2082; &times; complement(A&#x2081;). We need a word in L(A&#x2082;) but not in L(A&#x2081;).",
+      diagrams: "<b>Check 2:</b> L(A&#x2082;) &sube; L(A&#x2081;)?<br><br>Build A&#x2082; &times; complement(A&#x2081;).<br>complement(A&#x2081;) has F&#x0304; = {q&#x2080;, q&#x2081;, q&#x2082;}.<br><br>Product accepting states: (p&#x2082;, q&#x1D62;) where q&#x1D62; &isin; {q&#x2080;, q&#x2081;, q&#x2082;}.",
+      summary: "<b>Check 2:</b> L(A&#x2082;) &sube; L(A&#x2081;)?<br><br>Building product automaton&hellip;"
+    },
+    {
+      explain: "<b>Step 3 &mdash; Reachability on A&#x2082; &times; complement(A&#x2081;).</b> From (p&#x2080;, q&#x2080;), reading &ldquo;aa&rdquo;: (p&#x2080;,q&#x2080;) &xrarr;a (p&#x2081;,q&#x2081;) &xrarr;a (p&#x2082;,q&#x2082;). The state (p&#x2082;, q&#x2082;) IS accepting in the product (p&#x2082; &isin; F&#x2082; and q&#x2082; &isin; F&#x0304;&#x2081;).",
+      diagrams: "<b>Reachability trace:</b><br>(p&#x2080;,q&#x2080;) &xrarr;a (p&#x2081;,q&#x2081;) &xrarr;a <b>(p&#x2082;,q&#x2082;)</b><br><br>(p&#x2082;, q&#x2082;) is <b>accepting</b> in the product!<br>p&#x2082; &isin; {p&#x2082;} = F&#x2082; &nbsp;&#x2714;<br>q&#x2082; &isin; {q&#x2080;, q&#x2081;, q&#x2082;} = F&#x0304;&#x2081; &nbsp;&#x2714;",
+      summary: "<b>Check 2:</b> R* &cap; F<sub>product</sub> &ne; &empty;<br><br>Witness: <code>aa</code> &isin; L(A&#x2082;) but <code>aa</code> &notin; L(A&#x2081;)<br><br>L(A&#x2082;) &nsube; L(A&#x2081;) &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span> FAIL"
+    },
+    {
+      explain: "<b>Step 4 &mdash; Conclude.</b> L(A&#x2081;) &sube; L(A&#x2082;) holds, but L(A&#x2082;) &sube; L(A&#x2081;) fails. Therefore L(A&#x2081;) &ne; L(A&#x2082;). The languages are <b>NOT equivalent</b>.",
+      diagrams: "<b>Result:</b> L(A&#x2081;) &ne; L(A&#x2082;) &nbsp;<span style='color:#fc5130;font-weight:900;'>&#x2718;</span><br><br><b>Separating word:</b> <code>aa</code><br>&bull; <code>aa</code> &isin; L(&ldquo;contains aa&rdquo;) = L(A&#x2082;) &nbsp;&#x2714;<br>&bull; <code>aa</code> &notin; L(&ldquo;contains aaa&rdquo;) = L(A&#x2081;) &nbsp;&#x2718;<br><br>L(A&#x2081;) &subne; L(A&#x2082;): &ldquo;contains aaa&rdquo; is a <em>strict</em> subset of &ldquo;contains aa&rdquo;.",
+      summary: "<b>Final verdict:</b><br><br>
+<table class="sc-table caption-top" data-quarto-postprocess="true" style="text-align:left;">
+<tbody>
+<tr class="odd">
+<td>L(A₁) ⊆ L(A₂)</td>
+<td><span style="color:#2ec4b6;font-weight:900;">✔ PASS</span></td>
+</tr>
+<tr class="even">
+<td>L(A₂) ⊆ L(A₁)</td>
+<td><span style="color:#fc5130;font-weight:900;">✘ FAIL</span></td>
+</tr>
+<tr class="odd">
+<td style="font-weight: 900">L(A₁) = L(A₂)</td>
+<td><span style="color:#fc5130;font-weight:900;">✘ NOT EQUIVALENT</span></td>
+</tr>
+</tbody>
+</table>
+"
+    }
+  ];
+
+  var idx = 0;
+  var stepBtn = document.getElementById("rf-equiv-step");
+  var resetBtn = document.getElementById("rf-equiv-reset");
+  var progressEl = document.getElementById("rf-equiv-progress");
+  var explainEl = document.getElementById("rf-equiv-explain");
+  var diagramsEl = document.getElementById("rf-equiv-diagrams");
+  var summaryEl = document.getElementById("rf-equiv-summary");
+
+  function render() {
+    var s = STEPS[idx];
+    progressEl.textContent = "Step " + idx + " / " + (STEPS.length - 1);
+    explainEl.innerHTML = s.explain;
+    diagramsEl.innerHTML = s.diagrams;
+    summaryEl.innerHTML = s.summary;
+    stepBtn.disabled = idx >= STEPS.length - 1;
+    resetBtn.disabled = idx === 0;
+  }
+
+  stepBtn.addEventListener("click", function() { if (idx < STEPS.length - 1) { idx++; render(); } });
+  resetBtn.addEventListener("click", function() { idx = 0; render(); });
+  render();
+})();
+</script>
+<hr>
+</section>
+<section id="what-to-notice" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-notice">What To Notice</h2>
+<ol type="1">
+<li><p><strong>The fixpoint converges in at most |Q| iterations.</strong> Here we have 4 states, and the fixpoint is reached in exactly 4 steps (iterations 0 through 3 discover one new state each; iteration 4 confirms the fixpoint). In general <span class="math inline">\(R_i \subseteq R_{i+1} \subseteq Q\)</span>, so the chain stabilises after at most <span class="math inline">\(|Q|\)</span> steps.</p></li>
+<li><p><strong>The iteration discovers states in BFS order from <span class="math inline">\(q_0\)</span>.</strong> <span class="math inline">\(R_0 = \{q_0\}\)</span>, then <span class="math inline">\(q_1\)</span> appears at distance 1, <span class="math inline">\(q_2\)</span> at distance 2, <span class="math inline">\(q_3\)</span> at distance 3 – exactly the breadth-first layers of the transition graph. The iteration counter <span class="math inline">\(i\)</span> at which a state first appears equals its shortest-path distance from <span class="math inline">\(q_0\)</span>, which is why the shortest witness for non-emptiness has length 3.</p></li>
+<li><p><strong>All decision problems reduce to emptiness via closure constructions.</strong> Universality uses complementation, inclusion uses product with complement, equivalence uses two inclusion checks. The only “engine” is <span class="math inline">\(L(\mathcal{A}) \stackrel{?}{=} \varnothing\)</span>, which is reachability.</p></li>
+<li><p><strong>Emptiness itself is just graph reachability.</strong> The fixpoint iteration <span class="math inline">\(R_{i+1} = R_i \cup \mathrm{Post}(R_i)\)</span> is a standard BFS on the state graph. This is the fundamental algorithm underlying model checking: verify a property by exploring the reachable state space and checking whether any “bad” (or “accepting”) state is reachable.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

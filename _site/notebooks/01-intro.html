@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Interactive notebook for Verification and Validation Techniques at UniUD. Explore alphabets, finite words, languages, and deterministic finite automata (DFAs) hands-on.">
+
+<title>NB 1: Finite-State Automata — VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d00319d308c31c207189055c0d327ca9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="NB 1: Finite-State Automata — VVT UniUD">
+<meta property="og:description" content="Interactive notebook for Verification and Validation Techniques at UniUD. Explore alphabets, finite words, languages, and deterministic finite automata (DFAs) hands-on.">
+<meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="NB 1: Finite-State Automata — VVT UniUD">
+<meta name="twitter:description" content="Interactive notebook for Verification and Validation Techniques at UniUD. Explore alphabets, finite words, languages, and deterministic finite automata (DFAs) hands-on.">
+<meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Notebooks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
+        <li>
+    <a class="dropdown-item" href="../notebooks/01-intro.html">
+ <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/02-nfa-reachable-states.html">
+ <span class="dropdown-text">2. NFA Reachable States</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/03-subset-construction.html">
+ <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/04-epsilon-closure-removal.html">
+ <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/05-product-automaton.html">
+ <span class="dropdown-text">5. Product Automaton</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/06-reachability-fixpoint.html">
+ <span class="dropdown-text">6. Reachability Fixpoint</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/07-kleene-state-elimination.html">
+ <span class="dropdown-text">7. Kleene State Elimination</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/08-ltl.html">
+ <span class="dropdown-text">8. Linear Temporal Logic (LTL)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/09-model-checking.html">
+ <span class="dropdown-text">9. Model Checking Basics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#interactive-chapter-1-notebook" id="toc-interactive-chapter-1-notebook" class="nav-link active" data-scroll-target="#interactive-chapter-1-notebook">Interactive Chapter 1 Notebook</a>
+  <ul class="collapse">
+  <li><a href="#mental-model" id="toc-mental-model" class="nav-link" data-scroll-target="#mental-model">Mental Model</a></li>
+  <li><a href="#alphabet-and-word-playground" id="toc-alphabet-and-word-playground" class="nav-link" data-scroll-target="#alphabet-and-word-playground">1. Alphabet and Word Playground</a></li>
+  <li><a href="#language-explorer" id="toc-language-explorer" class="nav-link" data-scroll-target="#language-explorer">2. Language Explorer</a></li>
+  <li><a href="#dfa-simulator" id="toc-dfa-simulator" class="nav-link" data-scroll-target="#dfa-simulator">3. DFA Simulator</a></li>
+  <li><a href="#reading-the-definitions-back-out-of-the-interaction" id="toc-reading-the-definitions-back-out-of-the-interaction" class="nav-link" data-scroll-target="#reading-the-definitions-back-out-of-the-interaction">Reading the Definitions Back Out of the Interaction</a></li>
+  <li><a href="#exercises-to-try" id="toc-exercises-to-try" class="nav-link" data-scroll-target="#exercises-to-try">Exercises to Try</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Notebook 1: Finite-State Automata</h1>
+</div>
+
+<div>
+  <div class="description">
+    Interactive notebook for Verification and Validation Techniques at UniUD. Explore alphabets, finite words, languages, and deterministic finite automata (DFAs) hands-on.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 1: Finite-State Automata",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+<section id="interactive-chapter-1-notebook" class="level1">
+<h1>Interactive Chapter 1 Notebook</h1>
+<p>This notebook turns the first chapter into a small laboratory. The focus is on the objects that matter early in automata theory:</p>
+<ul>
+<li>alphabets</li>
+<li>finite words</li>
+<li>languages as sets of words</li>
+<li>deterministic finite automata</li>
+</ul>
+<p>The page is intentionally concrete. Each section lets you manipulate the definition and immediately see what changes.</p>
+<style>
+.vv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin: 1.25rem 0 1.75rem;
+}
+
+.vv-card,
+.vv-panel {
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 6px 20px rgba(48, 48, 54, 0.08);
+}
+
+.vv-card h3,
+.vv-panel h3 {
+  margin-top: 0;
+  margin-bottom: 0.55rem;
+  color: #303036;
+}
+
+.vv-card p:last-child,
+.vv-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.vv-lab {
+  background: linear-gradient(180deg, #fffaff 0%, #daf3fc 100%);
+  border: 1px solid #d7d7dc;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+}
+
+.vv-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.vv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vv-field label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #303036;
+}
+
+.vv-field input,
+.vv-field select {
+  border: 1px solid #8ddaf5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fffaff;
+  font-size: 0.98rem;
+}
+
+.vv-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vv-btn {
+  border: 1px solid #1f8fb7;
+  background: #30bced;
+  color: #050401;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vv-btn.alt {
+  background: #fffaff;
+  border-color: #30bced;
+  color: #303036;
+}
+
+.vv-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.vv-output {
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.vv-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.vv-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: #daf3fc;
+  color: #303036;
+}
+
+.vv-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vv-word {
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  border: 1px solid #d7d7dc;
+  background: #fffaff;
+}
+
+.vv-word.accept {
+  background: #daf3fc;
+  border-color: #30bced;
+}
+
+.vv-word.reject {
+  background: #fee8e3;
+  border-color: #fc5130;
+}
+
+.vv-note {
+  font-size: 0.92rem;
+  color: #303036;
+}
+
+.vv-automaton {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.4fr) minmax(220px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.vv-svg-wrap {
+  background: #fffaff;
+  border: 1px solid #d7d7dc;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.vv-state {
+  fill: #daf3fc;
+  stroke: #303036;
+  stroke-width: 2.5;
+}
+
+.vv-state.active {
+  fill: #30bced;
+}
+
+.vv-state.accepting {
+  stroke-width: 5;
+}
+
+.vv-edge {
+  stroke: #303036;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.vv-edge.active {
+  stroke: #fc5130;
+  stroke-width: 4;
+}
+
+.vv-edge-label {
+  font-size: 14px;
+  fill: #303036;
+  font-weight: 700;
+}
+
+.vv-word-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 14px;
+}
+
+.vv-symbol {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #8ddaf5;
+  background: #fffaff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+}
+
+.vv-symbol.current {
+  background: #30bced;
+}
+
+.vv-symbol.done {
+  background: #daf3fc;
+}
+
+.vv-log {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.vv-log li {
+  margin-bottom: 0.35rem;
+}
+
+.vv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.vv-table th,
+.vv-table td {
+  border: 1px solid #d7d7dc;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.vv-table th {
+  background: #daf3fc;
+}
+
+@media (max-width: 860px) {
+  .vv-automaton {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+<section id="mental-model" class="level2">
+<h2 class="anchored" data-anchor-id="mental-model">Mental Model</h2>
+<div class="vv-grid">
+  <div class="vv-card">
+    <h3 class="anchored">Alphabet</h3>
+    <p>A finite set of symbols. Example: <code>{a, b}</code>.</p>
+  </div>
+  <div class="vv-card">
+    <h3 class="anchored">Word</h3>
+    <p>A finite sequence built from the alphabet. Example: <code>abba</code>.</p>
+  </div>
+  <div class="vv-card">
+    <h3 class="anchored">Language</h3>
+    <p>A set of words sharing a property, such as “ends in <code>a</code>”.</p>
+  </div>
+  <div class="vv-card">
+    <h3 class="anchored">DFA</h3>
+    <p>A finite machine that reads a word left to right and decides whether that word belongs to a language.</p>
+  </div>
+</div>
+</section>
+<section id="alphabet-and-word-playground" class="level2">
+<h2 class="anchored" data-anchor-id="alphabet-and-word-playground">1. Alphabet and Word Playground</h2>
+<p>Use this section to build a finite alphabet and inspect the words it generates up to a bounded length.</p>
+<div class="vv-lab" id="alphabet-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="alphabet-input">Alphabet symbols</label>
+      <input id="alphabet-input" type="text" value="a,b">
+    </div>
+    <div class="vv-field">
+      <label for="max-length-input">Maximum word length</label>
+      <select id="max-length-input">
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2" selected="">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="vv-output">
+    <div class="vv-meta" id="alphabet-meta"></div>
+    <div class="vv-words" id="alphabet-words"></div>
+    <p class="vv-note" id="alphabet-note"></p>
+  </div>
+</div>
+<p>The key definition here is <span class="math inline">\(A^*\)</span>: the set of all finite words over the alphabet <span class="math inline">\(A\)</span>. The playground only shows a finite prefix of <span class="math inline">\(A^*\)</span>, because the full set is infinite as soon as the alphabet is non-empty.</p>
+</section>
+<section id="language-explorer" class="level2">
+<h2 class="anchored" data-anchor-id="language-explorer">2. Language Explorer</h2>
+<p>Now fix an alphabet and choose a property. The resulting language is the set of all words satisfying that property.</p>
+<div class="vv-lab" id="language-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="language-rule">Language property</label>
+      <select id="language-rule">
+        <option value="ends-a">Words ending in a</option>
+        <option value="even-a">Words with an even number of a's</option>
+        <option value="contains-bb">Words containing bb</option>
+        <option value="starts-ab">Words starting with ab</option>
+      </select>
+    </div>
+    <div class="vv-field">
+      <label for="language-max-length">Generate words up to length</label>
+      <select id="language-max-length">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3" selected="">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+  <div class="vv-output">
+    <div class="vv-meta" id="language-meta"></div>
+    <div class="vv-words" id="language-words"></div>
+    <p class="vv-note" id="language-note"></p>
+  </div>
+</div>
+<p>This is the main shift in viewpoint: a language is not one word, but a criterion for membership.</p>
+</section>
+<section id="dfa-simulator" class="level2">
+<h2 class="anchored" data-anchor-id="dfa-simulator">3. DFA Simulator</h2>
+<p>This DFA recognizes the language</p>
+<p><span class="math display">\[
+L = \{ w \in \{a,b\}^* \mid w \text{ contains an even number of } a \text{'s} \}.
+\]</span></p>
+<p>The machine has only two states because parity is the only information it needs to remember.</p>
+<div class="vv-lab" id="dfa-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="dfa-word">Input word over {a,b}</label>
+      <input id="dfa-word" type="text" value="abba">
+    </div>
+  </div>
+
+  <div class="vv-button-row">
+    <button class="vv-btn" id="dfa-reset">Reset</button>
+    <button class="vv-btn alt" id="dfa-prev">Step Back</button>
+    <button class="vv-btn alt" id="dfa-next">Step Forward</button>
+    <button class="vv-btn alt" id="dfa-run">Run to End</button>
+  </div>
+
+  <div class="vv-word-track" id="dfa-track"></div>
+
+  <div class="vv-automaton">
+    <div class="vv-svg-wrap">
+      <svg viewbox="0 0 460 210" width="100%" aria-label="DFA for even number of a's">
+        <defs>
+          <marker id="arrowhead" markerwidth="10" markerheight="8" refx="9" refy="4" orient="auto">
+            <polygon points="0 0, 10 4, 0 8" fill="#303036"></polygon>
+          </marker>
+          <marker id="arrowhead-active" markerwidth="10" markerheight="8" refx="9" refy="4" orient="auto">
+            <polygon points="0 0, 10 4, 0 8" fill="#fc5130"></polygon>
+          </marker>
+        </defs>
+
+        <line x1="32" y1="105" x2="95" y2="105" class="vv-edge" marker-end="url(#arrowhead)"></line>
+
+        <path id="edge-even-odd" d="M 165 73 Q 230 24 295 73" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-odd-even" d="M 295 137 Q 230 186 165 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-even-loop" d="M 108 73 C 78 28, 78 182, 108 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+        <path id="edge-odd-loop" d="M 352 73 C 382 28, 382 182, 352 137" class="vv-edge" marker-end="url(#arrowhead)"></path>
+
+        <text x="230" y="42" class="vv-edge-label">a</text>
+        <text x="230" y="173" class="vv-edge-label">a</text>
+        <text x="72" y="104" class="vv-edge-label">b</text>
+        <text x="388" y="104" class="vv-edge-label">b</text>
+
+        <circle cx="130" cy="105" r="34" class="vv-state accepting" id="state-even-outer"></circle>
+        <circle cx="130" cy="105" r="25" class="vv-state" id="state-even"></circle>
+        <circle cx="330" cy="105" r="25" class="vv-state" id="state-odd"></circle>
+
+        <text x="130" y="111" text-anchor="middle" font-weight="700" fill="#303036">q_even</text>
+        <text x="330" y="111" text-anchor="middle" font-weight="700" fill="#303036">q_odd</text>
+      </svg>
+    </div>
+
+    <div class="vv-panel">
+      <h3 class="anchored">Current Configuration</h3>
+      <div class="vv-meta" id="dfa-meta"></div>
+      <p id="dfa-status"></p>
+      <h3 class="anchored">Transition Trace</h3>
+      <ol class="vv-log" id="dfa-log"></ol>
+      <h3 class="anchored">Transition Table</h3>
+      
+<table class="vv-table caption-top table" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">State</th>
+<th data-quarto-table-cell-role="th">Read a</th>
+<th data-quarto-table-cell-role="th">Read b</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>q_even</code></td>
+<td><code>q_odd</code></td>
+<td><code>q_even</code></td>
+</tr>
+<tr class="even">
+<td><code>q_odd</code></td>
+<td><code>q_even</code></td>
+<td><code>q_odd</code></td>
+</tr>
+</tbody>
+</table>
+
+    </div>
+  </div>
+</div>
+<p>The deterministic point should be visible here: at every step there is exactly one next state.</p>
+</section>
+<section id="reading-the-definitions-back-out-of-the-interaction" class="level2">
+<h2 class="anchored" data-anchor-id="reading-the-definitions-back-out-of-the-interaction">Reading the Definitions Back Out of the Interaction</h2>
+<p>The notebook is useful only if the interactions map back to the formal objects.</p>
+<div class="vv-grid">
+<section id="a" class="level3 vv-card">
+<h3 class="anchored" data-anchor-id="a"><span class="math inline">\(A^*\)</span></h3>
+<p>The alphabet playground shows finite prefixes of the set of all finite words over an alphabet.</p>
+</section>
+<section id="l-subseteq-a" class="level3 vv-card">
+<h3 class="anchored" data-anchor-id="l-subseteq-a"><span class="math inline">\(L \subseteq A^*\)</span></h3>
+<p>The language explorer separates generated words into “in the language” and “not in the language”.</p>
+</section>
+<section id="delta-and-widehatdelta" class="level3 vv-card">
+<h3 class="anchored" data-anchor-id="delta-and-widehatdelta"><span class="math inline">\(\delta\)</span> and <span class="math inline">\(\widehat{\delta}\)</span></h3>
+<p>The DFA simulator applies one-symbol transitions and accumulates them over a whole input word.</p>
+</section>
+<section id="acceptance" class="level3 vv-card">
+<h3 class="anchored" data-anchor-id="acceptance">Acceptance</h3>
+<p>The final verdict depends only on the state reached after the full word is consumed.</p>
+</section>
+</div>
+</section>
+<section id="exercises-to-try" class="level2">
+<h2 class="anchored" data-anchor-id="exercises-to-try">Exercises to Try</h2>
+<ol type="1">
+<li>In the alphabet playground, compare the number of generated words for maximum lengths 2, 3, and 4.</li>
+<li>In the language explorer, check whether the empty word belongs to each sample language.</li>
+<li>In the DFA simulator, try <code>abba</code>, <code>aaa</code>, <code>bbbb</code>, and the empty word.</li>
+<li>Explain why the DFA only needs to remember parity, not the exact number of <code>a</code>’s.</li>
+</ol>
+<script>
+(function () {
+  function parseAlphabet(raw) {
+    const symbols = raw
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    return [...new Set(symbols)];
+  }
+
+  function enumerateWords(alphabet, maxLength) {
+    const words = [];
+
+    function build(prefix, remaining) {
+      words.push(prefix);
+      if (remaining === 0) return;
+      for (const symbol of alphabet) {
+        build(prefix + symbol, remaining - 1);
+      }
+    }
+
+    if (alphabet.length === 0) {
+      return [""];
+    }
+
+    build("", maxLength);
+    return words.filter((word) => word.length <= maxLength);
+  }
+
+  function groupByLength(words) {
+    const counts = new Map();
+    for (const word of words) {
+      const len = word.length;
+      counts.set(len, (counts.get(len) || 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => a[0] - b[0]);
+  }
+
+  function displayWord(word) {
+    return word === "" ? "ε" : word;
+  }
+
+  function renderWordList(container, words, classifier) {
+    container.innerHTML = "";
+    for (const word of words) {
+      const span = document.createElement("span");
+      span.className = "vv-word";
+      if (classifier) {
+        span.classList.add(classifier(word) ? "accept" : "reject");
+      }
+      span.textContent = displayWord(word);
+      container.appendChild(span);
+    }
+  }
+
+  const alphabetInput = document.getElementById("alphabet-input");
+  const maxLengthInput = document.getElementById("max-length-input");
+  const alphabetMeta = document.getElementById("alphabet-meta");
+  const alphabetWords = document.getElementById("alphabet-words");
+  const alphabetNote = document.getElementById("alphabet-note");
+
+  function updateAlphabetLab() {
+    const alphabet = parseAlphabet(alphabetInput.value);
+    const maxLength = Number(maxLengthInput.value);
+    const words = enumerateWords(alphabet, maxLength);
+    const grouped = groupByLength(words);
+
+    alphabetMeta.innerHTML = "";
+    const pills = [
+      "Alphabet: {" + (alphabet.join(", ") || "∅") + "}",
+      "Generated words: " + words.length,
+      "Longest length shown: " + maxLength
+    ];
+
+    for (const text of pills) {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      alphabetMeta.appendChild(pill);
+    }
+
+    renderWordList(alphabetWords, words);
+    alphabetNote.textContent =
+      "Count by length: " +
+      grouped.map(([len, count]) => "length " + len + " → " + count).join(", ") +
+      ". The empty word ε is always present because it belongs to A* for every alphabet.";
+  }
+
+  alphabetInput.addEventListener("input", updateAlphabetLab);
+  maxLengthInput.addEventListener("change", updateAlphabetLab);
+  updateAlphabetLab();
+
+  const languageRule = document.getElementById("language-rule");
+  const languageMaxLength = document.getElementById("language-max-length");
+  const languageMeta = document.getElementById("language-meta");
+  const languageWords = document.getElementById("language-words");
+  const languageNote = document.getElementById("language-note");
+  const binaryAlphabet = ["a", "b"];
+
+  const languageDefinitions = {
+    "ends-a": {
+      label: "Words ending in a",
+      predicate: (word) => word.endsWith("a"),
+      explanation: "Acceptance depends only on the last symbol."
+    },
+    "even-a": {
+      label: "Words with an even number of a's",
+      predicate: (word) => (word.match(/a/g) || []).length % 2 === 0,
+      explanation: "This is the language used by the DFA simulator below."
+    },
+    "contains-bb": {
+      label: "Words containing bb",
+      predicate: (word) => word.includes("bb"),
+      explanation: "Membership means that the factor bb appears somewhere in the word."
+    },
+    "starts-ab": {
+      label: "Words starting with ab",
+      predicate: (word) => word.startsWith("ab"),
+      explanation: "A language can be defined by constraints on prefixes as well."
+    }
+  };
+
+  function updateLanguageLab() {
+    const rule = languageDefinitions[languageRule.value];
+    const maxLength = Number(languageMaxLength.value);
+    const words = enumerateWords(binaryAlphabet, maxLength).sort((a, b) => {
+      if (a.length !== b.length) return a.length - b.length;
+      return a.localeCompare(b);
+    });
+    const accepted = words.filter(rule.predicate);
+    const rejected = words.filter((word) => !rule.predicate(word));
+
+    languageMeta.innerHTML = "";
+    [
+      "Alphabet: {a, b}",
+      "Accepted: " + accepted.length,
+      "Rejected: " + rejected.length
+    ].forEach((text) => {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      languageMeta.appendChild(pill);
+    });
+
+    renderWordList(languageWords, words, rule.predicate);
+    languageNote.textContent =
+      rule.label + ". " + rule.explanation +
+      " Green words are in the language; red words are not.";
+  }
+
+  languageRule.addEventListener("change", updateLanguageLab);
+  languageMaxLength.addEventListener("change", updateLanguageLab);
+  updateLanguageLab();
+
+  const dfaWordInput = document.getElementById("dfa-word");
+  const dfaTrack = document.getElementById("dfa-track");
+  const dfaMeta = document.getElementById("dfa-meta");
+  const dfaStatus = document.getElementById("dfa-status");
+  const dfaLog = document.getElementById("dfa-log");
+  const dfaReset = document.getElementById("dfa-reset");
+  const dfaPrev = document.getElementById("dfa-prev");
+  const dfaNext = document.getElementById("dfa-next");
+  const dfaRun = document.getElementById("dfa-run");
+
+  const stateEven = document.getElementById("state-even");
+  const stateEvenOuter = document.getElementById("state-even-outer");
+  const stateOdd = document.getElementById("state-odd");
+  const edgeEvenOdd = document.getElementById("edge-even-odd");
+  const edgeOddEven = document.getElementById("edge-odd-even");
+  const edgeEvenLoop = document.getElementById("edge-even-loop");
+  const edgeOddLoop = document.getElementById("edge-odd-loop");
+
+  const dfa = {
+    start: "q_even",
+    accept: new Set(["q_even"]),
+    step(state, symbol) {
+      if (symbol === "a") {
+        return state === "q_even" ? "q_odd" : "q_even";
+      }
+      return state;
+    }
+  };
+
+  let stepIndex = 0;
+
+  function cleanWord(raw) {
+    return raw.replace(/[^ab]/g, "");
+  }
+
+  function buildRun(word) {
+    const symbols = word.split("");
+    const states = [dfa.start];
+    for (const symbol of symbols) {
+      states.push(dfa.step(states[states.length - 1], symbol));
+    }
+    return { symbols, states };
+  }
+
+  function activeEdge(previousState, symbol, nextState) {
+    if (symbol === "a" && previousState === "q_even" && nextState === "q_odd") return edgeEvenOdd;
+    if (symbol === "a" && previousState === "q_odd" && nextState === "q_even") return edgeOddEven;
+    if (symbol === "b" && previousState === "q_even" && nextState === "q_even") return edgeEvenLoop;
+    if (symbol === "b" && previousState === "q_odd" && nextState === "q_odd") return edgeOddLoop;
+    return null;
+  }
+
+  function setEdgeActive(edge, active) {
+    edge.classList.toggle("active", active);
+    edge.setAttribute("marker-end", active ? "url(#arrowhead-active)" : "url(#arrowhead)");
+  }
+
+  function updateDfaLab() {
+    const clean = cleanWord(dfaWordInput.value);
+    if (clean !== dfaWordInput.value) {
+      dfaWordInput.value = clean;
+    }
+
+    const run = buildRun(clean);
+    if (stepIndex > run.symbols.length) {
+      stepIndex = run.symbols.length;
+    }
+
+    const currentState = run.states[stepIndex];
+    const accepted = stepIndex === run.symbols.length && dfa.accept.has(currentState);
+
+    dfaTrack.innerHTML = "";
+    if (run.symbols.length === 0) {
+      const epsilon = document.createElement("span");
+      epsilon.className = "vv-symbol current";
+      epsilon.textContent = "ε";
+      dfaTrack.appendChild(epsilon);
+    } else {
+      run.symbols.forEach((symbol, index) => {
+        const chip = document.createElement("span");
+        chip.className = "vv-symbol";
+        if (index < stepIndex) chip.classList.add("done");
+        if (index === stepIndex) chip.classList.add("current");
+        chip.textContent = symbol;
+        dfaTrack.appendChild(chip);
+      });
+    }
+
+    dfaMeta.innerHTML = "";
+    [
+      "Current state: " + currentState,
+      "Processed symbols: " + stepIndex + "/" + run.symbols.length,
+      "Accepting state: " + (dfa.accept.has(currentState) ? "yes" : "no")
+    ].forEach((text) => {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = text;
+      dfaMeta.appendChild(pill);
+    });
+
+    dfaStatus.textContent =
+      stepIndex === run.symbols.length
+        ? accepted
+          ? "The full word has been consumed and the automaton is in q_even, so the word is accepted."
+          : "The full word has been consumed and the automaton is in q_odd, so the word is rejected."
+        : "Step forward to consume the next symbol and apply the transition function.";
+
+    dfaLog.innerHTML = "";
+    for (let i = 0; i < stepIndex; i += 1) {
+      const item = document.createElement("li");
+      item.textContent =
+        "Read " + run.symbols[i] + ": " + run.states[i] + " → " + run.states[i + 1];
+      dfaLog.appendChild(item);
+    }
+    if (stepIndex === 0) {
+      const item = document.createElement("li");
+      item.textContent = "Start in q_even before reading any symbol.";
+      dfaLog.appendChild(item);
+    }
+
+    stateEven.classList.toggle("active", currentState === "q_even");
+    stateEvenOuter.classList.toggle("active", currentState === "q_even");
+    stateOdd.classList.toggle("active", currentState === "q_odd");
+
+    [edgeEvenOdd, edgeOddEven, edgeEvenLoop, edgeOddLoop].forEach((edge) => {
+      setEdgeActive(edge, false);
+    });
+
+    if (stepIndex > 0) {
+      const edge = activeEdge(run.states[stepIndex - 1], run.symbols[stepIndex - 1], run.states[stepIndex]);
+      if (edge) {
+        setEdgeActive(edge, true);
+      }
+    }
+
+    dfaPrev.disabled = stepIndex === 0;
+    dfaNext.disabled = stepIndex === run.symbols.length;
+    dfaRun.disabled = stepIndex === run.symbols.length;
+  }
+
+  dfaWordInput.addEventListener("input", () => {
+    stepIndex = 0;
+    updateDfaLab();
+  });
+
+  dfaReset.addEventListener("click", () => {
+    stepIndex = 0;
+    updateDfaLab();
+  });
+
+  dfaPrev.addEventListener("click", () => {
+    stepIndex = Math.max(0, stepIndex - 1);
+    updateDfaLab();
+  });
+
+  dfaNext.addEventListener("click", () => {
+    const max = cleanWord(dfaWordInput.value).length;
+    stepIndex = Math.min(max, stepIndex + 1);
+    updateDfaLab();
+  });
+
+  dfaRun.addEventListener("click", () => {
+    stepIndex = cleanWord(dfaWordInput.value).length;
+    updateDfaLab();
+  });
+
+  updateDfaLab();
+})();
+</script>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

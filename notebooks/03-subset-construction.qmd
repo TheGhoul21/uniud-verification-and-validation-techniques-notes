@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 3: From NFA to DFA — the Subset Construction",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Subset Construction (NFA → DFA)
 
 This notebook walks through the **subset construction** algorithm that converts
