@@ -18,7 +18,7 @@ website:
     site-name: "Verification and Validation Techniques — UniUD"
     locale: en_US
   twitter-card: true
-  google-analytics: "G-PLACEHOLDER"
+  google-analytics: "G-V5T4WKNT8G"
   cookie-consent:
     type: express
     style: headline
