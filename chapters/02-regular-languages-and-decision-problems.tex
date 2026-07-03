@@ -524,7 +524,19 @@ transition targets.}
 \label{subsec:kleene-theorem}
 
 With $\varepsilon$-NFAs as a flexible intermediate model, we can equate
-the syntactic and operational views of regularity.
+the syntactic and operational views of regularity.  The proof has two
+halves, and each half should be read as an algorithm: one eliminates
+automaton states until only an expression remains; the other wires an
+automaton out of expression syntax.
+
+\begin{runningexample}{The parity DFA during Kleene's proof}
+We keep the two-state DFA of \cref{ex:even-a-dfa} in view.  Rename the
+even state $q_1$ and the odd state $q_2$.  The initial and accepting
+state is $q_1$; reading $a$ toggles between the two states; reading $b$
+stays where it is.  The language is the set of words with an even
+number of $a$'s, already described in \cref{ex:regex-even-a} by
+$b^*(ab^*ab^*)^*$.
+\end{runningexample}
 
 \begin{theorem}[Kleene equivalence]
 \label{thm:kleene}
@@ -533,47 +545,28 @@ and only if it is denoted by a regular expression.
 \end{theorem}
 
 \begin{proof}
-We prove both directions constructively.
-
-\medskip
-\noindent\textbf{Regular expression to automaton.}
-We build an $\varepsilon$-NFA by structural induction on the expression.
-For $\emptyset$, use a single non-accepting state with no transitions.
-For $\varepsilon$, use an initial state that is already accepting.  For
-a symbol $a$, use one transition labelled $a$ from the initial state to
-a fresh accepting state.
-
-Assume $\varepsilon$-NFAs have already been built for $r$ and $s$, with
-disjoint state sets and a single accepting state each (this is without
-loss of generality, since we can always redirect outgoing edges through
-a fresh accepting sink via $\varepsilon$-moves).
-\begin{itemize}[nosep]
-  \item For $r+s$, create a fresh initial state with $\varepsilon$-moves
-  to the initial states of the two automata, and $\varepsilon$-moves
-  from each of their accepting states to a fresh accepting state.
-  \Cref{fig:regex-union} shows the wiring.
-  \item For $rs$, connect the accepting state of the automaton for $r$
-  to the initial state of the automaton for $s$ by an $\varepsilon$-move;
-  the accepting state of $s$ becomes the accepting state of the combined
-  automaton.  \Cref{fig:regex-concat} shows the wiring.
-  \item For $r^*$, add a fresh initial state that is already accepting,
-  add an $\varepsilon$-move to the initial state of the automaton for
-  $r$, and add an $\varepsilon$-move from the accepting state of $r$
-  back to that initial state.  \Cref{fig:regex-star} shows the wiring.
-\end{itemize}
-Each construction mirrors exactly the semantic operation: choose a
-branch for union, run one machine after the other for concatenation, and
-repeat any finite number of times for star.  By
-\cref{thm:epsilon-removal} we can then eliminate $\varepsilon$-moves,
-determinize, and obtain a DFA.  Hence every regular expression denotes
-an automaton-recognizable language.
+We prove both directions constructively.  We start with the direction
+that is less obvious on first contact, because it explains where the
+Kleene star appears in the proof.
 
 \medskip
 \noindent\textbf{Automaton to regular expression.}
-Let $A$ be a DFA with states $q_1,\ldots,q_n$, with $q_1$ initial.  For
-$0\leq k\leq n$, define $R_{i,j}^k$ to be the language of all words that
-take the automaton from $q_i$ to $q_j$ using only intermediate states
-among $q_1,\ldots,q_k$.
+Let
+\[
+  A=(\{q_1,\ldots,q_n\},\Sigma,\delta,q_1,F)
+\]
+be a DFA whose initial state is $q_1$.  The numbering of the states is
+only bookkeeping: it lets us unlock possible intermediate states one at
+a time.  For $0\leq k\leq n$, define $R_{i,j}^k$ to be the language of
+all words that take the automaton from $q_i$ to $q_j$ while every state
+visited after a non-empty proper prefix belongs to
+\[
+  \{q_1,\ldots,q_k\}.
+\]
+The endpoints $q_i$ and $q_j$ are not constrained by this condition.
+Thus $k$ is a frontier: $R_{i,j}^0$ allows no intermediate state at all,
+while $R_{i,j}^n$ allows every state and therefore imposes no real
+restriction.
 
 We prove by induction on $k$ that each $R_{i,j}^k$ is denoted by a
 regular expression.  For $k=0$, no intermediate state is allowed, so a
@@ -582,12 +575,25 @@ single transition labelled by some $a\in\Sigma$.  Hence $R_{i,j}^0$ is a
 finite union of symbols, together with $\varepsilon$ when $i=j$; this is
 regular.
 
+In the parity running example this base layer is already concrete:
+\[
+\begin{array}{c@{\qquad}c}
+  R_{1,1}^0=\varepsilon+b, & R_{1,2}^0=a,\\[2mm]
+  R_{2,1}^0=a,             & R_{2,2}^0=\varepsilon+b.
+\end{array}
+\]
+With no intermediate state allowed, the only possible non-empty words
+have length one; this is why the table contains just the direct
+transition labels, plus $\varepsilon$ on the diagonal.
+
 For the induction step, a path counted by $R_{i,j}^k$ either never
 visits $q_k$ as an intermediate state---in which case it lies in
 $R_{i,j}^{k-1}$---or it visits $q_k$ at least once.  In the latter case,
 split the path at the first visit to $q_k$, then at each complete return
-to $q_k$, and finally at the last departure toward $q_j$.  This yields
-the recurrence
+to $q_k$, and finally at the last departure toward $q_j$.  In the
+lecture, the whiteboard picture is the one in
+\cref{fig:kleene-rijk-split}: either avoid $q_k$, or enter $q_k$, loop
+around it any finite number of times, and exit.  This yields the recurrence
 \[
   R_{i,j}^k =
   R_{i,j}^{k-1}
@@ -596,12 +602,102 @@ the recurrence
 \]
 which is regular by the induction hypothesis.
 
+This is the exact point where Kleene star is forced on us.  If a run
+passes through $q_k$ once, there is no middle loop.  If it passes through
+$q_k$ twice, there is one $q_k$-to-$q_k$ block.  If it passes through
+$q_k$ many times, there are many such blocks.  The star
+$(R_{k,k}^{k-1})^*$ summarizes all finite numbers of complete returns.
+
+For example, when $k=1$ in the parity DFA, the expression
+\[
+  R_{2,2}^1
+  =
+  R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0
+  =
+  (\varepsilon+b)+a(\varepsilon+b)^*a
+\]
+describes all words that start in the odd state, end in the odd state,
+and use only the even state as an intermediate stop.  Either we stay in
+$q_2$ by reading $\varepsilon$ or $b$, or we go to $q_1$, spend any
+finite amount of time looping there on $b$, and return to $q_2$ on
+another $a$.
+
 Finally, the language of the automaton is
 \[
   L(A)=\bigcup_{q_j\in F} R_{1,j}^n,
 \]
-again a regular expression.
+again a regular expression.  In the parity example $F=\{q_1\}$, so the
+constructed expression is $R_{1,1}^2$; after algebraic simplification,
+one familiar form is $b^*(ab^*ab^*)^*$.
+
+\medskip
+\noindent\textbf{Regular expression to automaton.}
+We now build an $\varepsilon$-NFA by structural induction on the
+expression.  To keep the wiring uniform, every intermediate automaton is
+kept in a normalized shape: it has one entry state, one accepting exit
+state, and no transitions leaving that exit state.
+
+For $\emptyset$, use a fresh entry state and a fresh accepting exit
+state with no path from the entry to the exit.  For $\varepsilon$, add
+one $\varepsilon$-move from the entry to the exit.  For a symbol
+$a\in\Sigma$, add one transition labelled $a$ from the entry to the
+exit.
+
+Assume normalized $\varepsilon$-NFAs have already been built for $r$ and
+$s$, with disjoint state sets.
+\begin{itemize}[nosep]
+  \item For $r+s$, create a fresh entry state with $\varepsilon$-moves
+  to the two old entries, and a fresh accepting exit state reached by
+  $\varepsilon$-moves from the two old exits.  \Cref{fig:regex-union}
+  shows the wiring.
+  \item For $rs$, connect the exit of the automaton for $r$ to the entry
+  of the automaton for $s$ by an $\varepsilon$-move.  The entry of $r$
+  becomes the new entry, and the exit of $s$ becomes the new accepting
+  exit.  \Cref{fig:regex-concat} shows the wiring.
+  \item For $r^*$, create a fresh entry state and a fresh accepting exit
+  state.  Add an $\varepsilon$-move directly from the new entry to the
+  new exit for the zero-repetition case; add an $\varepsilon$-move from
+  the new entry to the old entry to start one repetition; from the old
+  exit, add one $\varepsilon$-move back to the old entry to repeat and
+  one $\varepsilon$-move to the new exit to stop.  \Cref{fig:regex-star}
+  shows the wiring.
+\end{itemize}
+Each construction mirrors exactly the semantic operation: choose a
+branch for union, run one machine after the other for concatenation, and
+repeat any finite number of times for star.  By
+\cref{thm:epsilon-removal} we can then eliminate $\varepsilon$-moves,
+determinize, and obtain a DFA.  Hence every regular expression denotes
+an automaton-recognizable language.
 \end{proof}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=2.1cm,
+  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (qi) {$q_i$};
+  \node[state, right=of qi] (qk) {$q_k$};
+  \node[state, right=of qk] (qj) {$q_j$};
+
+  \draw[arr, bend left=35] (qi) to
+    node[above, font=\small] {$R_{i,j}^{k-1}$} (qj);
+  \draw[arr] (qi) -- node[below, font=\small] {$R_{i,k}^{k-1}$} (qk);
+  \draw[arr, loop above, orange!70!black] (qk) to
+    node[above, font=\small] {$(R_{k,k}^{k-1})^*$} (qk);
+  \draw[arr] (qk) -- node[below, font=\small] {$R_{k,j}^{k-1}$} (qj);
+
+  \node[below=1.0cm of qk, font=\small, align=center]
+    {Either avoid $q_k$, or enter it, make finitely many complete
+    returns, and exit.};
+\end{tikzpicture}
+\caption{The inductive split in the automaton-to-expression direction
+of Kleene's theorem.  Allowing $q_k$ as a new intermediate state adds
+exactly the paths that enter $q_k$, repeat a $q_k$-to-$q_k$ block any
+finite number of times, and then leave.}
+\label{fig:kleene-rijk-split}
+\end{figure}
 
 \begin{figure}[ht]
 \centering
@@ -612,7 +708,7 @@ again a regular expression.
   arr/.style={-Stealth, thick},
 ]
   \node[state] (ir) {$i_r$};
-  \node[acc, right=of ir] (fr) {$f_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
   \node[state, right=of fr] (is) {$i_s$};
   \node[acc, right=of is] (fs) {$f_s$};
   \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
@@ -623,10 +719,9 @@ again a regular expression.
      entry of the second by a single $\varepsilon$-move (in orange).};
 \end{tikzpicture}
 \caption{The $\varepsilon$-NFA construction for concatenation in the
-regex-to-automaton direction of \cref{thm:kleene}: the accepting state
-of $r$ and the initial state of $s$ are wired together by an
-$\varepsilon$-move, and the fresh accepting state $f_s$ inherits
-acceptance.}
+regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
+the entry of $s$ are wired together by an $\varepsilon$-move, and the
+exit $f_s$ becomes the accepting exit of the combined automaton.}
 \label{fig:regex-concat}
 \end{figure}
 
@@ -640,9 +735,9 @@ acceptance.}
 ]
   \node[state] (i) {$i$};
   \node[state, above right=0.8cm and 1.6cm of i] (ir) {$i_r$};
-  \node[acc, right=of ir] (fr) {$f_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
   \node[state, below right=0.8cm and 1.6cm of i] (is) {$i_s$};
-  \node[acc, right=of is] (fs) {$f_s$};
+  \node[state, right=of is] (fs) {$f_s$};
   \node[acc, right=3.8cm of i] (f) {$f$};
   \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
   \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
@@ -653,8 +748,7 @@ acceptance.}
 \end{tikzpicture}
 \caption{The $\varepsilon$-NFA construction for union $r+s$: a fresh
 initial state branches into the two sub-automata via $\varepsilon$-moves
-(orange), and both accepting states feed into a fresh common accepting
-state.}
+(orange), and both old exits feed into a fresh common accepting exit.}
 \label{fig:regex-union}
 \end{figure}
 
@@ -666,17 +760,21 @@ state.}
   acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
   arr/.style={-Stealth, thick},
 ]
-  \node[acc] (i) {$i$};
+  \node[state] (i) {$i$};
   \node[state, right=of i] (ir) {$i_r$};
-  \node[acc, right=2.2cm of ir] (fr) {$f_r$};
+  \node[state, right=2.2cm of ir] (fr) {$f_r$};
+  \node[acc, right=of fr] (f) {$f$};
   \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black, bend left=35] (i) to node[above, font=\small] {$\varepsilon$} (f);
   \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
   \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
 \end{tikzpicture}
 \caption{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
-fresh initial state $i$ (already accepting, to cover the empty word) has
-an $\varepsilon$-move into the sub-automaton for~$r$, and the accepting
-state of $r$ loops back to $i_r$ via another $\varepsilon$-move.}
+fresh initial state $i$ can either jump directly to the accepting exit
+$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
+copy of $r$, the automaton either loops back for another repetition or
+exits to $f$.}
 \label{fig:regex-star}
 \end{figure}
 
