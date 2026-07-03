@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 1: Finite-State Automata",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Interactive Chapter 1 Notebook
 
 This notebook turns the first chapter into a small laboratory. The focus is on the objects that matter early in automata theory:

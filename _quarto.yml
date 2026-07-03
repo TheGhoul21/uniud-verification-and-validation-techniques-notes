@@ -8,6 +8,7 @@ project:
   resources:
     - "CNAME"
     - "privacy-policy.html"
+    - "robots.txt"
 
 website:
   title: "Verification and Validation Techniques — UniUD"
@@ -17,7 +18,9 @@ website:
   open-graph:
     site-name: "Verification and Validation Techniques — UniUD"
     locale: en_US
-  twitter-card: true
+    image: images/social-preview.jpg
+  twitter-card:
+    image: images/social-preview.jpg
   google-analytics: "G-V5T4WKNT8G"
   cookie-consent:
     type: implied
@@ -32,20 +35,24 @@ website:
         href: index.qmd
       - text: Notebooks
         menu:
-          - text: "NB 1 — Intro"
+          - text: "1. Intro to Finite-State Automata"
             href: notebooks/01-intro.qmd
-          - text: "NB 2 — NFA Reachable States"
+          - text: "2. NFA Reachable States"
             href: notebooks/02-nfa-reachable-states.qmd
-          - text: "NB 3 — Subset Construction"
+          - text: "3. Subset Construction (NFA to DFA)"
             href: notebooks/03-subset-construction.qmd
-          - text: "NB 4 — ε-Closure & ε-Removal"
+          - text: "4. ε-Closure & ε-Removal"
             href: notebooks/04-epsilon-closure-removal.qmd
-          - text: "NB 5 — Product Automaton"
+          - text: "5. Product Automaton"
             href: notebooks/05-product-automaton.qmd
-          - text: "NB 6 — Reachability Fixpoint"
+          - text: "6. Reachability Fixpoint"
             href: notebooks/06-reachability-fixpoint.qmd
-          - text: "NB 7 — Kleene State Elimination"
+          - text: "7. Kleene State Elimination"
             href: notebooks/07-kleene-state-elimination.qmd
+          - text: "8. Linear Temporal Logic (LTL)"
+            href: notebooks/08-ltl.qmd
+          - text: "9. Model Checking Basics"
+            href: notebooks/09-model-checking.qmd
 
 format:
   html:

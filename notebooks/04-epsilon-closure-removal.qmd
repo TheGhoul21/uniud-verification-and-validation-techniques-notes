@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 4: Epsilon-Closure and Epsilon-Removal",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Epsilon-Closure & Epsilon-Removal (epsilon-NFA to NFA)
 
 This notebook walks through the **epsilon-closure** computation and the

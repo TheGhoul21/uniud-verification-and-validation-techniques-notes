@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 2: NFA Reachable States",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # NFA Reachable States
 
 This notebook focuses on the set-valued transition function of an NFA.

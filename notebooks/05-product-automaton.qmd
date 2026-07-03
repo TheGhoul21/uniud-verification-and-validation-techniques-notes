@@ -8,6 +8,17 @@ format:
     toc-depth: 2
 ---
 
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 5: Product Automaton — Intersection of DFAs",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
 # Product Automaton (DFA Intersection)
 
 This notebook walks through the **product automaton** construction that builds
