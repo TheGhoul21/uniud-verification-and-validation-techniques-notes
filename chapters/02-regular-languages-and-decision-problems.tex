@@ -555,9 +555,69 @@ Let
 \[
   A=(\{q_1,\ldots,q_n\},\Sigma,\delta,q_1,F)
 \]
-be a DFA whose initial state is $q_1$.  The numbering of the states is
-only bookkeeping: it lets us unlock possible intermediate states one at
-a time.  For $0\leq k\leq n$, define $R_{i,j}^k$ to be the language of
+be a DFA whose initial state is $q_1$.  The automaton already defines a
+language:
+\[
+  L(A)=\{\,w\in\Sigma^* \mid \widehat{\delta}(q_1,w)\in F\,\}.
+\]
+What we must show is that this same language can be written as a regular
+expression.
+
+The difficulty is that a run may wander through the automaton before it
+reaches its final state.  The proof controls this wandering by numbering
+the states and allowing them as intermediate states one at a time.  The
+numbering is only bookkeeping: it lets us say, at stage $k$, which
+states may appear in the middle of a run.
+
+Before writing the formal definition, look at the following small path
+picture.  We only care about labels of paths between numbered states, so
+accepting states are irrelevant here.
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.45cm,
+  state/.style={circle, draw, thick, minimum size=7.5mm, fill=blue!8},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q3) {$q_3$};
+  \node[state, above right=0.55cm and 1.1cm of q3] (q1) {$q_1$};
+  \node[state, right=of q1] (q2) {$q_2$};
+  \node[state, below right=0.55cm and 1.1cm of q2] (q5) {$q_5$};
+  \node[state, below=1.25cm of q2] (q4) {$q_4$};
+
+  \draw[arr] (q3) -- node[below, font=\small] {$b$} (q5);
+  \draw[arr] (q3) -- node[above left, font=\small] {$a$} (q1);
+  \draw[arr, loop above] (q1) to node[above, font=\small] {$a$} (q1);
+  \draw[arr] (q1) -- node[above, font=\small] {$b$} (q2);
+  \draw[arr] (q2) -- node[above right, font=\small] {$a$} (q5);
+  \draw[arr] (q2) -- node[right, font=\small] {$b$} (q4);
+  \draw[arr, loop below] (q4) to node[below, font=\small] {$b$} (q4);
+  \draw[arr] (q4) -- node[below right, font=\small] {$a$} (q5);
+\end{tikzpicture}
+\end{center}
+
+From $q_3$ to $q_5$, if no intermediate state is allowed, the only word
+shown is $b$.  If only $q_1$ and $q_2$ may be used in the middle, we can
+also read
+\[
+  aa^*ba
+\]
+by going from $q_3$ to $q_1$, looping on $q_1$ any finite number of
+times, moving to $q_2$, and then exiting to $q_5$.  If $q_4$ is also
+allowed, the extra possibility through $q_4$ contributes
+\[
+  aa^*bb^*a.
+\]
+This is the intuition behind the superscript: $k$ tells us which state
+names are unlocked as intermediate stops.  In the notation we are about
+to define, the displayed paths contribute
+\[
+  R_{3,5}^0 = b,\qquad
+  R_{3,5}^2 = b + aa^*ba,\qquad
+  R_{3,5}^4 = b + aa^*ba + aa^*bb^*a.
+\]
+
+Now define, for $0\leq k\leq n$, the language $R_{i,j}^k$ as the set of
 all words that take the automaton from $q_i$ to $q_j$ while every state
 visited after a non-empty proper prefix belongs to
 \[
