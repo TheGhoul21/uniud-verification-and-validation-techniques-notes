@@ -1,0 +1,644 @@
+---
+title: "Notebook 7: Kleene State Elimination"
+pagetitle: "NB 7: Kleene State Elimination — VVT UniUD"
+description: "Interactive notebook on Kleene's theorem and state elimination: convert any DFA to an equivalent regular expression step by step. From the Verification and Validation Techniques course at UniUD."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+# Kleene's Theorem: DFA to Regular Expression
+
+This notebook focuses on the state-elimination half of Kleene's theorem.
+For a DFA with numbered states $q_1,\ldots,q_n$, the construction defines
+$R_{i,j}^k$ as the set of words that take the automaton from $q_i$ to
+$q_j$ while using only $q_1,\ldots,q_k$ as intermediate states.
+
+The key recurrence is:
+\[
+  R_{i,j}^k =
+  R_{i,j}^{k-1}
+  +
+  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}.
+\]
+
+Read it as: either avoid the newly allowed state $q_k$, or enter $q_k$,
+loop around it any finite number of times, and then exit.
+
+```{=html}
+<style>
+.ke-lab {
+  --ke-primary: #30bced;
+  --ke-primary-dark: #1f8fb7;
+  --ke-bg: #fffaff;
+  --ke-border: #d7d7dc;
+  --ke-text: #050401;
+  --ke-muted: #303036;
+  --ke-node: #daf3fc;
+  --ke-allowed: #e8d5f5;
+  --ke-accept: #d4f7ef;
+  --ke-warn: #fff3b0;
+  --ke-orange: #fc5130;
+  font-family: system-ui, sans-serif;
+  color: var(--ke-text);
+  background: var(--ke-bg);
+  border: 1px solid var(--ke-border);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+}
+.ke-controls {
+  display: grid;
+  grid-template-columns: minmax(190px, 1.2fr) repeat(3, minmax(110px, .6fr));
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+.ke-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ke-field label {
+  color: var(--ke-muted);
+  font-size: .86rem;
+  font-weight: 700;
+}
+.ke-field select,
+.ke-field input {
+  border: 1px solid #8ddaf5;
+  border-radius: 8px;
+  background: var(--ke-bg);
+  padding: 9px 10px;
+  font: 600 .96rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ke-workspace {
+  display: grid;
+  grid-template-columns: minmax(320px, .95fr) minmax(340px, 1.05fr);
+  gap: 14px;
+  margin-top: 14px;
+}
+.ke-panel {
+  border: 1px solid var(--ke-border);
+  border-radius: 8px;
+  background: var(--ke-bg);
+  padding: 14px;
+}
+.ke-panel h3 {
+  margin: 0 0 10px;
+  color: var(--ke-muted);
+  font-size: .9rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.ke-desc {
+  margin: 0 0 12px;
+  color: var(--ke-muted);
+  font-size: .94rem;
+}
+.ke-graph {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ke-edge {
+  stroke: var(--ke-muted);
+  stroke-width: 2.2;
+  fill: none;
+  marker-end: url(#ke-arrow);
+}
+.ke-edge.hidden,
+.ke-edge-label.hidden {
+  display: none;
+}
+.ke-edge-label {
+  fill: var(--ke-text);
+  font-size: 15px;
+  font-weight: 800;
+}
+.ke-node circle {
+  fill: var(--ke-node);
+  stroke: var(--ke-primary);
+  stroke-width: 2;
+}
+.ke-node.allowed circle {
+  fill: var(--ke-allowed);
+  stroke: #9b59b6;
+}
+.ke-node.accept circle {
+  fill: var(--ke-accept);
+  stroke: #2ec4b6;
+}
+.ke-node.start circle {
+  stroke: var(--ke-orange);
+  stroke-width: 4;
+}
+.ke-node.end circle {
+  stroke: var(--ke-primary-dark);
+  stroke-width: 4;
+}
+.ke-node text {
+  fill: var(--ke-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+.ke-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-height: 33px;
+  align-items: center;
+}
+.ke-badge {
+  border: 1px solid var(--ke-primary);
+  border-radius: 999px;
+  background: var(--ke-node);
+  padding: 5px 10px;
+  font: 700 .9rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ke-badge.warn {
+  background: var(--ke-warn);
+  border-color: #e9c46a;
+}
+.ke-expression {
+  border-left: 4px solid var(--ke-primary);
+  background: #f0faff;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 12px;
+  margin: 8px 0 12px;
+  font: 700 .96rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.ke-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .92rem;
+}
+.ke-table th,
+.ke-table td {
+  border-bottom: 1px solid var(--ke-border);
+  padding: 7px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.ke-table th {
+  color: var(--ke-muted);
+}
+.ke-table td:last-child {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.ke-trace {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+  font: 700 .92rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ke-step {
+  border: 1px solid var(--ke-border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: var(--ke-bg);
+}
+.ke-step.bad {
+  background: #fee8e3;
+  border-color: var(--ke-orange);
+}
+.ke-verdict {
+  margin-top: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: #f0faff;
+  color: var(--ke-muted);
+}
+@media (max-width: 860px) {
+  .ke-controls,
+  .ke-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+
+<div class="ke-lab">
+  <div class="ke-controls">
+    <div class="ke-field">
+      <label for="ke-preset">Running DFA</label>
+      <select id="ke-preset">
+        <option value="parity">Even number of a's</option>
+        <option value="seenA">Contains at least one a</option>
+      </select>
+    </div>
+    <div class="ke-field">
+      <label for="ke-k">Allowed frontier k</label>
+      <select id="ke-k"></select>
+    </div>
+    <div class="ke-field">
+      <label for="ke-i">Start i</label>
+      <select id="ke-i"></select>
+    </div>
+    <div class="ke-field">
+      <label for="ke-j">End j</label>
+      <select id="ke-j"></select>
+    </div>
+  </div>
+
+  <div class="ke-workspace">
+    <section class="ke-panel">
+      <h3>DFA</h3>
+      <p class="ke-desc" id="ke-description"></p>
+      <svg class="ke-graph" viewBox="0 0 560 290" role="img" aria-label="Two-state DFA">
+        <defs>
+          <marker id="ke-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+        </defs>
+        <path class="ke-edge" data-edge="q1-q1" d="M180 112 C112 45, 90 126, 142 141"></path>
+        <path class="ke-edge" data-edge="q2-q2" d="M380 112 C448 45, 470 126, 418 141"></path>
+        <path class="ke-edge" data-edge="q1-q2" d="M182 148 C230 114, 330 114, 378 148"></path>
+        <path class="ke-edge" data-edge="q2-q1" d="M378 182 C330 220, 230 220, 182 182"></path>
+
+        <text class="ke-edge-label" data-label="q1-q1" x="108" y="75"></text>
+        <text class="ke-edge-label" data-label="q2-q2" x="432" y="75"></text>
+        <text class="ke-edge-label" data-label="q1-q2" x="270" y="118"></text>
+        <text class="ke-edge-label" data-label="q2-q1" x="270" y="229"></text>
+
+        <g class="ke-node" data-node="q1" transform="translate(160 165)">
+          <circle r="31"></circle><text text-anchor="middle" dy="6">q1</text>
+        </g>
+        <g class="ke-node" data-node="q2" transform="translate(400 165)">
+          <circle r="31"></circle><text text-anchor="middle" dy="6">q2</text>
+        </g>
+
+        <path d="M65 165 L123 165" class="ke-edge"></path>
+        <text x="58" y="151" class="ke-edge-label">start</text>
+      </svg>
+      <div class="ke-badges" id="ke-node-legend"></div>
+    </section>
+
+    <section class="ke-panel">
+      <h3>Selected R language</h3>
+      <div class="ke-expression" id="ke-selected"></div>
+      <div id="ke-components"></div>
+    </section>
+  </div>
+
+  <div class="ke-workspace">
+    <section class="ke-panel">
+      <h3>Short witness words</h3>
+      <p class="ke-desc">Words of length at most 4 that belong to the selected \(R_{i,j}^k\).</p>
+      <div class="ke-badges" id="ke-examples"></div>
+    </section>
+
+    <section class="ke-panel">
+      <h3>Test one word</h3>
+      <div class="ke-field">
+        <label for="ke-word">Input word over {a,b}</label>
+        <input id="ke-word" value="abba" spellcheck="false" inputmode="text">
+      </div>
+      <div class="ke-trace" id="ke-trace"></div>
+      <div class="ke-verdict" id="ke-verdict"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  const EPS = "\u03b5";
+  const EMPTY = "\u2205";
+
+  const presets = {
+    parity: {
+      description: "q1 is even and accepting; q2 is odd. Reading a toggles, reading b stays.",
+      states: ["q1", "q2"],
+      alphabet: ["a", "b"],
+      initial: "q1",
+      finals: ["q1"],
+      transitions: {
+        q1: { a: "q2", b: "q1" },
+        q2: { a: "q1", b: "q2" }
+      }
+    },
+    seenA: {
+      description: "q1 means no a has been seen; q2 means at least one a has been seen and is accepting.",
+      states: ["q1", "q2"],
+      alphabet: ["a", "b"],
+      initial: "q1",
+      finals: ["q2"],
+      transitions: {
+        q1: { a: "q2", b: "q1" },
+        q2: { a: "q2", b: "q2" }
+      }
+    }
+  };
+
+  const presetSelect = document.getElementById("ke-preset");
+  const kSelect = document.getElementById("ke-k");
+  const iSelect = document.getElementById("ke-i");
+  const jSelect = document.getElementById("ke-j");
+  const description = document.getElementById("ke-description");
+  const selected = document.getElementById("ke-selected");
+  const components = document.getElementById("ke-components");
+  const examples = document.getElementById("ke-examples");
+  const wordInput = document.getElementById("ke-word");
+  const trace = document.getElementById("ke-trace");
+  const verdict = document.getElementById("ke-verdict");
+  const legend = document.getElementById("ke-node-legend");
+
+  function stateNumber(state) {
+    return Number(state.slice(1));
+  }
+
+  function labelR(i, j, k) {
+    return "R_" + stateNumber(i) + "," + stateNumber(j) + "^" + k;
+  }
+
+  function unionExpr(a, b) {
+    if (a === EMPTY) return b;
+    if (b === EMPTY) return a;
+    if (a === b) return a;
+    return a + " + " + b;
+  }
+
+  function unionMany(parts) {
+    return parts.reduce((acc, part) => unionExpr(acc, part), EMPTY);
+  }
+
+  function wrapConcat(expr) {
+    if (expr === EPS || expr === EMPTY) return expr;
+    if (/^[ab]$/.test(expr)) return expr;
+    if (/^[ab]\*$/.test(expr)) return expr;
+    if (/^\(.+\)\*$/.test(expr)) return expr;
+    return "(" + expr + ")";
+  }
+
+  function concatExpr() {
+    const parts = Array.from(arguments);
+    if (parts.some((part) => part === EMPTY)) return EMPTY;
+    const real = parts.filter((part) => part !== EPS);
+    if (real.length === 0) return EPS;
+    return real.map(wrapConcat).join("");
+  }
+
+  function starExpr(expr) {
+    if (expr === EMPTY || expr === EPS) return EPS;
+    if (/^[ab]$/.test(expr)) return expr + "*";
+    return "(" + expr + ")*";
+  }
+
+  function buildExpressions(aut) {
+    const levels = [];
+    levels[0] = {};
+    aut.states.forEach((from) => {
+      levels[0][from] = {};
+      aut.states.forEach((to) => {
+        const parts = [];
+        if (from === to) parts.push(EPS);
+        aut.alphabet.forEach((symbol) => {
+          if (aut.transitions[from][symbol] === to) parts.push(symbol);
+        });
+        levels[0][from][to] = unionMany(parts);
+      });
+    });
+
+    for (let k = 1; k <= aut.states.length; k += 1) {
+      const qk = aut.states[k - 1];
+      levels[k] = {};
+      aut.states.forEach((from) => {
+        levels[k][from] = {};
+        aut.states.forEach((to) => {
+          const direct = levels[k - 1][from][to];
+          const via = concatExpr(
+            levels[k - 1][from][qk],
+            starExpr(levels[k - 1][qk][qk]),
+            levels[k - 1][qk][to]
+          );
+          levels[k][from][to] = unionExpr(direct, via);
+        });
+      });
+    }
+    return levels;
+  }
+
+  function runFrom(aut, start, word) {
+    const states = [start];
+    let current = start;
+    for (const symbol of word) {
+      current = aut.transitions[current][symbol];
+      states.push(current);
+    }
+    return { states, end: current };
+  }
+
+  function belongsToR(aut, start, end, k, word) {
+    const result = runFrom(aut, start, word);
+    if (result.end !== end) return false;
+    for (let pos = 1; pos < result.states.length - 1; pos += 1) {
+      if (stateNumber(result.states[pos]) > k) return false;
+    }
+    return true;
+  }
+
+  function allWords(alphabet, maxLength) {
+    const words = [""];
+    let layer = [""];
+    for (let length = 1; length <= maxLength; length += 1) {
+      const next = [];
+      layer.forEach((prefix) => {
+        alphabet.forEach((symbol) => next.push(prefix + symbol));
+      });
+      words.push.apply(words, next);
+      layer = next;
+    }
+    return words;
+  }
+
+  function wordLabel(word) {
+    return word === "" ? EPS : word;
+  }
+
+  function sanitizeWord(value, aut) {
+    const allowed = new RegExp("[^" + aut.alphabet.join("") + "]", "g");
+    return value.toLowerCase().replace(allowed, "");
+  }
+
+  function activeAut() {
+    return presets[presetSelect.value];
+  }
+
+  function populateControls() {
+    const aut = activeAut();
+    kSelect.innerHTML = "";
+    for (let k = 0; k <= aut.states.length; k += 1) {
+      const option = document.createElement("option");
+      option.value = String(k);
+      option.textContent = String(k);
+      kSelect.appendChild(option);
+    }
+    kSelect.value = String(aut.states.length);
+
+    [iSelect, jSelect].forEach((select) => {
+      select.innerHTML = "";
+      aut.states.forEach((state) => {
+        const option = document.createElement("option");
+        option.value = state;
+        option.textContent = state;
+        select.appendChild(option);
+      });
+    });
+    iSelect.value = aut.initial;
+    jSelect.value = aut.finals[0];
+  }
+
+  function renderGraph(aut, i, j, k) {
+    aut.states.forEach((state) => {
+      const node = document.querySelector("[data-node='" + state + "']");
+      node.classList.toggle("allowed", stateNumber(state) <= k && k > 0);
+      node.classList.toggle("accept", aut.finals.includes(state));
+      node.classList.toggle("start", state === i);
+      node.classList.toggle("end", state === j);
+    });
+
+    aut.states.forEach((from) => {
+      aut.states.forEach((to) => {
+        const edgeId = from + "-" + to;
+        const symbols = aut.alphabet.filter((symbol) => aut.transitions[from][symbol] === to);
+        const edge = document.querySelector("[data-edge='" + edgeId + "']");
+        const label = document.querySelector("[data-label='" + edgeId + "']");
+        if (!edge || !label) return;
+        edge.classList.toggle("hidden", symbols.length === 0);
+        label.classList.toggle("hidden", symbols.length === 0);
+        label.textContent = symbols.join(",");
+      });
+    });
+
+    legend.innerHTML = "";
+    [
+      ["start", i],
+      ["end", j],
+      ["allowed intermediates", k === 0 ? "none" : aut.states.slice(0, k).join(", ")],
+      ["accepting", aut.finals.join(", ")]
+    ].forEach(([name, value]) => {
+      const badge = document.createElement("span");
+      badge.className = "ke-badge";
+      badge.textContent = name + ": " + value;
+      legend.appendChild(badge);
+    });
+  }
+
+  function renderComponents(aut, levels, i, j, k) {
+    components.innerHTML = "";
+    if (k === 0) {
+      const p = document.createElement("p");
+      p.className = "ke-desc";
+      p.textContent = "At k = 0 there are no intermediate states. Only epsilon on the diagonal and direct one-symbol transitions can appear.";
+      components.appendChild(p);
+      return;
+    }
+
+    const qk = aut.states[k - 1];
+    const rows = [
+      ["avoid q" + k, labelR(i, j, k - 1), levels[k - 1][i][j]],
+      ["enter q" + k, labelR(i, qk, k - 1), levels[k - 1][i][qk]],
+      ["repeat at q" + k, "(" + labelR(qk, qk, k - 1) + ")*", starExpr(levels[k - 1][qk][qk])],
+      ["exit q" + k, labelR(qk, j, k - 1), levels[k - 1][qk][j]]
+    ];
+
+    const table = document.createElement("table");
+    table.className = "ke-table";
+    table.innerHTML = "<thead><tr><th>Part</th><th>Symbol</th><th>Expression</th></tr></thead>";
+    const tbody = document.createElement("tbody");
+    rows.forEach((row) => {
+      const tr = document.createElement("tr");
+      row.forEach((cell) => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    components.appendChild(table);
+  }
+
+  function renderExamples(aut, i, j, k) {
+    examples.innerHTML = "";
+    const hits = allWords(aut.alphabet, 4).filter((word) => belongsToR(aut, i, j, k, word));
+    if (hits.length === 0) {
+      const badge = document.createElement("span");
+      badge.className = "ke-badge warn";
+      badge.textContent = "no words up to length 4";
+      examples.appendChild(badge);
+      return;
+    }
+    hits.forEach((word) => {
+      const badge = document.createElement("span");
+      badge.className = "ke-badge";
+      badge.textContent = wordLabel(word);
+      examples.appendChild(badge);
+    });
+  }
+
+  function renderWordTest(aut, i, j, k) {
+    const clean = sanitizeWord(wordInput.value, aut);
+    if (clean !== wordInput.value) wordInput.value = clean;
+    const result = runFrom(aut, i, clean);
+    const selectedHit = belongsToR(aut, i, j, k, clean);
+    const languageRun = runFrom(aut, aut.initial, clean);
+    const accepted = aut.finals.includes(languageRun.end);
+
+    trace.innerHTML = "";
+    result.states.forEach((state, pos) => {
+      const item = document.createElement("span");
+      const isProperIntermediate = pos > 0 && pos < result.states.length - 1;
+      const violates = isProperIntermediate && stateNumber(state) > k;
+      item.className = "ke-step" + (violates ? " bad" : "");
+      item.textContent = pos === 0 ? state : clean[pos - 1] + " -> " + state;
+      trace.appendChild(item);
+    });
+
+    const selectedText = selectedHit ? "belongs to " : "does not belong to ";
+    const acceptedText = accepted ? "accepted by the DFA" : "rejected by the DFA";
+    verdict.textContent =
+      wordLabel(clean) + " " + selectedText + labelR(i, j, k) +
+      "; from the real initial state it is " + acceptedText + ".";
+  }
+
+  function render() {
+    const aut = activeAut();
+    const k = Number(kSelect.value);
+    const i = iSelect.value;
+    const j = jSelect.value;
+    const levels = buildExpressions(aut);
+    description.textContent = aut.description;
+    selected.textContent = labelR(i, j, k) + " = " + levels[k][i][j];
+    renderGraph(aut, i, j, k);
+    renderComponents(aut, levels, i, j, k);
+    renderExamples(aut, i, j, k);
+    renderWordTest(aut, i, j, k);
+  }
+
+  presetSelect.addEventListener("change", () => {
+    populateControls();
+    render();
+  });
+  [kSelect, iSelect, jSelect].forEach((select) => select.addEventListener("change", render));
+  wordInput.addEventListener("input", render);
+
+  populateControls();
+  render();
+})();
+</script>
+```
+
+## What To Notice
+
+The parameter $k$ does not count how many states the run may visit.  It
+sets which state names may occur in the middle of the run.  When $k$
+increases by one, the recurrence adds exactly the words whose path uses
+the newly unlocked state $q_k$ as an intermediate stop.
+
+The star appears because once a run reaches $q_k$, it may return to
+$q_k$ zero, one, two, or any finite number of times before leaving.

@@ -1,5 +1,7 @@
 ---
 title: "Notebook 1: Finite-State Automata"
+pagetitle: "NB 1: Finite-State Automata — VVT UniUD"
+description: "Interactive notebook for Verification and Validation Techniques at UniUD. Explore alphabets, finite words, languages, and deterministic finite automata (DFAs) hands-on."
 format:
   html:
     toc: true

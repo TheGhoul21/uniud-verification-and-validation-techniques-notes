@@ -5,9 +5,27 @@ project:
     - "*.qmd"
     - "notebooks/*.qmd"
     - "!docs/"
+  resources:
+    - "CNAME"
+    - "privacy-policy.html"
 
 website:
   title: "Verification and Validation Techniques — UniUD"
+  site-url: "https://vvt.aliteia.com"
+  description: "Interactive companion for the Verification and Validation Techniques course at Università degli Studi di Udine — browser-based automata visualizations covering finite-state automata, NFA-to-DFA subset construction, epsilon-closure, product automata, and reachability fixpoint algorithms."
+  favicon: images/favicon.svg
+  open-graph:
+    site-name: "Verification and Validation Techniques — UniUD"
+    locale: en_US
+  twitter-card: true
+  google-analytics: "G-PLACEHOLDER"
+  cookie-consent:
+    type: express
+    style: headline
+    palette: dark
+    policy-url: "/privacy-policy.html"
+  page-footer:
+    center: "[Privacy & Cookies](/privacy-policy.html)"
   navbar:
     left:
       - text: Home
@@ -26,6 +44,8 @@ website:
             href: notebooks/05-product-automaton.qmd
           - text: "NB 6 — Reachability Fixpoint"
             href: notebooks/06-reachability-fixpoint.qmd
+          - text: "NB 7 — Kleene State Elimination"
+            href: notebooks/07-kleene-state-elimination.qmd
 
 format:
   html:

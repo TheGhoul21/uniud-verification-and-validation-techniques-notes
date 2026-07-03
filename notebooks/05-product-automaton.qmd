@@ -1,5 +1,7 @@
 ---
 title: "Notebook 5: Product Automaton — Intersection of DFAs"
+pagetitle: "NB 5: Product Automaton — VVT UniUD"
+description: "Interactive notebook on the product automaton construction for computing the intersection of two DFAs. Visualizes the cross-product state space step by step, from the VVT course at UniUD."
 format:
   html:
     toc: true
