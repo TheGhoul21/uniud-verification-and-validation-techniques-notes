@@ -1,5 +1,7 @@
 ---
 title: "Notebook 2: NFA Reachable States"
+pagetitle: "NB 2: NFA Reachable States — VVT UniUD"
+description: "Step-by-step interactive visualization of NFA reachable state computation. Trace the active set of states for each input prefix using the blackboard example from the VVT course at UniUD."
 format:
   html:
     toc: true

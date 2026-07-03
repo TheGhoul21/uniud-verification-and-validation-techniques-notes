@@ -1,5 +1,7 @@
 ---
 title: "Notebook 3: From NFA to DFA — the Subset Construction"
+pagetitle: "NB 3: Subset Construction (NFA → DFA) — VVT UniUD"
+description: "Interactive walkthrough of the subset construction algorithm that converts any NFA into an equivalent DFA. Works through the running example from the VVT course at the University of Udine."
 format:
   html:
     toc: true

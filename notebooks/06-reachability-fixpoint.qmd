@@ -1,5 +1,7 @@
 ---
 title: "Notebook 6: Reachability Fixpoint & Decision Problems"
+pagetitle: "NB 6: Reachability Fixpoint & Decision Problems — VVT UniUD"
+description: "Interactive notebook on computing reachable states via a least-fixpoint algorithm and exploring decision problems for finite automata. From the Verification and Validation Techniques course at UniUD."
 format:
   html:
     toc: true

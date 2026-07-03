@@ -1,5 +1,7 @@
 ---
 title: "Notebook 4: Epsilon-Closure and Epsilon-Removal"
+pagetitle: "NB 4: ε-Closure & ε-Removal — VVT UniUD"
+description: "Interactive notebook on epsilon-closure computation and epsilon-removal from NFAs. Covers the full algorithm to convert ε-NFAs into plain NFAs, from the VVT course at UniUD."
 format:
   html:
     toc: true
