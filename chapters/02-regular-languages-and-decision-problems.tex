@@ -673,7 +673,7 @@ an automaton-recognizable language.
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
-  node distance=2.1cm,
+  node distance=2.8cm,
   state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
   arr/.style={-Stealth, thick},
 ]
@@ -681,14 +681,14 @@ an automaton-recognizable language.
   \node[state, right=of qi] (qk) {$q_k$};
   \node[state, right=of qk] (qj) {$q_j$};
 
-  \draw[arr, bend left=35] (qi) to
-    node[above, font=\small] {$R_{i,j}^{k-1}$} (qj);
-  \draw[arr] (qi) -- node[below, font=\small] {$R_{i,k}^{k-1}$} (qk);
-  \draw[arr, loop above, orange!70!black] (qk) to
-    node[above, font=\small] {$(R_{k,k}^{k-1})^*$} (qk);
-  \draw[arr] (qk) -- node[below, font=\small] {$R_{k,j}^{k-1}$} (qj);
+  \draw[arr, bend left=42] (qi) to
+    node[above=6pt, font=\small] {$R_{i,j}^{k-1}$} (qj);
+  \draw[arr] (qi) -- node[above, font=\small] {$R_{i,k}^{k-1}$} (qk);
+  \draw[arr] (qk) -- node[above, font=\small] {$R_{k,j}^{k-1}$} (qj);
+  \draw[arr, loop below, orange!70!black, looseness=8] (qk) to
+    node[below=4pt, font=\small] {$(R_{k,k}^{k-1})^*$} (qk);
 
-  \node[below=1.0cm of qk, font=\small, align=center]
+  \node[below=1.8cm of qk, font=\small, align=center]
     {Either avoid $q_k$, or enter it, make finitely many complete
     returns, and exit.};
 \end{tikzpicture}
