@@ -20,8 +20,8 @@ website:
   twitter-card: true
   google-analytics: "G-V5T4WKNT8G"
   cookie-consent:
-    type: express
-    style: headline
+    type: implied
+    style: simple
     palette: dark
     policy-url: "/privacy-policy.html"
   page-footer:
