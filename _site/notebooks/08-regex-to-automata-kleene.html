@@ -270,7 +270,12 @@ window.Quarto = {
 <h1>Regex to Automaton &amp; Kleene’s Theorem</h1>
 <p>This notebook explores the complete cycle of <strong>Kleene’s Theorem</strong>. You can type any Regular Expression. The notebook will automatically compile it into a Non-Deterministic Finite Automaton (NFA) using <strong>Thompson’s Construction</strong>, number its states, and allow you to explore the <span class="math inline">\(R_{i,j}^k\)</span> sub-languages used in the state elimination method.</p>
 <p>Remember that <span class="math inline">\(R_{i,j}^k\)</span> represents the language (set of words) that takes the automaton from state <span class="math inline">\(q_i\)</span> to <span class="math inline">\(q_j\)</span> passing <strong>only</strong> through intermediate states with index <span class="math inline">\(\le k\)</span>.</p>
-<p>The key recurrence is: [ R_{i,j}^k = R_{i,j}^{k-1} + R_{i,k}<sup>{k-1}(R_{k,k}</sup>{k-1})^*R_{k,j}^{k-1} ]</p>
+<p>The key recurrence is: <span class="math display">\[
+  R_{i,j}^k =
+  R_{i,j}^{k-1}
+  +
+  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}
+\]</span></p>
 <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
 <style>

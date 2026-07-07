@@ -27,12 +27,12 @@ $R_{i,j}^k$ as the set of words that take the automaton from $q_i$ to
 $q_j$ while using only $q_1,\ldots,q_k$ as intermediate states.
 
 The key recurrence is:
-\[
+$$
   R_{i,j}^k =
   R_{i,j}^{k-1}
   +
   R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}.
-\]
+$$
 
 Read it as: either avoid the newly allowed state $q_k$, or enter $q_k$,
 loop around it any finite number of times, and then exit.

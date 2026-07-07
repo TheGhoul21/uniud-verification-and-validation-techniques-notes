@@ -272,7 +272,12 @@ window.Quarto = {
 <section id="kleenes-theorem-dfa-to-regular-expression" class="level1">
 <h1>Kleene’s Theorem: DFA to Regular Expression</h1>
 <p>This notebook focuses on the state-elimination half of Kleene’s theorem. For a DFA with numbered states <span class="math inline">\(q_1,\ldots,q_n\)</span>, the construction defines <span class="math inline">\(R_{i,j}^k\)</span> as the set of words that take the automaton from <span class="math inline">\(q_i\)</span> to <span class="math inline">\(q_j\)</span> while using only <span class="math inline">\(q_1,\ldots,q_k\)</span> as intermediate states.</p>
-<p>The key recurrence is: [ R_{i,j}^k = R_{i,j}^{k-1} + R_{i,k}<sup>{k-1}(R_{k,k}</sup>{k-1})^*R_{k,j}^{k-1}. ]</p>
+<p>The key recurrence is: <span class="math display">\[
+  R_{i,j}^k =
+  R_{i,j}^{k-1}
+  +
+  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}.
+\]</span></p>
 <p>Read it as: either avoid the newly allowed state <span class="math inline">\(q_k\)</span>, or enter <span class="math inline">\(q_k\)</span>, loop around it any finite number of times, and then exit.</p>
 <style>
 .ke-lab {
