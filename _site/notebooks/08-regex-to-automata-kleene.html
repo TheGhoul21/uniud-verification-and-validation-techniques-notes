@@ -633,7 +633,7 @@ window.Quarto = {
 
   // --- R_i,j^k LOGIC ---
   function stateNumber(state) { return Number(state.slice(1)); }
-  function labelR(i, j, k) { return "R_" + stateNumber(i) + "," + stateNumber(j) + "^" + k; }
+  function labelR(i, j, k) { return "R<sub>" + stateNumber(i) + "," + stateNumber(j) + "</sub><sup>" + k + "</sup>"; }
 
   function unionExpr(a, b) {
     if (a === EMPTY) return b;
@@ -930,7 +930,7 @@ window.Quarto = {
       const tr = document.createElement("tr");
       row.forEach((cell) => {
         const td = document.createElement("td");
-        td.textContent = cell;
+        td.innerHTML = cell;
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
@@ -966,7 +966,7 @@ window.Quarto = {
 
     const selectedText = selectedHit ? "belongs to " : "does not belong to ";
     const acceptedText = languageHit ? "accepted by the NFA" : "rejected by the NFA";
-    verdict.textContent =
+    verdict.innerHTML =
       (clean === "" ? EPS : clean) + " " + selectedText + labelR(i, j, k) +
       "; from the real initial state it is " + acceptedText + ".";
   }
@@ -977,7 +977,7 @@ window.Quarto = {
     const i = iSelect.value;
     const j = jSelect.value;
     
-    selected.textContent = labelR(i, j, k) + " = " + currentLevels[k][i][j];
+    selected.innerHTML = labelR(i, j, k) + " = " + currentLevels[k][i][j];
     renderGraph(currentAut, i, j, k);
     renderComponents(currentAut, currentLevels, i, j, k);
     renderExamples(currentAut, i, j, k);

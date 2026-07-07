@@ -604,7 +604,7 @@ window.Quarto = {
   }
 
   function labelR(i, j, k) {
-    return "R_" + stateNumber(i) + "," + stateNumber(j) + "^" + k;
+    return "R<sub>" + stateNumber(i) + "," + stateNumber(j) + "</sub><sup>" + k + "</sup>";
   }
 
   function unionExpr(a, b) {
@@ -806,7 +806,7 @@ window.Quarto = {
       const tr = document.createElement("tr");
       row.forEach((cell) => {
         const td = document.createElement("td");
-        td.textContent = cell;
+        td.innerHTML = cell;
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
@@ -853,7 +853,7 @@ window.Quarto = {
 
     const selectedText = selectedHit ? "belongs to " : "does not belong to ";
     const acceptedText = accepted ? "accepted by the DFA" : "rejected by the DFA";
-    verdict.textContent =
+    verdict.innerHTML =
       wordLabel(clean) + " " + selectedText + labelR(i, j, k) +
       "; from the real initial state it is " + acceptedText + ".";
   }
@@ -865,7 +865,7 @@ window.Quarto = {
     const j = jSelect.value;
     const levels = buildExpressions(aut);
     description.textContent = aut.description;
-    selected.textContent = labelR(i, j, k) + " = " + levels[k][i][j];
+    selected.innerHTML = labelR(i, j, k) + " = " + levels[k][i][j];
     renderGraph(aut, i, j, k);
     renderComponents(aut, levels, i, j, k);
     renderExamples(aut, i, j, k);
