@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<meta name="description" content="Learn the basics of Linear Temporal Logic (LTL). Explore syntax, semantics, and how temporal operators are used in formal verification. Lecture notes companion.">
 
-<title>Model Checking Algorithms and Basics — Formal Verification | VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<title>Linear Temporal Logic (LTL) — Formal Verification | VVT UniUD – Verification and Validation Techniques — UniUD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -103,13 +103,13 @@ cookieconsent.run({
 <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
 
 
-<meta property="og:title" content="Model Checking Algorithms and Basics — Formal Verification | VVT UniUD">
-<meta property="og:description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<meta property="og:title" content="Linear Temporal Logic (LTL) — Formal Verification | VVT UniUD">
+<meta property="og:description" content="Learn the basics of Linear Temporal Logic (LTL). Explore syntax, semantics, and how temporal operators are used in formal verification. Lecture notes companion.">
 <meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
 <meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
 <meta property="og:locale" content="en_US">
-<meta name="twitter:title" content="Model Checking Algorithms and Basics — Formal Verification | VVT UniUD">
-<meta name="twitter:description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<meta name="twitter:title" content="Linear Temporal Logic (LTL) — Formal Verification | VVT UniUD">
+<meta name="twitter:description" content="Learn the basics of Linear Temporal Logic (LTL). Explore syntax, semantics, and how temporal operators are used in formal verification. Lecture notes companion.">
 <meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -169,12 +169,16 @@ cookieconsent.run({
  <span class="dropdown-text">7. Kleene State Elimination</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../notebooks/08-ltl.html">
- <span class="dropdown-text">8. Linear Temporal Logic (LTL)</span></a>
+    <a class="dropdown-item" href="../notebooks/08-regex-to-automata-kleene.html">
+ <span class="dropdown-text">8. Regex to Automaton (Kleene)</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../notebooks/09-model-checking.html">
- <span class="dropdown-text">9. Model Checking Basics</span></a>
+    <a class="dropdown-item" href="../notebooks/09-ltl.html">
+ <span class="dropdown-text">9. Linear Temporal Logic (LTL)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/10-model-checking.html">
+ <span class="dropdown-text">10. Model Checking Basics</span></a>
   </li>  
     </ul>
   </li>
@@ -194,9 +198,9 @@ cookieconsent.run({
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#model-checking-basics" id="toc-model-checking-basics" class="nav-link active" data-scroll-target="#model-checking-basics">Model Checking Basics</a>
+  <li><a href="#linear-temporal-logic-ltl" id="toc-linear-temporal-logic-ltl" class="nav-link active" data-scroll-target="#linear-temporal-logic-ltl">Linear Temporal Logic (LTL)</a>
   <ul class="collapse">
-  <li><a href="#course-materials-for-model-checking" id="toc-course-materials-for-model-checking" class="nav-link" data-scroll-target="#course-materials-for-model-checking">Course Materials for Model Checking</a></li>
+  <li><a href="#course-materials-for-ltl" id="toc-course-materials-for-ltl" class="nav-link" data-scroll-target="#course-materials-for-ltl">Course Materials for LTL</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -206,12 +210,12 @@ cookieconsent.run({
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Notebook 9: Model Checking Basics</h1>
+<h1 class="title">Notebook 8: Linear Temporal Logic (LTL)</h1>
 </div>
 
 <div>
   <div class="description">
-    Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.
+    Learn the basics of Linear Temporal Logic (LTL). Explore syntax, semantics, and how temporal operators are used in formal verification. Lecture notes companion.
   </div>
 </div>
 
@@ -232,27 +236,28 @@ cookieconsent.run({
 {
   "@context": "https://schema.org",
   "@type": "LearningResource",
-  "name": "Model Checking Basics",
+  "name": "Linear Temporal Logic (LTL)",
   "learningResourceType": "Lecture Notes"
 }
 </script>
-<section id="model-checking-basics" class="level1">
-<h1>Model Checking Basics</h1>
-<p><strong>Model Checking</strong> is the core automated technique studied in Verification and Validation. It is the algorithmic process of determining whether a given finite-state model of a system meets a given formal specification (typically expressed in temporal logic like LTL or CTL).</p>
-<section id="course-materials-for-model-checking" class="level2">
-<h2 class="anchored" data-anchor-id="course-materials-for-model-checking">Course Materials for Model Checking</h2>
-<p>The theoretical foundations of model checking algorithms, state-space explosion problems, and practical approaches are detailed in the course notes.</p>
-<section id="key-concepts-covered" class="level3">
-<h3 class="anchored" data-anchor-id="key-concepts-covered">Key concepts covered:</h3>
+<section id="linear-temporal-logic-ltl" class="level1">
+<h1>Linear Temporal Logic (LTL)</h1>
+<p>Welcome to the section on <strong>Linear Temporal Logic (LTL)</strong>.</p>
+<p>While the first part of the course focuses on automata theory as a foundation, formal verification relies heavily on temporal logics to express the properties that systems must satisfy over time. LTL allows us to state requirements such as “eventually a request will be granted” or “a process never enters a critical section twice concurrently”.</p>
+<section id="course-materials-for-ltl" class="level2">
+<h2 class="anchored" data-anchor-id="course-materials-for-ltl">Course Materials for LTL</h2>
+<p>Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.</p>
+<section id="what-you-will-learn-in-this-chapter" class="level3">
+<h3 class="anchored" data-anchor-id="what-you-will-learn-in-this-chapter">What you will learn in this chapter:</h3>
 <ul>
-<li><strong>Kripke Structures &amp; Transition Systems</strong>: Modeling hardware and software systems.</li>
-<li><strong>Automata-Theoretic Approach</strong>: Intersecting the system model with the negation of the specification automaton.</li>
-<li><strong>On-the-fly Verification</strong>: Checking properties without building the entire state space upfront.</li>
-<li><strong>Complexity</strong>: Why model checking is computationally hard (PSPACE-complete for LTL) and how abstractions help.</li>
+<li><strong>LTL Syntax</strong>: Propositional variables and temporal operators (Next, Until, Globally, Finally).</li>
+<li><strong>Semantics</strong>: Evaluating LTL formulas over infinite traces (words).</li>
+<li><strong>Equivalences</strong>: Standard logical equivalences and how to rewrite formulas.</li>
+<li><strong>Verification</strong>: How LTL formulas translate into automata for model checking.</li>
 </ul>
 <blockquote class="blockquote">
 <p>[!TIP] <strong>Read the full chapter in the PDF</strong></p>
-<p>For a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes. <br><br> <a href="../main.pdf"><strong>Download the Full Lecture Notes (PDF)</strong></a></p>
+<p>The comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF. <br><br> <a href="../main.pdf"><strong>Download the Full Lecture Notes (PDF)</strong></a></p>
 </blockquote>
 
 

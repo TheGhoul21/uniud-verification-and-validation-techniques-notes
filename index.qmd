@@ -91,13 +91,18 @@ format:
         <span class="card-title">Kleene State Elimination</span>
         <span class="card-desc">Convert any DFA to a regular expression via state elimination (Kleene's theorem)</span>
       </a>
-      <a class="algo-card" href="notebooks/08-ltl.qmd">
+      <a class="algo-card" href="notebooks/08-regex-to-automata-kleene.qmd">
         <span class="card-num">NB 8</span>
+        <span class="card-title">Regex to Automaton (Kleene)</span>
+        <span class="card-desc">Dynamically generate NFAs from Regex and trace R_i,j^k paths</span>
+      </a>
+      <a class="algo-card" href="notebooks/09-ltl.qmd">
+        <span class="card-num">NB 9</span>
         <span class="card-title">Linear Temporal Logic (LTL)</span>
         <span class="card-desc">Syntax and semantics of temporal logic for formal verification</span>
       </a>
-      <a class="algo-card" href="notebooks/09-model-checking.qmd">
-        <span class="card-num">NB 9</span>
+      <a class="algo-card" href="notebooks/10-model-checking.qmd">
+        <span class="card-num">NB 10</span>
         <span class="card-title">Model Checking Basics</span>
         <span class="card-desc">Algorithmic verification of systems against temporal properties</span>
       </a>
