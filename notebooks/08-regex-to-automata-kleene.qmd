@@ -27,12 +27,12 @@ You can type any Regular Expression. The notebook will automatically compile it 
 Remember that $R_{i,j}^k$ represents the language (set of words) that takes the automaton from state $q_i$ to $q_j$ passing **only** through intermediate states with index $\le k$.
 
 The key recurrence is:
-\[
+$$
   R_{i,j}^k =
   R_{i,j}^{k-1}
   +
   R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}
-\]
+$$
 
 ```{=html}
 <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
