@@ -1007,7 +1007,9 @@ intersection is the DFA with:
 
 The first component remembers where $A_1$ is; the second remembers where
 $A_2$ is.  A word is accepted exactly when both components end in
-accepting states.
+accepting states.  \Cref{fig:product-grid} pictures the state space:
+one row per state of $A_1$, one column per state of $A_2$, and a
+product state at every intersection.
 
 The word \emph{end} is doing real work here.  For finite words, both
 automata consume exactly the same input positions and there is one final
@@ -1021,14 +1023,11 @@ longer enough.
 \centering
 \begin{tikzpicture}[
   cell/.style={draw, minimum width=18mm, minimum height=10mm, align=center},
-  good/.style={fill=teal!12},
-  bad/.style={fill=gray!8},
 ]
   \matrix (m) [matrix of nodes, nodes={cell}, row sep=-\pgflinewidth, column sep=-\pgflinewidth] {
     $p_0,r_0$ & $p_0,r_1$ \\
     $p_1,r_0$ & $p_1,r_1$ \\
   };
-  \node[draw, rounded corners=3pt, fit=(m-2-1), inner sep=2pt, fill=teal!12] {};
   \node[below=6mm of m, font=\small] {A product state stores one state from each automaton.};
 \end{tikzpicture}
 \caption{The state space of a product automaton is a Cartesian product.}
