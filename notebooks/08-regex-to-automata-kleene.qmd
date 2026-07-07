@@ -287,9 +287,66 @@ $$
   margin: 20px 0 6px;
 }
 
+/* ── Examples / counterexamples grid ── */
+.ke8-examples-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 6px;
+}
+.ke8-examples-label {
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.ke8-examples-label--yes {
+  background: #e6f9f2;
+  color: var(--c-green);
+}
+.ke8-examples-label--no {
+  background: #fdecea;
+  color: var(--c-red);
+}
+.ke8-word--counter {
+  border-color: var(--c-red);
+  background: #fdecea;
+  color: var(--c-red);
+}
+
+/* ── Context note (R=L(NFA) banner) ── */
+.ke8-context-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+.ke8-context-note.is-full {
+  background: #e6f9f2;
+  border: 1.5px solid var(--c-green);
+  color: #0d6b45;
+}
+.ke8-context-note.is-partial {
+  background: #fff8e6;
+  border: 1.5px solid #e9c46a;
+  color: #7a5800;
+}
+.ke8-context-note .cn-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 @media (max-width: 700px) {
   .ke8-row { flex-direction: column; }
   #ke8-graph-container { height: 320px; }
+  .ke8-examples-grid { grid-template-columns: 1fr; }
 }
 </style>
 
@@ -369,6 +426,9 @@ $$
     <p class="ke8-sec">Resulting expression R<sub><span id="lbl-i">?</span>,<span id="lbl-j">?</span></sub><sup><span id="lbl-k">?</span></sup></p>
     <div class="ke8-expr" id="ke8-selected"></div>
 
+    <!-- live contextual note -->
+    <div id="ke8-context-note"></div>
+
     <p class="ke8-sec">Recurrence breakdown (how this R was built)</p>
     <div id="ke8-components"></div>
   </div>
@@ -384,7 +444,17 @@ $$
     </div>
 
     <p class="ke8-sec">Short words in R<sub><span id="lbl-i2">?</span>,<span id="lbl-j2">?</span></sub><sup><span id="lbl-k2">?</span></sup></p>
-    <div class="ke8-words" id="ke8-examples"></div>
+
+    <div class="ke8-examples-grid" id="ke8-examples-grid">
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--yes">✓ In R<sub><span id="lbl-i3">?</span>,<span id="lbl-j3">?</span></sub><sup><span id="lbl-k3">?</span></sup></div>
+        <div class="ke8-words" id="ke8-examples"></div>
+      </div>
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--no">✗ Accepted by NFA but <em>blocked</em> by frontier k</div>
+        <div class="ke8-words" id="ke8-counterexamples"></div>
+      </div>
+    </div>
 
     <p class="ke8-sec">Test your own word</p>
     <div class="ke8-row">
@@ -679,9 +749,9 @@ $$
      UI HELPERS
   ────────────────────────────────────────── */
   function setLabels(i,j,k) {
-    ['lbl-i','lbl-i2'].forEach(id=>document.getElementById(id).textContent=sn(i));
-    ['lbl-j','lbl-j2'].forEach(id=>document.getElementById(id).textContent=sn(j));
-    ['lbl-k','lbl-k2'].forEach(id=>document.getElementById(id).textContent=k);
+    ['lbl-i','lbl-i2','lbl-i3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(i); });
+    ['lbl-j','lbl-j2','lbl-j3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(j); });
+    ['lbl-k','lbl-k2','lbl-k3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=k; });
   }
 
   function renderComponents(aut, L, i, j, k) {
@@ -713,21 +783,61 @@ $$
       </table>`;
   }
 
-  function renderExamples(aut, i, j, k) {
-    const el=document.getElementById('ke8-examples');
-    const hits=wordsUpTo(aut,4).filter(w=>inR(aut,i,j,k,w));
-    if (!hits.length) {
-      // Try to find minimum-length word in language for a hint
-      const hintWord = wordsUpTo(aut,8).find(w=>inR(aut,i,j,k,w));
-      const hint = hintWord !== undefined
-        ? ` Shortest word found: <code>${hintWord||EPS}</code> (length ${hintWord.length}).`
-        : (k < aut.states.length
-            ? ` Try increasing k to allow more intermediate states.`
-            : ` The language R<sub>${sn(i)},${sn(j)}</sub><sup>${k}</sup> may be empty.`);
-      el.innerHTML=`<span class="ke8-word empty-lang">no words of length ≤ 4</span><span style="font-size:.85rem;color:var(--c-muted);margin-left:8px">${hint}</span>`;
-      return;
+  function renderContextNote(aut, i, j, k) {
+    const el = document.getElementById('ke8-context-note');
+    const isInitial = i === aut.initial;
+    const isFinal   = aut.finals.includes(j);
+    const isFull    = k === aut.states.length;
+    if (isInitial && isFinal && isFull) {
+      el.className = 'ke8-context-note is-full';
+      el.innerHTML = `<span class="cn-icon">💡</span>
+        <span><strong>k = n = ${k}</strong>, <em>i</em> = initial state, <em>j</em> = accepting state.
+        Therefore ${lR(i,j,k)} = <strong>L(NFA)</strong>: this expression captures <em>exactly</em> the language recognised by the automaton.</span>`;
+    } else if (isFull) {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>k = n (all intermediates allowed), but i or j is not the initial/accepting state pair.
+        ${lR(i,j,k)} describes paths <strong>between ${i} and ${j}</strong>, not the full language.</span>`;
+    } else {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>With <strong>k = ${k} &lt; n = ${aut.states.length}</strong>, only paths through states
+        q<sub>1</sub>–q<sub>${k}</sub> are counted.
+        Raise k to unlock more paths—at k = n you recover the full language (if i = initial, j = final).</span>`;
     }
-    el.innerHTML=hits.map(w=>`<span class="ke8-word">${w||EPS}</span>`).join('');
+  }
+
+  function renderExamples(aut, i, j, k) {
+    const exEl=document.getElementById('ke8-examples');
+    const ctEl=document.getElementById('ke8-counterexamples');
+    const allShort = wordsUpTo(aut, 4);
+
+    // examples: in R_{i,j}^k
+    const hits = allShort.filter(w => inR(aut, i, j, k, w));
+    if (!hits.length) {
+      const hintWord = wordsUpTo(aut, 8).find(w => inR(aut, i, j, k, w));
+      const hint = hintWord !== undefined
+        ? `Shortest: <code>${hintWord||EPS}</code> (length ${hintWord.length})`
+        : (k < aut.states.length ? `Try raising k` : `Language may be ∅`);
+      exEl.innerHTML = `<span class="ke8-word empty-lang">none ≤ 4</span><span style="font-size:.82rem;color:var(--c-muted);margin-left:8px">${hint}</span>`;
+    } else {
+      exEl.innerHTML = hits.map(w=>`<span class="ke8-word">${w||EPS}</span>`).join('');
+    }
+
+    // counterexamples: accepted by NFA (from initial, full k) but NOT in R_{i,j}^k
+    const fullK = aut.states.length;
+    const counterHits = allShort.filter(w =>
+      acceptsNFA(aut, w) &&
+      !inR(aut, i, j, k, w)
+    ).slice(0, 10); // cap at 10
+    if (!counterHits.length) {
+      const msg = k === fullK && i === aut.initial && aut.finals.includes(j)
+        ? `<span class="ke8-word" style="background:#e6f9f2;border-color:var(--c-green);color:#0d6b45">none — R = L(NFA) ✔</span>`
+        : `<span style="font-size:.82rem;color:var(--c-muted)">no short counterexamples found</span>`;
+      ctEl.innerHTML = msg;
+    } else {
+      ctEl.innerHTML = counterHits.map(w=>`<span class="ke8-word ke8-word--counter">${w||EPS}</span>`).join('');
+    }
   }
 
   function renderVerdict(aut, i, j, k) {
@@ -774,6 +884,7 @@ $$
     const j=document.getElementById('ke8-j').value;
     setLabels(i,j,k);
     document.getElementById('ke8-selected').innerHTML = `<span class="lhs">${lR(i,j,k)}</span> = ${currentL[k][i][j]}`;
+    renderContextNote(currentAut, i, j, k);
     renderGraph(currentAut, i, j, k);
     renderComponents(currentAut, currentL, i, j, k);
     renderExamples(currentAut, i, j, k);
