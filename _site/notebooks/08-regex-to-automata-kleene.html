@@ -607,6 +607,10 @@ window.Quarto = {
         <label for="ke8-j">End j</label>
         <select id="ke8-j"></select>
       </div>
+      <div class="ke8-field" style="justify-content:flex-end">
+        <label style="opacity:0">reset</label>
+        <button id="ke8-reset" onclick="ke8Reset()" style="border:1.5px solid var(--c-border);border-radius:8px;background:var(--c-surface);padding:9px 14px;font:600 .9rem system-ui,sans-serif;cursor:pointer;color:var(--c-muted);transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">↺ Reset defaults</button>
+      </div>
     </div>
 
     <p class="ke8-sec">Resulting expression R<sub><span id="lbl-i">?</span>,<span id="lbl-j">?</span></sub><sup><span id="lbl-k">?</span></sup></p>
@@ -622,7 +626,7 @@ window.Quarto = {
       <div class="ke8-step-num">4</div>
       <div>
         <div class="ke8-step-title">Witness words &amp; word test</div>
-        <div class="ke8-step-subtitle">Words of length ≤ 4 that belong to the selected R, plus a custom word tester.</div>
+        <div class="ke8-step-subtitle">Short words (length ≤ 4) belonging to the selected R. If the shortest word in R is longer than 4, a hint will suggest it. Below, test any word you like.</div>
       </div>
     </div>
 
@@ -847,6 +851,22 @@ window.Quarto = {
   }
 
   /* ──────────────────────────────────────────
+     RESET BUTTON
+  ────────────────────────────────────────── */
+  function resetDefaults() {
+    if (!currentAut) return;
+    blocked=true;
+    const ks=document.getElementById('ke8-k');
+    const is=document.getElementById('ke8-i');
+    const js=document.getElementById('ke8-j');
+    ks.selectedIndex=currentAut.states.length;
+    is.selectedIndex=currentAut.states.indexOf(currentAut.initial);
+    js.selectedIndex=currentAut.states.indexOf(currentAut.finals[0]);
+    blocked=false;
+    render();
+  }
+
+  /* ──────────────────────────────────────────
      VIS-NETWORK GRAPH
   ────────────────────────────────────────── */
   let network=null;
@@ -944,7 +964,14 @@ window.Quarto = {
     const el=document.getElementById('ke8-examples');
     const hits=wordsUpTo(aut,4).filter(w=>inR(aut,i,j,k,w));
     if (!hits.length) {
-      el.innerHTML=`<span class="ke8-word empty-lang">no words of length ≤ 4</span>`;
+      // Try to find minimum-length word in language for a hint
+      const hintWord = wordsUpTo(aut,8).find(w=>inR(aut,i,j,k,w));
+      const hint = hintWord !== undefined
+        ? ` Shortest word found: <code>${hintWord||EPS}</code> (length ${hintWord.length}).`
+        : (k < aut.states.length
+            ? ` Try increasing k to allow more intermediate states.`
+            : ` The language R<sub>${sn(i)},${sn(j)}</sub><sup>${k}</sup> may be empty.`);
+      el.innerHTML=`<span class="ke8-word empty-lang">no words of length ≤ 4</span><span style="font-size:.85rem;color:var(--c-muted);margin-left:8px">${hint}</span>`;
       return;
     }
     el.innerHTML=hits.map(w=>`<span class="ke8-word">${w||EPS}</span>`).join('');
@@ -976,11 +1003,14 @@ window.Quarto = {
     const ks=document.getElementById('ke8-k');
     const is=document.getElementById('ke8-i');
     const js=document.getElementById('ke8-j');
-    ks.innerHTML=''; for(let k=0;k<=aut.states.length;k++) { const o=document.createElement('option'); o.value=k; o.textContent=k; ks.appendChild(o); }
-    ks.value=aut.states.length;
+    // rebuild options
+    ks.innerHTML='';
+    for(let k=0;k<=aut.states.length;k++) { const o=document.createElement('option'); o.value=k; o.textContent=k; ks.appendChild(o); }
+    // force selectedIndex to avoid browser state restoration glitch
+    ks.selectedIndex=aut.states.length;
     [is,js].forEach(sel=>{ sel.innerHTML=''; aut.states.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); });
-    is.value=aut.initial;
-    js.value=aut.finals[0];
+    is.selectedIndex=aut.states.indexOf(aut.initial);
+    js.selectedIndex=aut.states.indexOf(aut.finals[0]);
     blocked=false;
   }
 
@@ -1016,6 +1046,9 @@ window.Quarto = {
   document.getElementById('ke8-regex').addEventListener('input', update);
   ['ke8-k','ke8-i','ke8-j'].forEach(id=>document.getElementById(id).addEventListener('change', render));
   document.getElementById('ke8-word').addEventListener('input', ()=>{ if(currentAut) renderVerdict(currentAut, document.getElementById('ke8-i').value, document.getElementById('ke8-j').value, +document.getElementById('ke8-k').value); });
+
+  // expose reset to global scope for the inline onclick
+  window.ke8Reset = resetDefaults;
 
   update();
 })();
