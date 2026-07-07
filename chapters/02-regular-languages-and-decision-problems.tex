@@ -730,6 +730,44 @@ determinize, and obtain a DFA.  Hence every regular expression denotes
 an automaton-recognizable language.
 \end{proof}
 
+\begin{formaldetails}[Same construction, read from the goal backward]
+The automaton-to-expression half above builds $R_{i,j}^k$ upward from
+$k=0$ and only at the very end assembles
+$L(\mathcal{A})=\bigcup_{q_j\in F}R_{1,j}^n$.  It is worth re-running the
+same steps starting from that target, because the target is exactly what
+forces every design choice on the way there.
+
+We want a regular expression for $L(\mathcal{A})$, i.e.\ for the words
+that take $q_1$ to some $q_j\in F$ with no restriction on which states a
+run may pass through.  "No restriction on intermediate states" is not,
+by itself, something we can peel apart by induction---there is nothing
+smaller to induct on.  So we ask: what is the smallest change that turns
+this into an inductive problem?  Answer: index the restriction by a
+number $k$ that says how many of the states $q_1,\ldots,q_k$ may appear
+in the middle of a run.  $R_{i,j}^0$ (no state allowed) is then something
+we already know how to write down, a single symbol or $\varepsilon$; and
+$R_{i,j}^n$ (every state allowed, hence no real restriction) is exactly
+the object the goal asks for.  The parameter $k$ is not part of the
+question we started with---it is the bookkeeping device the goal forces
+us to invent so that a recursion from $0$ to $n$ becomes possible at all.
+
+Once $k$ is in place, the recurrence follows from asking one question at
+each step: what changes when $q_k$ becomes an allowed intermediate stop
+that was not allowed at stage $k-1$?  A run either still avoids $q_k$
+entirely, which is the case already covered by $R_{i,j}^{k-1}$, or it
+visits $q_k$ at least once, in which case splitting at every visit gives
+an entry leg, any finite number of $q_k$-to-$q_k$ loops, and an exit leg.
+This is exactly
+$R_{i,j}^k=R_{i,j}^{k-1}+R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}$,
+the same formula as before.
+
+So both readings pass through the identical sequence of definitions and
+land on the identical recurrence; what differs is only which question
+motivates $k$ first. This second entry point is useful if the step "why
+introduce $k$ at all" felt unmotivated on a first pass---it is a second
+way in, not a competing proof.
+\end{formaldetails}
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[

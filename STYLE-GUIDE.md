@@ -45,6 +45,33 @@ To maintain high quality and pedagogical cohesion, every chapter must follow a s
   invariant that makes it correct.
 - For algorithms, state the invariant and explain initialization, preservation,
   and termination.
+- Prefer **example-led proofs** for technical constructions. Before the formal
+  definition or recurrence, state what object is already given, what must be
+  shown, and what bookkeeping device will make the proof manageable. Then show
+  a small visible example that uses the same notation as the proof.
+- Treat running examples as part of the proof, not as decoration after it. A
+  good proof should let the reader see one concrete instance evolve through the
+  same stages as the general argument: base case, induction step, invariant, or
+  final extraction.
+- When a proof introduces indexed objects such as `$R_{i,j}^k$`, `$S_i$`, or
+  `$X_m$`, first explain the operational meaning of each index in prose. If
+  possible, compute two or three representative instances before giving the
+  general formula.
+- When you believe a construction admits a genuinely different, non-competing
+  way in (e.g. deriving the machinery from the target backward instead of
+  building it upward from the base case, as in the two readings of the
+  $R_{i,j}^k$ construction in `subsec:kleene-theorem`), do not treat it as a
+  replacement for the lecture's derivation. Keep the lecture's order as the
+  primary proof, and add the alternative as a `formaldetails` box placed right
+  after the proof, titled to describe the specific axis of the alternative
+  (not a fixed label like "top-down"---that phrasing is specific to this one
+  case and will not fit every alternative reading). State explicitly, in the
+  box, that both readings land on the same objects and formulas, and that the
+  second is an optional second entry point, not a rival argument.
+- Reserve this for cases where the alternative reading is substantial enough
+  to need its own paragraph. If it only reframes the opening sentence of the
+  proof (stating the goal before the construction), fold it directly into the
+  proof's own introduction instead of adding a box.
 
 ## Examples
 
