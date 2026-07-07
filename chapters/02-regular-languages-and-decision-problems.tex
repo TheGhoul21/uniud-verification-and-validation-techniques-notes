@@ -662,6 +662,35 @@ around it any finite number of times, and exit.  This yields the recurrence
 \]
 which is regular by the induction hypothesis.
 
+\begin{figure}[htb]
+\centering
+\begin{tikzpicture}[
+  node distance=2.2cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (qi) {$q_i$};
+  \node[state, right=of qi] (qk) {$q_k$};
+  \node[state, right=of qk] (qj) {$q_j$};
+
+  \draw[arr, bend left=42] (qi) to
+    node[above=5pt, font=\small] {$R_{i,j}^{k-1}$} (qj);
+  \draw[arr] (qi) -- node[above, font=\small] {$R_{i,k}^{k-1}$} (qk);
+  \draw[arr] (qk) -- node[above, font=\small] {$R_{k,j}^{k-1}$} (qj);
+  \draw[arr, loop below, orange!70!black, looseness=8] (qk) to
+    node[below=3pt, font=\small] {$(R_{k,k}^{k-1})^*$} (qk);
+
+  \node[below=1.3cm of qk, font=\small, align=center]
+    {Either avoid $q_k$, or enter it, make finitely many complete
+    returns, and exit.};
+\end{tikzpicture}
+\caption{The inductive split in the automaton-to-expression direction
+of Kleene's theorem.  Allowing $q_k$ as a new intermediate state adds
+exactly the paths that enter $q_k$, repeat a $q_k$-to-$q_k$ block any
+finite number of times, and then leave.}
+\label{fig:kleene-rijk-split}
+\end{figure}
+
 This is the exact point where Kleene star is forced on us.  If a run
 passes through $q_k$ once, there is no middle loop.  If it passes through
 $q_k$ twice, there is one $q_k$-to-$q_k$ block.  If it passes through
@@ -722,6 +751,86 @@ $s$, with disjoint state sets.
   one $\varepsilon$-move to the new exit to stop.  \Cref{fig:regex-star}
   shows the wiring.
 \end{itemize}
+
+\begin{figure}[htb]
+\centering
+\begin{tikzpicture}[
+  node distance=1.3cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (i) {$i$};
+  \node[state, above right=0.6cm and 1.3cm of i] (ir) {$i_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
+  \node[state, below right=0.6cm and 1.3cm of i] (is) {$i_s$};
+  \node[state, right=of is] (fs) {$f_s$};
+  \node[acc, right=3.0cm of i] (f) {$f$};
+  \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
+  \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
+\end{tikzpicture}
+\caption{The $\varepsilon$-NFA construction for union $r+s$: a fresh
+initial state branches into the two sub-automata via $\varepsilon$-moves
+(orange), and both old exits feed into a fresh common accepting exit.}
+\label{fig:regex-union}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\begin{tikzpicture}[
+  node distance=1.5cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (ir) {$i_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
+  \node[state, right=of fr] (is) {$i_s$};
+  \node[acc, right=of is] (fs) {$f_s$};
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, thick] (fr) -- node[above, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \node[below=6mm of fr, font=\small, align=center]
+    {The accepting exit of the first automaton is spliced to the\\
+     entry of the second by a single $\varepsilon$-move (in orange).};
+\end{tikzpicture}
+\caption{The $\varepsilon$-NFA construction for concatenation in the
+regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
+the entry of $s$ are wired together by an $\varepsilon$-move, and the
+exit $f_s$ becomes the accepting exit of the combined automaton.}
+\label{fig:regex-concat}
+\end{figure}
+
+\begin{figure}[htb]
+\centering
+\begin{tikzpicture}[
+  node distance=1.3cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (i) {$i$};
+  \node[state, right=of i] (ir) {$i_r$};
+  \node[state, right=1.8cm of ir] (fr) {$f_r$};
+  \node[acc, right=of fr] (f) {$f$};
+  \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black, bend left=35] (i) to node[above, font=\small] {$\varepsilon$} (f);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
+\end{tikzpicture}
+\caption{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
+fresh initial state $i$ can either jump directly to the accepting exit
+$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
+copy of $r$, the automaton either loops back for another repetition or
+exits to $f$.}
+\label{fig:regex-star}
+\end{figure}
+
 Each construction mirrors exactly the semantic operation: choose a
 branch for union, run one machine after the other for concatenation, and
 repeat any finite number of times for star.  By
@@ -767,114 +876,6 @@ motivates $k$ first. This second entry point is useful if the step "why
 introduce $k$ at all" felt unmotivated on a first pass---it is a second
 way in, not a competing proof.
 \end{formaldetails}
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=2.8cm,
-  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (qi) {$q_i$};
-  \node[state, right=of qi] (qk) {$q_k$};
-  \node[state, right=of qk] (qj) {$q_j$};
-
-  \draw[arr, bend left=42] (qi) to
-    node[above=6pt, font=\small] {$R_{i,j}^{k-1}$} (qj);
-  \draw[arr] (qi) -- node[above, font=\small] {$R_{i,k}^{k-1}$} (qk);
-  \draw[arr] (qk) -- node[above, font=\small] {$R_{k,j}^{k-1}$} (qj);
-  \draw[arr, loop below, orange!70!black, looseness=8] (qk) to
-    node[below=4pt, font=\small] {$(R_{k,k}^{k-1})^*$} (qk);
-
-  \node[below=1.8cm of qk, font=\small, align=center]
-    {Either avoid $q_k$, or enter it, make finitely many complete
-    returns, and exit.};
-\end{tikzpicture}
-\caption{The inductive split in the automaton-to-expression direction
-of Kleene's theorem.  Allowing $q_k$ as a new intermediate state adds
-exactly the paths that enter $q_k$, repeat a $q_k$-to-$q_k$ block any
-finite number of times, and then leave.}
-\label{fig:kleene-rijk-split}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=1.9cm,
-  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (ir) {$i_r$};
-  \node[state, right=of ir] (fr) {$f_r$};
-  \node[state, right=of fr] (is) {$i_s$};
-  \node[acc, right=of is] (fs) {$f_s$};
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr, orange!70!black, thick] (fr) -- node[above, font=\small] {$\varepsilon$} (is);
-  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
-  \node[below=8mm of fr, font=\small, align=center]
-    {The accepting exit of the first automaton is spliced to the\\
-     entry of the second by a single $\varepsilon$-move (in orange).};
-\end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for concatenation in the
-regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
-the entry of $s$ are wired together by an $\varepsilon$-move, and the
-exit $f_s$ becomes the accepting exit of the combined automaton.}
-\label{fig:regex-concat}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=1.6cm,
-  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (i) {$i$};
-  \node[state, above right=0.8cm and 1.6cm of i] (ir) {$i_r$};
-  \node[state, right=of ir] (fr) {$f_r$};
-  \node[state, below right=0.8cm and 1.6cm of i] (is) {$i_s$};
-  \node[state, right=of is] (fs) {$f_s$};
-  \node[acc, right=3.8cm of i] (f) {$f$};
-  \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
-  \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
-  \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
-\end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for union $r+s$: a fresh
-initial state branches into the two sub-automata via $\varepsilon$-moves
-(orange), and both old exits feed into a fresh common accepting exit.}
-\label{fig:regex-union}
-\end{figure}
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=1.6cm,
-  state/.style={circle, draw, thick, minimum size=8mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=8mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (i) {$i$};
-  \node[state, right=of i] (ir) {$i_r$};
-  \node[state, right=2.2cm of ir] (fr) {$f_r$};
-  \node[acc, right=of fr] (f) {$f$};
-  \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black, bend left=35] (i) to node[above, font=\small] {$\varepsilon$} (f);
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
-\end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
-fresh initial state $i$ can either jump directly to the accepting exit
-$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
-copy of $r$, the automaton either loops back for another repetition or
-exits to $f$.}
-\label{fig:regex-star}
-\end{figure}
 
 A useful consequence of \cref{thm:kleene}, combined with the closure
 constructions we are about to develop in \cref{sec:regular-closure}, is
