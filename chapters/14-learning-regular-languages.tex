@@ -51,14 +51,14 @@ Given a language $L \subseteq \Sigma^*$ over a finite alphabet $\Sigma$, we want
 
 \begin{definition}[Myhill--Nerode equivalence]
 \label{def:myhill-nerode-equiv}
-Let $L \subseteq \Sigma^*$ be a language. The Myhill--Nerode equivalence relation $\equiv_L \subseteq \Sigma^* \times \Sigma^*$ is defined as:
+Let $L \subseteq \Sigma^*$ be a language. The Myhill--Nerode equivalence relation $\sim_L \subseteq \Sigma^* \times \Sigma^*$ is defined as:
 \[
-  x \equiv_L y \iff \forall z \in \Sigma^*, (xz \in L \iff yz \in L)
+  x \sim_L y \iff \forall z \in \Sigma^*, (xz \in L \iff yz \in L)
 \]
-If $x \equiv_L y$, we say that $x$ and $y$ behave identically with respect to completions in $L$. We denote the equivalence class of a string $x$ by $[x]_L = \{y \in \Sigma^* \mid x \equiv_L y\}$.
+If $x \sim_L y$, we say that $x$ and $y$ behave identically with respect to completions in $L$. We denote the equivalence class of a string $x$ by $[x]_L = \{y \in \Sigma^* \mid x \sim_L y\}$.
 \end{definition}
 
-To simplify notation, we write $xz =_L yz$ to denote that $xz$ and $yz$ have the same membership status in $L$ (both inside or both outside). The relation $\equiv_L$ is an equivalence relation: it is reflexive, symmetric, and transitive. 
+To simplify notation, we write $xz =_L yz$ to denote that $xz$ and $yz$ have the same membership status in $L$ (both inside or both outside). The relation $\sim_L$ is an equivalence relation: it is reflexive, symmetric, and transitive. 
 
 \begin{intermezzo}{The Puzzle Piece Analogy}
 Imagine the universe of all strings $\Sigma^*$ painted on a canvas. The simplest classification is the trivial two-class equivalence: a blue region (strings inside $L$) and a gray region (strings outside $L$). The Myhill--Nerode equivalence classes act as \emph{puzzle pieces} that tile this canvas. 
@@ -70,38 +70,38 @@ Two critical properties govern these puzzle pieces:
 \end{enumerate}
 \end{intermezzo}
 
-Crucially, $\equiv_L$ satisfies the property of being a \emph{right congruence} (or being right invariant), perfectly matching our puzzle piece intuition.
+Crucially, $\sim_L$ is right invariant, perfectly matching our puzzle piece intuition.
 
 \begin{lemma}[Right invariance]
 \label{lem:right-invariance}
-The equivalence relation $\equiv_L$ is right invariant. That is, for all $x, y \in \Sigma^*$ and all $a \in \Sigma$:
+The equivalence relation $\sim_L$ is right invariant. That is, for all $x, y \in \Sigma^*$ and all $a \in \Sigma$:
 \[
-  x \equiv_L y \implies xa \equiv_L ya
+  x \sim_L y \implies xa \sim_L ya
 \]
 \end{lemma}
 
 \begin{proof}
-Assume $x \equiv_L y$. By Definition~\ref{def:myhill-nerode-equiv}, this means that for all $z' \in \Sigma^*$, we have $xz' \in L \iff yz' \in L$. To show $xa \equiv_L ya$, we must show that for any suffix $z \in \Sigma^*$, $xaz \in L \iff yaz \in L$. This follows immediately by choosing $z' = az$ in the assumption.
+Assume $x \sim_L y$. By Definition~\ref{def:myhill-nerode-equiv}, this means that for all $z' \in \Sigma^*$, we have $xz' \in L \iff yz' \in L$. To show $xa \sim_L ya$, we must show that for any suffix $z \in \Sigma^*$, $xaz \in L \iff yaz \in L$. This follows immediately by choosing $z' = az$ in the assumption.
 \end{proof}
 
 \subsection{Characterizing regular languages}
 
-The Myhill--Nerode theorem states that the regularity of a language is completely determined by the number of equivalence classes (the index) of the relation $\equiv_L$.
+The Myhill--Nerode theorem states that the regularity of a language is completely determined by the number of equivalence classes (the index) of the relation $\sim_L$.
 
 \begin{theorem}[Myhill--Nerode]
 \label{thm:myhill-nerode-learning}
-A language $L \subseteq \Sigma^*$ is regular if and only if the equivalence relation $\equiv_L$ has a finite index (i.e., the quotient set $\Sigma^*/{\equiv_L}$ is finite).
+A language $L \subseteq \Sigma^*$ is regular if and only if the equivalence relation $\sim_L$ has a finite index (i.e., the quotient set $\Sigma^*/{\sim_L}$ is finite).
 \end{theorem}
 
-Furthermore, if the index of $\equiv_L$ is finite and equal to $n$, then $n$ is exactly the number of states in the unique minimal deterministic finite automaton (DFA) recognizing $L$.
+Furthermore, if the index of $\sim_L$ is finite and equal to $n$, then $n$ is exactly the number of states in the unique minimal deterministic finite automaton (DFA) recognizing $L$.
 
 \begin{formaldetails}[Minimal DFA construction]
-If $\equiv_L$ has a finite index, we can construct the canonical minimal DFA $A = (Q, \Sigma, \delta, q_0, F)$ recognizing $L$ directly from the equivalence classes:
+If $\sim_L$ has a finite index, we can construct the canonical minimal DFA $A = (Q, \Sigma, \delta, q_0, F)$ recognizing $L$ directly from the equivalence classes:
 \begin{itemize}
-  \item \textbf{States}: $Q = \Sigma^*/{\equiv_L} = \{[w]_L \mid w \in \Sigma^*\}$. Since the index is finite, $Q$ is finite.
+  \item \textbf{States}: $Q = \Sigma^*/{\sim_L} = \{[w]_L \mid w \in \Sigma^*\}$. Since the index is finite, $Q$ is finite.
   \item \textbf{Initial State}: $q_0 = [\epsilon]_L$.
-  \item \textbf{Transition Function}: $\delta([w]_L, a) = [wa]_L$ for all $w \in \Sigma^*$ and $a \in \Sigma$. (This is well-defined because if $[u]_L = [v]_L$, then $u \equiv_L v$, which implies $ua \equiv_L va$ by right invariance, meaning $[ua]_L = [va]_L$).
-  \item \textbf{Final States}: $F = \{[w]_L \mid w \in L\}$. (This is well-defined because if $u \equiv_L v$ and $u \in L$, then by choosing the empty suffix $z = \epsilon$, we have $u\epsilon \in L \iff v\epsilon \in L$, hence $v \in L$).
+  \item \textbf{Transition Function}: $\delta([w]_L, a) = [wa]_L$ for all $w \in \Sigma^*$ and $a \in \Sigma$. (This is well-defined because if $[u]_L = [v]_L$, then $u \sim_L v$, which implies $ua \sim_L va$ by right invariance, meaning $[ua]_L = [va]_L$).
+  \item \textbf{Final States}: $F = \{[w]_L \mid w \in L\}$. (This is well-defined because if $u \sim_L v$ and $u \in L$, then by choosing the empty suffix $z = \epsilon$, we have $u\epsilon \in L \iff v\epsilon \in L$, hence $v \in L$).
 \end{itemize}
 \end{formaldetails}
 
@@ -110,20 +110,20 @@ If $\equiv_L$ has a finite index, we can construct the canonical minimal DFA $A 
 To clarify the intuition behind the Myhill--Nerode relation, we look at a non-regular language and a regular language.
 
 \begin{example}[A non-regular language: Palindromes]
-Let $\Sigma = \{a, b\}$ and let $L_{\text{pal}} = \{w \in \Sigma^* \mid w = w^R\}$ be the language of palindromes (strings that read the same backward and forward). We show that $\equiv_{L_{\text{pal}}}$ has an infinite index.
+Let $\Sigma = \{a, b\}$ and let $L_{\text{pal}} = \{w \in \Sigma^* \mid w = w^R\}$ be the language of palindromes (strings that read the same backward and forward). We show that $\sim_{L_{\text{pal}}}$ has an infinite index.
 
 Consider two distinct strings $u, v \in \Sigma^*$ of the same length, say $u = ab$ and $v = bb$. To prove they belong to different equivalence classes, we must find a suffix $z$ that distinguishes them. Choose $z = a$ (the reverse of $u$).
 \begin{itemize}
   \item $uz = aba \in L_{\text{pal}}$ (a palindrome).
   \item $vz = bba \notin L_{\text{pal}}$ (not a palindrome).
 \end{itemize}
-Since $uz \in L_{\text{pal}}$ but $vz \notin L_{\text{pal}}$, we have $u \not\equiv_{L_{\text{pal}}} v$. 
+Since $uz \in L_{\text{pal}}$ but $vz \notin L_{\text{pal}}$, we have $u \not\sim_{L_{\text{pal}}} v$. 
 
-In general, for any two distinct strings $u \neq v$, if we choose the suffix $z = u^R$ (the reverse of $u$), then $uz = uu^R$ is always a palindrome. However, if $u$ and $v$ have different structures, $vu^R$ is not guaranteed to be a palindrome. In fact, each string $w \in \Sigma^*$ belongs to its own distinct equivalence class. Since $\Sigma^*$ is infinite, $\equiv_{L_{\text{pal}}}$ has an infinite index, which proves that the language of palindromes is not regular.
+In general, for any two distinct strings $u \neq v$, if we choose the suffix $z = u^R$ (the reverse of $u$), then $uz = uu^R$ is always a palindrome. However, if $u$ and $v$ have different structures, $vu^R$ is not guaranteed to be a palindrome. In fact, each string $w \in \Sigma^*$ belongs to its own distinct equivalence class. Since $\Sigma^*$ is infinite, $\sim_{L_{\text{pal}}}$ has an infinite index, which proves that the language of palindromes is not regular.
 \end{example}
 
 \begin{example}[A regular language: $L = ab^*$]
-Let $\Sigma = \{a, b\}$ and $L = ab^* = \{a, ab, abb, abbb, \dots\}$. We determine the equivalence classes of $\equiv_L$:
+Let $\Sigma = \{a, b\}$ and $L = ab^* = \{a, ab, abb, abbb, \dots\}$. We determine the equivalence classes of $\sim_L$:
 \begin{enumerate}
   \item \textbf{Class 1: $[\epsilon]_L$}. Contains the empty string $\epsilon$. If we extend $\epsilon$ with a suffix $z$, the resulting string $z$ is in $L$ iff $z \in ab^*$.
   \item \textbf{Class 2: $[a]_L$}. Contains strings that have already matched the prefix $a$ and can be completed by any number of $b$'s. This class contains $\{a, ab, abb, \dots\}$, which is exactly the language $L$ itself. For any $w \in [a]_L$, extending it with $b$ keeps it in the class: $wb \in L$, whereas extending it with $a$ goes outside the language: $wa \notin L$.
@@ -245,21 +245,21 @@ The observation table is a matrix where:
 
 \aside{In practice, the observation table also serves as a memoization cache: if a string's membership has already been queried, its result is stored, preventing redundant queries to the teacher.}
 
-Before defining the row profile, we must formally introduce the \textbf{$T$-restricted equivalence} ($\equiv_{L,T}$). This relation sits strictly between the trivial 2-class equivalence (equal-L) and the true Myhill-Nerode equivalence ($\equiv_L$). 
+Before defining the row profile, we must formally introduce the \textbf{$T$-restricted equivalence} ($\sim_{L,T}$). This relation sits strictly between the trivial 2-class equivalence (equal-L) and the true Myhill-Nerode equivalence ($\sim_L$). 
 Two strings are $T$-equivalent if they cannot be distinguished by any suffix from the set $T$:
 \[
-  x \equiv_{L,T} y \iff \forall t \in T, (xt \in L \iff yt \in L)
+  x \sim_{L,T} y \iff \forall t \in T, (xt \in L \iff yt \in L)
 \]
 
 \begin{intermezzo}{The Test Set as a Knob}
-Think of the test set $T$ as a \emph{tuning knob}. When $T$ is small (e.g., just $\{\epsilon\}$), $\equiv_{L,T}$ is a very coarse approximation, yielding large, chunky puzzle pieces. As the learner discovers counterexamples, it adds strings to $T$, effectively "turning the knob." This refines the equivalence, shattering the large puzzle pieces into smaller, more precise ones, until the approximation perfectly aligns with the true Myhill-Nerode equivalence classes.
+Think of the test set $T$ as a \emph{tuning knob}. When $T$ is small (e.g., just $\{\epsilon\}$), $\sim_{L,T}$ is a very coarse approximation, yielding large, chunky puzzle pieces. As the learner discovers counterexamples, it adds strings to $T$, effectively "turning the knob." This refines the equivalence, shattering the large puzzle pieces into smaller, more precise ones, until the approximation perfectly aligns with the true Myhill-Nerode equivalence classes.
 \end{intermezzo}
 
 For any string $s \in S \cup (S \cdot \Sigma)$, we define its \textbf{row profile} $\text{row}(s)$ as the finite vector of boolean values indexed by $T$:
 \[
   \text{row}(s) = \langle \text{Table}(s, t_1), \text{Table}(s, t_2), \dots, \text{Table}(s, t_{|T|}) \rangle
 \]
-The row profile is simply the characteristic function (a vector of 0s and 1s) representing the $\equiv_{L,T}$ equivalence class of $s$. If two strings have the same row profile, they currently reside in the same approximated puzzle piece.
+The row profile is simply the characteristic function (a vector of 0s and 1s) representing the $\sim_{L,T}$ equivalence class of $s$. If two strings have the same row profile, they currently reside in the same approximated puzzle piece.
 
 \subsection{Table properties: Minimality and Completeness}
 
@@ -644,7 +644,7 @@ This contradiction shows that the assumption of $T'$-completeness with the same 
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item The \emph{Myhill--Nerode theorem} characterises regular languages
-    via right-congruences of finite index; the number of equivalence
+    via right-invariant equivalences of finite index; the number of equivalence
     classes equals the number of states of the minimal DFA.
   \item \emph{Passive learning} (from a fixed sample) cannot guarantee
     correctness; \emph{active learning} uses a Minimally Adequate
@@ -663,7 +663,7 @@ This contradiction shows that the assumption of $T'$-completeness with the same 
 
 \begin{chapex}[Myhill--Nerode classes]
 Let $L = \{w \in \{a,b\}^* \mid w \text{ contains } ab\}$.
-List the equivalence classes of the Myhill--Nerode relation $\equiv_L$
+List the equivalence classes of the Myhill--Nerode relation $\sim_L$
 and draw the minimal DFA.
 \end{chapex}
 
