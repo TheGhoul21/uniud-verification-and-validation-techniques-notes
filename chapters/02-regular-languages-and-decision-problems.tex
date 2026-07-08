@@ -1384,7 +1384,18 @@ continuation behaviour.  If the number of groups is finite, a DFA
 exists; if it is infinite, no finite automaton suffices.  We now make
 this precise.
 
-\begin{definition}[Right congruence of a language]
+The relation below is the one often denoted $\sim_L$ in lectures.  In
+these notes we write $\equiv_L$, only to reserve the plain symbol
+$\sim$ for an arbitrary equivalence relation later in the theorem:
+\[
+  x\sim_L y
+  \quad\text{in lecture notation}
+  \qquad=\qquad
+  x\equiv_L y
+  \quad\text{in these notes}.
+\]
+
+\begin{definition}[Myhill--Nerode equivalence of a language]
 \label{def:myhill-nerode-relation}
 For a language $L\subseteq\Sigma^*$, define $x\equiv_L y$ if and only
 if, for every continuation $z\in\Sigma^*$,
@@ -1395,7 +1406,10 @@ if, for every continuation $z\in\Sigma^*$,
 
 Two prefixes are equivalent when no future suffix can separate them.
 After reading either prefix, the automaton needs exactly the same
-information to decide all possible continuations.
+information to decide all possible continuations.  The lecture calls
+this an equivalence relation.  Some automata-theory texts also call the
+same object the \textbf{right congruence} of $L$, because it is
+preserved by appending suffixes on the right.
 
 \begin{definition}[Right-invariant equivalence]
 \label{def:right-invariant-equivalence}
@@ -1406,6 +1420,47 @@ if
   \quad\text{for every }z\in\Sigma^*.
 \]
 \end{definition}
+
+Do not conflate the two symbols.  The relation $\equiv_L$ is the
+specific relation determined by the language $L$.  The symbol $\sim$ in
+\cref{def:right-invariant-equivalence} denotes any equivalence relation
+on words.  The Myhill--Nerode theorem will say that regularity of $L$
+can be detected either from the special relation $\equiv_L$, or from the
+existence of some finite-index right-invariant equivalence $\sim$ whose
+classes do not split $L$.
+
+The \textbf{index} of an equivalence relation is the number of its
+equivalence classes.  Thus ``finite index'' means that the partition of
+$\Sigma^*$ induced by the relation has only finitely many blocks.
+
+\begin{lemma}[$\equiv_L$ is right-invariant]
+\label{lem:myhill-nerode-right-invariant}
+For every language $L\subseteq\Sigma^*$, the relation $\equiv_L$ is an
+equivalence relation and is right-invariant.
+\end{lemma}
+
+\begin{proof}
+First, $\equiv_L$ is an equivalence relation.  Reflexivity is immediate:
+for every suffix $z$, $xz\in L$ iff $xz\in L$.  Symmetry follows by
+reading the biconditional in the definition from right to left.
+Transitivity follows pointwise on suffixes: if $x\equiv_L y$ and
+$y\equiv_L u$, then for every $z$,
+\[
+  xz\in L \Longleftrightarrow yz\in L
+  \Longleftrightarrow uz\in L,
+\]
+so $x\equiv_L u$.
+
+For right-invariance, assume $x\equiv_L y$ and let $v\in\Sigma^*$ be
+the word appended on the right.  We must prove $xv\equiv_L yv$.  Take
+an arbitrary continuation $z\in\Sigma^*$.  Since $vz$ is itself a
+continuation, the hypothesis $x\equiv_L y$ gives
+\[
+  x(vz)\in L \quad\Longleftrightarrow\quad y(vz)\in L.
+\]
+Equivalently, $(xv)z\in L$ iff $(yv)z\in L$.  This holds for every
+$z$, hence $xv\equiv_L yv$.
+\end{proof}
 
 \begin{figure}[ht]
 \centering
@@ -1469,22 +1524,30 @@ exactly the property that lets an automaton store a single state for
 both prefixes---after the append, both computations still represent the
 same future behaviour.
 
-The relation $\equiv_L$ is right-invariant by definition: if no
-continuation separates $x$ and $y$, then no longer continuation can
-separate $xz$ and $yz$ either.
-
 \begin{example}[The automaton relation]
-\label{ex:automaton-right-congruence}
+\label{ex:automaton-right-equivalence}
 Let $A=(Q,\Sigma,\delta,q_0,F)$ be a DFA.  Define
 \[
   x\equiv_A y
   \quad\Longleftrightarrow\quad
   \widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y).
 \]
+This is the relation often denoted $\sim_A$ in lectures: two words are
+identified when they lead the automaton from $q_0$ to the same state.
 This relation has at most $|Q|$ classes.  It is right-invariant because
 once two prefixes put the automaton in the same state, appending the
 same suffix makes the two future computations identical.
 \end{example}
+
+One last piece of vocabulary is useful before the theorem.  A language
+$L$ is a \textbf{union of classes} of an equivalence relation $\sim$ if
+no $\sim$-class is cut in two by membership in $L$.  Equivalently,
+\[
+  x\sim y \quad\Longrightarrow\quad
+  (x\in L \Longleftrightarrow y\in L).
+\]
+In some presentations this is described by saying that $L$ is saturated
+with respect to $\sim$.
 
 \begin{theorem}[Myhill--Nerode theorem]
 \label{thm:myhill-nerode}
@@ -1492,7 +1555,8 @@ For any language $L\subseteq\Sigma^*$, the following three statements are equiva
 \begin{enumerate}[nosep]
   \item $L$ is a regular language.
   \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
-  \item The specific right congruence relation $\equiv_L$ has finite index.
+  \item The specific relation $\equiv_L$ (lecture notation: $\sim_L$)
+        has finite index.
 \end{enumerate}
 \end{theorem}
 
@@ -1504,7 +1568,13 @@ Assume $L$ is regular, so it is recognized by some DFA $A=(Q,\Sigma,\delta,q_0,F
 The automaton relation $\equiv_A$ (defined by $x \equiv_A y \iff \widehat{\delta}(q_0,x) = \widehat{\delta}(q_0,y)$) is a right-invariant equivalence relation and has at most $|Q|$ classes. Since $L$ is exactly the set of words reaching states in $F$, $L$ is exactly the union of the $\equiv_A$-classes corresponding to those final states.
 
 \medskip\noindent\textbf{(2) $\implies$ (3).}
-Assume $L$ is a union of classes of some right-invariant equivalence relation $\sim$ of finite index. If $x \sim y$, then for any continuation $z$, we have $xz \sim yz$. Since $L$ is a union of $\sim$-classes, $xz$ and $yz$ must either both be in $L$ or both outside $L$. This means $x \sim y \implies x \equiv_L y$. Thus, every $\sim$-class is fully contained in a single $\equiv_L$-class. Since $\sim$ has finite index, $\equiv_L$ can have at most the same finite number of classes.
+Assume $L$ is a union of classes of some right-invariant equivalence relation $\sim$ of finite index. If $x \sim y$, then for any continuation $z$, we have $xz \sim yz$. Since $L$ is a union of $\sim$-classes, $xz$ and $yz$ must either both be in $L$ or both outside $L$. This means $x \sim y \implies x \equiv_L y$.
+
+This is the refinement step: every $\sim$-class is contained in a single
+$\equiv_L$-class.  Equivalently, the partition induced by $\sim$ is
+finer than the partition induced by $\equiv_L$.  Therefore
+$\equiv_L$ has no more classes than $\sim$.  Since $\sim$ has finite
+index, $\equiv_L$ has finite index as well.
 
 \medskip\noindent\textbf{(3) $\implies$ (1).}
 Assume $\equiv_L$ has finite index. Build the quotient DFA
@@ -1562,6 +1632,7 @@ $\mathsf{Post}(X)$ & States reachable in one transition from $X$ \\
 $R^*$ & Reachability fixpoint from the initial state \\
 $R_{i,j}^k$ & Words taking $q_i$ to $q_j$ through intermediate states $q_1,\ldots,q_k$ \\
 $x\equiv_L y$ & Myhill--Nerode equivalence: $x$ and $y$ have the same continuations in $L$ \\
+$x\sim_L y$ & Common lecture notation for the same relation written $x\equiv_L y$ here \\
 $A_L$ & Quotient (minimal) DFA built from $\equiv_L$ \\
 \bottomrule
 \end{tabular}
