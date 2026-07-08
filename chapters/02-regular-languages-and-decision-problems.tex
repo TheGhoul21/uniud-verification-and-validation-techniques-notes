@@ -1366,7 +1366,14 @@ For any language $L\subseteq\Sigma^*$, the following three statements are equiva
 \end{enumerate}
 \end{theorem}
 
-But what are these concepts? What exactly is a ``right-invariant equivalence relation'', what does ``finite index'' mean, and what is the relation $\sim_L$? To understand the theorem, we first need to define these mathematical objects step by step. 
+In plain words, what does this theorem tell us?
+\begin{itemize}
+  \item \textbf{Statement 1} is straightforward: a finite automaton can be built to recognize the language.
+  \item \textbf{Statement 2} describes the existence of \emph{some} valid finite memory structure. It says we can find a way to group all possible words into a finite number of buckets (``finite index''). This grouping must be consistent as we read more letters (``right-invariant''), and it must cleanly separate valid words from invalid ones (the language $L$ is exactly built from a ``union of some classes''). In short, this proves \emph{some} valid automaton exists, where the buckets act as its states.
+  \item \textbf{Statement 3} goes a step further by focusing on the language's own natural structure. Instead of just finding \emph{any} valid grouping, we group words specifically by asking: ``do they share the exact same future continuations?'' (this is $\sim_L$). If this specific, tightest-possible grouping also yields a finite number of buckets, the language is regular. This property effectively guarantees the existence of the \emph{minimal} automaton.
+\end{itemize}
+
+But what are these concepts mathematically? What exactly is a ``right-invariant equivalence relation'', what does ``finite index'' mean, and what is the relation $\sim_L$? To rigorously prove the theorem, we first need to define these mathematical objects step by step. 
 
 The central idea of how prefixes share a future is best seen on a small example before we introduce the formal definitions.
 
