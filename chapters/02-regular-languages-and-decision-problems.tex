@@ -1322,9 +1322,36 @@ describes allowed behaviours.  Verification asks for language inclusion.
 So far we have a powerful toolkit---regular expressions to describe
 languages, closure properties to combine them, and decision procedures
 to answer questions about them.  But all of it rests on one assumption:
-the language is regular.  What if someone hands us a language defined by
-a predicate, not by an automaton?  How do we know whether a finite-state
-description is even possible?  And if it is, what is the smallest one?
+the language is regular.  In many mathematical examples, however, the
+language is specified only by a membership predicate $P(w)$: a word $w$
+belongs to $L$ exactly when $P(w)$ is true.  This tells us what the
+language is, but not what finite memory would recognize it while the
+word is being read.  How do we know whether a finite-state description
+is even possible?  And if it is, what is the smallest one?
+
+\begin{example}[A predicate is not yet an automaton]
+\label{ex:predicate-versus-automaton}
+For example, over $\Sigma=\{a,b\}$, the rule
+\[
+  P_{\mathrm{even}}(w) \equiv
+  \text{``$w$ contains an even number of $a$'s''}
+\]
+defines the language $L_{\mathrm{even}}=\{w\mid P_{\mathrm{even}}(w)\}$.
+This predicate happens to have a two-state DFA: the automaton only needs
+to remember the parity of the number of $a$'s seen so far.
+
+By contrast, the rule
+\[
+  P_{=}(w) \equiv
+  \text{``$w$ contains as many $a$'s as $b$'s''}
+\]
+also defines a perfectly good language, but it asks for unbounded
+counting.  No finite automaton can remember an arbitrary difference
+between the number of $a$'s and $b$'s.  Thus ``defined by a predicate''
+does not mean ``non-regular''; it means that no finite-state description
+has been supplied.  Myhill--Nerode tells us whether such a description
+exists.
+\end{example}
 
 The Myhill--Nerode theorem answers both questions at once, by reducing
 regularity to a single combinatorial test: count how many genuinely
@@ -1380,12 +1407,67 @@ if
 \]
 \end{definition}
 
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  arr/.style={-Stealth, thick, shorten <=2pt, shorten >=2pt},
+  cut/.style={thick, gray!58},
+  point/.style={font=\small},
+  sector/.style={font=\small, gray!60!black},
+  suffix/.style={font=\scriptsize, inner sep=1pt},
+]
+  \path[draw, thick, fill=gray!4]
+    (-4.15,-1.8)
+      .. controls (-4.35,-0.7) and (-4.05,1.35) .. (-2.75,1.75)
+      .. controls (-1.55,2.15) and (-0.65,1.45) .. (0.55,1.82)
+      .. controls (1.85,2.25) and (4.15,1.65) .. (4.2,0.35)
+      .. controls (4.25,-0.85) and (3.2,-1.65) .. (1.65,-1.82)
+      .. controls (0.25,-1.98) and (-1.1,-1.45) .. (-2.35,-1.78)
+      .. controls (-3.25,-2.02) and (-3.85,-1.95) .. cycle;
+
+  \node[font=\small] at (3.35,1.48) {$\Sigma^*/{\sim}$};
+
+  \draw[cut] (-2.75,1.55) -- (-3.45,-1.48);
+  \draw[cut] (-0.85,1.65) -- (-1.55,-1.68);
+  \draw[cut] (1.05,1.65) -- (2.08,-1.62);
+  \draw[cut] (2.85,1.45) -- (0.85,-1.58);
+
+  \node[sector] at (0.78,1.26) {$C$};
+  \node[sector] at (2.85,0.85) {$D$};
+  \node[sector] at (-2.7,0.3) {$E$};
+  \node[sector] at (0.25,-1.25) {$F$};
+
+  \node[point] (x) at (-0.55,-0.02) {$x$};
+  \node[point] (y) at (0.16,-0.62) {$y$};
+  \node[point, teal!60!black] (xzp) at (-0.08,1.12) {$xz'$};
+  \node[point, teal!60!black] (yzp) at (0.9,0.9) {$yz'$};
+
+  \node[point] (xz) at (2.78,0.15) {$xz$};
+  \node[point] (yz) at (3.12,-0.58) {$yz$};
+
+  \draw[arr] (x) to[bend left=12] (xz);
+  \draw[arr] (y) to[bend right=9] (yz);
+  \node[suffix] at (1.55,0.48) {$+z$};
+
+  \draw[arr, teal!60!black, shorten <=0pt] (x) to[bend left=25] (xzp);
+  \draw[arr, teal!60!black, shorten <=0pt] (y) to[bend right=14] (yzp);
+  \node[suffix, teal!60!black] at (-0.64,0.82) {$+z'$};
+\end{tikzpicture}
+\caption{Right-invariance says that appending the same suffix cannot
+split one sector of the quotient into two different sectors.  If $x$
+and $y$ start in the same sector $C$, then $xz$ and $yz$ must land
+together, here in sector $D$.  A different suffix $z'$ may keep the
+computation inside the same sector: here $xz'$ and $yz'$ still lie in
+$C$.}
+\label{fig:right-invariance-classes}
+\end{figure}
+
 Operationally, right-invariance says that equivalence is preserved by
 appending: if two prefixes look the same to the language now, then
-reading one more symbol cannot make them look different.  This is
+reading the same suffix cannot make them look different.  This is
 exactly the property that lets an automaton store a single state for
-both prefixes---after the append, both transitions lead to the same
-next state.
+both prefixes---after the append, both computations still represent the
+same future behaviour.
 
 The relation $\equiv_L$ is right-invariant by definition: if no
 continuation separates $x$ and $y$, then no longer continuation can
