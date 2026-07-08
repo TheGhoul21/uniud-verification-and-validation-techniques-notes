@@ -1382,44 +1382,36 @@ for ``ends in~$a$.''
 The example suggests a general recipe: group prefixes by their
 continuation behaviour.  If the number of groups is finite, a DFA
 exists; if it is infinite, no finite automaton suffices.  We now make
-this precise.
+this precise by introducing the general concept of a right-invariant equivalence relation, and then applying it to a specific language.
+
+\begin{definition}[Right-invariant equivalence]
+\label{def:right-invariant-equivalence}
+An equivalence relation $\sim$ (often read as ``tilde'') on the set of all finite words $\Sigma^*$ is \textbf{right-invariant} if, for all words $x$ and $y$:
+\[
+  x \sim y \quad\Longrightarrow\quad xz \sim yz
+  \quad\text{for every }z\in\Sigma^*.
+\]
+\end{definition}
+
+What does ``being in the same class'' mean intuitively? Instead of treating every word as unique, an equivalence relation groups words that share a specific property into \emph{equivalence classes}. For example, consider words over the alphabet $\{a, b\}$. If we define an equivalence relation where two words are related if they both contain an even number of $a$'s or both contain an odd number of $a$'s, we have partitioned all infinite possible words into exactly two classes: ``even parity'' and ``odd parity''. 
+
+Right-invariance adds a dynamic property: if you append the exact same future suffix $z$ to any two words currently in the same class, the two new words will land together in the same destination class. In our parity example, if $x$ and $y$ both have an even number of $a$'s, appending $z = aba$ to both will yield two new words that \emph{both} have an odd number of $a$'s. They move together.
+
+The \textbf{index} of an equivalence relation is simply the number of its equivalence classes. In the parity example, the index is exactly $2$. If a relation has a ``finite index,'' it means it groups the infinitely many possible words into a finite number of buckets.
+
+With these general concepts, we can now introduce a specific equivalence relation associated with a given language $L$.
 
 \begin{definition}[Myhill--Nerode equivalence of a language]
 \label{def:myhill-nerode-relation}
-For a language $L\subseteq\Sigma^*$, define $x\sim_L y$ if and only
-if, for every continuation $z\in\Sigma^*$,
+For a language $L\subseteq\Sigma^*$, we denote its associated equivalence relation by $\sim_L$ (read as ``tilde $L$''). We define $x \sim_L y$ if and only if, for every continuation $z\in\Sigma^*$:
 \[
   xz\in L \quad\Longleftrightarrow\quad yz\in L.
 \]
 \end{definition}
 
-Two prefixes are equivalent when no future suffix can separate them.
-After reading either prefix, the automaton needs exactly the same
-information to decide all possible continuations.  This is the
-equivalence relation associated with the language $L$.
+Two prefixes are equivalent under $\sim_L$ when no future suffix can separate them. If appending $z$ to $x$ creates a valid word in $L$, then appending the exact same $z$ to $y$ must also create a valid word in $L$, and vice versa. Operationally, after reading either prefix, an automaton would need exactly the same information to decide all possible continuations.
 
-\begin{definition}[Right-invariant equivalence]
-\label{def:right-invariant-equivalence}
-An equivalence relation $\sim$ on $\Sigma^*$ is \textbf{right-invariant}
-if
-\[
-  x\sim y \quad\Longrightarrow\quad xz\sim yz
-  \quad\text{for every }z\in\Sigma^*.
-\]
-\end{definition}
-
-Do not conflate $\sim_L$ with an arbitrary relation $\sim$.  The
-relation $\sim_L$ is the specific equivalence relation determined by the
-language $L$.  The symbol $\sim$ in
-\cref{def:right-invariant-equivalence} denotes any equivalence relation
-on words.  The Myhill--Nerode theorem will say that regularity of $L$
-can be detected either from the special relation $\sim_L$, or from the
-existence of some finite-index right-invariant equivalence $\sim$ whose
-classes do not split $L$.
-
-The \textbf{index} of an equivalence relation is the number of its
-equivalence classes.  Thus ``finite index'' means that the partition of
-$\Sigma^*$ induced by the relation has only finitely many blocks.
+Do not conflate $\sim_L$ with an arbitrary relation $\sim$. The relation $\sim_L$ is the specific equivalence relation determined by the language $L$, whereas the symbol $\sim$ in \cref{def:right-invariant-equivalence} denotes any generic right-invariant equivalence relation on words. The Myhill--Nerode theorem will say that regularity of $L$ can be detected either from the special relation $\sim_L$, or from the existence of some finite-index right-invariant equivalence $\sim$ whose classes do not split $L$.
 
 \begin{lemma}[$\sim_L$ is right-invariant]
 \label{lem:myhill-nerode-right-invariant}
@@ -1512,20 +1504,40 @@ exactly the property that lets an automaton store a single state for
 both prefixes---after the append, both computations still represent the
 same future behaviour.
 
-\begin{example}[The automaton relation]
-\label{ex:automaton-right-equivalence}
-Let $A=(Q,\Sigma,\delta,q_0,F)$ be a DFA.  Define
+\begin{definition}[The automaton relation]
+\label{def:automaton-right-equivalence}
+Let $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$ be a DFA.  The equivalence
+relation associated with $\mathcal{A}$, denoted by $\sim_{\mathcal{A}}$,
+is defined for all $x,y \in \Sigma^*$ as:
 \[
-  x\sim_A y
+  x \sim_{\mathcal{A}} y
   \quad\Longleftrightarrow\quad
   \widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y).
 \]
 Two words are identified when they lead the automaton from $q_0$ to the
-same state.  This relation has at most $|Q|$ classes.  It is
-right-invariant because once two prefixes put the automaton in the same
-state, appending the same suffix makes the two future computations
-identical.
-\end{example}
+same state.
+\end{definition}
+
+\begin{proposition}[Properties of $\sim_{\mathcal{A}}$]
+\label{prop:automaton-relation-properties}
+The relation $\sim_{\mathcal{A}}$ satisfies three key properties:
+\begin{enumerate}[nosep]
+  \item It is an equivalence relation.
+  \item It is right-invariant.
+  \item It has finite index.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+It is trivially an equivalence relation since it is defined via equality
+of states. It is right-invariant because once two prefixes put the
+automaton in the same state, appending the same suffix makes the two
+future computations identical: $\widehat{\delta}(q_0,xz) = \widehat{\delta}(\widehat{\delta}(q_0,x),z) = \widehat{\delta}(\widehat{\delta}(q_0,y),z) = \widehat{\delta}(q_0,yz)$.
+Finally, the equivalence classes of $\sim_{\mathcal{A}}$ partition the set
+of finite words according to the state reached.  Since the number of states
+is finite, the number of classes cannot exceed $|Q|$.  Therefore, the index
+of $\sim_{\mathcal{A}}$ is finite and bounded by the cardinality of $Q$.
+\end{proof}
 
 One last piece of vocabulary is useful before the theorem.  A language
 $L$ is a \textbf{union of classes} of an equivalence relation $\sim$ if
@@ -1534,8 +1546,7 @@ no $\sim$-class is cut in two by membership in $L$.  Equivalently,
   x\sim y \quad\Longrightarrow\quad
   (x\in L \Longleftrightarrow y\in L).
 \]
-In some presentations this is described by saying that $L$ is saturated
-with respect to $\sim$.
+Intuitively, this means the relation $\sim$ respects the boundary of the language. If you look inside any single bucket (equivalence class), every word in that bucket has exactly the same status: they are either all valid words in $L$, or all invalid words outside $L$. The language never splits a bucket. In some presentations this is described by saying that $L$ is \emph{saturated} with respect to $\sim$.
 
 \begin{theorem}[Myhill--Nerode theorem]
 \label{thm:myhill-nerode}
@@ -1551,8 +1562,8 @@ For any language $L\subseteq\Sigma^*$, the following three statements are equiva
 We prove the equivalence in a cycle: $(1)\implies(2)\implies(3)\implies(1)$.
 
 \medskip\noindent\textbf{(1) $\implies$ (2).}
-Assume $L$ is regular, so it is recognized by some DFA $A=(Q,\Sigma,\delta,q_0,F)$.
-The automaton relation $\sim_A$ (defined by $x \sim_A y \iff \widehat{\delta}(q_0,x) = \widehat{\delta}(q_0,y)$) is a right-invariant equivalence relation and has at most $|Q|$ classes. Since $L$ is exactly the set of words reaching states in $F$, $L$ is exactly the union of the $\sim_A$-classes corresponding to those final states.
+Assume $L$ is regular, so it is recognized by some DFA $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$.
+By \cref{prop:automaton-relation-properties}, the automaton relation $\sim_{\mathcal{A}}$ (defined by $x \sim_{\mathcal{A}} y \iff \widehat{\delta}(q_0,x) = \widehat{\delta}(q_0,y)$) is a right-invariant equivalence relation of finite index (having at most $|Q|$ classes). Since $L$ is exactly the set of words reaching states in $F$, $L$ is exactly the union of the $\sim_{\mathcal{A}}$-classes corresponding to those final states.
 
 \medskip\noindent\textbf{(2) $\implies$ (3).}
 Assume $L$ is a union of classes of some right-invariant equivalence relation $\sim$ of finite index. If $x \sim y$, then for any continuation $z$, we have $xz \sim yz$. Since $L$ is a union of $\sim$-classes, $xz$ and $yz$ must either both be in $L$ or both outside $L$. This means $x \sim y \implies x \sim_L y$.
@@ -1564,16 +1575,17 @@ $\sim_L$ has no more classes than $\sim$.  Since $\sim$ has finite
 index, $\sim_L$ has finite index as well.
 
 \medskip\noindent\textbf{(3) $\implies$ (1).}
-Assume $\sim_L$ has finite index. Build the quotient DFA
+Assume $\sim_L$ has finite index. We must construct a DFA that recognizes $L$. But where do we get the states? We use the equivalence classes themselves! Since there are only finitely many classes (finite index), they form a perfect finite set of states. We build the \emph{quotient DFA}:
 \[
   A_L=(\Sigma^*/{\sim_L},\Sigma,\delta,[\varepsilon],F_L)
 \]
-where
+where $\Sigma^*/{\sim_L}$ is the set of all equivalence classes. We define the transitions and final states as:
 \[
   \delta([w],a)=[wa]
   \quad\text{and}\quad
   F_L=\{[w]:w\in L\}.
 \]
+Intuitively, the automaton starts in the class containing the empty word. When it is in the class of word $w$ and reads a symbol $a$, it simply moves to the class containing the appended word $wa$.
 The transition is well-defined because $\sim_L$ is right-invariant:
 if $w\sim_L w'$, then $wa\sim_L w'a$. The accepting set is
 well-defined because taking the empty continuation $z=\varepsilon$ in the definition of $\sim_L$ shows that equivalent words are either both in $L$ or both outside $L$.
