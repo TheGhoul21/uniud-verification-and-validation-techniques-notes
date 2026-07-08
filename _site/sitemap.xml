@@ -1,43 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://vvt.aliteia.com/notebooks/09-model-checking.html</loc>
-    <lastmod>2026-07-03T07:30:36.661Z</lastmod>
+    <loc>https://vvt.aliteia.com/notebooks/10-model-checking.html</loc>
+    <lastmod>2026-07-08T05:29:28.059Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/notebooks/07-kleene-state-elimination.html</loc>
-    <lastmod>2026-07-03T07:32:44.687Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/notebooks/05-product-automaton.html</loc>
-    <lastmod>2026-07-03T07:32:44.688Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/notebooks/03-subset-construction.html</loc>
-    <lastmod>2026-07-03T07:32:44.689Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/notebooks/01-intro.html</loc>
-    <lastmod>2026-07-03T07:32:44.688Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/index.html</loc>
-    <lastmod>2026-07-03T07:32:51.443Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/notebooks/02-nfa-reachable-states.html</loc>
-    <lastmod>2026-07-03T07:32:44.687Z</lastmod>
-  </url>
-  <url>
-    <loc>https://vvt.aliteia.com/notebooks/04-epsilon-closure-removal.html</loc>
-    <lastmod>2026-07-03T07:32:44.688Z</lastmod>
+    <loc>https://vvt.aliteia.com/notebooks/08-regex-to-automata-kleene.html</loc>
+    <lastmod>2026-07-08T05:29:28.059Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/06-reachability-fixpoint.html</loc>
-    <lastmod>2026-07-03T07:32:44.686Z</lastmod>
+    <lastmod>2026-07-03T11:36:07.501Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/notebooks/08-ltl.html</loc>
-    <lastmod>2026-07-03T07:30:36.646Z</lastmod>
+    <loc>https://vvt.aliteia.com/notebooks/04-epsilon-closure-removal.html</loc>
+    <lastmod>2026-07-03T11:36:07.500Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/02-nfa-reachable-states.html</loc>
+    <lastmod>2026-07-03T11:36:07.498Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/index.html</loc>
+    <lastmod>2026-07-08T05:29:28.057Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/01-intro.html</loc>
+    <lastmod>2026-07-03T11:36:07.498Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/03-subset-construction.html</loc>
+    <lastmod>2026-07-03T11:36:07.499Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/05-product-automaton.html</loc>
+    <lastmod>2026-07-03T11:36:07.500Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/07-kleene-state-elimination.html</loc>
+    <lastmod>2026-07-08T05:29:28.058Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/notebooks/09-ltl.html</loc>
+    <lastmod>2026-07-08T05:29:28.059Z</lastmod>
   </url>
 </urlset>

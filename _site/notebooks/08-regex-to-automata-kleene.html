@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Interactive notebook on Kleene’s theorem: write a Regex, generate an NFA via Thompson’s construction, and explore state elimination and the R_i,j^k formulas.">
+
+<title>NB 8: Regex to Automaton — VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-d00319d308c31c207189055c0d327ca9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="NB 8: Regex to Automaton — VVT UniUD">
+<meta property="og:description" content="Interactive notebook on Kleene’s theorem: write a Regex, generate an NFA via Thompson’s construction, and explore state elimination and the R_i,j^k formulas.">
+<meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="NB 8: Regex to Automaton — VVT UniUD">
+<meta name="twitter:description" content="Interactive notebook on Kleene’s theorem: write a Regex, generate an NFA via Thompson’s construction, and explore state elimination and the R_i,j^k formulas.">
+<meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Notebooks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
+        <li>
+    <a class="dropdown-item" href="../notebooks/01-intro.html">
+ <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/02-nfa-reachable-states.html">
+ <span class="dropdown-text">2. NFA Reachable States</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/03-subset-construction.html">
+ <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/04-epsilon-closure-removal.html">
+ <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/05-product-automaton.html">
+ <span class="dropdown-text">5. Product Automaton</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/06-reachability-fixpoint.html">
+ <span class="dropdown-text">6. Reachability Fixpoint</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/07-kleene-state-elimination.html">
+ <span class="dropdown-text">7. Kleene State Elimination</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/08-regex-to-automata-kleene.html">
+ <span class="dropdown-text">8. Regex to Automaton (Kleene)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/09-ltl.html">
+ <span class="dropdown-text">9. Linear Temporal Logic (LTL)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../notebooks/10-model-checking.html">
+ <span class="dropdown-text">10. Model Checking Basics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#regex-to-automaton-kleenes-theorem" id="toc-regex-to-automaton-kleenes-theorem" class="nav-link active" data-scroll-target="#regex-to-automaton-kleenes-theorem">Regex to Automaton &amp; Kleene’s Theorem</a>
+  <ul class="collapse">
+  <li><a href="#what-to-notice" id="toc-what-to-notice" class="nav-link" data-scroll-target="#what-to-notice">What to notice</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Notebook 8: Regex to Automaton (Kleene)</h1>
+</div>
+
+<div>
+  <div class="description">
+    Interactive notebook on Kleene’s theorem: write a Regex, generate an NFA via Thompson’s construction, and explore state elimination and the R_i,j^k formulas.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 8: Regex to Automaton (Kleene)",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+<section id="regex-to-automaton-kleenes-theorem" class="level1">
+<h1>Regex to Automaton &amp; Kleene’s Theorem</h1>
+<p>This notebook walks through <strong>Kleene’s Theorem</strong> interactively in three steps:</p>
+<ol type="1">
+<li><strong>Write a regex</strong> → the notebook builds the corresponding NFA via Thompson’s construction.</li>
+<li><strong>Choose states <span class="math inline">\(i\)</span>, <span class="math inline">\(j\)</span> and frontier <span class="math inline">\(k\)</span></strong> → the notebook highlights which states are “allowed” as intermediates.</li>
+<li><strong>Read off <span class="math inline">\(R_{i,j}^k\)</span></strong> → the regular expression for all words that go from <span class="math inline">\(q_i\)</span> to <span class="math inline">\(q_j\)</span> using only <span class="math inline">\(q_1, \ldots, q_k\)</span> as intermediate stops.</li>
+</ol>
+<p>The key recurrence is: <span class="math display">\[
+  R_{i,j}^k =
+  R_{i,j}^{k-1}
+  +
+  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}
+\]</span></p>
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<style>
+/* ── Base variables ── */
+.ke8 {
+  --c-primary:   #30bced;
+  --c-dark:      #1a7fa3;
+  --c-bg:        #f8fbff;
+  --c-surface:   #ffffff;
+  --c-border:    #dde4ec;
+  --c-text:      #1a1a2e;
+  --c-muted:     #5a6072;
+  --c-node:      #daf3fc;
+  --c-allowed:   #ead6f8;
+  --c-accept:    #c9f2e8;
+  --c-start:     #fde8d8;
+  --c-warn:      #fff8cc;
+  --c-orange:    #f05e23;
+  --c-green:     #1db87a;
+  --c-red:       #e63946;
+  --radius:      10px;
+  --shadow:      0 2px 12px rgba(0,0,0,.07);
+  font-family: 'Cabin', system-ui, sans-serif;
+  color: var(--c-text);
+}
+
+/* ── Step cards ── */
+.ke8-step {
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  margin: 0 0 20px;
+}
+.ke8-step-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ke8-step-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ke8-step-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+.ke8-step-subtitle {
+  font-size: .88rem;
+  color: var(--c-muted);
+  margin-top: 1px;
+}
+
+/* ── Inputs ── */
+.ke8-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.ke8-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+.ke8-field label {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.ke8-field input,
+.ke8-field select {
+  border: 1.5px solid var(--c-primary);
+  border-radius: 8px;
+  background: #f4fbff;
+  padding: 9px 12px;
+  font: 600 1rem ui-monospace, Consolas, monospace;
+  color: var(--c-text);
+  outline: none;
+  transition: box-shadow .15s;
+}
+.ke8-field input:focus,
+.ke8-field select:focus {
+  box-shadow: 0 0 0 3px rgba(48,188,237,.25);
+}
+.ke8-field.wide { flex: 2 1 220px; }
+
+/* ── Graph area ── */
+#ke8-graph-container {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  background: #fafcff;
+  border: 1.5px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+#ke8-graph {
+  width: 100%;
+  height: 100%;
+}
+#ke8-graph-hint {
+  position: absolute;
+  bottom: 10px; right: 14px;
+  font-size: .76rem;
+  color: #aaa;
+  pointer-events: none;
+}
+
+/* ── Legend pills ── */
+.ke8-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  align-items: center;
+}
+.ke8-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--c-border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: .83rem;
+  font-weight: 600;
+  background: var(--c-surface);
+}
+.ke8-pill .dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── R expression block ── */
+.ke8-expr {
+  background: linear-gradient(135deg, #eef9ff 0%, #f4f0ff 100%);
+  border-left: 4px solid var(--c-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font: 700 1.05rem ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  min-height: 48px;
+}
+.ke8-expr .lhs {
+  color: var(--c-dark);
+}
+
+/* ── Recurrence table ── */
+.ke8-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  margin-top: 10px;
+}
+.ke8-table thead th {
+  background: #f0f7fb;
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--c-muted);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 2px solid var(--c-border);
+}
+.ke8-table tbody tr:hover { background: #f9fcff; }
+.ke8-table td {
+  border-bottom: 1px solid var(--c-border);
+  padding: 9px 10px;
+  vertical-align: top;
+}
+.ke8-table td.mono {
+  font-family: ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.ke8-table td.label { white-space: nowrap; }
+.ke8-arrow { color: var(--c-muted); margin: 0 4px; }
+
+/* ── Witness words ── */
+.ke8-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+  min-height: 36px;
+  align-items: center;
+}
+.ke8-word {
+  border: 1.5px solid var(--c-primary);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: 700 .88rem ui-monospace, Consolas, monospace;
+  background: var(--c-node);
+  color: var(--c-text);
+}
+.ke8-word.empty-lang {
+  background: var(--c-warn);
+  border-color: #e9c46a;
+  color: #7a6000;
+}
+
+/* ── Word test ── */
+.ke8-verdict {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: .93rem;
+  line-height: 1.6;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface);
+}
+.ke8-verdict.ok   { border-color: var(--c-green); background: #edfaf4; }
+.ke8-verdict.fail { border-color: var(--c-border); background: #f9f9f9; }
+
+/* ── Error box ── */
+.ke8-error {
+  display: none;
+  background: #fdecea;
+  border: 1.5px solid var(--c-red);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--c-red);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ── Section label ── */
+.ke8-sec {
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--c-muted);
+  margin: 20px 0 6px;
+}
+
+/* ── Examples / counterexamples grid ── */
+.ke8-examples-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 6px;
+}
+.ke8-examples-label {
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.ke8-examples-label--yes {
+  background: #e6f9f2;
+  color: var(--c-green);
+}
+.ke8-examples-label--no {
+  background: #fdecea;
+  color: var(--c-red);
+}
+.ke8-word--counter {
+  border-color: var(--c-red);
+  background: #fdecea;
+  color: var(--c-red);
+}
+
+/* ── Context note (R=L(NFA) banner) ── */
+.ke8-context-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+.ke8-context-note.is-full {
+  background: #e6f9f2;
+  border: 1.5px solid var(--c-green);
+  color: #0d6b45;
+}
+.ke8-context-note.is-partial {
+  background: #fff8e6;
+  border: 1.5px solid #e9c46a;
+  color: #7a5800;
+}
+.ke8-context-note .cn-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 700px) {
+  .ke8-row { flex-direction: column; }
+  #ke8-graph-container { height: 320px; }
+  .ke8-examples-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="ke8">
+
+  <!-- ── STEP 1: Regex input ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">1</div>
+      <div>
+        <div class="ke8-step-title">Write a Regular Expression</div>
+        <div class="ke8-step-subtitle">Use letters for symbols, <code>+</code> for union, concatenation is implicit, <code>*</code> for Kleene star, <code>()</code> for grouping.</div>
+      </div>
+    </div>
+    <div class="ke8-row">
+      <div class="ke8-field wide">
+        <label for="ke8-regex">Regex (e.g. <code>(a+b)*a</code>)</label>
+        <input id="ke8-regex" value="(a+b)*a" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+    <div id="ke8-error" class="ke8-error"></div>
+  </div>
+
+  <!-- ── STEP 2: Graph ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">2</div>
+      <div>
+        <div class="ke8-step-title">Explore the NFA (Thompson's Construction)</div>
+        <div class="ke8-step-subtitle">Each state is numbered. Drag nodes, zoom with the scroll wheel, or use the buttons to re-fit. Colours reflect the current selection below.</div>
+      </div>
+    </div>
+    <div id="ke8-graph-container">
+      <div id="ke8-graph"></div>
+      <div id="ke8-graph-hint">scroll to zoom · drag to pan</div>
+    </div>
+    <div class="ke8-legend" id="ke8-legend">
+      <span class="ke8-pill"><span class="dot" style="background:#daf3fc;border:2px solid #30bced"></span>Normal state</span>
+      <span class="ke8-pill"><span class="dot" style="background:#ead6f8;border:2px solid #9b59b6"></span>Allowed intermediate (≤ k)</span>
+      <span class="ke8-pill"><span class="dot" style="background:#c9f2e8;border:2px solid #1db87a"></span>Accepting state</span>
+      <span class="ke8-pill"><span class="dot" style="background:#fde8d8;border:3px solid #f05e23"></span>Start <i>i</i></span>
+      <span class="ke8-pill"><span class="dot" style="background:#daf3fc;border:3px solid #1a7fa3"></span>End <i>j</i></span>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: R_i,j^k controls ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">3</div>
+      <div>
+        <div class="ke8-step-title">Choose i, j and frontier k</div>
+        <div class="ke8-step-subtitle">
+          <strong>i</strong> = start state &nbsp;·&nbsp; <strong>j</strong> = end state &nbsp;·&nbsp;
+          <strong>k</strong> = highest-numbered state allowed as intermediate (<i>k = 0</i> means no intermediates, <i>k = n</i> means all).
+        </div>
+      </div>
+    </div>
+    <div class="ke8-row">
+      <div class="ke8-field">
+        <label for="ke8-k">Frontier k</label>
+        <select id="ke8-k"></select>
+      </div>
+      <div class="ke8-field">
+        <label for="ke8-i">Start i</label>
+        <select id="ke8-i"></select>
+      </div>
+      <div class="ke8-field">
+        <label for="ke8-j">End j</label>
+        <select id="ke8-j"></select>
+      </div>
+      <div class="ke8-field" style="justify-content:flex-end">
+        <label style="opacity:0">reset</label>
+        <button id="ke8-reset" onclick="ke8Reset()" style="border:1.5px solid var(--c-border);border-radius:8px;background:var(--c-surface);padding:9px 14px;font:600 .9rem system-ui,sans-serif;cursor:pointer;color:var(--c-muted);transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">↺ Reset defaults</button>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Resulting expression R<sub><span id="lbl-i">?</span>,<span id="lbl-j">?</span></sub><sup><span id="lbl-k">?</span></sup></p>
+    <div class="ke8-expr" id="ke8-selected"></div>
+
+    <!-- live contextual note -->
+    <div id="ke8-context-note"></div>
+
+    <p class="ke8-sec">Recurrence breakdown (how this R was built)</p>
+    <div id="ke8-components"></div>
+  </div>
+
+  <!-- ── STEP 4: Witness words ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">4</div>
+      <div>
+        <div class="ke8-step-title">Witness words &amp; word test</div>
+        <div class="ke8-step-subtitle">Short words (length ≤ 4) belonging to the selected R. If the shortest word in R is longer than 4, a hint will suggest it. Below, test any word you like.</div>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Short words in R<sub><span id="lbl-i2">?</span>,<span id="lbl-j2">?</span></sub><sup><span id="lbl-k2">?</span></sup></p>
+
+    <div class="ke8-examples-grid" id="ke8-examples-grid">
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--yes">✓ In R<sub><span id="lbl-i3">?</span>,<span id="lbl-j3">?</span></sub><sup><span id="lbl-k3">?</span></sup></div>
+        <div class="ke8-words" id="ke8-examples"></div>
+      </div>
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--no">✗ Accepted by NFA but <em>blocked</em> by frontier k</div>
+        <div class="ke8-words" id="ke8-counterexamples"></div>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Test your own word</p>
+    <div class="ke8-row">
+      <div class="ke8-field wide">
+        <label for="ke8-word">Input word (letters of the alphabet only)</label>
+        <input id="ke8-word" value="a" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+    <div class="ke8-verdict" id="ke8-verdict"></div>
+  </div>
+
+</div><!-- .ke8 -->
+
+<script>
+(function () {
+  const EPS  = "ε";
+  const EMPTY = "∅";
+
+  /* ──────────────────────────────────────────
+     REGEX PARSER
+  ────────────────────────────────────────── */
+  class RegexParser {
+    constructor(str) { this.str = str.replace(/\s+/g, ''); this.pos = 0; }
+    peek() { return this.pos < this.str.length ? this.str[this.pos] : null; }
+    eat(c) { if (this.peek() === c) { this.pos++; return true; } return false; }
+    parse() {
+      if (!this.str.length) return { type: 'eps' };
+      const r = this.parseE();
+      if (this.pos < this.str.length) throw new Error("Unexpected character at position " + this.pos + " ('" + this.str[this.pos] + "')");
+      return r;
+    }
+    parseE() {
+      let f = this.parseT();
+      while (this.eat('+')) f = { type:'union', left:f, right:this.parseT() };
+      return f;
+    }
+    parseT() {
+      let f = this.parseF();
+      while (this.peek() && this.peek() !== '+' && this.peek() !== ')') f = { type:'concat', left:f, right:this.parseF() };
+      return f;
+    }
+    parseF() {
+      let f = this.parseB();
+      while (this.eat('*')) f = { type:'star', inner:f };
+      return f;
+    }
+    parseB() {
+      if (this.eat('(')) {
+        const f = this.parseE();
+        if (!this.eat(')')) throw new Error("Missing closing ')'");
+        return f;
+      }
+      const c = this.peek();
+      if (c && /[a-z0-9]/i.test(c)) { this.pos++; return { type:'symbol', char:c }; }
+      throw new Error("Unexpected character: '" + c + "'");
+    }
+  }
+
+  /* ──────────────────────────────────────────
+     THOMPSON CONSTRUCTION
+  ────────────────────────────────────────── */
+  let sc = 1;
+  const ns = () => "q" + sc++;
+  const addEps = (t, from, to) => { if (!t[from]) t[from]={}; if (!t[from][EPS]) t[from][EPS]=[]; t[from][EPS].push(to); };
+
+  function compile(ast) {
+    if (ast.type === 'eps') {
+      const [s,e] = [ns(),ns()];
+      const t={}; addEps(t,s,e);
+      return {start:s,end:e,t,alph:new Set()};
+    }
+    if (ast.type === 'symbol') {
+      const [s,e] = [ns(),ns()];
+      const t={}; t[s]={}; t[s][ast.char]=[e];
+      return {start:s,end:e,t,alph:new Set([ast.char])};
+    }
+    if (ast.type === 'concat') {
+      const L=compile(ast.left), R=compile(ast.right);
+      const t=Object.assign({},L.t,R.t);
+      addEps(t,L.end,R.start);
+      return {start:L.start,end:R.end,t,alph:new Set([...L.alph,...R.alph])};
+    }
+    if (ast.type === 'union') {
+      const L=compile(ast.left), R=compile(ast.right);
+      const [s,e]=[ns(),ns()];
+      const t=Object.assign({},L.t,R.t);
+      t[s]={}; t[s][EPS]=[L.start,R.start];
+      addEps(t,L.end,e); addEps(t,R.end,e);
+      return {start:s,end:e,t,alph:new Set([...L.alph,...R.alph])};
+    }
+    if (ast.type === 'star') {
+      const I=compile(ast.inner);
+      const [s,e]=[ns(),ns()];
+      const t=Object.assign({},I.t);
+      t[s]={}; t[s][EPS]=[I.start,e];
+      addEps(t,I.end,I.start); addEps(t,I.end,e);
+      return {start:s,end:e,t,alph:I.alph};
+    }
+  }
+
+  function buildNFA(regStr) {
+    sc = 1;
+    const ast = new RegexParser(regStr).parse();
+    const nfa = compile(ast);
+    const st = new Set([nfa.start,nfa.end]);
+    for (const s in nfa.t) { st.add(s); for (const sym in nfa.t[s]) nfa.t[s][sym].forEach(x=>st.add(x)); }
+    const states = [...st].sort((a,b)=>+a.slice(1) - +b.slice(1));
+    const alphabet = [...nfa.alph, EPS];
+    states.forEach(s => { if (!nfa.t[s]) nfa.t[s]={}; });
+    return { states, alphabet, initial:nfa.start, finals:[nfa.end], transitions:nfa.t };
+  }
+
+  /* ──────────────────────────────────────────
+     KLEENE EXPRESSION ALGEBRA
+  ────────────────────────────────────────── */
+  const sn = s => +s.slice(1);
+  const lR = (i,j,k) => `R<sub>${sn(i)},${sn(j)}</sub><sup>${k}</sup>`;
+
+  const union = (a,b) => a===EMPTY?b : b===EMPTY?a : a===b?a : a+" + "+b;
+  const unionMany = ps => ps.reduce(union, EMPTY);
+
+  function wrapC(e) {
+    if (e===EPS||e===EMPTY) return e;
+    if (/^[a-z0-9]$/i.test(e)) return e;
+    if (/^[a-z0-9]\*$/i.test(e)) return e;
+    if (/^\(.+\)\*$/.test(e)) return e;
+    return "("+e+")";
+  }
+  function concat(...ps) {
+    if (ps.some(p=>p===EMPTY)) return EMPTY;
+    const r=ps.filter(p=>p!==EPS);
+    return r.length===0 ? EPS : r.map(wrapC).join("");
+  }
+  function star(e) {
+    if (e===EMPTY||e===EPS) return EPS;
+    if (/^[a-z0-9]$/i.test(e)) return e+"*";
+    if (/^[a-z0-9]\*$/i.test(e)) return e;  // already a single-letter star
+    return "("+e+")*";
+  }
+
+  function buildLevels(aut) {
+    const L = [{}];
+    aut.states.forEach(f => {
+      L[0][f]={};
+      aut.states.forEach(t => {
+        const ps = [];
+        if (f===t) ps.push(EPS);
+        aut.alphabet.forEach(sym => {
+          if (aut.transitions[f]?.[sym]?.includes(t)) ps.push(sym);
+        });
+        L[0][f][t] = unionMany(ps);
+      });
+    });
+    for (let k=1; k<=aut.states.length; k++) {
+      const qk=aut.states[k-1];
+      L[k]={};
+      aut.states.forEach(f => {
+        L[k][f]={};
+        aut.states.forEach(t => {
+          const via = concat(L[k-1][f][qk], star(L[k-1][qk][qk]), L[k-1][qk][t]);
+          L[k][f][t] = union(L[k-1][f][t], via);
+        });
+      });
+    }
+    return L;
+  }
+
+  /* ──────────────────────────────────────────
+     NFA SIMULATION
+  ────────────────────────────────────────── */
+  function eClosure(aut, states) {
+    const cl=new Set(states), q=[...states];
+    while (q.length) { const s=q.shift(); (aut.transitions[s]?.[EPS]||[]).forEach(n=>{ if(!cl.has(n)){cl.add(n);q.push(n);} }); }
+    return [...cl];
+  }
+
+  function acceptsNFA(aut, word) {
+    let cur=eClosure(aut,[aut.initial]);
+    for (const sym of word) {
+      const nx=new Set();
+      cur.forEach(s=>(aut.transitions[s]?.[sym]||[]).forEach(n=>nx.add(n)));
+      cur=eClosure(aut,[...nx]);
+    }
+    return cur.some(s=>aut.finals.includes(s));
+  }
+
+  function inR(aut, start, end, k, word) {
+    const key = (s,wi) => s+"|"+wi;
+    function dfs(s, wi, seen) {
+      if (wi===word.length && s===end) return true;
+      const k2=key(s,wi);
+      if (seen.has(k2)) return false;
+      seen.add(k2);
+      for (const nx of (aut.transitions[s]?.[EPS]||[])) {
+        if (nx===end || sn(nx)<=k) if (dfs(nx,wi,seen)) return true;
+      }
+      if (wi<word.length) {
+        const sym=word[wi];
+        for (const nx of (aut.transitions[s]?.[sym]||[])) {
+          if (nx===end || sn(nx)<=k) if (dfs(nx,wi+1,seen)) return true;
+        }
+      }
+      return false;
+    }
+    return dfs(start, 0, new Set());
+  }
+
+  function wordsUpTo(aut, maxLen) {
+    const alph=aut.alphabet.filter(a=>a!==EPS);
+    let words=[""], layer=[""];
+    for (let l=1;l<=maxLen;l++) {
+      const next=[];
+      layer.forEach(p=>alph.forEach(c=>next.push(p+c)));
+      words=[...words,...next]; layer=next;
+    }
+    return words;
+  }
+
+  /* ──────────────────────────────────────────
+     RESET BUTTON
+  ────────────────────────────────────────── */
+  function resetDefaults() {
+    if (!currentAut) return;
+    blocked=true;
+    const ks=document.getElementById('ke8-k');
+    const is=document.getElementById('ke8-i');
+    const js=document.getElementById('ke8-j');
+    ks.selectedIndex=currentAut.states.length;
+    is.selectedIndex=currentAut.states.indexOf(currentAut.initial);
+    js.selectedIndex=currentAut.states.indexOf(currentAut.finals[0]);
+    blocked=false;
+    render();
+  }
+
+  /* ──────────────────────────────────────────
+     VIS-NETWORK GRAPH
+  ────────────────────────────────────────── */
+  let network=null;
+
+  function renderGraph(aut, i, j, k) {
+    const nodeArr = aut.states.map(s => {
+      const allowed = sn(s)<=k && k>0;
+      const isAccept = aut.finals.includes(s);
+      const isI = s===i, isJ = s===j;
+      let bg='#daf3fc', border='#30bced', bw=2;
+      if (allowed)  { bg='#ead6f8'; border='#9b59b6'; }
+      if (isAccept) { bg='#c9f2e8'; border='#1db87a'; }
+      if (isI) { bg='#fde8d8'; border='#f05e23'; bw=4; }
+      if (isJ && !isI) { border='#1a7fa3'; bw=4; }
+      return {
+        id:s, label:s, shape:'circle',
+        color:{ background:bg, border, highlight:{ background:bg, border } },
+        borderWidth:bw,
+        font:{ size:15, face:'ui-monospace,Consolas,monospace', bold:true }
+      };
+    });
+    nodeArr.push({ id:'__start', shape:'dot', size:1, opacity:0, fixed:true });
+
+    const edgeArr = [];
+    edgeArr.push({ from:'__start', to:aut.initial, label:'start', arrows:'to',
+      color:{ color:'#f05e23' }, font:{ align:'top', size:12, color:'#f05e23' } });
+    aut.states.forEach(from=>{
+      const targets={};
+      aut.alphabet.forEach(sym=>(aut.transitions[from]?.[sym]||[]).forEach(to=>{
+        if(!targets[to]) targets[to]=[];
+        targets[to].push(sym==='ε'?'ε':sym);
+      }));
+      Object.entries(targets).forEach(([to,syms])=>{
+        edgeArr.push({
+          from, to, label:syms.join(','),
+          arrows:'to',
+          color:{ color:'#555' },
+          font:{ align:'horizontal', size:13, background:'rgba(255,255,255,.85)' },
+          smooth:{ type:'curvedCW', roundness:from===to?0.6:0.15 }
+        });
+      });
+    });
+
+    const data = { nodes: new vis.DataSet(nodeArr), edges: new vis.DataSet(edgeArr) };
+    const opts = {
+      layout:{ hierarchical:{ direction:'LR', sortMethod:'directed', nodeSpacing:70, levelSeparation:130, blockShifting:true, edgeMinimization:true } },
+      physics:false,
+      interaction:{ dragNodes:true, zoomView:true, dragView:true, hover:true },
+      edges:{ width:2, selectionWidth:3, font:{ size:13 } },
+      nodes:{ margin:10 }
+    };
+    if (network) { network.setData(data); }
+    else { network = new vis.Network(document.getElementById('ke8-graph'), data, opts); }
+  }
+
+  /* ──────────────────────────────────────────
+     UI HELPERS
+  ────────────────────────────────────────── */
+  function setLabels(i,j,k) {
+    ['lbl-i','lbl-i2','lbl-i3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(i); });
+    ['lbl-j','lbl-j2','lbl-j3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(j); });
+    ['lbl-k','lbl-k2','lbl-k3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=k; });
+  }
+
+  function renderComponents(aut, L, i, j, k) {
+    const el = document.getElementById('ke8-components');
+    if (k===0) {
+      el.innerHTML = `<p style="color:var(--c-muted);font-size:.92rem;margin:0">
+        At <strong>k = 0</strong> there are no intermediate states allowed.
+        R<sub>${sn(i)},${sn(j)}</sub><sup>0</sup> contains only ε (if i = j) and direct single-symbol transitions from q<sub>${sn(i)}</sub> to q<sub>${sn(j)}</sub>.
+      </p>`;
+      return;
+    }
+    const qk=aut.states[k-1];
+    const rows=[
+      ['Avoid '+qk,       lR(i,j,k-1),      L[k-1][i][j]],
+      ['Enter '+qk,       lR(i,qk,k-1),     L[k-1][i][qk]],
+      ['Loop at '+qk,     '('+lR(qk,qk,k-1)+')<sup>*</sup>', star(L[k-1][qk][qk])],
+      ['Exit '+qk,        lR(qk,j,k-1),     L[k-1][qk][j]],
+    ];
+    const body=rows.map(([part,sym,expr])=>`
+      <tr>
+        <td class="label">${part}</td>
+        <td class="mono">${sym}</td>
+        <td class="mono">${expr}</td>
+      </tr>`).join('');
+    el.innerHTML=`
+      <table class="ke8-table">
+        <thead><tr><th>Role</th><th>Sub-expression</th><th>Value</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>`;
+  }
+
+  function renderContextNote(aut, i, j, k) {
+    const el = document.getElementById('ke8-context-note');
+    const isInitial = i === aut.initial;
+    const isFinal   = aut.finals.includes(j);
+    const isFull    = k === aut.states.length;
+    if (isInitial && isFinal && isFull) {
+      el.className = 'ke8-context-note is-full';
+      el.innerHTML = `<span class="cn-icon">💡</span>
+        <span><strong>k = n = ${k}</strong>, <em>i</em> = initial state, <em>j</em> = accepting state.
+        Therefore ${lR(i,j,k)} = <strong>L(NFA)</strong>: this expression captures <em>exactly</em> the language recognised by the automaton.</span>`;
+    } else if (isFull) {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>k = n (all intermediates allowed), but i or j is not the initial/accepting state pair.
+        ${lR(i,j,k)} describes paths <strong>between ${i} and ${j}</strong>, not the full language.</span>`;
+    } else {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>With <strong>k = ${k} &lt; n = ${aut.states.length}</strong>, only paths through states
+        q<sub>1</sub>–q<sub>${k}</sub> are counted.
+        Raise k to unlock more paths—at k = n you recover the full language (if i = initial, j = final).</span>`;
+    }
+  }
+
+  function renderExamples(aut, i, j, k) {
+    const exEl=document.getElementById('ke8-examples');
+    const ctEl=document.getElementById('ke8-counterexamples');
+    const allShort = wordsUpTo(aut, 4);
+
+    // examples: in R_{i,j}^k
+    const hits = allShort.filter(w => inR(aut, i, j, k, w));
+    if (!hits.length) {
+      const hintWord = wordsUpTo(aut, 8).find(w => inR(aut, i, j, k, w));
+      const hint = hintWord !== undefined
+        ? `Shortest: <code>${hintWord||EPS}</code> (length ${hintWord.length})`
+        : (k < aut.states.length ? `Try raising k` : `Language may be ∅`);
+      exEl.innerHTML = `<span class="ke8-word empty-lang">none ≤ 4</span><span style="font-size:.82rem;color:var(--c-muted);margin-left:8px">${hint}</span>`;
+    } else {
+      exEl.innerHTML = hits.map(w=>`<span class="ke8-word">${w||EPS}</span>`).join('');
+    }
+
+    // counterexamples: accepted by NFA (from initial, full k) but NOT in R_{i,j}^k
+    const fullK = aut.states.length;
+    const counterHits = allShort.filter(w =>
+      acceptsNFA(aut, w) &&
+      !inR(aut, i, j, k, w)
+    ).slice(0, 10); // cap at 10
+    if (!counterHits.length) {
+      const msg = k === fullK && i === aut.initial && aut.finals.includes(j)
+        ? `<span class="ke8-word" style="background:#e6f9f2;border-color:var(--c-green);color:#0d6b45">none — R = L(NFA) ✔</span>`
+        : `<span style="font-size:.82rem;color:var(--c-muted)">no short counterexamples found</span>`;
+      ctEl.innerHTML = msg;
+    } else {
+      ctEl.innerHTML = counterHits.map(w=>`<span class="ke8-word ke8-word--counter">${w||EPS}</span>`).join('');
+    }
+  }
+
+  function renderVerdict(aut, i, j, k) {
+    const raw=document.getElementById('ke8-word').value.replace(/[^a-z0-9]/gi,'').toLowerCase();
+    document.getElementById('ke8-word').value=raw;
+    const w=raw||'';
+    const inRij=inR(aut,i,j,k,w);
+    const accepted=acceptsNFA(aut,w);
+    const el=document.getElementById('ke8-verdict');
+    el.className='ke8-verdict '+(inRij?'ok':'fail');
+    const wLabel=`<code>${w||EPS}</code>`;
+    const rLabel=lR(i,j,k);
+    el.innerHTML=`
+      ${wLabel} <strong>${inRij?'✓ belongs to':'✗ does not belong to'}</strong> ${rLabel}<br>
+      From the initial state: ${wLabel} is <strong>${accepted?'✓ accepted':'✗ rejected'}</strong> by the NFA.
+    `;
+  }
+
+  /* ──────────────────────────────────────────
+     MAIN RENDER
+  ────────────────────────────────────────── */
+  let currentAut=null, currentL=null, blocked=false;
+
+  function populate(aut) {
+    blocked=true;
+    const ks=document.getElementById('ke8-k');
+    const is=document.getElementById('ke8-i');
+    const js=document.getElementById('ke8-j');
+    // rebuild options
+    ks.innerHTML='';
+    for(let k=0;k<=aut.states.length;k++) { const o=document.createElement('option'); o.value=k; o.textContent=k; ks.appendChild(o); }
+    // force selectedIndex to avoid browser state restoration glitch
+    ks.selectedIndex=aut.states.length;
+    [is,js].forEach(sel=>{ sel.innerHTML=''; aut.states.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); });
+    is.selectedIndex=aut.states.indexOf(aut.initial);
+    js.selectedIndex=aut.states.indexOf(aut.finals[0]);
+    blocked=false;
+  }
+
+  function render() {
+    if (blocked||!currentAut) return;
+    const k=+document.getElementById('ke8-k').value;
+    const i=document.getElementById('ke8-i').value;
+    const j=document.getElementById('ke8-j').value;
+    setLabels(i,j,k);
+    document.getElementById('ke8-selected').innerHTML = `<span class="lhs">${lR(i,j,k)}</span> = ${currentL[k][i][j]}`;
+    renderContextNote(currentAut, i, j, k);
+    renderGraph(currentAut, i, j, k);
+    renderComponents(currentAut, currentL, i, j, k);
+    renderExamples(currentAut, i, j, k);
+    renderVerdict(currentAut, i, j, k);
+  }
+
+  function update() {
+    const err=document.getElementById('ke8-error');
+    try {
+      err.style.display='none';
+      const raw=document.getElementById('ke8-regex').value.trim();
+      if (!raw) return;
+      currentAut=buildNFA(raw);
+      currentL=buildLevels(currentAut);
+      populate(currentAut);
+      render();
+    } catch(e) {
+      err.textContent='⚠ '+e.message;
+      err.style.display='block';
+    }
+  }
+
+  document.getElementById('ke8-regex').addEventListener('input', update);
+  ['ke8-k','ke8-i','ke8-j'].forEach(id=>document.getElementById(id).addEventListener('change', render));
+  document.getElementById('ke8-word').addEventListener('input', ()=>{ if(currentAut) renderVerdict(currentAut, document.getElementById('ke8-i').value, document.getElementById('ke8-j').value, +document.getElementById('ke8-k').value); });
+
+  // expose reset to global scope for the inline onclick
+  window.ke8Reset = resetDefaults;
+
+  update();
+})();
+</script>
+<section id="what-to-notice" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-notice">What to notice</h2>
+<p>When <strong>k = 0</strong>: <span class="math inline">\(R_{i,j}^0\)</span> contains only <span class="math inline">\(\varepsilon\)</span> (if <span class="math inline">\(i = j\)</span>) and the labels of any direct edges from <span class="math inline">\(q_i\)</span> to <span class="math inline">\(q_j\)</span>. No intermediate stops allowed.</p>
+<p>When <strong>k increases by 1</strong>: the recurrence adds exactly the paths that use the newly unlocked state <span class="math inline">\(q_k\)</span> as an intermediate. The star <span class="math inline">\((R_{k,k}^{k-1})^*\)</span> covers paths that loop back through <span class="math inline">\(q_k\)</span> zero or more times before leaving.</p>
+<p>When <strong>k = n</strong>: <span class="math inline">\(R_{i,j}^n\)</span> is unrestricted — any path is allowed — and <span class="math inline">\(R_{q_0,f}^n\)</span> for each accepting state <span class="math inline">\(f\)</span> gives one of the summands of the final regular expression.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

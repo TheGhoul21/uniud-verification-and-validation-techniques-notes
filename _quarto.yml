@@ -49,10 +49,12 @@ website:
             href: notebooks/06-reachability-fixpoint.qmd
           - text: "7. Kleene State Elimination"
             href: notebooks/07-kleene-state-elimination.qmd
-          - text: "8. Linear Temporal Logic (LTL)"
-            href: notebooks/08-ltl.qmd
-          - text: "9. Model Checking Basics"
-            href: notebooks/09-model-checking.qmd
+          - text: "8. Regex to Automaton (Kleene)"
+            href: notebooks/08-regex-to-automata-kleene.qmd
+          - text: "9. Linear Temporal Logic (LTL)"
+            href: notebooks/09-ltl.qmd
+          - text: "10. Model Checking Basics"
+            href: notebooks/10-model-checking.qmd
 
 format:
   html:

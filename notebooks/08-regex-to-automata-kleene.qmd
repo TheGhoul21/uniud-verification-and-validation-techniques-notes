@@ -1,0 +1,928 @@
+---
+title: "Notebook 8: Regex to Automaton (Kleene)"
+pagetitle: "NB 8: Regex to Automaton — VVT UniUD"
+description: "Interactive notebook on Kleene's theorem: write a Regex, generate an NFA via Thompson's construction, and explore state elimination and the R_i,j^k formulas."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 8: Regex to Automaton (Kleene)",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Regex to Automaton & Kleene's Theorem
+
+This notebook walks through **Kleene's Theorem** interactively in three steps:
+
+1. **Write a regex** → the notebook builds the corresponding NFA via Thompson's construction.
+2. **Choose states $i$, $j$ and frontier $k$** → the notebook highlights which states are "allowed" as intermediates.
+3. **Read off $R_{i,j}^k$** → the regular expression for all words that go from $q_i$ to $q_j$ using only $q_1, \ldots, q_k$ as intermediate stops.
+
+The key recurrence is:
+$$
+  R_{i,j}^k =
+  R_{i,j}^{k-1}
+  +
+  R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}
+$$
+
+```{=html}
+<script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<style>
+/* ── Base variables ── */
+.ke8 {
+  --c-primary:   #30bced;
+  --c-dark:      #1a7fa3;
+  --c-bg:        #f8fbff;
+  --c-surface:   #ffffff;
+  --c-border:    #dde4ec;
+  --c-text:      #1a1a2e;
+  --c-muted:     #5a6072;
+  --c-node:      #daf3fc;
+  --c-allowed:   #ead6f8;
+  --c-accept:    #c9f2e8;
+  --c-start:     #fde8d8;
+  --c-warn:      #fff8cc;
+  --c-orange:    #f05e23;
+  --c-green:     #1db87a;
+  --c-red:       #e63946;
+  --radius:      10px;
+  --shadow:      0 2px 12px rgba(0,0,0,.07);
+  font-family: 'Cabin', system-ui, sans-serif;
+  color: var(--c-text);
+}
+
+/* ── Step cards ── */
+.ke8-step {
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+  margin: 0 0 20px;
+}
+.ke8-step-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ke8-step-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ke8-step-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--c-text);
+}
+.ke8-step-subtitle {
+  font-size: .88rem;
+  color: var(--c-muted);
+  margin-top: 1px;
+}
+
+/* ── Inputs ── */
+.ke8-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.ke8-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+.ke8-field label {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.ke8-field input,
+.ke8-field select {
+  border: 1.5px solid var(--c-primary);
+  border-radius: 8px;
+  background: #f4fbff;
+  padding: 9px 12px;
+  font: 600 1rem ui-monospace, Consolas, monospace;
+  color: var(--c-text);
+  outline: none;
+  transition: box-shadow .15s;
+}
+.ke8-field input:focus,
+.ke8-field select:focus {
+  box-shadow: 0 0 0 3px rgba(48,188,237,.25);
+}
+.ke8-field.wide { flex: 2 1 220px; }
+
+/* ── Graph area ── */
+#ke8-graph-container {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  background: #fafcff;
+  border: 1.5px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+#ke8-graph {
+  width: 100%;
+  height: 100%;
+}
+#ke8-graph-hint {
+  position: absolute;
+  bottom: 10px; right: 14px;
+  font-size: .76rem;
+  color: #aaa;
+  pointer-events: none;
+}
+
+/* ── Legend pills ── */
+.ke8-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  align-items: center;
+}
+.ke8-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--c-border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: .83rem;
+  font-weight: 600;
+  background: var(--c-surface);
+}
+.ke8-pill .dot {
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── R expression block ── */
+.ke8-expr {
+  background: linear-gradient(135deg, #eef9ff 0%, #f4f0ff 100%);
+  border-left: 4px solid var(--c-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font: 700 1.05rem ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  min-height: 48px;
+}
+.ke8-expr .lhs {
+  color: var(--c-dark);
+}
+
+/* ── Recurrence table ── */
+.ke8-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  margin-top: 10px;
+}
+.ke8-table thead th {
+  background: #f0f7fb;
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--c-muted);
+  font-size: .8rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  border-bottom: 2px solid var(--c-border);
+}
+.ke8-table tbody tr:hover { background: #f9fcff; }
+.ke8-table td {
+  border-bottom: 1px solid var(--c-border);
+  padding: 9px 10px;
+  vertical-align: top;
+}
+.ke8-table td.mono {
+  font-family: ui-monospace, Consolas, monospace;
+  overflow-wrap: anywhere;
+}
+.ke8-table td.label { white-space: nowrap; }
+.ke8-arrow { color: var(--c-muted); margin: 0 4px; }
+
+/* ── Witness words ── */
+.ke8-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+  min-height: 36px;
+  align-items: center;
+}
+.ke8-word {
+  border: 1.5px solid var(--c-primary);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: 700 .88rem ui-monospace, Consolas, monospace;
+  background: var(--c-node);
+  color: var(--c-text);
+}
+.ke8-word.empty-lang {
+  background: var(--c-warn);
+  border-color: #e9c46a;
+  color: #7a6000;
+}
+
+/* ── Word test ── */
+.ke8-verdict {
+  margin-top: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: .93rem;
+  line-height: 1.6;
+  border: 1.5px solid var(--c-border);
+  background: var(--c-surface);
+}
+.ke8-verdict.ok   { border-color: var(--c-green); background: #edfaf4; }
+.ke8-verdict.fail { border-color: var(--c-border); background: #f9f9f9; }
+
+/* ── Error box ── */
+.ke8-error {
+  display: none;
+  background: #fdecea;
+  border: 1.5px solid var(--c-red);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--c-red);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+/* ── Section label ── */
+.ke8-sec {
+  font-size: .78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--c-muted);
+  margin: 20px 0 6px;
+}
+
+/* ── Examples / counterexamples grid ── */
+.ke8-examples-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 6px;
+}
+.ke8-examples-label {
+  font-size: .8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.ke8-examples-label--yes {
+  background: #e6f9f2;
+  color: var(--c-green);
+}
+.ke8-examples-label--no {
+  background: #fdecea;
+  color: var(--c-red);
+}
+.ke8-word--counter {
+  border-color: var(--c-red);
+  background: #fdecea;
+  color: var(--c-red);
+}
+
+/* ── Context note (R=L(NFA) banner) ── */
+.ke8-context-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+.ke8-context-note.is-full {
+  background: #e6f9f2;
+  border: 1.5px solid var(--c-green);
+  color: #0d6b45;
+}
+.ke8-context-note.is-partial {
+  background: #fff8e6;
+  border: 1.5px solid #e9c46a;
+  color: #7a5800;
+}
+.ke8-context-note .cn-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 700px) {
+  .ke8-row { flex-direction: column; }
+  #ke8-graph-container { height: 320px; }
+  .ke8-examples-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="ke8">
+
+  <!-- ── STEP 1: Regex input ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">1</div>
+      <div>
+        <div class="ke8-step-title">Write a Regular Expression</div>
+        <div class="ke8-step-subtitle">Use letters for symbols, <code>+</code> for union, concatenation is implicit, <code>*</code> for Kleene star, <code>()</code> for grouping.</div>
+      </div>
+    </div>
+    <div class="ke8-row">
+      <div class="ke8-field wide">
+        <label for="ke8-regex">Regex (e.g. <code>(a+b)*a</code>)</label>
+        <input id="ke8-regex" value="(a+b)*a" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+    <div id="ke8-error" class="ke8-error"></div>
+  </div>
+
+  <!-- ── STEP 2: Graph ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">2</div>
+      <div>
+        <div class="ke8-step-title">Explore the NFA (Thompson's Construction)</div>
+        <div class="ke8-step-subtitle">Each state is numbered. Drag nodes, zoom with the scroll wheel, or use the buttons to re-fit. Colours reflect the current selection below.</div>
+      </div>
+    </div>
+    <div id="ke8-graph-container">
+      <div id="ke8-graph"></div>
+      <div id="ke8-graph-hint">scroll to zoom · drag to pan</div>
+    </div>
+    <div class="ke8-legend" id="ke8-legend">
+      <span class="ke8-pill"><span class="dot" style="background:#daf3fc;border:2px solid #30bced"></span>Normal state</span>
+      <span class="ke8-pill"><span class="dot" style="background:#ead6f8;border:2px solid #9b59b6"></span>Allowed intermediate (≤ k)</span>
+      <span class="ke8-pill"><span class="dot" style="background:#c9f2e8;border:2px solid #1db87a"></span>Accepting state</span>
+      <span class="ke8-pill"><span class="dot" style="background:#fde8d8;border:3px solid #f05e23"></span>Start <i>i</i></span>
+      <span class="ke8-pill"><span class="dot" style="background:#daf3fc;border:3px solid #1a7fa3"></span>End <i>j</i></span>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: R_i,j^k controls ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">3</div>
+      <div>
+        <div class="ke8-step-title">Choose i, j and frontier k</div>
+        <div class="ke8-step-subtitle">
+          <strong>i</strong> = start state &nbsp;·&nbsp; <strong>j</strong> = end state &nbsp;·&nbsp;
+          <strong>k</strong> = highest-numbered state allowed as intermediate (<i>k = 0</i> means no intermediates, <i>k = n</i> means all).
+        </div>
+      </div>
+    </div>
+    <div class="ke8-row">
+      <div class="ke8-field">
+        <label for="ke8-k">Frontier k</label>
+        <select id="ke8-k"></select>
+      </div>
+      <div class="ke8-field">
+        <label for="ke8-i">Start i</label>
+        <select id="ke8-i"></select>
+      </div>
+      <div class="ke8-field">
+        <label for="ke8-j">End j</label>
+        <select id="ke8-j"></select>
+      </div>
+      <div class="ke8-field" style="justify-content:flex-end">
+        <label style="opacity:0">reset</label>
+        <button id="ke8-reset" onclick="ke8Reset()" style="border:1.5px solid var(--c-border);border-radius:8px;background:var(--c-surface);padding:9px 14px;font:600 .9rem system-ui,sans-serif;cursor:pointer;color:var(--c-muted);transition:background .15s" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background=''">↺ Reset defaults</button>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Resulting expression R<sub><span id="lbl-i">?</span>,<span id="lbl-j">?</span></sub><sup><span id="lbl-k">?</span></sup></p>
+    <div class="ke8-expr" id="ke8-selected"></div>
+
+    <!-- live contextual note -->
+    <div id="ke8-context-note"></div>
+
+    <p class="ke8-sec">Recurrence breakdown (how this R was built)</p>
+    <div id="ke8-components"></div>
+  </div>
+
+  <!-- ── STEP 4: Witness words ── -->
+  <div class="ke8-step">
+    <div class="ke8-step-header">
+      <div class="ke8-step-num">4</div>
+      <div>
+        <div class="ke8-step-title">Witness words &amp; word test</div>
+        <div class="ke8-step-subtitle">Short words (length ≤ 4) belonging to the selected R. If the shortest word in R is longer than 4, a hint will suggest it. Below, test any word you like.</div>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Short words in R<sub><span id="lbl-i2">?</span>,<span id="lbl-j2">?</span></sub><sup><span id="lbl-k2">?</span></sup></p>
+
+    <div class="ke8-examples-grid" id="ke8-examples-grid">
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--yes">✓ In R<sub><span id="lbl-i3">?</span>,<span id="lbl-j3">?</span></sub><sup><span id="lbl-k3">?</span></sup></div>
+        <div class="ke8-words" id="ke8-examples"></div>
+      </div>
+      <div>
+        <div class="ke8-examples-label ke8-examples-label--no">✗ Accepted by NFA but <em>blocked</em> by frontier k</div>
+        <div class="ke8-words" id="ke8-counterexamples"></div>
+      </div>
+    </div>
+
+    <p class="ke8-sec">Test your own word</p>
+    <div class="ke8-row">
+      <div class="ke8-field wide">
+        <label for="ke8-word">Input word (letters of the alphabet only)</label>
+        <input id="ke8-word" value="a" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+    <div class="ke8-verdict" id="ke8-verdict"></div>
+  </div>
+
+</div><!-- .ke8 -->
+
+<script>
+(function () {
+  const EPS  = "ε";
+  const EMPTY = "∅";
+
+  /* ──────────────────────────────────────────
+     REGEX PARSER
+  ────────────────────────────────────────── */
+  class RegexParser {
+    constructor(str) { this.str = str.replace(/\s+/g, ''); this.pos = 0; }
+    peek() { return this.pos < this.str.length ? this.str[this.pos] : null; }
+    eat(c) { if (this.peek() === c) { this.pos++; return true; } return false; }
+    parse() {
+      if (!this.str.length) return { type: 'eps' };
+      const r = this.parseE();
+      if (this.pos < this.str.length) throw new Error("Unexpected character at position " + this.pos + " ('" + this.str[this.pos] + "')");
+      return r;
+    }
+    parseE() {
+      let f = this.parseT();
+      while (this.eat('+')) f = { type:'union', left:f, right:this.parseT() };
+      return f;
+    }
+    parseT() {
+      let f = this.parseF();
+      while (this.peek() && this.peek() !== '+' && this.peek() !== ')') f = { type:'concat', left:f, right:this.parseF() };
+      return f;
+    }
+    parseF() {
+      let f = this.parseB();
+      while (this.eat('*')) f = { type:'star', inner:f };
+      return f;
+    }
+    parseB() {
+      if (this.eat('(')) {
+        const f = this.parseE();
+        if (!this.eat(')')) throw new Error("Missing closing ')'");
+        return f;
+      }
+      const c = this.peek();
+      if (c && /[a-z0-9]/i.test(c)) { this.pos++; return { type:'symbol', char:c }; }
+      throw new Error("Unexpected character: '" + c + "'");
+    }
+  }
+
+  /* ──────────────────────────────────────────
+     THOMPSON CONSTRUCTION
+  ────────────────────────────────────────── */
+  let sc = 1;
+  const ns = () => "q" + sc++;
+  const addEps = (t, from, to) => { if (!t[from]) t[from]={}; if (!t[from][EPS]) t[from][EPS]=[]; t[from][EPS].push(to); };
+
+  function compile(ast) {
+    if (ast.type === 'eps') {
+      const [s,e] = [ns(),ns()];
+      const t={}; addEps(t,s,e);
+      return {start:s,end:e,t,alph:new Set()};
+    }
+    if (ast.type === 'symbol') {
+      const [s,e] = [ns(),ns()];
+      const t={}; t[s]={}; t[s][ast.char]=[e];
+      return {start:s,end:e,t,alph:new Set([ast.char])};
+    }
+    if (ast.type === 'concat') {
+      const L=compile(ast.left), R=compile(ast.right);
+      const t=Object.assign({},L.t,R.t);
+      addEps(t,L.end,R.start);
+      return {start:L.start,end:R.end,t,alph:new Set([...L.alph,...R.alph])};
+    }
+    if (ast.type === 'union') {
+      const L=compile(ast.left), R=compile(ast.right);
+      const [s,e]=[ns(),ns()];
+      const t=Object.assign({},L.t,R.t);
+      t[s]={}; t[s][EPS]=[L.start,R.start];
+      addEps(t,L.end,e); addEps(t,R.end,e);
+      return {start:s,end:e,t,alph:new Set([...L.alph,...R.alph])};
+    }
+    if (ast.type === 'star') {
+      const I=compile(ast.inner);
+      const [s,e]=[ns(),ns()];
+      const t=Object.assign({},I.t);
+      t[s]={}; t[s][EPS]=[I.start,e];
+      addEps(t,I.end,I.start); addEps(t,I.end,e);
+      return {start:s,end:e,t,alph:I.alph};
+    }
+  }
+
+  function buildNFA(regStr) {
+    sc = 1;
+    const ast = new RegexParser(regStr).parse();
+    const nfa = compile(ast);
+    const st = new Set([nfa.start,nfa.end]);
+    for (const s in nfa.t) { st.add(s); for (const sym in nfa.t[s]) nfa.t[s][sym].forEach(x=>st.add(x)); }
+    const states = [...st].sort((a,b)=>+a.slice(1) - +b.slice(1));
+    const alphabet = [...nfa.alph, EPS];
+    states.forEach(s => { if (!nfa.t[s]) nfa.t[s]={}; });
+    return { states, alphabet, initial:nfa.start, finals:[nfa.end], transitions:nfa.t };
+  }
+
+  /* ──────────────────────────────────────────
+     KLEENE EXPRESSION ALGEBRA
+  ────────────────────────────────────────── */
+  const sn = s => +s.slice(1);
+  const lR = (i,j,k) => `R<sub>${sn(i)},${sn(j)}</sub><sup>${k}</sup>`;
+
+  const union = (a,b) => a===EMPTY?b : b===EMPTY?a : a===b?a : a+" + "+b;
+  const unionMany = ps => ps.reduce(union, EMPTY);
+
+  function wrapC(e) {
+    if (e===EPS||e===EMPTY) return e;
+    if (/^[a-z0-9]$/i.test(e)) return e;
+    if (/^[a-z0-9]\*$/i.test(e)) return e;
+    if (/^\(.+\)\*$/.test(e)) return e;
+    return "("+e+")";
+  }
+  function concat(...ps) {
+    if (ps.some(p=>p===EMPTY)) return EMPTY;
+    const r=ps.filter(p=>p!==EPS);
+    return r.length===0 ? EPS : r.map(wrapC).join("");
+  }
+  function star(e) {
+    if (e===EMPTY||e===EPS) return EPS;
+    if (/^[a-z0-9]$/i.test(e)) return e+"*";
+    if (/^[a-z0-9]\*$/i.test(e)) return e;  // already a single-letter star
+    return "("+e+")*";
+  }
+
+  function buildLevels(aut) {
+    const L = [{}];
+    aut.states.forEach(f => {
+      L[0][f]={};
+      aut.states.forEach(t => {
+        const ps = [];
+        if (f===t) ps.push(EPS);
+        aut.alphabet.forEach(sym => {
+          if (aut.transitions[f]?.[sym]?.includes(t)) ps.push(sym);
+        });
+        L[0][f][t] = unionMany(ps);
+      });
+    });
+    for (let k=1; k<=aut.states.length; k++) {
+      const qk=aut.states[k-1];
+      L[k]={};
+      aut.states.forEach(f => {
+        L[k][f]={};
+        aut.states.forEach(t => {
+          const via = concat(L[k-1][f][qk], star(L[k-1][qk][qk]), L[k-1][qk][t]);
+          L[k][f][t] = union(L[k-1][f][t], via);
+        });
+      });
+    }
+    return L;
+  }
+
+  /* ──────────────────────────────────────────
+     NFA SIMULATION
+  ────────────────────────────────────────── */
+  function eClosure(aut, states) {
+    const cl=new Set(states), q=[...states];
+    while (q.length) { const s=q.shift(); (aut.transitions[s]?.[EPS]||[]).forEach(n=>{ if(!cl.has(n)){cl.add(n);q.push(n);} }); }
+    return [...cl];
+  }
+
+  function acceptsNFA(aut, word) {
+    let cur=eClosure(aut,[aut.initial]);
+    for (const sym of word) {
+      const nx=new Set();
+      cur.forEach(s=>(aut.transitions[s]?.[sym]||[]).forEach(n=>nx.add(n)));
+      cur=eClosure(aut,[...nx]);
+    }
+    return cur.some(s=>aut.finals.includes(s));
+  }
+
+  function inR(aut, start, end, k, word) {
+    const key = (s,wi) => s+"|"+wi;
+    function dfs(s, wi, seen) {
+      if (wi===word.length && s===end) return true;
+      const k2=key(s,wi);
+      if (seen.has(k2)) return false;
+      seen.add(k2);
+      for (const nx of (aut.transitions[s]?.[EPS]||[])) {
+        if (nx===end || sn(nx)<=k) if (dfs(nx,wi,seen)) return true;
+      }
+      if (wi<word.length) {
+        const sym=word[wi];
+        for (const nx of (aut.transitions[s]?.[sym]||[])) {
+          if (nx===end || sn(nx)<=k) if (dfs(nx,wi+1,seen)) return true;
+        }
+      }
+      return false;
+    }
+    return dfs(start, 0, new Set());
+  }
+
+  function wordsUpTo(aut, maxLen) {
+    const alph=aut.alphabet.filter(a=>a!==EPS);
+    let words=[""], layer=[""];
+    for (let l=1;l<=maxLen;l++) {
+      const next=[];
+      layer.forEach(p=>alph.forEach(c=>next.push(p+c)));
+      words=[...words,...next]; layer=next;
+    }
+    return words;
+  }
+
+  /* ──────────────────────────────────────────
+     RESET BUTTON
+  ────────────────────────────────────────── */
+  function resetDefaults() {
+    if (!currentAut) return;
+    blocked=true;
+    const ks=document.getElementById('ke8-k');
+    const is=document.getElementById('ke8-i');
+    const js=document.getElementById('ke8-j');
+    ks.selectedIndex=currentAut.states.length;
+    is.selectedIndex=currentAut.states.indexOf(currentAut.initial);
+    js.selectedIndex=currentAut.states.indexOf(currentAut.finals[0]);
+    blocked=false;
+    render();
+  }
+
+  /* ──────────────────────────────────────────
+     VIS-NETWORK GRAPH
+  ────────────────────────────────────────── */
+  let network=null;
+
+  function renderGraph(aut, i, j, k) {
+    const nodeArr = aut.states.map(s => {
+      const allowed = sn(s)<=k && k>0;
+      const isAccept = aut.finals.includes(s);
+      const isI = s===i, isJ = s===j;
+      let bg='#daf3fc', border='#30bced', bw=2;
+      if (allowed)  { bg='#ead6f8'; border='#9b59b6'; }
+      if (isAccept) { bg='#c9f2e8'; border='#1db87a'; }
+      if (isI) { bg='#fde8d8'; border='#f05e23'; bw=4; }
+      if (isJ && !isI) { border='#1a7fa3'; bw=4; }
+      return {
+        id:s, label:s, shape:'circle',
+        color:{ background:bg, border, highlight:{ background:bg, border } },
+        borderWidth:bw,
+        font:{ size:15, face:'ui-monospace,Consolas,monospace', bold:true }
+      };
+    });
+    nodeArr.push({ id:'__start', shape:'dot', size:1, opacity:0, fixed:true });
+
+    const edgeArr = [];
+    edgeArr.push({ from:'__start', to:aut.initial, label:'start', arrows:'to',
+      color:{ color:'#f05e23' }, font:{ align:'top', size:12, color:'#f05e23' } });
+    aut.states.forEach(from=>{
+      const targets={};
+      aut.alphabet.forEach(sym=>(aut.transitions[from]?.[sym]||[]).forEach(to=>{
+        if(!targets[to]) targets[to]=[];
+        targets[to].push(sym==='ε'?'ε':sym);
+      }));
+      Object.entries(targets).forEach(([to,syms])=>{
+        edgeArr.push({
+          from, to, label:syms.join(','),
+          arrows:'to',
+          color:{ color:'#555' },
+          font:{ align:'horizontal', size:13, background:'rgba(255,255,255,.85)' },
+          smooth:{ type:'curvedCW', roundness:from===to?0.6:0.15 }
+        });
+      });
+    });
+
+    const data = { nodes: new vis.DataSet(nodeArr), edges: new vis.DataSet(edgeArr) };
+    const opts = {
+      layout:{ hierarchical:{ direction:'LR', sortMethod:'directed', nodeSpacing:70, levelSeparation:130, blockShifting:true, edgeMinimization:true } },
+      physics:false,
+      interaction:{ dragNodes:true, zoomView:true, dragView:true, hover:true },
+      edges:{ width:2, selectionWidth:3, font:{ size:13 } },
+      nodes:{ margin:10 }
+    };
+    if (network) { network.setData(data); }
+    else { network = new vis.Network(document.getElementById('ke8-graph'), data, opts); }
+  }
+
+  /* ──────────────────────────────────────────
+     UI HELPERS
+  ────────────────────────────────────────── */
+  function setLabels(i,j,k) {
+    ['lbl-i','lbl-i2','lbl-i3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(i); });
+    ['lbl-j','lbl-j2','lbl-j3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=sn(j); });
+    ['lbl-k','lbl-k2','lbl-k3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.textContent=k; });
+  }
+
+  function renderComponents(aut, L, i, j, k) {
+    const el = document.getElementById('ke8-components');
+    if (k===0) {
+      el.innerHTML = `<p style="color:var(--c-muted);font-size:.92rem;margin:0">
+        At <strong>k = 0</strong> there are no intermediate states allowed.
+        R<sub>${sn(i)},${sn(j)}</sub><sup>0</sup> contains only ε (if i = j) and direct single-symbol transitions from q<sub>${sn(i)}</sub> to q<sub>${sn(j)}</sub>.
+      </p>`;
+      return;
+    }
+    const qk=aut.states[k-1];
+    const rows=[
+      ['Avoid '+qk,       lR(i,j,k-1),      L[k-1][i][j]],
+      ['Enter '+qk,       lR(i,qk,k-1),     L[k-1][i][qk]],
+      ['Loop at '+qk,     '('+lR(qk,qk,k-1)+')<sup>*</sup>', star(L[k-1][qk][qk])],
+      ['Exit '+qk,        lR(qk,j,k-1),     L[k-1][qk][j]],
+    ];
+    const body=rows.map(([part,sym,expr])=>`
+      <tr>
+        <td class="label">${part}</td>
+        <td class="mono">${sym}</td>
+        <td class="mono">${expr}</td>
+      </tr>`).join('');
+    el.innerHTML=`
+      <table class="ke8-table">
+        <thead><tr><th>Role</th><th>Sub-expression</th><th>Value</th></tr></thead>
+        <tbody>${body}</tbody>
+      </table>`;
+  }
+
+  function renderContextNote(aut, i, j, k) {
+    const el = document.getElementById('ke8-context-note');
+    const isInitial = i === aut.initial;
+    const isFinal   = aut.finals.includes(j);
+    const isFull    = k === aut.states.length;
+    if (isInitial && isFinal && isFull) {
+      el.className = 'ke8-context-note is-full';
+      el.innerHTML = `<span class="cn-icon">💡</span>
+        <span><strong>k = n = ${k}</strong>, <em>i</em> = initial state, <em>j</em> = accepting state.
+        Therefore ${lR(i,j,k)} = <strong>L(NFA)</strong>: this expression captures <em>exactly</em> the language recognised by the automaton.</span>`;
+    } else if (isFull) {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>k = n (all intermediates allowed), but i or j is not the initial/accepting state pair.
+        ${lR(i,j,k)} describes paths <strong>between ${i} and ${j}</strong>, not the full language.</span>`;
+    } else {
+      el.className = 'ke8-context-note is-partial';
+      el.innerHTML = `<span class="cn-icon">⚠️</span>
+        <span>With <strong>k = ${k} &lt; n = ${aut.states.length}</strong>, only paths through states
+        q<sub>1</sub>–q<sub>${k}</sub> are counted.
+        Raise k to unlock more paths—at k = n you recover the full language (if i = initial, j = final).</span>`;
+    }
+  }
+
+  function renderExamples(aut, i, j, k) {
+    const exEl=document.getElementById('ke8-examples');
+    const ctEl=document.getElementById('ke8-counterexamples');
+    const allShort = wordsUpTo(aut, 4);
+
+    // examples: in R_{i,j}^k
+    const hits = allShort.filter(w => inR(aut, i, j, k, w));
+    if (!hits.length) {
+      const hintWord = wordsUpTo(aut, 8).find(w => inR(aut, i, j, k, w));
+      const hint = hintWord !== undefined
+        ? `Shortest: <code>${hintWord||EPS}</code> (length ${hintWord.length})`
+        : (k < aut.states.length ? `Try raising k` : `Language may be ∅`);
+      exEl.innerHTML = `<span class="ke8-word empty-lang">none ≤ 4</span><span style="font-size:.82rem;color:var(--c-muted);margin-left:8px">${hint}</span>`;
+    } else {
+      exEl.innerHTML = hits.map(w=>`<span class="ke8-word">${w||EPS}</span>`).join('');
+    }
+
+    // counterexamples: accepted by NFA (from initial, full k) but NOT in R_{i,j}^k
+    const fullK = aut.states.length;
+    const counterHits = allShort.filter(w =>
+      acceptsNFA(aut, w) &&
+      !inR(aut, i, j, k, w)
+    ).slice(0, 10); // cap at 10
+    if (!counterHits.length) {
+      const msg = k === fullK && i === aut.initial && aut.finals.includes(j)
+        ? `<span class="ke8-word" style="background:#e6f9f2;border-color:var(--c-green);color:#0d6b45">none — R = L(NFA) ✔</span>`
+        : `<span style="font-size:.82rem;color:var(--c-muted)">no short counterexamples found</span>`;
+      ctEl.innerHTML = msg;
+    } else {
+      ctEl.innerHTML = counterHits.map(w=>`<span class="ke8-word ke8-word--counter">${w||EPS}</span>`).join('');
+    }
+  }
+
+  function renderVerdict(aut, i, j, k) {
+    const raw=document.getElementById('ke8-word').value.replace(/[^a-z0-9]/gi,'').toLowerCase();
+    document.getElementById('ke8-word').value=raw;
+    const w=raw||'';
+    const inRij=inR(aut,i,j,k,w);
+    const accepted=acceptsNFA(aut,w);
+    const el=document.getElementById('ke8-verdict');
+    el.className='ke8-verdict '+(inRij?'ok':'fail');
+    const wLabel=`<code>${w||EPS}</code>`;
+    const rLabel=lR(i,j,k);
+    el.innerHTML=`
+      ${wLabel} <strong>${inRij?'✓ belongs to':'✗ does not belong to'}</strong> ${rLabel}<br>
+      From the initial state: ${wLabel} is <strong>${accepted?'✓ accepted':'✗ rejected'}</strong> by the NFA.
+    `;
+  }
+
+  /* ──────────────────────────────────────────
+     MAIN RENDER
+  ────────────────────────────────────────── */
+  let currentAut=null, currentL=null, blocked=false;
+
+  function populate(aut) {
+    blocked=true;
+    const ks=document.getElementById('ke8-k');
+    const is=document.getElementById('ke8-i');
+    const js=document.getElementById('ke8-j');
+    // rebuild options
+    ks.innerHTML='';
+    for(let k=0;k<=aut.states.length;k++) { const o=document.createElement('option'); o.value=k; o.textContent=k; ks.appendChild(o); }
+    // force selectedIndex to avoid browser state restoration glitch
+    ks.selectedIndex=aut.states.length;
+    [is,js].forEach(sel=>{ sel.innerHTML=''; aut.states.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); });
+    is.selectedIndex=aut.states.indexOf(aut.initial);
+    js.selectedIndex=aut.states.indexOf(aut.finals[0]);
+    blocked=false;
+  }
+
+  function render() {
+    if (blocked||!currentAut) return;
+    const k=+document.getElementById('ke8-k').value;
+    const i=document.getElementById('ke8-i').value;
+    const j=document.getElementById('ke8-j').value;
+    setLabels(i,j,k);
+    document.getElementById('ke8-selected').innerHTML = `<span class="lhs">${lR(i,j,k)}</span> = ${currentL[k][i][j]}`;
+    renderContextNote(currentAut, i, j, k);
+    renderGraph(currentAut, i, j, k);
+    renderComponents(currentAut, currentL, i, j, k);
+    renderExamples(currentAut, i, j, k);
+    renderVerdict(currentAut, i, j, k);
+  }
+
+  function update() {
+    const err=document.getElementById('ke8-error');
+    try {
+      err.style.display='none';
+      const raw=document.getElementById('ke8-regex').value.trim();
+      if (!raw) return;
+      currentAut=buildNFA(raw);
+      currentL=buildLevels(currentAut);
+      populate(currentAut);
+      render();
+    } catch(e) {
+      err.textContent='⚠ '+e.message;
+      err.style.display='block';
+    }
+  }
+
+  document.getElementById('ke8-regex').addEventListener('input', update);
+  ['ke8-k','ke8-i','ke8-j'].forEach(id=>document.getElementById(id).addEventListener('change', render));
+  document.getElementById('ke8-word').addEventListener('input', ()=>{ if(currentAut) renderVerdict(currentAut, document.getElementById('ke8-i').value, document.getElementById('ke8-j').value, +document.getElementById('ke8-k').value); });
+
+  // expose reset to global scope for the inline onclick
+  window.ke8Reset = resetDefaults;
+
+  update();
+})();
+</script>
+```
+
+## What to notice
+
+When **k = 0**: $R_{i,j}^0$ contains only $\varepsilon$ (if $i = j$) and the labels of any direct edges from $q_i$ to $q_j$. No intermediate stops allowed.
+
+When **k increases by 1**: the recurrence adds exactly the paths that use the newly unlocked state $q_k$ as an intermediate. The star $(R_{k,k}^{k-1})^*$ covers paths that loop back through $q_k$ zero or more times before leaving.
+
+When **k = n**: $R_{i,j}^n$ is unrestricted — any path is allowed — and $R_{q_0,f}^n$ for each accepting state $f$ gives one of the summands of the final regular expression.
