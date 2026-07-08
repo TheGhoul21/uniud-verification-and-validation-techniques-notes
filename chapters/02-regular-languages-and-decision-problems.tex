@@ -1349,15 +1349,26 @@ also defines a perfectly good language, but it asks for unbounded
 counting.  No finite automaton can remember an arbitrary difference
 between the number of $a$'s and $b$'s.  Thus ``defined by a predicate''
 does not mean ``non-regular''; it means that no finite-state description
-has been supplied.  Myhill--Nerode tells us whether such a description
-exists.
+has been supplied.
 \end{example}
 
-The Myhill--Nerode theorem answers both questions at once, by reducing
-regularity to a single combinatorial test: count how many genuinely
-different ``futures'' the language distinguishes.
+What we want to prove is a clear, mathematical condition that determines exactly when a language is regular (so we know a finite automaton exists) and also tells us what the minimal automaton looks like. 
 
-The central idea is best seen on an example before we formalize it.
+The \textbf{Myhill--Nerode theorem} is exactly that! It proves the equivalence of three powerful statements, reducing regularity to a simple combinatorial test about how many genuinely different ``futures'' the language distinguishes:
+
+\begin{theorem}[Myhill--Nerode theorem]
+\label{thm:myhill-nerode}
+For any language $L\subseteq\Sigma^*$, the following three statements are equivalent:
+\begin{enumerate}[nosep]
+  \item $L$ is a regular language.
+  \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
+  \item The specific relation $\sim_L$ has finite index.
+\end{enumerate}
+\end{theorem}
+
+But what are these concepts? What exactly is a ``right-invariant equivalence relation'', what does ``finite index'' mean, and what is the relation $\sim_L$? To understand the theorem, we first need to define these mathematical objects step by step. 
+
+The central idea of how prefixes share a future is best seen on a small example before we introduce the formal definitions.
 
 \begin{example}[Prefixes with the same future]
 \label{ex:myhill-nerode-preview}
@@ -1548,17 +1559,7 @@ no $\sim$-class is cut in two by membership in $L$.  Equivalently,
 \]
 Intuitively, this means the relation $\sim$ respects the boundary of the language. If you look inside any single bucket (equivalence class), every word in that bucket has exactly the same status: they are either all valid words in $L$, or all invalid words outside $L$. The language never splits a bucket. In some presentations this is described by saying that $L$ is \emph{saturated} with respect to $\sim$.
 
-\begin{theorem}[Myhill--Nerode theorem]
-\label{thm:myhill-nerode}
-For any language $L\subseteq\Sigma^*$, the following three statements are equivalent:
-\begin{enumerate}[nosep]
-  \item $L$ is a regular language.
-  \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
-  \item The specific relation $\sim_L$ has finite index.
-\end{enumerate}
-\end{theorem}
-
-\begin{proof}
+\begin{proof}[Proof of \cref{thm:myhill-nerode}]
 We prove the equivalence in a cycle: $(1)\implies(2)\implies(3)\implies(1)$.
 
 \medskip\noindent\textbf{(1) $\implies$ (2).}
