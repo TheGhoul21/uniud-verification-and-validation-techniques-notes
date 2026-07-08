@@ -569,6 +569,14 @@ the states and allowing them as intermediate states one at a time.  The
 numbering is only bookkeeping: it lets us say, at stage $k$, which
 states may appear in the middle of a run.
 
+\aside{A recurring finite-state technique is to make the state set
+visible.  Writing $Q=\{q_1,\ldots,q_n\}$ does not add structure to the
+automaton; it only chooses names for the finitely many states.  Once the
+states are named, we can speak about ``the first $k$ states'', build
+tables indexed by $i,j,k$, and prove statements by induction over that
+index.  Abstract notation $Q$ is best for definitions; explicit names
+$q_1,\ldots,q_n$ are best for constructions.}
+
 Before writing the formal definition, look at the following small path
 picture.  We only care about labels of paths between numbered states, so
 accepting states are irrelevant here.
@@ -627,6 +635,28 @@ The endpoints $q_i$ and $q_j$ are not constrained by this condition.
 Thus $k$ is a frontier: $R_{i,j}^0$ allows no intermediate state at all,
 while $R_{i,j}^n$ allows every state and therefore imposes no real
 restriction.
+
+In the parity DFA, the intermediate states are the states reached after
+reading a non-empty proper prefix of the word.  This gives quick tests
+for membership and non-membership:
+\begin{itemize}[nosep]
+  \item $a\in R_{1,2}^0$, because it goes directly from $q_1$ to $q_2$
+  and has no intermediate state.  But $ba\notin R_{1,2}^0$: after the
+  proper prefix $b$, the run is already at $q_1$, so there is an
+  intermediate state, and the frontier $k=0$ allows none.
+  \item For $R_{2,2}^1$, the only allowed intermediate state is $q_1$.
+  The endpoint $q_2$ is still allowed: for example
+  $b\in R_{2,2}^1$, because a one-letter word has no intermediate
+  state.  Also $aa,aba\in R_{2,2}^1$, because their intermediate stops
+  are all $q_1$.  By contrast, $bb\notin R_{2,2}^1$: after the first
+  $b$ the run is at $q_2$ as an intermediate stop, and $q_2$ has not
+  been unlocked yet.
+  \item Since this automaton has $n=2$ states, $R_{1,1}^2$ permits both
+  $q_1$ and $q_2$ as intermediate states.  Thus $aa$ and $bb$ both
+  belong to $R_{1,1}^2$.  But $ab\notin R_{1,1}^2$, not because of the
+  frontier condition, but because it ends in $q_2$ rather than in
+  $q_1$.
+\end{itemize}
 
 We prove by induction on $k$ that each $R_{i,j}^k$ is denoted by a
 regular expression.  For $k=0$, no intermediate state is allowed, so a
@@ -1124,14 +1154,33 @@ If $m\geq n$, then the sequence $p_0,p_1,\ldots,p_m$ contains at least
 $n+1$ state occurrences but only $n$ possible states.  By the pigeonhole
 principle, $p_i=p_j$ for some $0\leq i<j\leq m$.  Split the word as
 \[
-  z = u v r,
+  z = u v w,
 \]
-where $u=a_1\cdots a_i$, $v=a_{i+1}\cdots a_j$, and
-$r=a_{j+1}\cdots a_m$.  The segment $v$ labels a loop from $p_i$ back to
-$p_i$.  Removing that loop gives the shorter word $ur$, and the run
-still goes from $q_0$ to the same accepting state $p_m$.  Thus $ur$ is
-accepted, contradicting the minimality of $z$.  Hence the minimal
-accepted word has length $m<n$.
+where
+\[
+  u=a_1\cdots a_i,\qquad
+  v=a_{i+1}\cdots a_j,\qquad
+  w=a_{j+1}\cdots a_m.
+\]
+The segment $v$ labels the part of the run
+\[
+  p_i \xrightarrow{v} p_j.
+\]
+But $p_i=p_j$, so $v$ is a closed loop: after reading $u$ the automaton
+is at $p_i$, reading $v$ returns it to the same state, and reading the
+remaining suffix $w$ then continues exactly as before toward the
+accepting state $p_m$.
+
+Therefore the loop can be skipped.  The word $uw$ follows the run
+\[
+  q_0 \xrightarrow{u} p_i
+      = p_j \xrightarrow{w} p_m,
+\]
+so $uw\in L(A)$.  This word is strictly shorter than $z$, because
+$v$ is non-empty ($i<j$).  The letter names are not important here: the
+factor removed is always the one labelling the closed loop.  This
+contradicts the choice of $z$ as a shortest accepted word.  Hence the
+minimal accepted word has length $m<n$.
 \end{proof}
 
 \begin{figure}[ht]
@@ -1147,12 +1196,30 @@ accepted word has length $m<n$.
   \node[acc, right=1.9cm of pj] (pm) {$p_m$};
   \draw[arr] (p0) -- node[above] {$u$} (pi);
   \draw[arr, bend left=28, red!70!black, dashed] (pi) to node[above] {$v$} (pj);
-  \draw[arr] (pj) -- node[above] {$r$} (pm);
+  \draw[arr] (pj) -- node[above] {$w$} (pm);
   \draw[blue!65!black, dashed, thick] (pi) to[bend right=40] node[below] {$p_i=p_j$} (pj);
 \end{tikzpicture}
 \caption{If an accepting run repeats a state, the loop can be removed to obtain a shorter accepted word.}
 \label{fig:small-model-loop-removal}
 \end{figure}
+
+\begin{formaldetails}[Connection with the pumping lemma]
+This proof is the pumping-lemma idea in its shortest-witness form.  Once
+an accepting run repeats a state, the repeated segment is a loop:
+\[
+  q_0 \xrightarrow{u} p_i
+      \xrightarrow{v} p_i
+      \xrightarrow{w} p_m.
+\]
+Because the loop starts and ends in the same state, the automaton can
+traverse it any finite number of times:
+\[
+  uv^t w\in L(A)\qquad\text{for every }t\ge 0.
+\]
+The usual pumping lemma emphasizes all choices of $t$.  The small-model
+property uses only the case $t=0$: remove the loop and obtain the
+shorter accepted word $uw$.
+\end{formaldetails}
 
 The graph algorithm is better in practice, but the small-model theorem is
 conceptually useful: decidability follows because, in principle, we only
