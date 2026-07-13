@@ -474,13 +474,13 @@ Moreover, the class can be chosen idempotent:
 
 \begin{proof}
 Colour each pair of positions $(i,j)$ with the $\equiv$-class of the
-finite segment $\alpha[i,j]$.  Since there are finitely many classes,
+finite segment $\alpha(i,j)$.  Since there are finitely many classes,
 the infinite Ramsey theorem gives an infinite set of positions
 \[
   i_0<i_1<i_2<\cdots
 \]
-such that all segments $\alpha[i_m,i_n]$ have the same colour.  Taking
-$u_0=\alpha[0,i_0]$ and $u_k=\alpha[i_{k-1},i_k]$ gives the desired
+such that all segments $\alpha(i_m,i_n)$ have the same colour.  Taking
+$u_0=\alpha(0,i_0)$ and $u_k=\alpha(i_{k-1},i_k)$ gives the desired
 decomposition.
 
 To see idempotence, take any two words $x,y\in V$.  Since $V$ is an
@@ -488,9 +488,9 @@ equivalence class and $\equiv$ is a congruence, the class of $xy$ is the
 same as the class of a concatenation of two consecutive homogeneous
 segments:
 \[
-  \alpha[i_0,i_1]\alpha[i_1,i_2]=\alpha[i_0,i_2].
+  \alpha(i_0,i_1)\alpha(i_1,i_2)=\alpha(i_0,i_2).
 \]
-But $\alpha[i_0,i_2]$ has the same homogeneous colour $V$.  Hence
+But $\alpha(i_0,i_2)$ has the same homogeneous colour $V$.  Hence
 $xy\in V$, so $V\cdot V\subseteq V$.
 \end{proof}
 
@@ -518,7 +518,7 @@ shares the same class $V$.  This is exactly the decomposition promised by
 infinitely many blocks from the same idempotent class $V$.
 \end{example}
 
-\aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha[k,m]$ and $\alpha[k',m]$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
+\aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha(k,m)$ and $\alpha(k',m)$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
 
 Two remarks will help when reading the proof below.  First, the
 idempotence $V\cdot V\subseteq V$ is what lets us treat the infinite

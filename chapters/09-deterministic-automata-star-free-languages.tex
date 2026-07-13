@@ -92,13 +92,13 @@ We begin by formally characterising the languages recognizable by deterministic 
 
 To see how we can characterize this, let us perform a thought experiment at the whiteboard. Suppose we have a DBA $A = (Q, \Sigma, \delta, q_0, F)$. How does $A$ process an infinite word $\alpha = a_0 a_1 a_2 \dots$?
 Since $A$ is deterministic and complete, there is a unique run $\sigma = s_0 s_1 s_2 \dots$ where $s_0 = q_0$ and $s_{i+1} = \delta(s_i, a_i)$.
-For each prefix of length $n$, $u_n = \alpha[0..n-1]$, the state reached by the automaton is exactly $s_n$.
+For each prefix of length $n$, $u_n = \alpha(0,n)$, the state reached by the automaton is exactly $s_n$.
 If we temporarily view $A$ as a standard DFA $A_{DFA}$ (with the exact same states, transitions, start state, and final states $F$), then $A_{DFA}$ accepts the finite word $u_n$ if and only if $s_n \in F$.
 
 Now, let's look at the Büchi acceptance condition: $A$ accepts the infinite word $\alpha$ if and only if the run $\sigma$ visits the accepting set $F$ infinitely often. Mathematically, this means:
-$$\exists^\infty n \in \mathbb{N} \text{ such that } s_n \in F$$
+$$\exists^\omega n \in \mathbb{N} \text{ such that } s_n \in F$$
 Which is equivalent to:
-$$\exists^\infty n \in \mathbb{N} \text{ such that } A_{DFA} \text{ accepts the prefix } u_n$$
+$$\exists^\omega n \in \mathbb{N} \text{ such that } A_{DFA} \text{ accepts the prefix } u_n$$
 In other words, the infinite word $\alpha$ is accepted by the DBA $A$ if and only if \emph{infinitely many of its prefixes are accepted by the corresponding DFA} $A_{DFA}$.
 
 This beautiful correspondence motivates our first formal definition: the \emph{vectorial closure} of a language of finite words. The vectorial closure (or limit) of a language $W \subseteq \Sigma^*$ is the set of all infinite words that have infinitely many prefixes in $W$.
@@ -108,7 +108,7 @@ This beautiful correspondence motivates our first formal definition: the \emph{v
 
 \begin{definition}[Vectorial Closure]
 Let $W \subseteq \Sigma^*$ be a language of finite words. The \emph{vectorial closure} (or limit) of $W$, denoted by $W^\top$ or $W^\delta \subseteq \Sigma^\omega$, is the set of all infinite words that contain infinitely many prefixes in $W$:
-$$W^\delta = \{ \alpha \in \Sigma^\omega \mid \exists^\infty n \in \mathbb{N}, \, \alpha[0..n-1] \in W \}$$
+$$W^\delta = \{ \alpha \in \Sigma^\omega \mid \exists^\omega n \in \mathbb{N}, \, \alpha(0,n) \in W \}$$
 \end{definition}
 
 For example, if $\Sigma = \{a,b\}$ and $W = \Sigma^* a$, then $W^\delta$ consists of all infinite words that contain infinitely many occurrences of $a$, which is the language $(b^*a)^\omega$.
@@ -148,8 +148,8 @@ We prove both directions of the equivalence.
 \begin{description}
     \item[($\Longrightarrow$)] Let $A = (Q, \Sigma, \delta, q_0, F)$ be a DBA recognizing $L$. We define the DFA $A' = (Q, \Sigma, \delta, q_0, F)$ having the same states, transition function, and final states, but running on finite words. Let $W = L(A') = \{ u \in \Sigma^* \mid \delta^*(q_0, u) \in F \}$, which is a regular language by definition. We show $L(A) = W^\delta$:
     \begin{itemize}
-        \item Let $\alpha \in L(A)$. The unique infinite run $\sigma = s_0 s_1 s_2 \dots$ of $A$ on $\alpha$ satisfies $\text{inf}(\sigma) \cap F \neq \emptyset$. Let $i_0 < i_1 < i_2 < \dots$ be the infinite sequence of indices where $s_{i_j} \in F$. Since $A$ is deterministic, the state reached after reading the prefix $\alpha[0..i_j-1]$ is exactly $\delta^*(q_0, \alpha[0..i_j-1]) = s_{i_j} \in F$. Thus, by definition of $W$, we have $\alpha[0..i_j-1] \in W$ for all $j \in \mathbb{N}$. Since there are infinitely many such prefixes, $\alpha \in W^\delta$.
-        \item Conversely, let $\alpha \in W^\delta$. There exists an infinite sequence of indices $k_0 < k_1 < k_2 < \dots$ such that the prefix $u_j = \alpha[0..k_j-1] \in W$ for all $j \in \mathbb{N}$. By definition of $W$, $\delta^*(q_0, u_j) \in F$. Since the automaton is deterministic, the state at position $k_j$ in the unique run $\sigma$ of $A$ on $\alpha$ is exactly $s_{k_j} = \delta^*(q_0, u_j) \in F$. Thus, the run $\sigma$ visits $F$ infinitely often, which implies $\alpha \in L(A)$.
+        \item Let $\alpha \in L(A)$. The unique infinite run $\sigma = s_0 s_1 s_2 \dots$ of $A$ on $\alpha$ satisfies $In(\sigma) \cap F \neq \emptyset$. Let $i_0 < i_1 < i_2 < \dots$ be the infinite sequence of indices where $s_{i_j} \in F$. Since $A$ is deterministic, the state reached after reading the prefix $\alpha(0,i_j)$ is exactly $\delta^*(q_0, \alpha(0,i_j)) = s_{i_j} \in F$. Thus, by definition of $W$, we have $\alpha(0,i_j) \in W$ for all $j \in \mathbb{N}$. Since there are infinitely many such prefixes, $\alpha \in W^\delta$.
+        \item Conversely, let $\alpha \in W^\delta$. There exists an infinite sequence of indices $k_0 < k_1 < k_2 < \dots$ such that the prefix $u_j = \alpha(0,k_j) \in W$ for all $j \in \mathbb{N}$. By definition of $W$, $\delta^*(q_0, u_j) \in F$. Since the automaton is deterministic, the state at position $k_j$ in the unique run $\sigma$ of $A$ on $\alpha$ is exactly $s_{k_j} = \delta^*(q_0, u_j) \in F$. Thus, the run $\sigma$ visits $F$ infinitely often, which implies $\alpha \in L(A)$.
     \end{itemize}
     \item[($\Longleftarrow$)] Let $L = W^\delta$ for a regular language $W \subseteq \Sigma^*$. Since $W$ is regular, there exists a DFA $A' = (Q, \Sigma, \delta, q_0, F)$ recognizing $W$. We treat $A'$ as a DBA $A = (Q, \Sigma, \delta, q_0, F)$. By the same reasoning as above, the unique run of $A$ on an infinite word $\alpha$ visits $F$ infinitely often if and only if $\alpha$ has infinitely many prefixes accepted by $A'$, which means $\alpha \in W^\delta$. Thus, $L(A) = W^\delta$, and $L$ is recognized by the DBA $A$.
 \end{description}
@@ -259,7 +259,7 @@ A \emph{Deterministic Muller Automaton} (DMA) is a tuple $A = (Q, \Sigma, \delta
 \end{definition}
 
 An infinite run $\sigma$ of $A$ on a word $\alpha \in \Sigma^\omega$ is successful if the set of states visited infinitely often is \emph{exactly} one of the sets in the family $\mathcal{F}$:
-$$\text{inf}(\sigma) \in \mathcal{F}$$
+$$In(\sigma) \in \mathcal{F}$$
 The family $\mathcal{F}$ is the heart of the model. Where the Büchi condition $F \subseteq Q$ can only ask ``is some accepting state visited infinitely often?'', the Muller condition can pin down the \emph{entire} recurrent set: which states are visited infinitely often, and (by omission) which states must be visited only finitely often. This is what lets us express ``finitely many $a$'s'' deterministically: in the 2-state DMA with $q_a$ reached on $a$ and $q_b$ reached on $b$, we accept iff $\mathrm{inf}(\sigma) = \{q_b\}$, ruling out $q_a$ from the limit. Notice that the size of $\mathcal{F}$ can in principle be exponential in $|Q|$---a practical annoyance we will address in \cref{sec:dra-safra} with the Rabin and parity conditions.
 
 \aside{Unlike the Büchi condition, which only requires \emph{some} accepting state to be visited infinitely often, the Muller condition specifies the \emph{exact set} of states that the run must cycle through in the limit.}
@@ -270,7 +270,7 @@ Consider a 2-state deterministic transition structure where reading $a$ always g
 If a word has finitely many $a$'s, it must eventually consist entirely of $b$'s. This means the unique infinite run will eventually get stuck in $q_b$ and never visit $q_a$ again. Thus, the set of states visited infinitely often will be exactly $\{q_b\}$.
 We define the Muller acceptance family as:
 $$\mathcal{F} = \{ \{q_b\} \}$$
-If a word has infinitely many $a$'s, the run will visit $q_a$ infinitely often, yielding $\text{inf}(\sigma) = \{q_a, q_b\} \notin \mathcal{F}$, which is correctly rejected. The Muller condition simply filters out the invalid runs by explicitly stating what the limit cycle must look like.
+If a word has infinitely many $a$'s, the run will visit $q_a$ infinitely often, yielding $In(\sigma) = \{q_a, q_b\} \notin \mathcal{F}$, which is correctly rejected. The Muller condition simply filters out the invalid runs by explicitly stating what the limit cycle must look like.
 \end{example}
 
 \begin{example}[DMA for Infinitely Many $a$'s and $b$'s]
@@ -279,7 +279,7 @@ Consider the 2-state automaton with states $Q = \{q_0, q_1\}$, where reading $a$
 The run on any word containing infinitely many $a$'s and $b$'s must visit both $q_0$ and $q_1$ infinitely often. Thus, the set of states visited infinitely often is $\{q_0, q_1\}$.
 To accept this language, we set the Muller acceptance family to:
 $$\mathcal{F} = \{ \{q_0, q_1\} \}$$
-If a word contains only finitely many $a$'s, the run eventually stays in $q_1$, yielding $\text{inf}(\sigma) = \{q_1\} \notin \mathcal{F}$. If it contains only finitely many $b$'s, $\text{inf}(\sigma) = \{q_0\} \notin \mathcal{F}$. Thus, the DMA correctly recognizes the language. Notice that a DBA cannot do this with a 2-state transition structure: insisting on \emph{both} $q_0$ and $q_1$ being visited infinitely often is exactly the kind of constraint the Büchi condition cannot express.
+If a word contains only finitely many $a$'s, the run eventually stays in $q_1$, yielding $In(\sigma) = \{q_1\} \notin \mathcal{F}$. If it contains only finitely many $b$'s, $In(\sigma) = \{q_0\} \notin \mathcal{F}$. Thus, the DMA correctly recognizes the language. Notice that a DBA cannot do this with a 2-state transition structure: insisting on \emph{both} $q_0$ and $q_1$ being visited infinitely often is exactly the kind of constraint the Büchi condition cannot express.
 \end{example}
 
 \subsection{Closure Properties of DMAs}
@@ -294,15 +294,15 @@ DMA-recognizable languages are closed under complementation, union, and intersec
 \begin{proof}
 Let $A = (Q, \Sigma, \delta, q_0, \mathcal{F})$ be a complete DMA recognizing $L$.
 \begin{description}
-    \item[Complementation] Since $A$ is deterministic and complete, every infinite word $\alpha$ has a unique run $\sigma$. The set of states visited infinitely often $\text{inf}(\sigma)$ is unique. To recognize the complement $\Sigma^\omega \setminus L$, we simply define:
+    \item[Complementation] Since $A$ is deterministic and complete, every infinite word $\alpha$ has a unique run $\sigma$. The set of states visited infinitely often $In(\sigma)$ is unique. To recognize the complement $\Sigma^\omega \setminus L$, we simply define:
     $$A^C = (Q, \Sigma, \delta, q_0, \mathcal{P}(Q) \setminus \mathcal{F})$$
-    A run $\sigma$ is accepting in $A^C \iff \text{inf}(\sigma) \in \mathcal{P}(Q) \setminus \mathcal{F} \iff \text{inf}(\sigma) \notin \mathcal{F} \iff \alpha \notin L$.
+    A run $\sigma$ is accepting in $A^C \iff In(\sigma) \in \mathcal{P}(Q) \setminus \mathcal{F} \iff In(\sigma) \notin \mathcal{F} \iff \alpha \notin L$.
     
     \item[Union] Let $A_1 = (Q_1, \Sigma, \delta_1, q_{01}, \mathcal{F}_1)$ and $A_2 = (Q_2, \Sigma, \delta_2, q_{02}, \mathcal{F}_2)$ be DMAs. We construct the product automaton:
     $$A = (Q_1 \times Q_2, \Sigma, \delta, (q_{01}, q_{02}), \mathcal{F})$$
     where $\delta((q_1, q_2), a) = (\delta_1(q_1, a), \delta_2(q_2, a))$, and the acceptance family $\mathcal{F}$ is defined as:
     $$\mathcal{F} = \{ S \subseteq Q_1 \times Q_2 \mid \pi_1(S) \in \mathcal{F}_1 \lor \pi_2(S) \in \mathcal{F}_2 \}$$
-    where $\pi_i(S)$ is the projection of the state set $S$ onto the $i$-th component. Since the run of $A$ on $\alpha$ is the parallel execution of the runs $\sigma_1$ and $\sigma_2$, the projection of $\text{inf}(\sigma)$ onto the components yields $\text{inf}(\sigma_1)$ and $\text{inf}(\sigma_2)$ respectively. Thus, the run is accepted iff the run of $A_1$ is accepted or the run of $A_2$ is accepted.
+    where $\pi_i(S)$ is the projection of the state set $S$ onto the $i$-th component. Since the run of $A$ on $\alpha$ is the parallel execution of the runs $\sigma_1$ and $\sigma_2$, the projection of $In(\sigma)$ onto the components yields $In(\sigma_1)$ and $In(\sigma_2)$ respectively. Thus, the run is accepted iff the run of $A_1$ is accepted or the run of $A_2$ is accepted.
 \end{description}
 \end{proof}
 
@@ -319,9 +319,9 @@ An $\omega$-language $L \subseteq \Sigma^\omega$ is recognized by a DMA if and o
 We prove both directions of the lemma.
 \begin{description}
     \item[($\Longrightarrow$)] Let $A = (Q, \Sigma, \delta, q_0, \mathcal{F})$ be a DMA. We can partition the acceptance of $A$ by the exact state set visited infinitely often:
-    $$L(A) = \bigcup_{F \in \mathcal{F}} \{ \alpha \in \Sigma^\omega \mid \text{inf}(\sigma) = F \}$$
-    The condition $\text{inf}(\sigma) = F$ is equivalent to asserting that all states in $F$ are visited infinitely often, and all states outside $F$ are visited only finitely often:
-    $$\text{inf}(\sigma) = F \iff \left( \bigwedge_{q \in F} q \text{ is visited infinitely often} \right) \land \left( \bigwedge_{q \notin F} q \text{ is visited finitely often} \right)$$
+    $$L(A) = \bigcup_{F \in \mathcal{F}} \{ \alpha \in \Sigma^\omega \mid In(\sigma) = F \}$$
+    The condition $In(\sigma) = F$ is equivalent to asserting that all states in $F$ are visited infinitely often, and all states outside $F$ are visited only finitely often:
+    $$In(\sigma) = F \iff \left( \bigwedge_{q \in F} q \text{ is visited infinitely often} \right) \land \left( \bigwedge_{q \notin F} q \text{ is visited finitely often} \right)$$
     For each state $q \in Q$, we define the regular language of finite words:
     $$W_q = \{ u \in \Sigma^* \mid \delta^*(q_0, u) = q \}$$
     A state $q$ is visited infinitely often by the run $\sigma$ if and only if the word has infinitely many prefixes in $W_q$. Thus, $q$ is visited infinitely often iff $\alpha \in W_q^\delta$.
@@ -431,7 +431,7 @@ where $L_i, U_i \subseteq Q$ for all $1 \le i \le n$.
 \end{definition}
 
 A run $\sigma$ is successful if there exists an index $j \in \{1, \dots, n\}$ such that:
-$$\text{inf}(\sigma) \cap L_j = \emptyset \quad \text{and} \quad \text{inf}(\sigma) \cap U_j \neq \emptyset$$
+$$In(\sigma) \cap L_j = \emptyset \quad \text{and} \quad In(\sigma) \cap U_j \neq \emptyset$$
 This means that, for some pair $j$, the run eventually avoids all states in $L_j$ while visiting at least one state in $U_j$ infinitely often.
 
 The Rabin condition is a hybrid: the $L_j$ component is ``Muller-flavoured'' (it pins down what must \emph{disappear} from the limit, like the $\mathcal{P}(Q) \setminus \mathcal{F}$ side of complementation), while the $U_j$ component is ``Büchi-flavoured'' (it asks for something to occur infinitely often). The number of pairs $n$ is typically $\mathcal{O}(|Q|)$ rather than $2^{|Q|}$, which is the practical advantage over Muller. As an example, the request/acknowledgement property ``every request is eventually followed by a grant'' is naturally expressed by a single Rabin pair $(L, U)$: let $L$ contain all the ``request-pending'' states and $U$ contain all the ``grant-issued'' states, so that the pair fires exactly when the run eventually leaves the pending region and keeps visiting grant states forever.
@@ -460,7 +460,7 @@ The Rabin condition is already a major practical improvement over Muller, but it
 
 \begin{definition}[Deterministic Parity Automaton]
 A \emph{Deterministic Parity Automaton} (DPA) is a tuple $A = (Q, \Sigma, \delta, q_0, \pi)$ where $\pi : Q \to \{0, 1, \dots, 2k\}$ is a priority function. A run $\sigma$ is successful iff
-$$\max \{\pi(q) \mid q \in \text{inf}(\sigma) \}$$
+$$\max \{\pi(q) \mid q \in In(\sigma) \}$$
 is even.
 \end{definition}
 

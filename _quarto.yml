@@ -55,6 +55,14 @@ website:
             href: notebooks/09-ltl.qmd
           - text: "10. Model Checking Basics"
             href: notebooks/10-model-checking.qmd
+          - text: "11. Infinite Words & In(α)"
+            href: notebooks/11-omega-words.qmd
+          - text: "12. Büchi Automaton Runner"
+            href: notebooks/12-buchi-runner.qmd
+          - text: "13. Vectorial Closure"
+            href: notebooks/13-vectorial-closure.qmd
+          - text: "14. Büchi Emptiness (Lasso)"
+            href: notebooks/14-buchi-emptiness-lasso.qmd
 
 format:
   html:
