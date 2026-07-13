@@ -1550,6 +1550,10 @@ is finite, the number of classes cannot exceed $|Q|$.  Therefore, the index
 of $\sim_{\mathcal{A}}$ is finite and bounded by the cardinality of $Q$.
 \end{proof}
 
+\begin{remark}[The missing third property]
+Notice a crucial asymmetry here. For the automaton relation $\sim_{\mathcal{A}}$, we proved three properties: it is an equivalence relation, it is right-invariant, and it has \emph{finite index}. However, for the language's natural relation $\sim_L$ (\cref{lem:myhill-nerode-right-invariant}), we only proved the first two. We did \emph{not} claim that $\sim_L$ has finite index. This omission is deliberate: $\sim_L$ does not always have finite index! It only does if the language $L$ is regular. This distinction is the beating heart of the theorem we are about to state.
+\end{remark}
+
 One last piece of vocabulary: a language $L$ is a \textbf{union of classes} of
 an equivalence relation $\sim$ if no $\sim$-class straddles the boundary of $L$.
 Equivalently,
