@@ -789,7 +789,7 @@ Let $t: \{0,1\}^* \to \Sigma$ be an infinite binary tree. A \emph{run} of the BT
 An infinite path $\pi = d_1 d_2 d_3 \dots \in \{0,1\}^\omega$ (where each $d_i \in \{0,1\}$) induces an infinite sequence of states in the run:
 $$R|_\pi = R(\epsilon), \, R(d_1), \, R(d_1 d_2), \, R(d_1 d_2 d_3), \, \dots$$
 The run $R$ is \emph{successful} (or accepting) if for \emph{every} infinite path $\pi$ through the tree, the sequence of states $R|_\pi$ visits the set of accepting states $F$ infinitely often:
-$$\forall \pi \in \{0,1\}^\omega, \quad \text{inf}(R|_\pi) \cap F \neq \emptyset$$
+$$\forall \pi \in \{0,1\}^\omega, \quad In(R|_\pi) \cap F \neq \emptyset$$
 The tree $t$ is accepted by $A$ if there exists a successful run of $A$ on $t$. The language recognized by $A$ is denoted by $L(A)$.
 \end{definition}
 
@@ -843,7 +843,7 @@ Let us build the BTA for $T_{\exists, \infty, a}$:
 Let us trace how this automaton evaluates a run on a tree $t$:
 \begin{itemize}
     \item The automaton starts at the root in state $q_0$. At each step, it chooses one child to receive a state in $\{q_0, q_a\}$ (continuing the search for the path with infinitely many $a$'s), and sends the other child to state $q_T$.
-    \item Any path routed to $q_T$ stays in $q_T$ forever. Since $q_T \in F$, these paths trivially satisfy the Büchi condition $\text{inf}(R|_\pi) \cap F \neq \emptyset$.
+    \item Any path routed to $q_T$ stays in $q_T$ forever. Since $q_T \in F$, these paths trivially satisfy the Büchi condition $In(R|_\pi) \cap F \neq \emptyset$.
     \item The single path that is checked will visit state $q_a$ (which is in $F$) if and only if it encounters nodes labeled $a$.
     \item If there exists a path with infinitely many $a$'s, the automaton can non-deterministically guess this path. The check along this path will succeed (visiting $q_a$ infinitely often), and all other paths will succeed trivially in $q_T$. Hence, the run is successful.
     \item If no such path exists, then along any run, the checked path will only visit $q_a$ finitely many times, failing the Büchi condition. Thus, no successful run exists, and the tree is rejected.
@@ -863,7 +863,7 @@ We show that while $T_{\exists, \infty, a}$ is recognizable by a BTA, its comple
 
 Assume for contradiction that there exists a BTA $A = (Q, \Sigma, q_0, \Delta, F)$ such that $L(A) = T_{co\text{-}\exists}$.
 Consider the tree $t_b$ where all nodes are labeled with $b$. Since $t_b$ has zero $a$'s, every path in $t_b$ contains only finitely many $a$'s, so $t_b \in T_{co\text{-}\exists}$. Thus, there exists a successful run $R$ of $A$ on $t_b$.
-By definition of a successful run, for every path $\pi \in \{0,1\}^\omega$, we have $\text{inf}(R|_\pi) \cap F \neq \emptyset$.
+By definition of a successful run, for every path $\pi \in \{0,1\}^\omega$, we have $In(R|_\pi) \cap F \neq \emptyset$.
 
 Let $n = |Q|$ be the number of states in $A$. We can trace a path in the run tree $R$ to construct a contradiction.
 Starting from the root $\epsilon$, since every path in the run visits $F$ infinitely often, we can find a node $w_1 = d_1 \dots d_{k_1}$ (with $k_1 > 0$) such that the state sequence from the root to $w_1$ visits at least one state in $F$.
@@ -915,7 +915,7 @@ is a finite set of $k$ Rabin pairs of states, where $L_i, U_i \subseteq Q$.
 
 \begin{definition}[RTA Acceptance]
 A run $R: \{0,1\}^* \to Q$ of the RTA $A$ is \emph{successful} if for \emph{every} infinite path $\pi \in \{0,1\}^\omega$, the set of states visited infinitely often along $\pi$ satisfies the Rabin condition with respect to $\Omega$:
-$$\forall \pi \in \{0,1\}^\omega, \quad \exists i \in \{1, \dots, k\} \text{ s.t. } \text{inf}(R|_\pi) \cap L_i = \emptyset \land \text{inf}(R|_\pi) \cap U_i \neq \emptyset$$
+$$\forall \pi \in \{0,1\}^\omega, \quad \exists i \in \{1, \dots, k\} \text{ s.t. } In(R|_\pi) \cap L_i = \emptyset \land In(R|_\pi) \cap U_i \neq \emptyset$$
 In words, for every path $\pi$, there must exist some pair $(L_i, U_i)$ such that the path visits states in $L_i$ only finitely many times, and visits states in $U_i$ infinitely many times.
 \end{definition}
 
@@ -936,8 +936,8 @@ We construct the DRTA as follows:
 Let us trace the Rabin condition on any path $\pi$ of the unique run tree:
 \begin{itemize}
     \item The state is $q_a$ at a node if and only if the node label is $a$.
-    \item If the path contains only finitely many $a$'s, then the state $q_a$ is visited only finitely many times, meaning $\text{inf}(R|_\pi) \cap L_1 = \emptyset$. Since the path is infinite, it must contain infinitely many $b$'s, which means the state $q_0$ is visited infinitely often: $\text{inf}(R|_\pi) \cap U_1 \neq \emptyset$. The Rabin condition is satisfied.
-    \item If the path contains infinitely many $a$'s, then $q_a$ is visited infinitely often, meaning $\text{inf}(R|_\pi) \cap L_1 \neq \emptyset$, violating the Rabin condition.
+    \item If the path contains only finitely many $a$'s, then the state $q_a$ is visited only finitely many times, meaning $In(R|_\pi) \cap L_1 = \emptyset$. Since the path is infinite, it must contain infinitely many $b$'s, which means the state $q_0$ is visited infinitely often: $In(R|_\pi) \cap U_1 \neq \emptyset$. The Rabin condition is satisfied.
+    \item If the path contains infinitely many $a$'s, then $q_a$ is visited infinitely often, meaning $In(R|_\pi) \cap L_1 \neq \emptyset$, violating the Rabin condition.
 \end{itemize}
 Since the condition is checked universally for all paths, the automaton accepts the tree if and only if every path contains only finitely many $a$'s. This deterministic RTA recognizes $T_{co\text{-}\exists}$ using a single Rabin pair.
 \end{example}

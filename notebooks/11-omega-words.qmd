@@ -1,0 +1,325 @@
+---
+title: "Notebook 11: Infinite Words & In(α)"
+pagetitle: "NB 11: Infinite Words — VVT UniUD"
+description: "Interactive exploration of ultimately periodic ω-words and the In(α) function. From the Verification and Validation Techniques course at UniUD."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 11: Infinite Words & In(α)",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Infinite Words and $In(\alpha)$
+
+This notebook explores **ultimately periodic** $\omega$-words. These are infinite words of the form $\alpha = u \cdot v^\omega$, where $u$ is a finite prefix called the *stem*, and $v$ is a finite word called the *period* that repeats infinitely often.
+
+We also compute $In(\alpha)$, which is the set of symbols from the alphabet that appear **infinitely often** in the word $\alpha$. For an ultimately periodic word, $In(\alpha)$ is exactly the set of symbols present in the period $v$.
+
+---
+
+## Widget 1: $\omega$-Word Explorer
+
+Enter a stem $u$ and a period $v$ (comma or space-separated symbols, e.g., `req`, `ack`). The word strip below will visualize the infinite word $\alpha = u \cdot v^\omega$.
+
+```{=html}
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-node-fill: #daf3fc;
+  --sc-active-fill: #30bced;
+  --sc-active-stroke: #1f8fb7;
+  --sc-dead-fill: #fee8e3;
+  --sc-dead-stroke: #fc5130;
+  --sc-new-fill: #fff3b0;
+  --sc-new-border: #e9c46a;
+  --sc-proc-fill: #d4f7ef;
+  --sc-proc-border: #2ec4b6;
+  --sc-text: #050401;
+  --sc-label: #303036;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-btn:disabled { opacity: 0.4; cursor: default; }
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.sc-explain {
+  background: #f0faff;
+  border-left: 4px solid var(--sc-primary);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.95rem;
+  min-height: 52px;
+}
+.input-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sc-label);
+  text-transform: uppercase;
+}
+.input-group input {
+  padding: 8px 12px;
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+  width: 200px;
+}
+.word-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.word-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+}
+.word-char {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  color: #fff;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+.word-index {
+  font-size: 0.7rem;
+  color: var(--sc-label);
+  margin-top: 4px;
+}
+.word-separator {
+  width: 2px;
+  background: var(--sc-border);
+  margin: 0 4px;
+  height: 60px;
+}
+.in-alpha-box {
+  background: #fff3b0;
+  border: 2px dashed #e9c46a;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  font-family: ui-monospace, monospace;
+  text-align: center;
+  margin-top: 10px;
+  color: #050401;
+}
+.legend-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  color: var(--sc-label);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+</style>
+
+<div class="sc-lab" id="nb11-w1">
+  <div class="input-row">
+    <div class="input-group">
+      <label for="nb11-u">Stem (u)</label>
+      <input type="text" id="nb11-u" value="req" placeholder="e.g. a b">
+    </div>
+    <div class="input-group">
+      <label for="nb11-v">Period (v)</label>
+      <input type="text" id="nb11-v" value="req ack" placeholder="e.g. a b">
+    </div>
+    <div class="input-group" style="justify-content: flex-end;">
+      <button class="sc-btn" id="nb11-update">Update Word</button>
+    </div>
+  </div>
+  
+  <div class="sc-explain" id="nb11-explain">
+    Showing the word &alpha; = <code>req</code> &middot; (<code>req ack</code>)<sup>&omega;</sup>
+  </div>
+
+  <div class="sc-panel">
+    <h4>&omega;-Word Strip &alpha;(0, 23)</h4>
+    <div class="legend-row">
+      <div class="legend-item"><div class="legend-color" style="background:#888;"></div> Stem part</div>
+      <div class="legend-item"><div class="legend-color" style="background:#2ec4b6;"></div> Period part</div>
+    </div>
+    <div class="word-strip" id="nb11-strip"></div>
+    
+    <h4 style="margin-top: 20px;">Infinitely Often Symbols: In(&alpha;)</h4>
+    <div class="in-alpha-box" id="nb11-in-alpha"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const colors = ['#2b9af3', '#f97316', '#22c55e', '#a855f7', '#ec4899', '#eab308', '#0ea5e9', '#ef4444'];
+  const symbolColorMap = {};
+  let colorIdx = 0;
+
+  function getColor(sym) {
+    if (!symbolColorMap[sym]) {
+      symbolColorMap[sym] = colors[colorIdx % colors.length];
+      colorIdx++;
+    }
+    return symbolColorMap[sym];
+  }
+
+  function parseInput(str) {
+    return str.trim().split(/[\s,]+/).filter(s => s.length > 0);
+  }
+
+  function render() {
+    const uStr = document.getElementById('nb11-u').value;
+    const vStr = document.getElementById('nb11-v').value;
+    
+    let u = parseInput(uStr);
+    let v = parseInput(vStr);
+    
+    if (v.length === 0) {
+      v = ['?']; // Fallback period if empty
+    }
+
+    const explainEl = document.getElementById('nb11-explain');
+    explainEl.innerHTML = `Showing the word &alpha; = <code>${u.join(' ')}</code> &middot; (<code>${v.join(' ')}</code>)<sup>&omega;</sup>`;
+
+    const stripEl = document.getElementById('nb11-strip');
+    stripEl.innerHTML = '';
+
+    const totalBoxes = 24;
+    for (let i = 0; i < totalBoxes; i++) {
+      let sym = '';
+      let isStem = false;
+      if (i < u.length) {
+        sym = u[i];
+        isStem = true;
+      } else {
+        sym = v[(i - u.length) % v.length];
+      }
+
+      const box = document.createElement('div');
+      box.className = 'word-box';
+      
+      const charDiv = document.createElement('div');
+      charDiv.className = 'word-char';
+      charDiv.textContent = sym;
+      charDiv.style.background = getColor(sym);
+      charDiv.style.opacity = isStem ? '0.6' : '1';
+      
+      const idxDiv = document.createElement('div');
+      idxDiv.className = 'word-index';
+      idxDiv.textContent = i;
+      
+      box.appendChild(charDiv);
+      box.appendChild(idxDiv);
+      stripEl.appendChild(box);
+
+      // Add separator between stem and period, and between periods
+      if (i === u.length - 1 || (i >= u.length && (i - u.length + 1) % v.length === 0)) {
+        if (i < totalBoxes - 1) {
+          const sep = document.createElement('div');
+          sep.className = 'word-separator';
+          if (i === u.length - 1) {
+            sep.style.background = '#050401';
+            sep.style.width = '3px';
+          }
+          stripEl.appendChild(sep);
+        }
+      }
+    }
+
+    // Calculate In(alpha)
+    const inAlphaSet = new Set(v);
+    const inAlphaArray = Array.from(inAlphaSet);
+    
+    const inAlphaEl = document.getElementById('nb11-in-alpha');
+    if (inAlphaArray.length === 1 && inAlphaArray[0] === '?') {
+        inAlphaEl.innerHTML = `In(&alpha;) = &empty; <em>(invalid period)</em>`;
+    } else {
+        const setStr = inAlphaArray.map(s => `<span style="color:${getColor(s)}">${s}</span>`).join(', ');
+        inAlphaEl.innerHTML = `In(&alpha;) = { ${setStr} }`;
+    }
+  }
+
+  document.getElementById('nb11-update').addEventListener('click', render);
+  // Auto-render on enter
+  document.getElementById('nb11-u').addEventListener('keyup', (e) => { if(e.key==='Enter') render(); });
+  document.getElementById('nb11-v').addEventListener('keyup', (e) => { if(e.key==='Enter') render(); });
+  
+  // Initial render
+  render();
+})();
+</script>
+```

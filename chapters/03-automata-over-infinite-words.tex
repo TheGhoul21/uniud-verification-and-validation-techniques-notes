@@ -12,13 +12,36 @@ with the environment.}
 
 Finite-word automata are well suited for batch computations: a compiler
 receives a finite program, a parser receives a finite string, a protocol
-message has a finite body.  Verification of reactive systems is
-different.  Operating systems, controllers, servers, and embedded
-devices are meant to keep interacting with their environment.
+message has a finite body.  Once the input has been read to the end, the
+automaton reports an answer and stops.
 
-Their behaviours are therefore not finite words but infinite words.  To
-model them we keep the finite-state graph, but change the acceptance
-condition.
+Verification of reactive systems is different.  Operating systems,
+controllers, servers, and embedded devices are not built to compute an
+answer and halt: as long as they work correctly, they keep interacting
+with their environment forever.  There is no fixed endpoint at which to
+stop and check whether things went well, because correctness is not a
+property of some final configuration---it is a property that must hold
+\emph{over time}.  Take a printer: we do not want to state ``the printer
+eventually prints,'' as if printing once were the whole story.  We want
+``whenever the printer receives a request, it \emph{eventually} prints
+it,'' no matter how many further requests arrive afterwards, and no
+matter how long the printer keeps running.  A liveness guarantee like
+this one only makes sense against a behaviour that never stops.  (Every
+physical system eventually breaks down or is switched off, of course;
+but if we want to describe its \emph{intended}, correct behaviour, we
+should describe it as if it runs forever.)  So the behaviours we need to
+model are not finite words but infinite words.
+
+Moving to infinite words forces us to rethink acceptance from scratch.
+For a finite word, ``does the automaton accept this word?'' has an
+obvious operational answer: run the automaton along the word and check
+whether the scan ends in a final state.  That recipe is meaningless for
+an infinite word, because the scan never ends---there is no last symbol
+at which to stop and inspect the state.  ``Final state'' is simply not a
+notion that survives the move to infinite words.  We keep the same
+finite-state graph, but we must replace the acceptance condition with one
+that talks about what the run does \emph{in the limit}, rather than where
+it ends.  That is the technical problem this chapter solves.
 
 \begin{chapteropening}
 \textbf{Where we are.}  \Cref{ch:fsa,ch:regular-decision} developed the
@@ -76,63 +99,35 @@ than words with a last symbol.
 Let $\Sigma$ be a finite alphabet.  An \textbf{$\omega$-word} over
 $\Sigma$ is an infinite sequence
 \[
-  \alpha=\alpha_0\alpha_1\alpha_2\cdots
-  \quad\text{with each }\alpha_i\in\Sigma.
+  \alpha=\alpha(0)\alpha(1)\alpha(2)\cdots
+  \quad\text{with }\alpha(i)\in\Sigma\text{ for every }i\geq 0.
 \]
 The set of all infinite words over $\Sigma$ is denoted by
-$\Sigma^\omega$.
+$\Sigma^\omega$, and we write $\Sigma^\infty=\Sigma^*\cup\Sigma^\omega$
+for the set of all words, finite or infinite.  A language of infinite
+words, or \textbf{$\omega$-language}, is simply a subset
+$L\subseteq\Sigma^\omega$---exactly as a language of finite words is a
+subset of $\Sigma^*$.
 \end{definition}
 
 An $\omega$-word is a function from the natural numbers to $\Sigma$:
 position $0$ gets a symbol, position $1$ gets a symbol, and so on
-without end.  The key operational difference from finite words is that
-there is no ``last symbol'' to inspect, so every property of an
-$\omega$-word must be phrased in terms of what happens eventually or
-repeatedly, never in terms of how the word ends.
+without end.  We deliberately write $\alpha(i)$ rather than $\alpha_i$
+to keep this functional reading in view---$\alpha$ is the sequence, and
+$\alpha(i)$ is what you get by evaluating it at position $i$.  The key
+operational difference from finite words is that there is no ``last
+symbol'' to inspect, so every property of an $\omega$-word must be
+phrased in terms of what happens eventually or repeatedly, never in
+terms of how the word ends.
 
 We use $u,v,w$ for finite words and Greek letters such as
 $\alpha,\beta$ for infinite words.  This distinction matters because
 finite words can be consumed completely, while infinite words have no
 last position.
 
-\begin{definition}[Segments and suffixes]
-\label{def:omega-segments}
-For an $\omega$-word $\alpha$, the finite segment
-$\alpha[i,j]$ denotes the word
-\[
-  \alpha_i\alpha_{i+1}\cdots\alpha_{j-1}.
-\]
-The infinite suffix $\alpha[i,\omega]$ denotes
-\[
-  \alpha_i\alpha_{i+1}\alpha_{i+2}\cdots.
-\]
-\end{definition}
-
-The convention $\alpha[i,i]=\varepsilon$ keeps formulas uniform: a
-segment with equal endpoints consumes no symbols.
-
-\begin{definition}[Infinitely often]
-\label{def:inf-set}
-For an infinite word $\alpha\in\Sigma^\omega$, define
-\[
-  \inf(\alpha)=\{a\in\Sigma : a\text{ occurs infinitely often in }\alpha\}.
-\]
-\end{definition}
-
-Because $\Sigma$ is finite and $\alpha$ is infinite, at least one symbol
-must occur infinitely often.  The set $\inf(\alpha)$ records the
-long-run behaviour and forgets finite prefixes.
-
-\begin{example}[A long-run property]
-\label{ex:infinitely-many-a}
-Let
-\[
-  \alpha = ab\,a\,bb\,a\,bbb\,a\,bbbb\cdots.
-\]
-Then $a$ occurs infinitely often and $b$ occurs infinitely often, so
-$\inf(\alpha)=\{a,b\}$.
-\end{example}
-
+With the notion of $\omega$-word fixed, the next question is how to
+\emph{describe} and \emph{build} sets of infinite words.  We answer it
+by lifting familiar finite-word operations to the infinite setting.
 
 % ============================================================
 \section{From Finite Languages to Infinite Languages}
@@ -158,26 +153,72 @@ Usually we assume $\varepsilon\notin W$ when using $W^\omega$, because
 empty blocks do not help construct an infinite word and can obscure the
 intended decomposition.
 
+The vectorial closure, which we define at the end of this section, will
+ask whether infinitely many finite \emph{prefixes} of $\alpha$ belong to $W$.
+To express this precisely, we first introduce notation for those prefixes.
+
+\begin{definition}[Segments and suffixes]
+\label{def:omega-segments}
+For an $\omega$-word $\alpha$ and $n\leq m$, the finite segment
+$\alpha(n,m)$ denotes the word
+\[
+  \alpha(n)\alpha(n+1)\cdots\alpha(m-1).
+\]
+The infinite suffix $\alpha(n,\omega)$ denotes
+\[
+  \alpha(n)\alpha(n+1)\alpha(n+2)\cdots.
+\]
+\end{definition}
+
+The convention $\alpha(n,n)=\varepsilon$ keeps formulas uniform: a
+segment with equal endpoints consumes no symbols.
+
+Long-run properties of an $\omega$-word are statements about
+\emph{infinitely many} or \emph{only finitely many} positions. We introduce a compact notation for them:
+
+\begin{definition}[Infinitely/finitely many positions]
+\label{def:exists-omega}
+For a property $P$ of natural numbers, write
+\[
+  \exists^\omega n.\ P(n)
+\]
+for ``there exist infinitely many $n\in\mathbb{N}$ such that $P(n)$
+holds'', and write
+\[
+  \exists^{<\omega} n.\ P(n)
+\]
+for ``there exist only finitely many $n\in\mathbb{N}$ such that $P(n)$
+holds''.  Note that $\exists^{<\omega}n.\,P(n)$ is equivalent to
+$\neg(\exists^\omega n.\,P(n))$: if $P$ does not hold at infinitely many
+positions, it holds at only finitely many, and conversely.
+\end{definition}
+
+The quantifier $\exists^\omega n.\,P(n)$ will reappear in every acceptance
+condition in the sections that follow---from the vectorial closure below to the
+B\"uchi runs in \cref{sec:buchi-automata}.
+
+With these tools, we can define a crucial operation that turns a set of ``good prefixes'' into an infinite language by requiring those prefixes to appear again and again.
+
 \begin{definition}[Vectorial closure]
 \label{def:vectorial-closure}
 For $W\subseteq\Sigma^*$, define
 \[
-  \vec{W}=
-  \{\alpha\in\Sigma^\omega :
-    \alpha[0,n]\in W\text{ for infinitely many }n\}.
+  \overrightarrow{W}=
+  \{\alpha\in\Sigma^\omega : \exists^\omega n.\ \alpha(0,n)\in W\}.
 \]
 \end{definition}
 
-The language $\vec{W}$ contains the infinite words whose finite prefixes
-hit $W$ infinitely often.
+The language $\overrightarrow{W}$ contains the infinite words whose
+finite prefixes hit $W$ infinitely often---the $\exists^\omega n$
+notation from \cref{def:exists-omega} says exactly this in one symbol.
 
 \begin{example}[Vectorial closure on the running example]
 \label{ex:vectorial-closure-ack}
 Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, let $W$ be the set of
-finite words that end with \texttt{ack}.  Then $\vec{W}$ is the set of
-infinite traces such that infinitely many finite prefixes end with
-\texttt{ack}---in other words, exactly the traces in which \texttt{ack}
-occurs infinitely often.
+finite words that end with \texttt{ack}.  Then $\overrightarrow{W}$ is
+the set of infinite traces such that infinitely many finite prefixes end
+with \texttt{ack}---in other words, exactly the traces in which
+\texttt{ack} occurs infinitely often.
 \end{example}
 
 The vectorial closure makes the connection to acceptance explicit.  It is a natural way to express recurrence:
@@ -185,7 +226,7 @@ not just ``a good prefix appears'', but ``good prefixes keep appearing''.
 For a deterministic B\"uchi automaton this is exactly the operational
 shape of acceptance: if $W$ is the set of finite prefixes that leave the
 automaton in an accepting state, then the accepted $\omega$-language is
-$\vec{W}$.  We will return to this observation in
+$\overrightarrow{W}$.  We will return to this observation in
 \cref{ch:deterministic-automata-star-free}, where it becomes the precise
 characterisation of deterministic B\"uchi languages.
 
@@ -223,19 +264,53 @@ role of $F$: in an NFA, $F$ says where a run must \emph{end}; in a
 B\"uchi automaton, $F$ says where a run must \emph{return} infinitely
 often.
 
+The most fundamental difference from finite words is that the run never stops. We cannot simply inspect the last state of the run. Instead, we must track which states are visited \emph{in the limit}. To formalize this, we define the ``infinity set'' of a sequence.
+
+\begin{definition}[Infinitely often]
+\label{def:inf-set}
+For an infinite sequence $\alpha$ over a finite alphabet $\Sigma$, define
+\[
+  In(\alpha)=\{\sigma\in\Sigma : \exists^\omega n.\ \alpha(n)=\sigma\}.
+\]
+\end{definition}
+
+Because the alphabet is finite and the sequence is infinite, at least one symbol
+must occur infinitely often---if every symbol occurred only finitely
+often, the sequence itself, being a union of finitely many finite pieces,
+would be finite, a contradiction.  So $In(\alpha)$ is always non-empty.
+It records the long-run behaviour and forgets everything about finite prefixes.
+
+\begin{example}[Infinity sets in the running example]
+\label{ex:infinitely-many-a}
+In our request/acknowledgement setting, a trace where \texttt{ack}
+appears at positions $1, 4, 7, \ldots$ and \texttt{req} fills every
+other position has both symbols occurring infinitely often, so
+$In(\alpha)=\{\texttt{req},\texttt{ack}\}$.  By contrast, a trace that
+eventually stops acknowledging---where \texttt{ack} appears only
+finitely many times---gives $In(\alpha)=\{\texttt{req}\}$.  The infinity
+set therefore neatly separates ``liveness satisfied'' from ``liveness
+violated'' at the level of individual traces, without caring about how
+early or late the acknowledgements arrived.
+\end{example}
+
+We can now define the run of a B\"uchi automaton and its acceptance condition by applying the infinity set to the sequence of states visited.
+
 \begin{definition}[Run and B\"uchi acceptance]
 \label{def:buchi-run}
-Let $\alpha=\alpha_0\alpha_1\alpha_2\cdots$.  A run of $A$ on
+Let $\alpha=\alpha(0)\alpha(1)\alpha(2)\cdots$.  A run of $A$ on
 $\alpha$ is an infinite sequence of states
 \[
-  \rho=\rho_0\rho_1\rho_2\cdots
+  \rho=\rho(0)\rho(1)\rho(2)\cdots
 \]
-such that $\rho_0=q_0$ and
-$(\rho_i,\alpha_i,\rho_{i+1})\in\Delta$ for every $i\geq 0$.
+such that $\rho(0)=q_0$ and
+$(\rho(i),\alpha(i),\rho(i+1))\in\Delta$ for every $i\geq 0$.
 
-The run is \textbf{accepting} if
+Since a run is itself an infinite sequence (over $Q$ instead of $\Sigma$),
+we can apply the infinity set notation to it:
+$In(\rho)\subseteq Q$ is the set of states that $\rho$ visits infinitely
+often.  The run is \textbf{accepting} if
 \[
-  \inf(\rho)\cap F\neq\emptyset.
+  In(\rho)\cap F\neq\emptyset.
 \]
 The word $\alpha$ is accepted if there exists at least one accepting run
 on $\alpha$.
@@ -244,6 +319,15 @@ on $\alpha$.
 For finite words, we ask where the run ends.  For infinite words, there
 is no end.  B\"uchi acceptance instead asks whether the run visits some
 accepting state infinitely many times.
+
+Notice how undemanding this condition is: we do not care whether the run
+visits other states finitely or infinitely often, nor when or how often
+it returns to $F$---we only need \emph{at least one} accepting state to
+appear infinitely many times.  The automaton does not have to reach $F$
+on a schedule; it just cannot get permanently stuck outside $F$.  This
+lenience is intentional: a system satisfies a liveness property as long
+as the good event keeps happening, regardless of the gaps between
+occurrences.
 
 This is also why ``membership'' changes character.  For a finite word we
 can simulate the automaton to the last symbol and inspect the final
@@ -302,16 +386,25 @@ Here is a richer example, adapted from Wolfgang Thomas. Over the alphabet $\Sigm
 \begin{quote}
 ``Between any two consecutive occurrences of $a$, there is an even number of occurrences of $b$ and $c$ combined.''
 \end{quote}
-For instance, $a\,b\,c\,a$ is accepted (two symbols between the $a$'s), but $a\,b\,b\,b\,a$ is rejected (three symbols). Words with fewer than two occurrences of $a$ vacuously satisfy the condition.
+For instance, $a\,b\,c\,a$ is accepted (two symbols between the $a$'s), but $a\,b\,b\,b\,a$ is rejected (three symbols).  Words with no occurrences of $a$, or only one, vacuously satisfy the condition.
 
-The B\"uchi automaton uses its states to track the parity of the non-$a$ symbols since the last $a$:
+Let us build the automaton step by step. There is at least one state for sure: the initial state $q_0$. When the automaton starts---or more generally, while it has not yet seen any $a$---it simply waits. Reading a $b$ or a $c$ does not change anything meaningful, so we loop on $q_0$: nothing to check yet. This also handles the infinite words that never contain an $a$ at all; those trivially satisfy the condition, so $q_0$ must be an \textbf{accepting} state.
+
+If we read an $a$, we must start tracking what comes next, so we move to a new state $q_1$. The intended meaning of $q_1$ is: ``the last symbol was $a$, or equivalently, we have seen an \emph{even} number of $b/c$ symbols since the last $a$ (zero counts as even).'' From $q_1$, reading another $a$ immediately means we have completed a gap of length zero---even---so we \emph{stay} in $q_1$. This also shows that $q_1$ must be \textbf{accepting}: if we keep reading $a$'s forever from $q_1$, every consecutive gap is zero, which is even.
+
+Reading a $b$ or $c$ from $q_1$ moves us to $q_2$, which means ``odd number of $b/c$ symbols since the last $a$''. From $q_2$, reading another $b$ or $c$ brings us back to $q_1$ (even again). But reading an $a$ while in $q_2$ seals an odd-length gap---a violation---so that word does not belong to $L$. If we want a complete automaton, we route that transition to a non-accepting sink and stay there; if we allow a partial automaton, we simply leave that transition undefined and the run dies.
+
+Should $q_2$ be accepting? Both choices are valid. If from some point on we never see another $a$, the condition is not violated regardless of which state we are in. And if we do see another $a$, we must be in $q_1$ for the run to survive. So whether $q_2$ is declared accepting makes no difference to the language recognised.
+
+The states therefore carry a clean semantic reading:
 \begin{itemize}[nosep]
-  \item $q_0$ (initial, accepting): The empty prefix, or reading $b,c$ before the first $a$.
-  \item $q_1$ (accepting): The last symbol was $a$, or we have seen an even number of $b/c$ symbols since the last $a$.
-  \item $q_2$ (non-accepting): We have seen an odd number of $b/c$ symbols since the last $a$.
+  \item $q_0$: before the first $a$, or words with no $a$ at all.
+  \item $q_1$: even number of $b/c$ symbols since the last $a$ (including zero).
+  \item $q_2$: odd number of $b/c$ symbols since the last $a$.
 \end{itemize}
-If the automaton reads an $a$ while in $q_2$, it transitions to a rejecting sink (omitted for clarity), because a forbidden odd-length block has been sealed by an $a$.
 \end{example}
+
+\aside{This automaton is deterministic: from each state, each symbol leads to at most one successor.  Most B\"uchi automata we build are non-deterministic; deterministic ones are a special case.}
 
 \Cref{fig:buchi-parity} makes the memory explicit: after the first $a$,
 the automaton only needs to remember whether the current block length is
@@ -354,6 +447,20 @@ initialisation phase followed by an infinite behaviour.  Closure
 properties tell us that these combinations stay inside the same automata
 model.
 
+But closure under two operations matters most for the verification
+application: \emph{complementation} and \emph{intersection}.  Recall the
+reduction from \cref{ch:regular-decision}: the model checking question
+``does every behaviour of the system satisfy the property?'' is equivalent
+to asking whether $L_1 \cap \overline{L_2} = \emptyset$, where $L_1$
+describes the system and $L_2$ describes the property.  This reduction
+works whenever the language class is closed under complementation and
+intersection, because then both operands stay in the class and we are
+left with an emptiness question---which we already know how to solve.
+Complementation for $\omega$-regular languages is more delicate than in
+the finite case and is treated separately in
+\cref{ch:complementation}; intersection, however, follows directly from
+the constructions below.
+
 \begin{theorem}[Basic closure properties]
 \label{thm:omega-basic-closure}
 $\omega$-regular languages are closed under finite union and
@@ -387,13 +494,16 @@ visits mean infinitely many completed $V$-blocks.
 
 For intersection of two B\"uchi automata, the naive product with
 $F_1\times F_2$ is too strict: one run may visit $F_1$ at even times and
-the other may visit $F_2$ at odd times.  The correct product stores a
-phase bit.  In phase $1$ it waits until the first component visits
-$F_1$, then switches to phase $2$; in phase $2$ it waits until the
-second component visits $F_2$, then switches back to phase $1$.  The
-accepting states are the states that complete one of these obligations.
-An accepting run must therefore complete both obligations infinitely
-often.
+the other may visit $F_2$ at odd times.  The key observation is that
+both automata do not need to visit their accepting states
+\emph{at the same moment}---they only need to each do so infinitely
+often, potentially at entirely different positions in the run.  The
+correct product stores a phase bit.  In phase $1$ it waits until the
+first component visits $F_1$, then switches to phase $2$; in phase $2$
+it waits until the second component visits $F_2$, then switches back to
+phase $1$.  The accepting states are the states that complete one of
+these obligations.  An accepting run must therefore complete both
+obligations infinitely often, which is exactly the right condition.
 \end{formaldetails}
 
 \Cref{fig:buchi-intersection-phases} depicts only the control idea of the
@@ -600,11 +710,15 @@ large infinite languages.
 \textbf{Symbol} & \textbf{Meaning} \\
 \midrule
 $\Sigma^\omega$       & Set of all infinite words over $\Sigma$ \\
-$\alpha[i,j]$         & Finite segment $\alpha_i\cdots\alpha_{j-1}$ \\
-$\alpha[i,\omega]$    & Infinite suffix from position $i$ \\
-$\inf(\alpha)$        & Symbols occurring infinitely often in $\alpha$ \\
+$\Sigma^\infty$       & $\Sigma^*\cup\Sigma^\omega$: words, finite or infinite \\
+$\alpha(i)$           & Symbol at position $i$ of the $\omega$-word $\alpha$ \\
+$\alpha(n,m)$         & Finite segment $\alpha(n)\cdots\alpha(m-1)$ \\
+$\alpha(n,\omega)$    & Infinite suffix from position $n$ \\
+$\exists^\omega n.\,P(n)$    & $P$ holds at infinitely many positions \\
+$\exists^{<\omega} n.\,P(n)$ & $P$ holds at only finitely many positions \\
+$In(\alpha)$          & Symbols (or states, for a run) occurring infinitely often \\
 $W^\omega$            & Infinite concatenation of blocks from $W\subseteq\Sigma^*$ \\
-$\vec{W}$             & Vectorial closure: $\omega$-words whose prefixes hit $W$ infinitely often \\
+$\overrightarrow{W}$  & Vectorial closure: $\omega$-words whose prefixes hit $W$ infinitely often \\
 $uv^\omega$           & Ultimately periodic word: finite prefix $u$, repeated cycle $v$ \\
 $(Q,\Sigma,\Delta,q_0,F)$ & B\"uchi automaton tuple \\
 $F$                   & Accepting states (must be visited infinitely often) \\
@@ -631,7 +745,7 @@ Let
   \alpha = a\,b\,b\,a\,b\,b\,b\,a\,b\,b\,b\,b\cdots,
 \]
 where the number of $b$'s between consecutive $a$'s increases by one.
-Compute $\inf(\alpha)$.  Is $\alpha$ ultimately periodic?
+Compute $In(\alpha)$.  Is $\alpha$ ultimately periodic?
 \end{chapex}
 
 \begin{chapex}[B\"uchi acceptance]

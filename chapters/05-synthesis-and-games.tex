@@ -52,25 +52,25 @@ problem that shows the flavour of the task.
 
 \begin{example}[A three-property specification]
 \label{ex:three-properties}
-An infinite binary input stream $\alpha=\alpha_0\alpha_1\cdots$ arrives
+An infinite binary input stream $\alpha=\alpha(0)\alpha(1)\cdots$ arrives
 one bit at a time.  We must build a machine that produces an infinite
-binary output stream $\beta=\beta_0\beta_1\cdots$ satisfying three
+binary output stream $\beta=\beta(0)\beta(1)\cdots$ satisfying three
 requirements simultaneously:
 \begin{enumerate}[nosep,label=(\roman*)]
-  \item \emph{Echo ones:} for every $t$, if $\alpha_t=1$ then
-        $\beta_t=1$.
+  \item \emph{Echo ones:} for every $t$, if $\alpha(t)=1$ then
+        $\beta(t)=1$.
   \item \emph{No consecutive output zeros:} for every $t$, not both
-        $\beta_t=0$ and $\beta_{t+1}=0$.
+        $\beta(t)=0$ and $\beta(t+1)=0$.
   \item \emph{Liveness:} if $\alpha$ contains infinitely many zeros, then
         $\beta$ must also contain infinitely many zeros.
 \end{enumerate}
 Condition~(i) alone is trivially solved by the constant function
-$\beta_t=1$ for all $t$: every input one is echoed, and no input
+$\beta(t)=1$ for all $t$: every input one is echoed, and no input
 constrains the output on zeros.  This candidate also satisfies~(ii), but
 it fails~(iii): if the input has infinitely many zeros, the constant-one
 output has \emph{no} zeros at all.
 
-Can we do better?  The identity function $\beta_t=\alpha_t$ satisfies
+Can we do better?  The identity function $\beta(t)=\alpha(t)$ satisfies
 (i) and~(iii) but fails~(ii) whenever two consecutive input zeros
 appear.
 
@@ -140,12 +140,12 @@ Three failure modes illustrate the constraints:
 \begin{enumerate}[nosep,label=(\alph*)]
   \item \emph{Future dependence.}
         The requirement ``output exactly the next input bit''
-        ($\beta_t=\alpha_{t+1}$) is satisfiable as a relation, but not
+        ($\beta(t)=\alpha(t+1)$) is satisfiable as a relation, but not
         realizable: the system would need to know tomorrow's input
         today.  This violates the bit-to-bit constraint.
   \item \emph{Unbounded memory.}
-        The requirement $\beta_{2t}=\beta_{2t+1}=\alpha_t$ for all $t$
-        forces the machine to remember $\alpha_t$ until time $2t$.  As
+        The requirement $\beta(2t)=\beta(2t+1)=\alpha(t)$ for all $t$
+        forces the machine to remember $\alpha(t)$ until time $2t$.  As
         $t$ grows, the gap between input and output grows without bound,
         so no finite memory suffices.
   \item \emph{Infinite lookahead.}
@@ -380,11 +380,11 @@ that choice is precisely the bit produced by the transducer.
 A \textbf{M\"uller condition} specifies a family
 $\mathcal{F}\subseteq 2^Q$ of accepting sets.  A run is accepting if
 \[
-  \inf(\rho)\in\mathcal{F}.
+  In(\rho)\in\mathcal{F}.
 \]
 \end{definition}
 
-B\"uchi acceptance asks whether $\inf(\rho)$ intersects a fixed set
+B\"uchi acceptance asks whether $In(\rho)$ intersects a fixed set
 $F$.  M\"uller acceptance can inspect the whole set of states seen
 infinitely often.  This additional expressiveness is useful when moving
 from non-deterministic automata to deterministic automata for synthesis.
@@ -393,7 +393,7 @@ from non-deterministic automata to deterministic automata for synthesis.
 \label{def:weak-muller}
 A \textbf{weak M\"uller condition} evaluates a play using the set
 $\mathrm{Occ}(\rho)$ of all states that occur at least once, rather than
-the set $\inf(\rho)$ of states that occur infinitely often.
+the set $In(\rho)$ of states that occur infinitely often.
 \end{definition}
 
 The difference is subtle but important.  A weak M\"uller objective can
@@ -408,7 +408,7 @@ Consider the play
   p\,q\,r\,r\,r\,r\cdots.
 \]
 Then $\mathrm{Occ}(\rho)=\{p,q,r\}$, while
-$\inf(\rho)=\{r\}$.  A weak condition can remember that $p$ and $q$
+$In(\rho)=\{r\}$.  A weak condition can remember that $p$ and $q$
 appeared once.  A M\"uller condition ignores them because they do not
 appear infinitely often.
 \end{example}
@@ -921,7 +921,7 @@ $V_E$, $V_S$                & Vertices owned by the environment / the system \\
 $T$                          & Target set in a reachability game \\
 $\mathsf{Attr}(T)$          & System attractor to $T$ (least fixed point) \\
 $\mathcal{F}\subseteq 2^Q$  & M\"uller acceptance family \\
-$\inf(\rho)$                & States occurring infinitely often in play $\rho$ \\
+$In(\rho)$                & States occurring infinitely often in play $\rho$ \\
 $\mathrm{Occ}(\rho)$        & States occurring at least once in play $\rho$ \\
 LAR                          & Latest appearance record (recency-ordered state list) \\
 hit position                 & Position in the old LAR where a revisited state is found \\

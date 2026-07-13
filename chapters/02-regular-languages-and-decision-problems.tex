@@ -1352,30 +1352,13 @@ does not mean ``non-regular''; it means that no finite-state description
 has been supplied.
 \end{example}
 
-What we want to prove is a clear, mathematical condition that determines exactly when a language is regular (so we know a finite automaton exists) and also tells us what the minimal automaton looks like. 
+What we want is a clean mathematical criterion that determines exactly when a
+language is regular and, if so, what the minimal automaton looks like.  The key
+observation is that two prefixes which have identical ``futures'' relative to $L$
+need never be distinguished by any automaton.  We build the necessary vocabulary
+step by step and state the precise theorem once all the pieces are in place.
 
-The \textbf{Myhill--Nerode theorem} is exactly that! It proves the equivalence of three powerful statements, reducing regularity to a simple combinatorial test about how many genuinely different ``futures'' the language distinguishes:
-
-\begin{theorem}[Myhill--Nerode theorem]
-\label{thm:myhill-nerode}
-For any language $L\subseteq\Sigma^*$, the following three statements are equivalent:
-\begin{enumerate}[nosep]
-  \item $L$ is a regular language.
-  \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
-  \item The specific relation $\sim_L$ has finite index.
-\end{enumerate}
-\end{theorem}
-
-In plain words, what does this theorem tell us?
-\begin{itemize}
-  \item \textbf{Statement 1} is straightforward: a finite automaton can be built to recognize the language.
-  \item \textbf{Statement 2} describes the existence of \emph{some} valid finite memory structure. It says we can find a way to group all possible words into a finite number of buckets (``finite index''). This grouping must be consistent as we read more letters (``right-invariant''), and it must cleanly separate valid words from invalid ones (the language $L$ is exactly built from a ``union of some classes''). In short, this proves \emph{some} valid automaton exists, where the buckets act as its states.
-  \item \textbf{Statement 3} goes a step further by focusing on the language's own natural structure. Instead of just finding \emph{any} valid grouping, we group words specifically by asking: ``do they share the exact same future continuations?'' (this is $\sim_L$). If this specific, tightest-possible grouping also yields a finite number of buckets, the language is regular. This property effectively guarantees the existence of the \emph{minimal} automaton.
-\end{itemize}
-
-But what are these concepts mathematically? What exactly is a ``right-invariant equivalence relation'', what does ``finite index'' mean, and what is the relation $\sim_L$? To rigorously prove the theorem, we first need to define these mathematical objects step by step. 
-
-The central idea of how prefixes share a future is best seen on a small example before we introduce the formal definitions.
+The central idea is easiest to see on a small example.
 
 \begin{example}[Prefixes with the same future]
 \label{ex:myhill-nerode-preview}
@@ -1400,7 +1383,21 @@ for ``ends in~$a$.''
 The example suggests a general recipe: group prefixes by their
 continuation behaviour.  If the number of groups is finite, a DFA
 exists; if it is infinite, no finite automaton suffices.  We now make
-this precise by introducing the general concept of a right-invariant equivalence relation, and then applying it to a specific language.
+this precise.
+
+First, we need a formal way to talk about ``grouping'' words.  In mathematics,
+this is done using an \emph{equivalence relation}: a reflexive, symmetric, and
+transitive binary relation that partitions its domain into \emph{equivalence
+classes} of mutually related elements.  For a concrete instance, recall the
+language $L_{\mathrm{even}}$ from \cref{ex:predicate-versus-automaton}: grouping
+words by the parity of their $a$-count partitions all of $\Sigma^*$ into exactly
+two classes---``even'' and ``odd''.
+
+The \textbf{index} of an equivalence relation is the number of its equivalence
+classes.  In this example the index is $2$.  A \emph{finite-index} relation
+partitions the infinitely many words of $\Sigma^*$ into a finite number of buckets.
+
+For automata, we need our groups to be consistent as we read more input. This adds a dynamic requirement to the equivalence relation:
 
 \begin{definition}[Right-invariant equivalence]
 \label{def:right-invariant-equivalence}
@@ -1411,11 +1408,7 @@ An equivalence relation $\sim$ (often read as ``tilde'') on the set of all finit
 \]
 \end{definition}
 
-What does ``being in the same class'' mean intuitively? Instead of treating every word as unique, an equivalence relation groups words that share a specific property into \emph{equivalence classes}. For example, consider words over the alphabet $\{a, b\}$. If we define an equivalence relation where two words are related if they both contain an even number of $a$'s or both contain an odd number of $a$'s, we have partitioned all infinite possible words into exactly two classes: ``even parity'' and ``odd parity''. 
-
-Right-invariance adds a dynamic property: if you append the exact same future suffix $z$ to any two words currently in the same class, the two new words will land together in the same destination class. In our parity example, if $x$ and $y$ both have an even number of $a$'s, appending $z = aba$ to both will yield two new words that \emph{both} have an odd number of $a$'s. They move together.
-
-The \textbf{index} of an equivalence relation is simply the number of its equivalence classes. In the parity example, the index is exactly $2$. If a relation has a ``finite index,'' it means it groups the infinitely many possible words into a finite number of buckets.
+Right-invariance ensures that if you append the exact same future suffix $z$ to any two words currently in the same class, the two new words will land together in the same destination class. In our parity example, if $x$ and $y$ both have an even number of $a$'s, appending $z = aba$ to both will yield two new words that \emph{both} have an odd number of $a$'s. They move together.
 
 With these general concepts, we can now introduce a specific equivalence relation associated with a given language $L$.
 
@@ -1557,14 +1550,34 @@ is finite, the number of classes cannot exceed $|Q|$.  Therefore, the index
 of $\sim_{\mathcal{A}}$ is finite and bounded by the cardinality of $Q$.
 \end{proof}
 
-One last piece of vocabulary is useful before the theorem.  A language
-$L$ is a \textbf{union of classes} of an equivalence relation $\sim$ if
-no $\sim$-class is cut in two by membership in $L$.  Equivalently,
+One last piece of vocabulary: a language $L$ is a \textbf{union of classes} of
+an equivalence relation $\sim$ if no $\sim$-class straddles the boundary of $L$.
+Equivalently,
 \[
-  x\sim y \quad\Longrightarrow\quad
-  (x\in L \Longleftrightarrow y\in L).
+  x\sim y \quad\Longrightarrow\quad (x\in L \Longleftrightarrow y\in L).
 \]
-Intuitively, this means the relation $\sim$ respects the boundary of the language. If you look inside any single bucket (equivalence class), every word in that bucket has exactly the same status: they are either all valid words in $L$, or all invalid words outside $L$. The language never splits a bucket. In some presentations this is described by saying that $L$ is \emph{saturated} with respect to $\sim$.
+This says $\sim$ respects the language: every equivalence class is either wholly
+inside $L$ or wholly outside it.  In some presentations this property is called
+\emph{saturation} of $L$ with respect to $\sim$.
+
+With all the vocabulary in place, we can now state the main result of this section.
+
+\begin{theorem}[Myhill--Nerode theorem]
+\label{thm:myhill-nerode}
+For any language $L\subseteq\Sigma^*$, the following three statements are equivalent:
+\begin{enumerate}[nosep]
+  \item $L$ is a regular language.
+  \item $L$ is the union of some equivalence classes of a right-invariant equivalence relation of finite index.
+  \item The Myhill--Nerode relation $\sim_L$ has finite index.
+\end{enumerate}
+\end{theorem}
+
+In plain words:
+\begin{itemize}
+  \item \textbf{Statement 1}: a finite automaton exists that recognises $L$.
+  \item \textbf{Statement 2}: there exists \emph{some} right-invariant finite grouping consistent with $L$.  The classes serve as states of a (not necessarily minimal) valid automaton.
+  \item \textbf{Statement 3}: the language's \emph{own} natural grouping---two words in the same class if and only if they have identical futures---is already finite.  This tightest possible grouping yields the \emph{minimal} automaton directly.
+\end{itemize}
 
 \begin{proof}[Proof of \cref{thm:myhill-nerode}]
 We prove the equivalence in a cycle: $(1)\implies(2)\implies(3)\implies(1)$.

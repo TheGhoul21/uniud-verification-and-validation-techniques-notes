@@ -1,0 +1,396 @@
+---
+title: "Notebook 13: Vectorial Closure — 🔀W"
+pagetitle: "NB 13: Vectorial Closure — VVT UniUD"
+description: "Interactive exploration of the vectorial closure construction: which infinite words have infinitely many prefixes in a given finite-word language W?"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 13: Vectorial Closure — 🔀W",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Vectorial Closure $\vec{W}$
+
+The **vectorial closure** $\vec{W}$ of a language $W \subseteq \Sigma^*$ of finite words is the set of all $\omega$-words $\alpha$ such that infinitely many finite prefixes of $\alpha$ belong to $W$.
+
+Formally:
+$$ \alpha \in \vec{W} \iff \text{there exist infinitely many } n \ge 0 \text{ such that } \alpha(0, n) \in W $$
+
+Notice the difference with infinite concatenation $W^\omega$: to be in $W^\omega$, a word must be factorable into infinitely many blocks from $W$. To be in $\vec{W}$, the word itself must have infinitely many prefixes falling into $W$.
+
+In a request-acknowledge system, if $W$ is the set of finite traces ending in an acknowledgement, then $\vec{W}$ contains exactly those infinite traces where acknowledgements occur infinitely often.
+
+---
+
+## Widget: Prefix Membership Explorer
+
+Select a preset for $W$ and an ultimately periodic word $\alpha = u \cdot v^\omega$. The widget shows which prefixes of $\alpha$ belong to $W$. 
+
+```{=html}
+<style>
+:root {
+  --sc-primary: #30bced;
+  --sc-primary-dark: #1f8fb7;
+  --sc-bg: #fffaff;
+  --sc-border: #d7d7dc;
+  --sc-text: #050401;
+  --sc-label: #303036;
+}
+.sc-lab {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sc-btn {
+  border: 1px solid var(--sc-primary);
+  background: var(--sc-primary);
+  color: var(--sc-text);
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.97rem;
+}
+.sc-btn.alt { background: var(--sc-bg); color: var(--sc-label); }
+.sc-panel {
+  background: var(--sc-bg);
+  border: 1px solid var(--sc-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sc-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--sc-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.input-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--sc-label);
+  text-transform: uppercase;
+}
+.input-group select, .input-group input {
+  padding: 8px 12px;
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 1rem;
+}
+.word-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+.word-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 40px;
+}
+.word-char {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  color: #fff;
+}
+.word-index {
+  font-size: 0.7rem;
+  color: var(--sc-label);
+  margin-top: 4px;
+}
+.word-separator {
+  width: 2px;
+  background: var(--sc-border);
+  margin: 0 4px;
+  height: 60px;
+}
+.prefix-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.prefix-item {
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  background: #fff;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.prefix-item.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.prefix-in { background: #d4f7ef; border-color: #2ec4b6; }
+.prefix-out { background: #fee8e3; border-color: #fc5130; }
+.verdict-box {
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 1.05rem;
+  margin-top: 16px;
+}
+.verdict-pass { background: #d4f7ef; border: 2px dashed #2ec4b6; }
+.verdict-fail { background: #fee8e3; border: 2px dashed #fc5130; }
+</style>
+
+<div class="sc-lab" id="nb13-w1">
+  <div class="input-row">
+    <div class="input-group" style="flex: 1; min-width: 200px;">
+      <label>Preset (W and Word)</label>
+      <select id="nb13-preset">
+        <option value="0">1. Ends with 'ack' (Success)</option>
+        <option value="1">2. Ends with 'ack' (Failure)</option>
+        <option value="2">3. Even Length Words</option>
+        <option value="3">4. Starts and Ends with 'a'</option>
+        <option value="4">5. Exact word {ab}</option>
+      </select>
+    </div>
+    <div class="input-group">
+      <label>Stem (u)</label>
+      <input type="text" id="nb13-u" style="width:120px;">
+    </div>
+    <div class="input-group">
+      <label>Period (v)</label>
+      <input type="text" id="nb13-v" style="width:120px;">
+    </div>
+  </div>
+
+  <div class="sc-panel" style="margin-bottom:16px;">
+    <h4>Description of $W$</h4>
+    <div id="nb13-w-desc" style="font-family: ui-monospace, monospace; font-size: 0.95rem;"></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4>$\alpha(0, 23)$</h4>
+    <div class="word-strip" id="nb13-strip"></div>
+    
+    <div style="display:flex; gap:10px; margin-bottom:16px; align-items:center;">
+      <button class="sc-btn" id="nb13-step">Step &#x2192;</button>
+      <button class="sc-btn alt" id="nb13-reset">Reset</button>
+      <span style="font-size:0.85rem; color:var(--sc-label);" id="nb13-progress"></span>
+    </div>
+    
+    <div class="prefix-grid" id="nb13-grid"></div>
+    <div id="nb13-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const PRESETS = [
+    {
+      desc: "W = { words over {req,ack} ending with 'ack' }",
+      u: "req", v: "req ack",
+      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+    },
+    {
+      desc: "W = { words over {req,ack} ending with 'ack' }",
+      u: "req", v: "req req",
+      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+    },
+    {
+      desc: "W = { words of even length }",
+      u: "a", v: "a b",
+      isIn: (arr) => arr.length % 2 === 0
+    },
+    {
+      desc: "W = { words starting and ending with 'a' }",
+      u: "", v: "a b",
+      isIn: (arr) => arr.length >= 1 && arr[0] === 'a' && arr[arr.length-1] === 'a'
+    },
+    {
+      desc: "W = { 'ab' }  (Example of W^ω vs W-vectorial)",
+      u: "", v: "a b",
+      isIn: (arr) => arr.length === 2 && arr[0] === 'a' && arr[1] === 'b'
+    }
+  ];
+
+  const colors = ['#2b9af3', '#f97316', '#22c55e', '#a855f7', '#ec4899', '#eab308', '#0ea5e9', '#ef4444'];
+  const symbolColorMap = {};
+  let colorIdx = 0;
+
+  function getColor(sym) {
+    if (!symbolColorMap[sym]) {
+      symbolColorMap[sym] = colors[colorIdx % colors.length];
+      colorIdx++;
+    }
+    return symbolColorMap[sym];
+  }
+
+  function parseInput(str) {
+    return str.trim().split(/[\s,]+/).filter(s => s.length > 0);
+  }
+
+  let stepIdx = 0;
+  const maxSteps = 24;
+  let wordCache = [];
+  let prefixCache = [];
+
+  function loadPreset() {
+    const sel = document.getElementById('nb13-preset').value;
+    const p = PRESETS[sel];
+    document.getElementById('nb13-u').value = p.u;
+    document.getElementById('nb13-v').value = p.v;
+    document.getElementById('nb13-w-desc').textContent = p.desc;
+    resetSim();
+  }
+
+  function resetSim() {
+    stepIdx = 0;
+    
+    const u = parseInput(document.getElementById('nb13-u').value);
+    const v = parseInput(document.getElementById('nb13-v').value);
+    const preset = PRESETS[document.getElementById('nb13-preset').value];
+    
+    if (v.length === 0) v.push('?');
+
+    // Build the strip
+    const stripEl = document.getElementById('nb13-strip');
+    stripEl.innerHTML = '';
+    
+    wordCache = [];
+    for (let i = 0; i < maxSteps; i++) {
+      const sym = i < u.length ? u[i] : v[(i - u.length) % v.length];
+      wordCache.push(sym);
+      
+      const box = document.createElement('div');
+      box.className = 'word-box';
+      const charDiv = document.createElement('div');
+      charDiv.className = 'word-char';
+      charDiv.textContent = sym;
+      charDiv.style.background = getColor(sym);
+      charDiv.style.opacity = i < u.length ? '0.6' : '1';
+      const idxDiv = document.createElement('div');
+      idxDiv.className = 'word-index';
+      idxDiv.textContent = i;
+      
+      box.appendChild(charDiv);
+      box.appendChild(idxDiv);
+      stripEl.appendChild(box);
+
+      if (i === u.length - 1 || (i >= u.length && (i - u.length + 1) % v.length === 0)) {
+        if (i < maxSteps - 1) {
+          const sep = document.createElement('div');
+          sep.className = 'word-separator';
+          if (i === u.length - 1) {
+            sep.style.background = '#050401';
+            sep.style.width = '3px';
+          }
+          stripEl.appendChild(sep);
+        }
+      }
+    }
+
+    // Precalculate prefixes
+    const gridEl = document.getElementById('nb13-grid');
+    gridEl.innerHTML = '';
+    prefixCache = [];
+
+    for (let i = 0; i <= maxSteps; i++) {
+      const prefix = wordCache.slice(0, i);
+      const inW = preset.isIn(prefix);
+      prefixCache.push(inW);
+      
+      const item = document.createElement('div');
+      item.className = 'prefix-item ' + (inW ? 'prefix-in' : 'prefix-out');
+      item.id = 'nb13-pref-' + i;
+      
+      const text = i === 0 ? 'ε' : prefix.join('');
+      item.innerHTML = `<span>&alpha;(0,${i}) = ${text.length > 10 ? text.substring(0,8)+'...' : text}</span> <span>${inW ? '&#x2714;' : '&#x2718;'}</span>`;
+      gridEl.appendChild(item);
+    }
+    
+    document.getElementById('nb13-verdict').innerHTML = '';
+    updateUI();
+  }
+
+  function stepSim() {
+    if (stepIdx <= maxSteps) {
+      document.getElementById('nb13-pref-' + stepIdx).classList.add('visible');
+      stepIdx++;
+      updateUI();
+    }
+  }
+
+  function updateUI() {
+    document.getElementById('nb13-progress').textContent = `Prefixes evaluated: ${stepIdx} / ${maxSteps + 1}`;
+    
+    if (stepIdx > maxSteps) {
+      // Show verdict based on period
+      const u = parseInput(document.getElementById('nb13-u').value);
+      const v = parseInput(document.getElementById('nb13-v').value);
+      
+      // Look at the period part of the evaluation to see if there's at least one match in the period
+      let matchInPeriod = false;
+      if (v.length > 0) {
+        for (let i = u.length + 1; i <= u.length + v.length; i++) {
+          if (i <= maxSteps && prefixCache[i]) {
+            matchInPeriod = true;
+            break;
+          }
+        }
+      }
+      
+      const verdictEl = document.getElementById('nb13-verdict');
+      if (matchInPeriod) {
+        verdictEl.innerHTML = `<div class="verdict-box verdict-pass">
+          <strong>&alpha; &isin; <span style="text-decoration: overline;">W</span></strong><br>
+          The prefix falls into W at least once per period. Since the period repeats infinitely, there are infinitely many such prefixes!
+        </div>`;
+      } else {
+        verdictEl.innerHTML = `<div class="verdict-box verdict-fail">
+          <strong>&alpha; &notin; <span style="text-decoration: overline;">W</span></strong><br>
+          After the stem, the prefix never falls into W again within the period. There are only finitely many (or zero) prefixes in W.
+        </div>`;
+      }
+    }
+  }
+
+  document.getElementById('nb13-preset').addEventListener('change', loadPreset);
+  document.getElementById('nb13-step').addEventListener('click', stepSim);
+  document.getElementById('nb13-reset').addEventListener('click', resetSim);
+  
+  loadPreset();
+})();
+</script>
+```

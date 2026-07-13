@@ -1,5 +1,33 @@
 [
   {
+    "objectID": "notebooks/14-buchi-emptiness-lasso.html",
+    "href": "notebooks/14-buchi-emptiness-lasso.html",
+    "title": "Notebook 14: Büchi Emptiness — The Lasso Test",
+    "section": "",
+    "text": "For a Büchi automaton \\(\\mathcal{A}\\), the language \\(L(\\mathcal{A})\\) is non-empty if and only if there exists an accepting state \\(q_f \\in F\\) that is: 1. Reachable from an initial state. 2. On a cycle (reachable from itself).\nIf such a state \\(q_f\\) exists, the path from the initial state to \\(q_f\\) is called the stem (\\(u\\)), and the cycle from \\(q_f\\) back to \\(q_f\\) is called the period (\\(v\\)). The automaton then accepts the ultimately periodic \\(\\omega\\)-word \\(\\alpha = u \\cdot v^\\omega\\). This structure is called a lasso, and finding one is the core algorithm used in model checking to find counterexamples.\n\n\n\nSelect a Büchi automaton and click Step \\(\\rightarrow\\) to search for a reachable accepting state on a cycle.\n\n\n\n  \n    \n      1. \"ack infinitely often\" (NON-EMPTY)\n      2. \"Thomas parity example\" (NON-EMPTY)\n      3. \"Unreachable accept state\" (EMPTY)\n    \n  \n  \n  \n    Step →\n    Reset"
+  },
+  {
+    "objectID": "notebooks/14-buchi-emptiness-lasso.html#widget-find-a-lasso",
+    "href": "notebooks/14-buchi-emptiness-lasso.html#widget-find-a-lasso",
+    "title": "Notebook 14: Büchi Emptiness — The Lasso Test",
+    "section": "",
+    "text": "Select a Büchi automaton and click Step \\(\\rightarrow\\) to search for a reachable accepting state on a cycle.\n\n\n\n  \n    \n      1. \"ack infinitely often\" (NON-EMPTY)\n      2. \"Thomas parity example\" (NON-EMPTY)\n      3. \"Unreachable accept state\" (EMPTY)\n    \n  \n  \n  \n    Step →\n    Reset"
+  },
+  {
+    "objectID": "notebooks/12-buchi-runner.html",
+    "href": "notebooks/12-buchi-runner.html",
+    "title": "Notebook 12: Büchi Automaton Runner",
+    "section": "",
+    "text": "This notebook demonstrates how a Deterministic Büchi Automaton (DBA) processes an infinite word \\(\\alpha = u \\cdot v^\\omega\\).\nThe run of the automaton on \\(\\alpha\\) produces an infinite sequence of states \\(\\rho = \\rho_0, \\rho_1, \\rho_2, \\dots\\). The automaton accepts the word if the run visits at least one accepting state infinitely often. Formally, we define \\(In(\\rho)\\) as the set of states that appear infinitely often in the run. The acceptance condition is: \\[ In(\\rho) \\cap F \\neq \\emptyset \\]\n\n\n\nBelow is a DBA over \\(\\Sigma = \\{a, b\\}\\). It accepts words that contain infinitely many \\(b\\)’s. - States: \\(q_0\\) (initial), \\(q_1\\) (accepting, double circle) - \\(F = \\{q_1\\}\\)\n\n\n\n  \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Run Automaton\n    \n  \n\n  \n    \n      \n      \n        \n          \n            \n          \n        \n        \n        \n        \n        \n        b\n        \n        \n        a\n        \n        \n        a\n        \n        \n        b\n        \n        \n        \n          \n          q₀\n        \n        \n          \n          \n          q₁"
+  },
+  {
+    "objectID": "notebooks/12-buchi-runner.html#widget-1-run-alpha-on-a-dba",
+    "href": "notebooks/12-buchi-runner.html#widget-1-run-alpha-on-a-dba",
+    "title": "Notebook 12: Büchi Automaton Runner",
+    "section": "",
+    "text": "Below is a DBA over \\(\\Sigma = \\{a, b\\}\\). It accepts words that contain infinitely many \\(b\\)’s. - States: \\(q_0\\) (initial), \\(q_1\\) (accepting, double circle) - \\(F = \\{q_1\\}\\)\n\n\n\n  \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Run Automaton\n    \n  \n\n  \n    \n      \n      \n        \n          \n            \n          \n        \n        \n        \n        \n        \n        b\n        \n        \n        a\n        \n        \n        a\n        \n        \n        b\n        \n        \n        \n          \n          q₀\n        \n        \n          \n          \n          q₁"
+  },
+  {
     "objectID": "notebooks/10-model-checking.html",
     "href": "notebooks/10-model-checking.html",
     "title": "Notebook 9: Model Checking Basics",
@@ -243,5 +271,33 @@
     "title": "Notebook 8: Linear Temporal Logic (LTL)",
     "section": "",
     "text": "Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.\n\n\n\nLTL Syntax: Propositional variables and temporal operators (Next, Until, Globally, Finally).\nSemantics: Evaluating LTL formulas over infinite traces (words).\nEquivalences: Standard logical equivalences and how to rewrite formulas.\nVerification: How LTL formulas translate into automata for model checking.\n\n\n[!TIP] Read the full chapter in the PDF\nThe comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF.  Download the Full Lecture Notes (PDF)"
+  },
+  {
+    "objectID": "notebooks/11-omega-words.html",
+    "href": "notebooks/11-omega-words.html",
+    "title": "Notebook 11: Infinite Words & In(α)",
+    "section": "",
+    "text": "This notebook explores ultimately periodic \\(\\omega\\)-words. These are infinite words of the form \\(\\alpha = u \\cdot v^\\omega\\), where \\(u\\) is a finite prefix called the stem, and \\(v\\) is a finite word called the period that repeats infinitely often.\nWe also compute \\(In(\\alpha)\\), which is the set of symbols from the alphabet that appear infinitely often in the word \\(\\alpha\\). For an ultimately periodic word, \\(In(\\alpha)\\) is exactly the set of symbols present in the period \\(v\\).\n\n\n\nEnter a stem \\(u\\) and a period \\(v\\) (comma or space-separated symbols, e.g., req, ack). The word strip below will visualize the infinite word \\(\\alpha = u \\cdot v^\\omega\\).\n\n\n\n  \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Update Word\n    \n  \n  \n  \n    Showing the word α = req · (req ack)ω\n  \n\n  \n    \n    \n       Stem part\n       Period part"
+  },
+  {
+    "objectID": "notebooks/11-omega-words.html#widget-1-omega-word-explorer",
+    "href": "notebooks/11-omega-words.html#widget-1-omega-word-explorer",
+    "title": "Notebook 11: Infinite Words & In(α)",
+    "section": "",
+    "text": "Enter a stem \\(u\\) and a period \\(v\\) (comma or space-separated symbols, e.g., req, ack). The word strip below will visualize the infinite word \\(\\alpha = u \\cdot v^\\omega\\).\n\n\n\n  \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Update Word\n    \n  \n  \n  \n    Showing the word α = req · (req ack)ω\n  \n\n  \n    \n    \n       Stem part\n       Period part"
+  },
+  {
+    "objectID": "notebooks/13-vectorial-closure.html",
+    "href": "notebooks/13-vectorial-closure.html",
+    "title": "Notebook 13: Vectorial Closure — 🔀W",
+    "section": "",
+    "text": "The vectorial closure \\(\\vec{W}\\) of a language \\(W \\subseteq \\Sigma^*\\) of finite words is the set of all \\(\\omega\\)-words \\(\\alpha\\) such that infinitely many finite prefixes of \\(\\alpha\\) belong to \\(W\\).\nFormally: \\[ \\alpha \\in \\vec{W} \\iff \\text{there exist infinitely many } n \\ge 0 \\text{ such that } \\alpha(0, n) \\in W \\]\nNotice the difference with infinite concatenation \\(W^\\omega\\): to be in \\(W^\\omega\\), a word must be factorable into infinitely many blocks from \\(W\\). To be in \\(\\vec{W}\\), the word itself must have infinitely many prefixes falling into \\(W\\).\nIn a request-acknowledge system, if \\(W\\) is the set of finite traces ending in an acknowledgement, then \\(\\vec{W}\\) contains exactly those infinite traces where acknowledgements occur infinitely often.\n\n\n\nSelect a preset for \\(W\\) and an ultimately periodic word \\(\\alpha = u \\cdot v^\\omega\\). The widget shows which prefixes of \\(\\alpha\\) belong to \\(W\\).\n\n\n\n  \n    \n      Preset (W and Word)\n      \n        1. Ends with 'ack' (Success)\n        2. Ends with 'ack' (Failure)\n        3. Even Length Words\n        4. Starts and Ends with 'a'\n        5. Exact word {ab}\n      \n    \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n  \n\n  \n    \n    \n  \n\n  \n    \n    \n    \n    \n      Step →\n      Reset"
+  },
+  {
+    "objectID": "notebooks/13-vectorial-closure.html#widget-prefix-membership-explorer",
+    "href": "notebooks/13-vectorial-closure.html#widget-prefix-membership-explorer",
+    "title": "Notebook 13: Vectorial Closure — 🔀W",
+    "section": "",
+    "text": "Select a preset for \\(W\\) and an ultimately periodic word \\(\\alpha = u \\cdot v^\\omega\\). The widget shows which prefixes of \\(\\alpha\\) belong to \\(W\\).\n\n\n\n  \n    \n      Preset (W and Word)\n      \n        1. Ends with 'ack' (Success)\n        2. Ends with 'ack' (Failure)\n        3. Even Length Words\n        4. Starts and Ends with 'a'\n        5. Exact word {ab}\n      \n    \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n  \n\n  \n    \n    \n  \n\n  \n    \n    \n    \n    \n      Step →\n      Reset"
   }
 ]
