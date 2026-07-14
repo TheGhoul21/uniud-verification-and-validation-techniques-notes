@@ -10,38 +10,15 @@ one finite output and stop.  Their
 behaviour is an infinite interaction
 with the environment.}
 
-Finite-word automata are well suited for batch computations: a compiler
-receives a finite program, a parser receives a finite string, a protocol
-message has a finite body.  Once the input has been read to the end, the
-automaton reports an answer and stops.
+Finite-word automata, as we saw in the first two chapters, are well suited for batch computations: a compiler receives a finite program, a parser receives a finite string, a protocol message has a finite body. Once the input has been read to the end, the automaton reports an answer and stops. Along with this model, we introduced a number of fundamental decision problems, and it is worth pausing to understand why they matter from the perspective of formal verification.
 
-Verification of reactive systems is different.  Operating systems,
-controllers, servers, and embedded devices are not built to compute an
-answer and halt: as long as they work correctly, they keep interacting
-with their environment forever.  There is no fixed endpoint at which to
-stop and check whether things went well, because correctness is not a
-property of some final configuration---it is a property that must hold
-\emph{over time}.  Take a printer: we do not want to state ``the printer
-eventually prints,'' as if printing once were the whole story.  We want
-``whenever the printer receives a request, it \emph{eventually} prints
-it,'' no matter how many further requests arrive afterwards, and no
-matter how long the printer keeps running.  A liveness guarantee like
-this one only makes sense against a behaviour that never stops.  (Every
-physical system eventually breaks down or is switched off, of course;
-but if we want to describe its \emph{intended}, correct behaviour, we
-should describe it as if it runs forever.)  So the behaviours we need to
-model are not finite words but infinite words.
+The \emph{emptiness problem} might seem trivial---why would we build an automaton that recognises the empty language? But if we think of an automaton as a way of expressing a logical formula specifying a system, checking for emptiness is equivalent to the \emph{satisfiability} problem. It answers the question: is our formula consistent? Does it admit at least one model? This is a fundamental sanity check for any specification.
 
-Moving to infinite words forces us to rethink acceptance from scratch.
-For a finite word, ``does the automaton accept this word?'' has an
-obvious operational answer: run the automaton along the word and check
-whether the scan ends in a final state.  That recipe is meaningless for
-an infinite word, because the scan never ends---there is no last symbol
-at which to stop and inspect the state.  ``Final state'' is simply not a
-notion that survives the move to infinite words.  We keep the same
-finite-state graph, but we must replace the acceptance condition with one
-that talks about what the run does \emph{in the limit}, rather than where
-it ends.  That is the technical problem this chapter solves.
+Even more importantly, we introduced the \emph{inclusion problem}: checking whether the language of one automaton is included in another. In verification, this is the \textbf{model checking} problem. If one language describes all possible behaviours of a system, and another describes all behaviours permitted by a property, checking inclusion amounts to verifying that the system satisfies the property. Thanks to closure under intersection and complementation, we can reduce this inclusion check back to a simple emptiness check.
+
+However, verification of reactive systems introduces a new challenge. Operating systems, controllers, servers, and embedded devices are not built to compute an answer and halt: as long as they work correctly, they keep interacting with their environment forever. There is no fixed endpoint at which to stop and check whether things went well, because correctness is not a property of some final configuration---it is a property that must hold \emph{over time}. Take a printer: we do not want to state ``the printer eventually prints,'' as if printing once were the whole story. We want ``whenever the printer receives a request, it \emph{eventually} prints it,'' no matter how many further requests arrive afterwards, and no matter how long the printer keeps running. To describe the intended, correct behaviour of such systems, we need a time axis that never ends. So the behaviours we need to model are not finite words, but \emph{infinite} words.
+
+Moving to infinite words forces us to rethink automata from scratch. The \emph{membership problem} (does this specific word belong to the language?) becomes meaningless, because the scan of an infinite word never ends---there is no last symbol at which to stop and inspect the state. We keep the same finite-state graph, but we must replace the acceptance condition with one that talks about what the run does \emph{in the limit}. Yet, the core verification problems we established---emptiness and inclusion---keep all their validity and importance in this new infinite setting. That is the technical journey this chapter begins.
 
 \begin{chapteropening}
 \textbf{Where we are.}  \Cref{ch:fsa,ch:regular-decision} developed the
