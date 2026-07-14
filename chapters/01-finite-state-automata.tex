@@ -224,18 +224,69 @@ formalize them.
 
 \begin{definition}[Deterministic finite automaton]
 \label{def:dfa}
-A \textbf{deterministic finite automaton} (DFA) is a tuple
-\[
-  \mathcal{A}=(Q,A,\delta,q_0,F)
-\]
-where:
-\begin{itemize}[nosep]
-  \item $Q$ is a finite set of states;
-  \item $A$ is a finite alphabet;
-  \item $\delta:Q\times A\to Q$ is the transition function;
-  \item $q_0\in Q$ is the initial state;
-  \item $F\subseteq Q$ is the set of accepting states.
-\end{itemize}
+A \textbf{deterministic finite automaton} (DFA) is a tuple $\mathcal{A}=(Q,A,\delta,q_0,F)$ visually defined as:
+\begin{center}
+\vspace{10pt}
+\begin{tikzpicture}[
+    >={Stealth[round, scale=0.8]},
+    math node/.style={font=\Large, inner sep=2pt},
+    lbl/.style={font=\footnotesize\sffamily\color{graphite!80}, align=center, text width=2.2cm},
+    ptr/.style={->, thick, color=accent},
+    sublbl/.style={font=\scriptsize\itshape\color{graphite!70}, align=center}
+  ]
+  
+  % The tuple
+  \node[math node] (A) {$\mathcal{A} \ =\ \big($};
+  \node[math node, right=0cm of A] (Q) {$Q$};
+  \node[math node, right=0cm of Q] (comma1) {$,$};
+  \node[math node, right=0.1cm of comma1] (Sigma) {$A$};
+  \node[math node, right=0cm of Sigma] (comma2) {$,$};
+  \node[math node, right=0.1cm of comma2] (Delta) {$\delta$};
+  \node[math node, right=0cm of Delta] (comma3) {$,$};
+  \node[math node, right=0.1cm of comma3] (q0) {$q_0$};
+  \node[math node, right=0cm of q0] (comma4) {$,$};
+  \node[math node, right=0.1cm of comma4] (F) {$F$};
+  \node[math node, right=0.1cm of F] (close) {$\big)$};
+
+  % Labels for Tuple
+  \node[lbl, below left=0.7cm and -0.8cm of Q.south] (lQ) {Finite set\\of states};
+  \node[lbl, below=0.7cm of Sigma.south] (lSigma) {Alphabet};
+  \node[lbl, below=0.7cm of q0.south] (lq0) {Initial state};
+  \node[lbl, below right=0.7cm and -0.5cm of F.south] (lF) {Accepting\\states ($F \subseteq Q$)};
+
+  % Arrows
+  \draw[ptr] (lQ) to[out=90, in=250] (Q.south);
+  \draw[ptr] (lSigma) to[out=90, in=270] (Sigma.south);
+  \draw[ptr] (lq0) to[out=90, in=270] (q0.south);
+  \draw[ptr] (lF) to[out=90, in=290] (F.south);
+
+  % Delta breakdown to the right
+  \begin{scope}[shift={(6.2, 0.2)}]
+    \node[math node] (Drel) {$\delta\ :\ $};
+    \node[math node, right=0cm of Drel] (Dq1) {$Q$};
+    \node[math node, right=0cm of Dq1] (times1) {$\times$};
+    \node[math node, right=0cm of times1] (Dsig) {$A$};
+    \node[math node, right=0.1cm of Dsig] (to) {$\to$};
+    \node[math node, right=0.1cm of to] (Dq2) {$Q$};
+    
+    \node[lbl, above=0.3cm of Drel.north, anchor=south, text width=3cm] (lDelta) {Deterministic\\transition function};
+    \draw[ptr] (lDelta) to[out=270, in=90] (Drel.north);
+
+    \node[sublbl, below=0.4cm of Dq1.south, text width=1.5cm] (slq1) {I'm in\\state $q$};
+    \node[sublbl, below=0.4cm of Dsig.south, text width=1.5cm] (slsig) {reading\\symbol $a$};
+    \node[sublbl, below=0.4cm of Dq2.south, text width=1.5cm] (slq2) {I go to\\state $q'$};
+
+    \draw[ptr, color=graphite!50] (slq1) to[out=90, in=270] (Dq1.south);
+    \draw[ptr, color=graphite!50] (slsig) to[out=90, in=270] (Dsig.south);
+    \draw[ptr, color=graphite!50] (slq2) to[out=90, in=270] (Dq2.south);
+  \end{scope}
+  
+  % Connect tuple Delta to breakdown
+  \draw[ptr, dashed] (Delta.north) to[out=70, in=180] (lDelta.west);
+
+\end{tikzpicture}
+\vspace{10pt}
+\end{center}
 \end{definition}
 
 The tuple separates the static shape of the automaton from its
@@ -425,15 +476,69 @@ choosing one immediately.
 
 \begin{definition}[Non-deterministic finite automaton]
 \label{def:nfa}
-A \textbf{non-deterministic finite automaton} (NFA) is a tuple
-\[
-  \mathcal{A}=(Q,A,\Delta,q_0,F)
-\]
-where $Q$, $A$, $q_0$, and $F$ are as for a DFA, and
-\[
-  \Delta \subseteq Q\times A\times Q
-\]
-is a transition relation.
+A \textbf{non-deterministic finite automaton} (NFA) is a tuple $\mathcal{A}=(Q,A,\Delta,q_0,F)$ visually defined as:
+\begin{center}
+\vspace{10pt}
+\begin{tikzpicture}[
+    >={Stealth[round, scale=0.8]},
+    math node/.style={font=\Large, inner sep=2pt},
+    lbl/.style={font=\footnotesize\sffamily\color{graphite!80}, align=center, text width=2.2cm},
+    ptr/.style={->, thick, color=accent},
+    sublbl/.style={font=\scriptsize\itshape\color{graphite!70}, align=center}
+  ]
+  
+  % The tuple
+  \node[math node] (A) {$\mathcal{A} \ =\ \big($};
+  \node[math node, right=0cm of A] (Q) {$Q$};
+  \node[math node, right=0cm of Q] (comma1) {$,$};
+  \node[math node, right=0.1cm of comma1] (Sigma) {$A$};
+  \node[math node, right=0cm of Sigma] (comma2) {$,$};
+  \node[math node, right=0.1cm of comma2] (Delta) {$\Delta$};
+  \node[math node, right=0cm of Delta] (comma3) {$,$};
+  \node[math node, right=0.1cm of comma3] (q0) {$q_0$};
+  \node[math node, right=0cm of q0] (comma4) {$,$};
+  \node[math node, right=0.1cm of comma4] (F) {$F$};
+  \node[math node, right=0.1cm of F] (close) {$\big)$};
+
+  % Labels for Tuple
+  \node[lbl, below left=0.7cm and -0.8cm of Q.south] (lQ) {Finite set\\of states};
+  \node[lbl, below=0.7cm of Sigma.south] (lSigma) {Alphabet};
+  \node[lbl, below=0.7cm of q0.south] (lq0) {Initial state};
+  \node[lbl, below right=0.7cm and -0.5cm of F.south] (lF) {Accepting\\states ($F \subseteq Q$)};
+
+  % Arrows
+  \draw[ptr] (lQ) to[out=90, in=250] (Q.south);
+  \draw[ptr] (lSigma) to[out=90, in=270] (Sigma.south);
+  \draw[ptr] (lq0) to[out=90, in=270] (q0.south);
+  \draw[ptr] (lF) to[out=90, in=290] (F.south);
+
+  % Delta breakdown to the right
+  \begin{scope}[shift={(6.2, 0.2)}]
+    \node[math node] (Drel) {$\Delta \ \subseteq\ $};
+    \node[math node, right=0cm of Drel] (Dq1) {$Q$};
+    \node[math node, right=0cm of Dq1] (times1) {$\times$};
+    \node[math node, right=0cm of times1] (Dsig) {$A$};
+    \node[math node, right=0cm of Dsig] (times2) {$\times$};
+    \node[math node, right=0cm of times2] (Dq2) {$Q$};
+    
+    \node[lbl, above=0.3cm of Drel.north, anchor=south, text width=3cm] (lDelta) {Non-deterministic\\transitions};
+    \draw[ptr] (lDelta) to[out=270, in=90] (Drel.north);
+
+    \node[sublbl, below=0.4cm of Dq1.south, text width=1.5cm] (slq1) {I'm in\\state $q$};
+    \node[sublbl, below=0.4cm of Dsig.south, text width=1.5cm] (slsig) {reading\\symbol $a$};
+    \node[sublbl, below=0.4cm of Dq2.south, text width=1.5cm] (slq2) {I go to\\state $q'$};
+
+    \draw[ptr, color=graphite!50] (slq1) to[out=90, in=270] (Dq1.south);
+    \draw[ptr, color=graphite!50] (slsig) to[out=90, in=270] (Dsig.south);
+    \draw[ptr, color=graphite!50] (slq2) to[out=90, in=270] (Dq2.south);
+  \end{scope}
+  
+  % Connect tuple Delta to breakdown
+  \draw[ptr, dashed] (Delta.north) to[out=70, in=180] (lDelta.west);
+
+\end{tikzpicture}
+\vspace{10pt}
+\end{center}
 \end{definition}
 
 \aside{A DFA is just the special case where every pair $(q,a)$ has at
