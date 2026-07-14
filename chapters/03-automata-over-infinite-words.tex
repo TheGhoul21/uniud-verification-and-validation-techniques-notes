@@ -511,33 +511,42 @@ conditions, not just that both components are accepting at the same
 single time.
 
 \begin{formaldetails}[Construction ideas]
-For finite union $L_1 \cup L_2$, run B\"uchi automata for $L_1$ and $L_2$
-in parallel. Create a new initial state that non-deterministically branches
-into the initial states of the two automata. This non-determinism is
-essential here, even if the original automata are deterministic.
+The constructive proofs for these closures share a common constraint: we avoid
+$\varepsilon$-transitions to keep the constructions direct and standard.
 
-For $U\cdot L$, first run a finite-word automaton for $U$.  Whenever it
-reaches an accepting state, nondeterministically switch to a B\"uchi
-automaton for $L$.  The switch consumes no future symbols; it only marks
-where the finite prefix ends.
+\textbf{Finite Union ($L_1 \cup L_2$):} Run B\"uchi automata for $L_1$ and $L_2$
+in parallel. Create a new initial state that non-deterministically duplicates
+the outgoing transitions of the initial states of both automata. This
+non-determinism is essential, even if the original automata are deterministic,
+because we must guess which automaton will successfully accept the word.
 
-For $V^\omega$, start from an automaton for the finite language $V$.
-Assume, after the standard harmless normalization, that it has no
-$\varepsilon$-moves and that no transition enters its initial state.
-Whenever a transition would enter an accepting state after reading a
-symbol $a$, duplicate that effect by sending the same $a$-transition
-back to the initial state of the $V$-automaton, passing through a
-B\"uchi accepting marker.  Each visit to the marker means that one
-finite block from $V$ has just been completed.  Infinitely many marker
-visits mean infinitely many completed $V$-blocks.
+\textbf{Concatenation ($U\cdot L$):} Take a finite-word automaton for $U$ and a
+B\"uchi automaton for $L$. We want to run $U$ and, upon completing a word,
+transition into $L$. Without $\varepsilon$-transitions, we look at every transition
+$p \xrightarrow{a} p_f$ in $U$ that enters an accepting state. We duplicate that
+transition so it also points to the initial state of $L$ ($p \xrightarrow{a} q_0$).
+The accepting states of the combined automaton are simply the accepting states of $L$.
 
-For the vectorial closure $\overrightarrow{W}$, start from a finite-word
+\textbf{$\omega$-power ($V^\omega$):} Let $\mathcal{A}$ be an automaton for $V$.
+We assume $\varepsilon \notin V$ (empty words do not contribute to the infinite sequence)
+and that the initial state $q_0$ has no incoming transitions (if it does, we can add
+a new initial copy $q_0'$ with the same outgoing transitions but no incoming ones).
+To allow infinite repetitions without $\varepsilon$-moves, whenever a transition
+$q \xrightarrow{a} q_f$ enters a final state $q_f \in F$, duplicate it to also
+point back to the start: $q \xrightarrow{a} q_0$. Crucially, do not remove the
+original final states $F$ or their transitions, because a valid word in $V$ might
+pass through a final state, continue reading, and accept at another state later.
+Finally, the original states in $F$ are no longer accepting. Instead, $q_0$ becomes
+the \emph{only} accepting state in the B\"uchi automaton. Visiting $q_0$ infinitely
+often guarantees we have completed infinitely many blocks from $V$.
+
+\textbf{Vectorial Closure ($\overrightarrow{W}$):} Start from a finite-word
 automaton for $W$. If we treat the exact same graph as a B\"uchi automaton
 by keeping the same accepting states, it accepts exactly $\overrightarrow{W}$:
 visiting the accepting states infinitely often corresponds exactly to finding
 infinitely many prefixes in $W$.
 
-For intersection of two B\"uchi automata, the naive product with
+\textbf{Intersection ($L_1 \cap L_2$):} The naive product with
 $F_1\times F_2$ is too strict: one run may visit $F_1$ at even times and
 the other may visit $F_2$ at odd times.  The key observation is that
 both automata do not need to visit their accepting states
