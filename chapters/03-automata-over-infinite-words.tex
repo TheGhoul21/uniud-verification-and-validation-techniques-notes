@@ -500,8 +500,8 @@ the constructions below.
 $\omega$-regular languages are closed under finite union and
 intersection.  Moreover, if $U\subseteq\Sigma^*$ is regular and
 $L\subseteq\Sigma^\omega$ is $\omega$-regular, then $U\cdot L$ is
-$\omega$-regular; if $V\subseteq\Sigma^*$ is regular, then
-$V^\omega$ is $\omega$-regular.
+$\omega$-regular; if $V, W\subseteq\Sigma^*$ are regular, then
+the $\omega$-power $V^\omega$ and the vectorial closure $\overrightarrow{W}$ are $\omega$-regular.
 \end{theorem}
 
 The constructions mirror the finite case, but one detail changes:
@@ -511,6 +511,11 @@ conditions, not just that both components are accepting at the same
 single time.
 
 \begin{formaldetails}[Construction ideas]
+For finite union $L_1 \cup L_2$, run B\"uchi automata for $L_1$ and $L_2$
+in parallel. Create a new initial state that non-deterministically branches
+into the initial states of the two automata. This non-determinism is
+essential here, even if the original automata are deterministic.
+
 For $U\cdot L$, first run a finite-word automaton for $U$.  Whenever it
 reaches an accepting state, nondeterministically switch to a B\"uchi
 automaton for $L$.  The switch consumes no future symbols; it only marks
@@ -525,6 +530,12 @@ back to the initial state of the $V$-automaton, passing through a
 B\"uchi accepting marker.  Each visit to the marker means that one
 finite block from $V$ has just been completed.  Infinitely many marker
 visits mean infinitely many completed $V$-blocks.
+
+For the vectorial closure $\overrightarrow{W}$, start from a finite-word
+automaton for $W$. If we treat the exact same graph as a B\"uchi automaton
+by keeping the same accepting states, it accepts exactly $\overrightarrow{W}$:
+visiting the accepting states infinitely often corresponds exactly to finding
+infinitely many prefixes in $W$.
 
 For intersection of two B\"uchi automata, the naive product with
 $F_1\times F_2$ is too strict: one run may visit $F_1$ at even times and
