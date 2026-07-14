@@ -334,17 +334,17 @@ We can now define the run of a B\"uchi automaton and its acceptance condition by
 Let $\alpha=\alpha(0)\alpha(1)\alpha(2)\cdots$.  A run of $A$ on
 $\alpha$ is an infinite sequence of states
 \[
-  \rho=\rho(0)\rho(1)\rho(2)\cdots
+  \sigma=\sigma(0)\sigma(1)\sigma(2)\cdots
 \]
-such that $\rho(0)=q_0$ and
-$(\rho(i),\alpha(i),\rho(i+1))\in\Delta$ for every $i\geq 0$.
+such that $\sigma(0)=q_0$ and
+$(\sigma(i),\alpha(i),\sigma(i+1))\in\Delta$ for every $i\geq 0$.
 
 Since a run is itself an infinite sequence (over $Q$ instead of $\Sigma$),
 we can apply the infinity set notation to it:
-$In(\rho)\subseteq Q$ is the set of states that $\rho$ visits infinitely
+$In(\sigma)\subseteq Q$ is the set of states that $\sigma$ visits infinitely
 often.  The run is \textbf{accepting} if
 \[
-  In(\rho)\cap F\neq\emptyset.
+  In(\sigma)\cap F\neq\emptyset.
 \]
 The word $\alpha$ is accepted if there exists at least one accepting run
 on $\alpha$.
