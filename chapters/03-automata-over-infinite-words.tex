@@ -466,6 +466,60 @@ even or odd.
 \label{fig:buchi-parity}
 \end{figure}
 
+\begin{example}[Complement of a Büchi language]
+\label{ex:buchi-complement-thomas}
+This example, taken from Thomas (\emph{Formal Models and Semantics}), shows how to build the complement of a B\"uchi language via a concrete automaton.  Over the alphabet $\Sigma=\{a,b,c\}$, let
+\[
+  L_1 = \{\,\alpha\in\Sigma^\omega \mid a\text{ occurs infinitely often in }\alpha\,\}.
+\]
+A B\"uchi automaton $\mathcal{A}_1$ recognising $L_1$ uses two states: a non-accepting state $q$ and an accepting state $f$.  Reading $a$ from either state enters $f$; reading $b$ or $c$ from $q$ loops on $q$, while reading $b$ or $c$ from $f$ loops on $f$ as well.
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=3.0cm,
+  state/.style={circle, draw, thick, minimum size=10mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=10mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q) {$q$};
+  \node[accepting, right=of q] (f) {$f$};
+  \draw[arr] ([xshift=-1.0cm]q.west) -- (q);
+  \draw[arr] (q) edge[loop above] node {$b,c$} (q);
+  \draw[arr, bend left=18] (q) to node[above] {$a$} (f);
+  \draw[arr, bend left=18] (f) to node[below] {$b$} (q);
+  \draw[arr] (f) edge[loop above] node {$a,c$} (f);
+\end{tikzpicture}
+
+\medskip
+{\small\itshape Automaton $\mathcal{A}_1$ recognising $L_1$: $a$ occurs infinitely often.}
+\end{center}
+
+The complement $\overline{L_1} = \Sigma^\omega \setminus L_1$ is the language in which $a$ occurs only \emph{finitely often}---equivalently, from some point on the trace contains only $b$'s and $c$'s.  The complement automaton $\bar{\mathcal{A}}_1$ is non-deterministic: it may stay in the initial state (reading any symbol), and at any moment guess that it has just seen the \emph{last} $a$.  After that guess it moves to an accepting state $f$, where it accepts only $b$ and $c$ (any further $a$ would falsify the guess and kill that run branch):
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=3.0cm,
+  state/.style={circle, draw, thick, minimum size=10mm, fill=blue!10},
+  accepting/.style={circle, draw, double, thick, minimum size=10mm, fill=teal!10},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (q) {$q$};
+  \node[accepting, right=of q] (f) {$f$};
+  \draw[arr] ([xshift=-1.0cm]q.west) -- (q);
+  \draw[arr] (q) edge[loop above] node {$a,b,c$} (q);
+  \draw[arr] (q) -- node[above] {$a$} (f);
+  \draw[arr] (f) edge[loop above] node {$b,c$} (f);
+\end{tikzpicture}
+
+\medskip
+{\small\itshape Complement automaton $\bar{\mathcal{A}}_1$ recognising $\Sigma^\omega\setminus L_1$: $a$ occurs only finitely often.  The non-deterministic transition from $q$ to $f$ guesses the position of the last $a$; thereafter only $b,c$ are permitted.}
+\end{center}
+
+\aside{Complementing a B\"uchi automaton is not always this simple.  The easy case here is that $L_1$ happens to be recognisable by a \emph{deterministic} B\"uchi automaton, so we can exchange accepting and non-accepting states as in the finite case.  In general, complementation is much harder and is treated separately in \cref{ch:omega-complementation}.}
+
+Finally, note the $\omega$-language $L_2\subseteq\Sigma^\omega$ already encountered in \cref{ex:buchi-parity-thomas}: in every word of $L_2$, between any two consecutive occurrences of $a$ there is an even number of $b$'s and $c$'s.  The automaton from \cref{fig:buchi-parity} recognises $L_2$; in Thomas's book it appears as the third concrete example illustrating how B\"uchi automata capture purely qualitative, infinitary conditions.
+\end{example}
+
 
 % ============================================================
 \section{Closure and Expressions}
@@ -585,17 +639,34 @@ states.  A run guesses, at the first step, which automaton will accept
 and commits to it.  This guess makes the construction inherently
 non-deterministic, even when both inputs are deterministic.
 
-\textbf{Property (3) --- intersection $L_1\cap L_2$ (sketch).}  The naive
-product with accepting set $F_1\times F_2$ is too strict: one run may
-visit $F_1$ only at even times while the other visits $F_2$ only at odd
-times, so they never land in $F_1\times F_2$ together even though each
-meets its own B\"uchi condition.  The fix records a \emph{phase bit}
-alongside the product state.  In phase~$1$ the machine waits for the
-first component to visit $F_1$, then switches to phase~$2$; in phase~$2$
-it waits for the second component to visit $F_2$, then switches back.
-Declaring accepting exactly the states that complete one of these two
-obligations forces an accepting run to discharge both obligations
-infinitely often---precisely the intersection condition.
+\textbf{Property (3) --- intersection $L_1\cap L_2$ (full construction).}
+    Suppose $L_1$ is recognised by $\mathcal{A}_1=(Q_1,q_1,\Sigma_1,\Delta_1,F_1)$ and $L_2$ by
+    $\mathcal{A}_2=(Q_2,q_2,\Sigma_2,\Delta_2,F_2)$.  The naive product with
+    accepting set $F_1\times F_2$ is too strict: one run may visit $F_1$
+    only at even steps while the other visits $F_2$ only at odd steps, so
+    they never land in $F_1\times F_2$ together even though each meets its
+    own B\"uchi condition individually.
+
+    The fix, due to Thomas, introduces a \emph{third component} $c\in\{0,1,2\}$
+    alongside the product state $(q_1,q_2)$.  The combined automaton is
+    \[
+      \mathcal{A} = (Q_1\times Q_2\times\{0,1,2\},\;(q_1,q_2,0),\;\Sigma,\;\Delta,\;F)
+    \]
+    where the transition relation $\Delta$ copies $\Delta_1$ and $\Delta_2$ in
+    the first two components, and updates the third component as follows:
+    \begin{itemize}[nosep]
+      \item The counter changes from $0$ to $1$ whenever an $F_1$-state
+            appears in the first component.
+      \item It changes from $1$ to $2$ whenever subsequently an $F_2$-state
+            appears in the second component.
+      \item It resets immediately from $2$ back to $0$.
+    \end{itemize}
+    The accepting set is $F := Q_1\times Q_2\times\{2\}$: a state is
+    accepting when the counter has just completed one full cycle.  Then $2$
+    occurs infinitely often as the third component of a run if and only if,
+    in the first two components, some $F_1$-state occurs infinitely often
+    \emph{and} some $F_2$-state occurs infinitely often---precisely the
+    B\"uchi condition of the intersection.
 
 \textbf{Vectorial closure $\overrightarrow{W}$ (sketch).}  Start from a
 finite-word automaton for $W$ and reinterpret the very same graph as a
