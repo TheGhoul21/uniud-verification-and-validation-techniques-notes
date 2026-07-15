@@ -965,10 +965,40 @@ Consider the infinite word
 \[
   \beta=a\,b\,a\,b^2\,a\,b^3\,a\,b^4\cdots .
 \]
+
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  ablk/.style={draw, thick, rounded corners=1pt, minimum size=6.5mm, fill=orange!16},
+  bblk/.style={draw, thick, rounded corners=1pt, minimum height=6.5mm, fill=blue!10},
+  gap/.style={decorate, decoration={brace, amplitude=4pt, mirror}, color=graphite!60},
+  note/.style={font=\footnotesize\color{graphite!80}},
+]
+  \node[ablk] (a1) {$a$};
+  \node[bblk, right=1.5pt of a1, minimum width=7mm]  (b1) {$b$};
+  \node[ablk, right=1.5pt of b1] (a2) {$a$};
+  \node[bblk, right=1.5pt of a2, minimum width=13mm] (b2) {$bb$};
+  \node[ablk, right=1.5pt of b2] (a3) {$a$};
+  \node[bblk, right=1.5pt of a3, minimum width=19mm] (b3) {$bbb$};
+  \node[ablk, right=1.5pt of b3] (a4) {$a$};
+  \node[bblk, right=1.5pt of a4, minimum width=25mm] (b4) {$bbbb$};
+  \node[right=4pt of b4] {$\cdots$};
+  \draw[gap] (b1.south west) -- (b1.south east) node[midway, below=4pt, note] {$1$};
+  \draw[gap] (b2.south west) -- (b2.south east) node[midway, below=4pt, note] {$2$};
+  \draw[gap] (b3.south west) -- (b3.south east) node[midway, below=4pt, note] {$3$};
+  \draw[gap] (b4.south west) -- (b4.south east) node[midway, below=4pt, note] {$4$};
+\end{tikzpicture}
+\end{center}
+
 Both $a$ and $b$ occur infinitely often, but the gaps between consecutive
-$a$'s keep growing. The word is not ultimately periodic: in an ultimately
-periodic word, the distances between repeated occurrences are eventually
-governed by one fixed period.
+$a$'s---the run-lengths of $b$'s marked $1,2,3,4,\dots$ above---keep
+growing.  This is precisely why $\beta$ is not ultimately periodic.  In an
+ultimately periodic word $u\,v^\omega$, everything past the prefix $u$
+repeats with period $|v|$, so the sequence of gaps between consecutive
+$a$'s is eventually \emph{periodic}, hence \emph{bounded}: it can only
+cycle through the finitely many gap-values occurring inside one copy of
+$v$.  But in $\beta$ the $k$-th gap has length $k$, so the gaps grow
+without bound---and an unbounded sequence cannot be eventually periodic.
 
 Can we build a non-empty language that is not $\omega$-regular?
 
@@ -986,12 +1016,27 @@ To make the obstruction robust, consider Wolfgang Thomas's example:
 \[
   L_\beta = \{ u\beta : u\in\Sigma^* \}.
 \]
+
+\begin{center}
+\begin{tikzpicture}[
+  font=\small,
+  ublk/.style={draw, thick, rounded corners=1pt, minimum height=6.5mm, fill=teal!14, minimum width=22mm},
+  tail/.style={draw, thick, rounded corners=1pt, minimum height=6.5mm, fill=orange!12, minimum width=40mm},
+  note/.style={font=\footnotesize\color{graphite!80}},
+]
+  \node[ublk] (u) {$u$\quad(any finite prefix)};
+  \node[tail, right=1.5pt of u] (t) {$\beta = a\,b\,a\,b^2\,a\,b^3\cdots$};
+  \node[note, below=2.5mm of t.south] {the same aperiodic tail in \emph{every} word of $L_\beta$};
+\end{tikzpicture}
+\end{center}
+
 This language is infinite: we can prepend any finite prefix to $\beta$.
 Is $L_\beta$ $\omega$-regular?  If it were, then again by
 \cref{cor:ultimately-periodic-witness} it would have to contain an
-ultimately periodic word.  But every word in $L_\beta$ shares the suffix
-$\beta$, meaning it eventually behaves exactly like $\beta$ and cannot be
-ultimately periodic.
+ultimately periodic word.  But a finite prefix $u$ changes only finitely
+much, whereas being ultimately periodic is a property of the tail---and
+every word of $L_\beta$ has the same tail $\beta$, which is aperiodic.  So
+no word of $L_\beta$ is ultimately periodic.
 
 Thus, $L_\beta$ is not $\omega$-regular.  The absence of an ultimately
 periodic word is a structural barrier to $\omega$-regularity, even for
