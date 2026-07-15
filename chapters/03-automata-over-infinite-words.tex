@@ -492,72 +492,117 @@ intersection, because then both operands stay in the class and we are
 left with an emptiness question---which we already know how to solve.
 Complementation for $\omega$-regular languages is more delicate than in
 the finite case and is treated separately in
-\cref{ch:complementation}; intersection, however, follows directly from
-the constructions below.
+\cref{ch:omega-complementation}; intersection, however, follows directly
+from the constructions below.
+
+In the finite-word theory the regular languages were closed under union,
+intersection, complementation, concatenation, and Kleene star, each
+established by an explicit construction on automata.  A natural question
+is how many of these operations still make sense---and still keep us
+inside the class---once the words are infinite.  The next theorem
+collects the ones that do.
 
 \begin{theorem}[Basic closure properties]
 \label{thm:omega-basic-closure}
-$\omega$-regular languages are closed under finite union and
-intersection.  Moreover, if $U\subseteq\Sigma^*$ is regular and
-$L\subseteq\Sigma^\omega$ is $\omega$-regular, then $U\cdot L$ is
-$\omega$-regular; if $V, W\subseteq\Sigma^*$ are regular, then
-the $\omega$-power $V^\omega$ and the vectorial closure $\overrightarrow{W}$ are $\omega$-regular.
+Let $V\subseteq\Sigma^*$ be a regular finite-word language and let
+$L,L_1,L_2\subseteq\Sigma^\omega$ be $\omega$-regular.  Then:
+\begin{enumerate}[label=\textup{(\arabic*)}, nosep]
+  \item the $\omega$-power $V^\omega$ is $\omega$-regular;
+  \item the concatenation $V\cdot L$ is $\omega$-regular;
+  \item the union $L_1\cup L_2$ and the intersection $L_1\cap L_2$ are
+        $\omega$-regular.
+\end{enumerate}
+The same techniques show that the vectorial closure
+$\overrightarrow{W}$ of a regular $W\subseteq\Sigma^*$ is
+$\omega$-regular; we single it out because
+\cref{ch:deterministic-automata-star-free} builds on it.
 \end{theorem}
 
-The constructions mirror the finite case, but one detail changes:
-acceptance is about visiting final states infinitely often.  In product
-constructions, we must ensure that both automata satisfy their B\"uchi
-conditions, not just that both components are accepting at the same
-single time.
+The theorem is as notable for what it excludes as for what it lists.
+Every finite-word closure lifts except one: complementation.  This is
+not an oversight.  In the finite-word world we complemented a language
+by first determinising its automaton and then exchanging accepting and
+non-accepting states; that route is unavailable here, because B\"uchi
+automata cannot in general be determinised
+(\cref{ch:deterministic-automata-star-free}).  Whether the complement of
+every $\omega$-regular language is again $\omega$-regular is therefore a
+genuine question at this stage, not a routine corollary of the
+constructions below---and, as anticipated above, answering it
+(affirmatively) is the whole business of \cref{ch:omega-complementation}.
 
-\begin{formaldetails}[Construction ideas]
-The constructive proofs for these closures share a common constraint: we avoid
-$\varepsilon$-transitions to keep the constructions direct and standard.
+The constructions mirror the finite case, but with two twists.  First,
+concatenation is now asymmetric: in $V\cdot L$ only the left factor may
+be a finite-word language, because an infinite word drawn from $L$
+already occupies the entire time axis and leaves no positions for
+anything to follow it.  Second, acceptance is about visiting final
+states infinitely often, so in product constructions we must ensure that
+both automata satisfy their B\"uchi conditions, not just that both
+components are accepting at the same single time.
 
-\textbf{Finite Union ($L_1 \cup L_2$):} Run B\"uchi automata for $L_1$ and $L_2$
-in parallel. Create a new initial state that non-deterministically duplicates
-the outgoing transitions of the initial states of both automata. This
-non-determinism is essential, even if the original automata are deterministic,
-because we must guess which automaton will successfully accept the word.
+\begin{formaldetails}[Constructions]
+All the proofs are constructive, and they share one convention: we avoid
+$\varepsilon$-transitions, to keep the automata direct and standard.
+Following the usual presentation, we prove property~(1) in full---it is
+the template that fixes the ideas---and give the remaining constructions
+as sketches, since each reuses the same tricks.
 
-\textbf{Concatenation ($U\cdot L$):} Take a finite-word automaton for $U$ and a
-B\"uchi automaton for $L$. We want to run $U$ and, upon completing a word,
-transition into $L$. Without $\varepsilon$-transitions, we look at every transition
-$p \xrightarrow{a} p_f$ in $U$ that enters an accepting state. We duplicate that
-transition so it also points to the initial state of $L$ ($p \xrightarrow{a} q_0$).
-The accepting states of the combined automaton are simply the accepting states of $L$.
+\textbf{Property (1) --- $\omega$-power $V^\omega$ (full construction).}
+Let $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$ recognise $V$.  Two harmless
+assumptions simplify the argument.  First, $\varepsilon\notin V$: an
+empty block contributes no symbol to an infinite concatenation, so
+discarding it changes nothing.  Second, $q_0$ has no incoming
+transitions; if it does, add a fresh copy $q_0'$ with the same outgoing
+transitions and no incoming ones, and make $q_0'$ initial---every run
+then leaves $q_0'$ once, at the very start, and never returns.
+To stitch blocks together without $\varepsilon$-moves, whenever a
+transition $q\xrightarrow{a}q_f$ enters a final state $q_f\in F$, add a
+parallel transition $q\xrightarrow{a}q_0$ back to the start.  Do
+\emph{not} remove the original transitions into or out of $F$: a word of
+$V$ may pass through a final state, keep reading, and be accepted only at
+a later one, so deleting them would lose words.  Finally, strip $F$ of
+its accepting status and make $q_0$ the \emph{only} accepting state.  A
+run now visits $q_0$ infinitely often iff it splits the input into
+infinitely many consecutive blocks each accepted by $\mathcal{A}$---that
+is, iff the input lies in $V^\omega$.  (The new automaton does give
+$q_0$ incoming transitions, but that costs nothing: should a later
+construction need an incoming-free initial state, apply the $q_0'$ trick
+once more.)
 
-\textbf{$\omega$-power ($V^\omega$):} Let $\mathcal{A}$ be an automaton for $V$.
-We assume $\varepsilon \notin V$ (empty words do not contribute to the infinite sequence)
-and that the initial state $q_0$ has no incoming transitions (if it does, we can add
-a new initial copy $q_0'$ with the same outgoing transitions but no incoming ones).
-To allow infinite repetitions without $\varepsilon$-moves, whenever a transition
-$q \xrightarrow{a} q_f$ enters a final state $q_f \in F$, duplicate it to also
-point back to the start: $q \xrightarrow{a} q_0$. Crucially, do not remove the
-original final states $F$ or their transitions, because a valid word in $V$ might
-pass through a final state, continue reading, and accept at another state later.
-Finally, the original states in $F$ are no longer accepting. Instead, $q_0$ becomes
-the \emph{only} accepting state in the B\"uchi automaton. Visiting $q_0$ infinitely
-often guarantees we have completed infinitely many blocks from $V$.
+\textbf{Property (2) --- concatenation $V\cdot L$ (sketch).}  Take a
+finite-word automaton for $V$ and a B\"uchi automaton for $L$, with
+disjoint state sets.  Run the first and, on finishing a prefix in $V$,
+hand control to the second.  Without $\varepsilon$-moves, inspect every
+transition $p\xrightarrow{a}p_f$ of the $V$-automaton that enters an
+accepting state and add a parallel transition $p\xrightarrow{a}q_0^L$
+into the initial state of the $L$-automaton.  The accepting states of
+the combined machine are exactly those of $L$, since the first component
+only reads the finite prefix and then defers.
 
-\textbf{Vectorial Closure ($\overrightarrow{W}$):} Start from a finite-word
-automaton for $W$. If we treat the exact same graph as a B\"uchi automaton
-by keeping the same accepting states, it accepts exactly $\overrightarrow{W}$:
-visiting the accepting states infinitely often corresponds exactly to finding
-infinitely many prefixes in $W$.
+\textbf{Property (3) --- union $L_1\cup L_2$ (sketch).}  Run B\"uchi
+automata for $L_1$ and $L_2$ side by side and add a new initial state
+whose outgoing transitions duplicate those of both original initial
+states.  A run guesses, at the first step, which automaton will accept
+and commits to it.  This guess makes the construction inherently
+non-deterministic, even when both inputs are deterministic.
 
-\textbf{Intersection ($L_1 \cap L_2$):} The naive product with
-$F_1\times F_2$ is too strict: one run may visit $F_1$ at even times and
-the other may visit $F_2$ at odd times.  The key observation is that
-both automata do not need to visit their accepting states
-\emph{at the same moment}---they only need to each do so infinitely
-often, potentially at entirely different positions in the run.  The
-correct product stores a phase bit.  In phase $1$ it waits until the
-first component visits $F_1$, then switches to phase $2$; in phase $2$
-it waits until the second component visits $F_2$, then switches back to
-phase $1$.  The accepting states are the states that complete one of
-these obligations.  An accepting run must therefore complete both
-obligations infinitely often, which is exactly the right condition.
+\textbf{Property (3) --- intersection $L_1\cap L_2$ (sketch).}  The naive
+product with accepting set $F_1\times F_2$ is too strict: one run may
+visit $F_1$ only at even times while the other visits $F_2$ only at odd
+times, so they never land in $F_1\times F_2$ together even though each
+meets its own B\"uchi condition.  The fix records a \emph{phase bit}
+alongside the product state.  In phase~$1$ the machine waits for the
+first component to visit $F_1$, then switches to phase~$2$; in phase~$2$
+it waits for the second component to visit $F_2$, then switches back.
+Declaring accepting exactly the states that complete one of these two
+obligations forces an accepting run to discharge both obligations
+infinitely often---precisely the intersection condition.
+
+\textbf{Vectorial closure $\overrightarrow{W}$ (sketch).}  Start from a
+finite-word automaton for $W$ and reinterpret the very same graph as a
+B\"uchi automaton, keeping the accepting states unchanged.  Visiting an
+accepting state infinitely often is, verbatim, hitting $W$ with
+infinitely many prefixes, so this automaton accepts exactly
+$\overrightarrow{W}$.
 \end{formaldetails}
 
 \Cref{fig:buchi-intersection-phases} depicts only the control idea of the
@@ -599,6 +644,57 @@ says ``the system does one of finitely many things: starts with some
 prefix, then loops forever in some pattern''.  This is the infinite-word
 analogue of a regular expression.
 
+Before stating the equivalence, we isolate the one piece of machinery it
+needs.  The equivalence is easy in one direction---an expression already
+tells you how to build an automaton---and needs a small tool in the
+other, where we must read a regular expression back out of a finite
+graph.  That tool is a way of naming, for each pair of states, the finite
+words that connect them.
+
+Fix a B\"uchi automaton $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$.  For two
+states $s,s'\in Q$ and a finite word $w\in\Sigma^*$, write
+\[
+  s \xrightarrow{\;w\;} s'
+\]
+to mean that $\mathcal{A}$ has a computation over $w$ leading from $s$ to
+$s'$: a path in the graph from $s$ to $s'$ whose edge labels, read in
+order, spell $w$.  Here we deliberately forget the roles of $q_0$ and
+$F$---the arrow speaks only about how the transition relation lets us
+move through the graph, not about acceptance.
+
+\begin{center}
+\begin{tikzpicture}[
+  st/.style={circle, draw, thick, minimum size=9mm, fill=blue!8},
+  pth/.style={-Stealth, thick, decorate,
+              decoration={snake, amplitude=0.55mm, segment length=3.2mm, post length=2mm}},
+]
+  \node[st] (s) {$s$};
+  \node[st, right=3.6cm of s] (sp) {$s'$};
+  \draw[pth] (s) -- node[above=0.5mm, font=\small] {$w$} (sp);
+  \node[below=6mm of s, xshift=1.8cm, font=\small\itshape, color=graphite!75]
+    {a finite path of any length whose labels spell $w$};
+\end{tikzpicture}
+\end{center}
+
+Now collect, for each ordered pair $s,s'\in Q$, every word that connects
+them:
+\[
+  W_{s,s'} \;=\; \{\, w\in\Sigma^* \;\mid\; s \xrightarrow{\;w\;} s' \,\}.
+\]
+It is immediate that each $W_{s,s'}$ is a \emph{regular} finite-word
+language, and no new construction is required to see it.  Take the very
+same graph as $\mathcal{A}$ and re-point it:
+\[
+  \mathcal{A}_{W_{s,s'}} \;=\; (Q,\Sigma,\Delta,\,s,\,\{s'\}),
+\]
+leaving the states and transitions untouched but making $s$ the initial
+state and $s'$ the \emph{only} accepting state.  Read as an ordinary
+finite-word automaton, $\mathcal{A}_{W_{s,s'}}$ accepts a word exactly
+when that word labels a path from $s$ to $s'$---which is the definition of
+$W_{s,s'}$.  So every $W_{s,s'}$ is regular, and we are free to use these
+languages as the $U_i$ and $V_i$ building blocks of an $\omega$-regular
+expression.
+
 \begin{theorem}[B\"uchi-expression equivalence]
 \label{thm:buchi-expression-equivalence}
 A language $L\subseteq\Sigma^\omega$ is accepted by a B\"uchi automaton
@@ -624,27 +720,67 @@ then completes infinitely many consecutive blocks from $V$.
 
 \medskip
 \noindent\textbf{Automaton to expression.}
-Let $A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  For states
-$p,q\in Q$, let $W_{p,q}$ be the regular language of finite words that
-label some path from $p$ to $q$ in the underlying finite automaton.  This
-language is regular because it is accepted by the same finite graph with
-initial state $p$ and accepting state $q$.
+Let $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton, and use
+the languages $W_{s,s'}$ set up above---each of them regular, witnessed
+by the re-pointed automaton $\mathcal{A}_{W_{s,s'}}$.
 
-If $\alpha$ is accepted, then some accepting run visits at least one
-state $f\in F$ infinitely many times.  Split the run at successive visits
-to that same $f$.  The finite prefix before the first selected visit is
-labelled by a word in $W_{q_0,f}$, and every later block is labelled by a
-non-empty word in $W_{f,f}$.  Therefore
+Suppose $\alpha$ is accepted.  Then some accepting run visits at least one
+state $f\in F$ infinitely many times.  Mark the successive positions at
+which the run is in that same $f$, and cut $\alpha$ there.  The prefix up
+to the first mark drives the run from $q_0$ to $f$, so it is labelled by a
+word in $W_{q_0,f}$; each later block drives the run from $f$ back to $f$,
+so it is labelled by a \emph{non-empty} word in $W_{f,f}$---non-empty
+because two successive visits to $f$ are separated by at least one symbol.
+Therefore
 \[
-  \alpha\in W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega.
+  \alpha\in W_{q_0,f}\,\bigl(W_{f,f}\setminus\{\varepsilon\}\bigr)^\omega.
 \]
-Taking the union over all $f\in F$ gives an $\omega$-regular expression
-containing every accepted word.
+Taking the union over all $f\in F$,
+\[
+  L(\mathcal{A}) \;\subseteq\; \bigcup_{f\in F}
+     W_{q_0,f}\,\bigl(W_{f,f}\setminus\{\varepsilon\}\bigr)^\omega ,
+\]
+and the right-hand side has exactly the shape $\bigcup_i U_i V_i^\omega$
+demanded of an $\omega$-regular expression, with $U_f=W_{q_0,f}$ and
+$V_f=W_{f,f}\setminus\{\varepsilon\}$.
 
-Conversely, any word in one of these products describes a path from
-$q_0$ to $f$, followed by infinitely many non-empty paths from $f$ back
-to $f$.  Following those paths gives a run that visits $f$ infinitely
-often, hence is accepting.  So the expression denotes exactly $L(A)$.
+The decomposition is a lasso: a finite prefix into $f$, then an infinite
+sequence of loops back to $f$.
+
+\begin{center}
+\begin{tikzpicture}[
+  st/.style={circle, draw, thick, minimum size=9mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=9mm, fill=teal!12},
+  pth/.style={-Stealth, thick, decorate,
+              decoration={snake, amplitude=0.55mm, segment length=3.2mm, post length=2mm}},
+  arr/.style={-Stealth, thick},
+]
+  \node[st] (q0) {$q_0$};
+  \node[acc, right=4.2cm of q0] (f) {$f$};
+
+  % prefix u from q0 to f
+  \draw[pth] (q0) -- node[above=1mm, font=\small] {$u$} (f);
+  \draw[decorate, decoration={brace, amplitude=5pt, mirror}, color=graphite!55]
+    ([yshift=-7mm]q0.south) -- ([yshift=-7mm]f.south)
+    node[midway, below=3pt, font=\footnotesize\itshape, color=graphite!75]
+    {prefix, $u\in W_{q_0,f}$};
+
+  % repeated loop at f
+  \draw[arr] (f) to[out=55, in=125, looseness=7]
+     node[above=0.5mm, font=\small] {$v_i$} (f);
+  \node[right=1.5cm of f, font=\footnotesize, align=left, color=graphite!80]
+    {each loop $v_i\in W_{f,f}\setminus\{\varepsilon\}$,\\[2pt]
+     repeated forever:\\[3pt]
+     \normalsize$\alpha = u\,v_1 v_2 v_3\cdots$};
+\end{tikzpicture}
+\end{center}
+
+The reverse inclusion holds for the same expression.  Any word in a
+product $W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega$ spells a path
+from $q_0$ to $f$ followed by infinitely many non-empty paths from $f$
+back to $f$.  Concatenating those paths is a run of $\mathcal{A}$ that
+visits $f$ infinitely often, hence accepting.  So the two sides coincide,
+and the expression denotes exactly $L(\mathcal{A})$.
 \end{proof}
 
 
@@ -713,10 +849,67 @@ An $\omega$-word is \textbf{ultimately periodic} if it has the form
 for finite words $u\in\Sigma^*$ and non-empty $v\in\Sigma^*$.
 \end{definition}
 
+\aside{In Italian: \emph{definitivamente periodico}.}
+
+The point of singling out this shape is that an ultimately periodic word
+is \emph{finitely describable}: to pin down the entire infinite object it
+is enough to name the prefix $u$ and the period $v$, two finite words.
+This is a real privilege.  A generic $\omega$-word carries unboundedly
+much information and need not be specifiable by any finite data at
+all---there are only countably many finite descriptions but uncountably
+many $\omega$-words, so almost none of them are.  The word
+$\beta=a\,b\,a\,b^2\,a\,b^3\cdots$ of the next example is one that is not.
+Ultimately periodic words are, quite literally, the $\omega$-words we can
+write down.
+
+\begin{corollary}[Ultimately periodic witnesses]
+\label{cor:ultimately-periodic-witness}
 Every non-empty $\omega$-regular language contains an ultimately periodic
-word.  The graph-theoretic lasso in \cref{prop:buchi-emptiness} is the
-automata reason: a finite path gives $u$, and the repeated cycle gives
-$v^\omega$.
+word.
+\end{corollary}
+
+\begin{proof}
+Let $L$ be $\omega$-regular.  By
+\cref{thm:buchi-expression-equivalence} we may write it as an
+$\omega$-regular expression,
+\[
+  L=\bigcup_{i=1}^{n} U_i V_i^\omega .
+\]
+Since $L\neq\emptyset$, some word $\alpha\in L$ falls in one of the terms,
+say $\alpha\in U_i V_i^\omega$.  Unfolding that term,
+\[
+  \alpha = u\,v_1 v_2 v_3\cdots ,
+  \qquad u\in U_i,\quad \text{each } v_j\in V_i .
+\]
+The blocks $v_1,v_2,\dots$ may well all be different.  But nothing forces
+us to vary them: since $v_1\in V_i$, already $v_1^\omega\in V_i^\omega$, so
+\[
+  \beta = u\,v_1^\omega = u\,v_1 v_1 v_1\cdots
+\]
+also lies in $U_i V_i^\omega\subseteq L$---and $\beta$ is ultimately
+periodic.
+\end{proof}
+
+This corollary is the infinite-word echo of the \emph{small model
+property} for finite automata (\cref{thm:small-model-finite}).  There,
+non-emptiness of a regular language guarantees a \emph{short}
+witness---one of length below $|Q|$---so emptiness can be settled by
+scanning finitely many short words.  Here, non-emptiness of an
+$\omega$-regular language guarantees a \emph{finitely describable}
+witness, an ultimately periodic word.  Either way the payoff is identical:
+to decide emptiness we need not inspect all words---infinitely many there,
+uncountably many here---but only a subset we can enumerate by finite data.
+This is exactly why ultimately periodic words will be at the centre of
+deciding B\"uchi emptiness.
+
+There is also a second, purely automata-theoretic reading of the same
+fact: an ultimately periodic word is the lasso of
+\cref{prop:buchi-emptiness} read off verbatim (\cref{fig:buchi-lasso}).  A
+non-empty B\"uchi automaton for $L$ has an accepting state reachable from
+$q_0$ and lying on a cycle; the finite path to it spells the prefix $u$,
+and the \emph{same} cycle repeated forever spells $v^\omega$.  A general
+accepted word may switch to a different loop on each return to $f$; the
+ultimately periodic witness simply commits to one loop and reuses it.
 
 \begin{example}[Languages without periodic words]
 \label{ex:non-omega-regular-languages}
@@ -732,9 +925,10 @@ governed by one fixed period.
 Can we build a non-empty language that is not $\omega$-regular?
 
 We could simply take the singleton language $\{\beta\}$.  If it were
-$\omega$-regular, by the lasso property, it would have to contain an
-ultimately periodic word.  But its only word is $\beta$, which is not
-ultimately periodic.  So $\{\beta\}$ is not $\omega$-regular.
+$\omega$-regular, then by \cref{cor:ultimately-periodic-witness} it would
+have to contain an ultimately periodic word.  But its only word is
+$\beta$, which is not ultimately periodic.  So $\{\beta\}$ is not
+$\omega$-regular.
 
 That argument is correct, but it may feel too easy: a finite automaton for
 one fixed aperiodic word already sounds impossible.  A more robust
@@ -745,7 +939,8 @@ To make the obstruction robust, consider Wolfgang Thomas's example:
   L_\beta = \{ u\beta : u\in\Sigma^* \}.
 \]
 This language is infinite: we can prepend any finite prefix to $\beta$.
-Is $L_\beta$ $\omega$-regular?  If it were, it would have to contain an
+Is $L_\beta$ $\omega$-regular?  If it were, then again by
+\cref{cor:ultimately-periodic-witness} it would have to contain an
 ultimately periodic word.  But every word in $L_\beta$ shares the suffix
 $\beta$, meaning it eventually behaves exactly like $\beta$ and cannot be
 ultimately periodic.
