@@ -203,22 +203,35 @@
 }
 
 % ---- theorem environments ----
+% Numbering is shared through aliascnt (rather than \newtheorem's [theorem]
+% option) so that each environment keeps its own counter *name*.  That lets
+% cleveref reference them distinctly (``proposition 3.5.1'', ``corollary
+% 3.5.3'') instead of calling every shared-counter environment ``theorem''.
+\usepackage{aliascnt}
+% #1 = environment name, #2 = printed title.  The alias counter is passed
+% back to \newtheorem as its master ([#1]) so amsthm reuses it instead of
+% defining a fresh \c@#1 (which would clash with the alias).
+\newcommand{\newsharedtheorem}[2]{%
+  \newaliascnt{#1}{theorem}%
+  \newtheorem{#1}[#1]{#2}%
+  \aliascntresetthe{#1}%
+}
 \theoremstyle{plain}
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{proposition}[theorem]{Proposition}
+\newsharedtheorem{lemma}{Lemma}
+\newsharedtheorem{corollary}{Corollary}
+\newsharedtheorem{proposition}{Proposition}
 
 \theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
-\newtheorem{problem}[theorem]{Problem}
+\newsharedtheorem{definition}{Definition}
+\newsharedtheorem{example}{Example}
+\newsharedtheorem{problem}{Problem}
 
 \theoremstyle{remark}
-\newtheorem{remark}[theorem]{Remark}
-\newtheorem{note}[theorem]{Note}
-\newtheorem{observation}[theorem]{Observation}
-\newtheorem{exercise}[theorem]{Exercise}
+\newsharedtheorem{remark}{Remark}
+\newsharedtheorem{note}{Note}
+\newsharedtheorem{observation}{Observation}
+\newsharedtheorem{exercise}{Exercise}
 
 % ---- plain end-of-chapter exercise environment (no box) ----
 % Usage: \begin{chapex}[optional title] ... \end{chapex}
@@ -232,6 +245,29 @@
   \par\addvspace{4pt}%
 }
 \crefname{chapex}{Exercise}{Exercises}
+
+% The theorem-like environments above share the \texttt{theorem} counter,
+% so by default cleveref calls every one of them ``theorem''.  Register a
+% distinct cross-reference name for each (lowercase mid-sentence, matching
+% how the base ``theorem'' is styled; capitalized form for \Cref).
+\crefname{proposition}{proposition}{propositions}
+\Crefname{proposition}{Proposition}{Propositions}
+\crefname{corollary}{corollary}{corollaries}
+\Crefname{corollary}{Corollary}{Corollaries}
+\crefname{lemma}{lemma}{lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{definition}{definition}{definitions}
+\Crefname{definition}{Definition}{Definitions}
+\crefname{example}{example}{examples}
+\Crefname{example}{Example}{Examples}
+\crefname{problem}{problem}{problems}
+\Crefname{problem}{Problem}{Problems}
+\crefname{remark}{remark}{remarks}
+\Crefname{remark}{Remark}{Remarks}
+\crefname{note}{note}{notes}
+\Crefname{note}{Note}{Notes}
+\crefname{observation}{observation}{observations}
+\Crefname{observation}{Observation}{Observations}
 
 % ---- theorem environment styles (colored left bar) ----
 \mdfdefinestyle{thmbar}{%
