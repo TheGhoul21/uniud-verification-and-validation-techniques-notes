@@ -890,6 +890,54 @@ also lies in $U_i V_i^\omega\subseteq L$---and $\beta$ is ultimately
 periodic.
 \end{proof}
 
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  blk/.style={draw, thick, rounded corners=1pt, minimum height=7.5mm, inner xsep=5pt},
+  ublk/.style={blk, fill=blue!10, minimum width=18mm},
+  vgen/.style={blk, fill=orange!14},
+  vper/.style={blk, fill=teal!16},
+  rl/.style={font=\footnotesize\itshape\color{graphite!75}},
+  note/.style={font=\footnotesize\color{graphite!80}},
+]
+  % general accepted word: blocks may differ (varying widths)
+  \node[ublk] (u1) {$u$};
+  \node[vgen, right=1.5pt of u1, minimum width=11mm] (g1) {$v_1$};
+  \node[vgen, right=1.5pt of g1, minimum width=16mm] (g2) {$v_2$};
+  \node[vgen, right=1.5pt of g2, minimum width=8mm]  (g3) {$v_3$};
+  \node[vgen, right=1.5pt of g3, minimum width=13mm] (g4) {$v_4$};
+  \node[right=4pt of g4] (gd) {$\cdots$};
+  \node[rl, left=6pt of u1] {general};
+  \node[note, right=8pt of gd] {$\alpha = u\,v_1 v_2 v_3\cdots\ \in L$};
+
+  % ultimately periodic word: the same block, reused (equal widths)
+  \node[ublk, below=13mm of u1.south west, anchor=north west] (u2) {$u$};
+  \node[vper, right=1.5pt of u2, minimum width=11mm] (p1) {$v_1$};
+  \node[vper, right=1.5pt of p1, minimum width=11mm] (p2) {$v_1$};
+  \node[vper, right=1.5pt of p2, minimum width=11mm] (p3) {$v_1$};
+  \node[vper, right=1.5pt of p3, minimum width=11mm] (p4) {$v_1$};
+  \node[right=4pt of p4] (pd) {$\cdots$};
+  \node[rl, left=6pt of u2] {periodic};
+  \node[note, right=8pt of pd] {$\beta = u\,v_1^\omega\ \in L$};
+
+  % collapse: g1 and p1 are vertically aligned, so the arrow is vertical
+  \draw[-Stealth, thick, color=graphite!65] (g1.south) --
+     node[right=3pt, note] {keep $v_1$, drop the rest, repeat it forever} (p1.north);
+\end{tikzpicture}
+\caption{The collapse behind \cref{cor:ultimately-periodic-witness}, seen
+on the word itself.  A general accepted word splits as a prefix $u$
+followed by blocks $v_1,v_2,\dots$ that may all differ; keeping only the
+first block and reusing it gives the ultimately periodic witness
+$u\,v_1^\omega$.  Both lie in the same term $U_iV_i^\omega$, hence in
+$L$.}
+\label{fig:up-collapse}
+\end{figure}
+
+\Cref{fig:up-collapse} shows this collapse at the level of the word: the
+varying blocks $v_1,v_2,\dots$ are overwritten by copies of the single
+block $v_1$.
+
 This corollary is the infinite-word echo of the \emph{small model
 property} for finite automata (\cref{thm:small-model-finite}).  There,
 non-emptiness of a regular language guarantees a \emph{short}
