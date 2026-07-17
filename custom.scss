@@ -335,13 +335,12 @@ main {
 .wt-step-example {
   flex: 1;
   font-size: 0.9rem;
-  color: rgba($vvteal, 0.9);
 }
 .wt-example-label {
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: rgba($vvteal, 0.8);
+  color: $vvteal;
   margin-bottom: 4px;
 }
 .wt-step-separator {
