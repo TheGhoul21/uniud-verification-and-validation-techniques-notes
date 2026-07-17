@@ -699,9 +699,12 @@ total, we can view it as a relation $\Delta$ in which each pair $(q,a)$
 has exactly one successor.  So the class of languages recognizable by
 DFAs is contained in the class recognizable by NFAs.
 
-The interesting question is the converse.  Are there languages that an
-NFA can recognize but no DFA can?  Does non-determinism genuinely add
-expressive power, or does it only add design convenience?
+\begin{catalyst}{Does non-determinism add power?}
+The interesting question is the converse. Are there languages that an
+NFA can recognize but no DFA can? Does non-determinism genuinely add
+expressive power, or does it only add design convenience? We need to know
+if restricting ourselves to DFAs means losing any languages.
+\end{catalyst}
 
 The answer is that it adds only convenience.  If we restrict ourselves to
 DFAs, we do not lose any language.
@@ -749,6 +752,13 @@ contains at least one NFA final state:
 \]
 \end{formaldetails}
 
+\begin{counterpoint}{Why "at least one" and not "all"?}
+If we defined $F_D = \{S \subseteq Q : S \subseteq F\}$ (requiring \emph{all}
+tracked NFA states to be final), the DFA would compute \emph{universal}
+acceptance. In our example, the DFA state $\{q_0, q_a\}$ would be rejected
+because $q_0 \notin F$, breaking equivalence with the NFA's existential acceptance.
+\end{counterpoint}
+
 The construction is called the \textbf{power-set construction} because
 the DFA states are subsets of the NFA state set.  Each deterministic
 state $S$ is a subset of $Q$, so the DFA has at most $2^{|Q|}$ states.
@@ -787,48 +797,75 @@ genuinely adds expressive power.}
 deterministic state stands for a whole set of possible NFA states.  The
 picture is deliberately about sets, not individual branches.
 
-\begin{proof}
-We prove the following invariant by induction on $|w|$: for every
-word $w\in A^*$,
-\[
-  \widehat{\delta}_D(\{q_0\},\,w) \;=\; \widehat{\Delta}(q_0,\,w).
-\]
-A small but important remark about types.  On the left-hand side,
-$\widehat{\delta}_D(\{q_0\},w)$ is a single state of the DFA
-$\mathcal{D}$ --- but every such state is, by construction, a subset of
-$Q$.  On the right-hand side, $\widehat{\Delta}(q_0,w)$ is directly a
-subset of $Q$.  The invariant claims these two subsets coincide.
+\begin{walkthrough}{Subset construction correctness}
+  \wtstep{Setup}{
+    We prove the following invariant by induction on $|w|$: for every
+    word $w\in A^*$,
+    \[
+      \widehat{\delta}_D(\{q_0\},\,w) \;=\; \widehat{\Delta}(q_0,\,w).
+    \]
+    A small but important remark about types.  On the left-hand side,
+    $\widehat{\delta}_D(\{q_0\},w)$ is a single state of the DFA
+    $\mathcal{D}$ --- but every such state is, by construction, a subset of
+    $Q$.  On the right-hand side, $\widehat{\Delta}(q_0,w)$ is directly a
+    subset of $Q$.  The invariant claims these two subsets coincide.
+  }{
+    Consider the ``last symbol is $a$'' NFA. We will trace the determinization
+    on the word $w = aba$, matching the states in \cref{fig:subset-state}.
+  }
+  
+  \wtstep{Base case}{
+    \noindent\textit{Base case ($w=\varepsilon$).}  The DFA starts in its
+    initial state $\{q_0\}$.  The NFA, having consumed no input, can only
+    be in $q_0$.  So both sides equal $\{q_0\}$.
+  }{
+    Before reading any symbols: \\
+    DFA state = $\{q_0\}$ \\
+    NFA reachable states = $\{q_0\}$. \checkmark
+  }
+  
+  \wtstep{Inductive step}{
+    \noindent\textit{Inductive step.}  Suppose the invariant holds for some
+    word $w$, so that
+    \[
+      \widehat{\delta}_D(\{q_0\},w) = \widehat{\Delta}(q_0,w) = S.
+    \]
+    After reading one more symbol $a$, the DFA applies $\delta_D$:
+    \[
+      \widehat{\delta}_D(\{q_0\},wa)
+      \;=\; \delta_D(S,\,a)
+      \;=\; \bigcup_{q\in S}\Delta(q,a).
+    \]
+    This union is precisely $\widehat{\Delta}(q_0,wa)$: every state it
+    contains is reached by extending some NFA run on $w$ with one
+    $a$-transition, and every such extension contributes its target to the
+    union.  The invariant therefore holds for $wa$.
+  }{
+    After reading the first $a$, $S = \{q_0, q_a\}$. \\
+    Next we read $b$. We compute the union of NFA transitions: \\
+    $\Delta(q_0, b) \cup \Delta(q_a, b) = \{q_0\} \cup \emptyset = \{q_0\}$. \\
+    The DFA transitions to state $\{q_0\}$. \checkmark
+  }
+  
+  \wtstep{Conclusion}{
+    The invariant immediately gives the language equivalence.  The NFA
+    accepts $w$ if and only if $\widehat{\Delta}(q_0,w)\cap F\neq\emptyset$.
+    By the invariant this is $\widehat{\delta}_D(\{q_0\},w)\cap
+    F\neq\emptyset$, which holds if and only if
+    $\widehat{\delta}_D(\{q_0\},w)\in F_D$ --- exactly the DFA acceptance
+    condition.  Hence $L(\mathcal{D})=L(\mathcal{A})$.
+  }{
+    After the full trace $w = aba$, the DFA reaches state $\{q_0, q_a\}$.
+    Since this set contains the NFA accepting state $q_a \in F$, the DFA
+    accepts. Both machines accept $w$. \checkmark
+  }
+\end{walkthrough}
 
-\medskip
-\noindent\textit{Base case ($w=\varepsilon$).}  The DFA starts in its
-initial state $\{q_0\}$.  The NFA, having consumed no input, can only
-be in $q_0$.  So both sides equal $\{q_0\}$.
-
-\medskip
-\noindent\textit{Inductive step.}  Suppose the invariant holds for some
-word $w$, so that
-\[
-  \widehat{\delta}_D(\{q_0\},w) = \widehat{\Delta}(q_0,w) = S.
-\]
-After reading one more symbol $a$, the DFA applies $\delta_D$:
-\[
-  \widehat{\delta}_D(\{q_0\},wa)
-  \;=\; \delta_D(S,\,a)
-  \;=\; \bigcup_{q\in S}\Delta(q,a).
-\]
-This union is precisely $\widehat{\Delta}(q_0,wa)$: every state it
-contains is reached by extending some NFA run on $w$ with one
-$a$-transition, and every such extension contributes its target to the
-union.  The invariant therefore holds for $wa$.
-
-\medskip
-The invariant immediately gives the language equivalence.  The NFA
-accepts $w$ if and only if $\widehat{\Delta}(q_0,w)\cap F\neq\emptyset$.
-By the invariant this is $\widehat{\delta}_D(\{q_0\},w)\cap
-F\neq\emptyset$, which holds if and only if
-$\widehat{\delta}_D(\{q_0\},w)\in F_D$ --- exactly the DFA acceptance
-condition.  Hence $L(\mathcal{D})=L(\mathcal{A})$.
-\end{proof}
+\begin{takeaway}
+Any NFA with $n$ states can be simulated by a DFA with at most $2^n$ states.
+The exponential blowup is unavoidable in the worst case, but most deterministic
+automata have far fewer reachable states in practice.
+\end{takeaway}
 
 % ============================================================
 \subsection{Regular Languages}

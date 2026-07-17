@@ -18,6 +18,12 @@ $codecomment: #646464;
 $codekw:      #0000c8;
 $codestr:     #a31515;
 
+// ── VV Story-Arc palette (matches preamble.tex) ─────────────────────────────
+$vvteal:    #00897b;
+$vvorange:  #f28e2c;
+$vvviolet:  #7e57c2;
+$vvgray:    #80868b;
+
 // ── Typography ───────────────────────────────────────────────────────────────
 $font-family-sans-serif: 'Cabin', ui-sans-serif, system-ui, sans-serif;
 $font-family-monospace:  'Cabin', 'Courier New', monospace;
@@ -226,10 +232,167 @@ main {
   padding-bottom: 12px;
 }
 
+/* ── Proof-as-Story-Arc framework ────────────────────────────────────────────── */
+
+// 1. Catalyst callout
+.catalyst {
+  border-left: 3px solid $vvteal;
+  background: rgba($vvteal, 0.04);
+  border-radius: 0 6px 6px 0;
+  padding: 16px 18px;
+  margin: 1.2rem 0;
+}
+.catalyst-header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $vvteal;
+  margin-bottom: 8px;
+  &::before {
+    content: '\25A0';
+    margin-right: 6px;
+    font-size: 0.6rem;
+    vertical-align: 1px;
+  }
+}
+
+// 2. Counterpoint callout
+.counterpoint {
+  border-left: 3px solid $vvorange;
+  background: rgba($vvorange, 0.05);
+  border-radius: 0 6px 6px 0;
+  padding: 16px 18px;
+  margin: 1.2rem 0;
+}
+.counterpoint-header {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $vvorange;
+  margin-bottom: 8px;
+  &::before {
+    content: '\25A0';
+    margin-right: 6px;
+    font-size: 0.6rem;
+    vertical-align: 1px;
+  }
+}
+
+// 3. Takeaway box
+.takeaway {
+  border-left: 3px solid $vvteal;
+  background: rgba($vvteal, 0.03);
+  padding: 12px 16px;
+  margin: 1.2rem 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+// 4. Walkthrough container
+.walkthrough {
+  border-left: 3px solid $vvviolet;
+  background: rgba($vvviolet, 0.04);
+  border-radius: 0 10px 10px 0;
+  padding: 18px 20px;
+  margin: 1.2rem 0;
+}
+.walkthrough-header {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $vvviolet;
+  margin-bottom: 12px;
+}
+.wt-step {
+  margin-bottom: 1rem;
+}
+.wt-step-label {
+  font-weight: 700;
+  color: $vvviolet;
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.wt-step-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+@media (min-width: 768px) {
+  .wt-step-content-wrapper {
+    flex-direction: row;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+}
+.wt-step-body {
+  flex: 1.5;
+  margin-bottom: 0;
+}
+.wt-step-example {
+  flex: 1;
+  font-size: 0.9rem;
+  color: rgba($vvteal, 0.9);
+}
+.wt-example-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba($vvteal, 0.8);
+  margin-bottom: 4px;
+}
+.wt-step-separator {
+  border: none;
+  border-top: 1px solid $accentlight;
+  margin: 12px 0;
+}
+
+// 5. Proofmap container
+.proofmap {
+  background: rgba($graphite, 0.03);
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  margin: 1.2rem 0;
+}
+.proofmap-header {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $graphite;
+  margin-bottom: 10px;
+}
+
+// 6. Interactive reveal animation
+.walkthrough.interactive .wt-step {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  &.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ── Responsive ──────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .landing-canvas { padding: 1.5rem 1rem; }
   .card-grid { grid-template-columns: 1fr; }
   .landing-hero { padding: 2rem 1.2rem; }
   .landing-hero h1 { font-size: 1.6rem; }
+
+  // Proof-as-Story-Arc responsive
+  .catalyst,
+  .counterpoint,
+  .walkthrough {
+    padding: 14px 14px;
+  }
+  .wt-step-example {
+    padding: 8px 10px;
+  }
 }

@@ -373,116 +373,68 @@ $\widehat{\Delta}(\{q_0\},ab)\cap F
 so $ab$ is accepted.
 \end{example}
 
+\begin{catalyst}{Why introduce $\varepsilon$-transitions?}
+If we are ultimately trying to compile regular expressions into automata, why bother introducing $\varepsilon$-transitions if we just have to remove them later? The answer is that $\varepsilon$-transitions make intermediate constructions (like concatenation and Kleene star) trivial to build. Once the modular assembly is done, we can mechanically strip the $\varepsilon$-moves to recover a standard NFA.
+\end{catalyst}
+
 \begin{theorem}[$\varepsilon$-removal]
 \label{thm:epsilon-removal}
 For every $\varepsilon$-NFA $A$ there exists an NFA $A'$ without
 $\varepsilon$-moves such that $L(A)=L(A')$.
 \end{theorem}
 
-\begin{proof}
-Let $A=(Q,\Sigma,\Delta,q_0,F)$.  We define an ordinary NFA
-$A'=(Q,\Sigma,\Delta',q_0,F')$ on the same states and alphabet.  The
-construction encodes the slogan \emph{take all free moves, read one
-symbol, take all free moves again} directly into the transition
-function:
-\[
-  \Delta'(q,a)
-  =
-  \mathsf{ECl}\!\left(
-    \bigcup_{p\in \mathsf{ECl}(q)} \Delta(p,a)
-  \right).
-\]
-This is the best possible one-step simulation of $A$: starting from
-$q$, the run in $A$ may first wander through $\varepsilon$-moves,
-arrive at some state $p$, consume $a$, and then again wander through
-$\varepsilon$-moves; $\Delta'(q,a)$ collects exactly the destinations
-reachable that way.
+\begin{walkthrough}{$\varepsilon$-removal equivalence}
+  \wtstep{Construction Setup}{
+    Let $A=(Q,\Sigma,\Delta,q_0,F)$. We define an ordinary NFA $A'=(Q,\Sigma,\Delta',q_0,F')$ on the same states. The transition function encodes the slogan \emph{take all free moves, read one symbol, take all free moves again}:
+    \[
+      \Delta'(q,a) = \mathsf{ECl}\!\left(\bigcup_{p\in \mathsf{ECl}(q)} \Delta(p,a)\right)
+    \]
+    This collects exactly the destinations reachable by a sequence of $\varepsilon$-moves, an $a$-transition, and more $\varepsilon$-moves.
+  }{
+    Consider the concatenation $\varepsilon$-NFA in \cref{fig:epsilon-removal-example}:
+    $q_0\xrightarrow{a}q_1\xrightarrow{\varepsilon}r_0\xrightarrow{b}r_1$.
+    The $\varepsilon$-closures are: \\
+    $\mathsf{ECl}(q_0)=\{q_0\}$, \\
+    $\mathsf{ECl}(q_1)=\{q_1,r_0\}$.
+  }
+  
+  \wtstep{Final State Correction}{
+    There is one boundary case. In $A$, the empty word is accepted if and only if some accepting state is reachable from $q_0$ by $\varepsilon$-moves alone. Since $A'$ requires reading real symbols to move, we must correct its final set:
+    \[
+      F'= \begin{cases} F\cup\{q_0\}, & \mathsf{ECl}(q_0)\cap F\neq\emptyset, \\ F, & \text{otherwise.} \end{cases}
+    \]
+  }{
+    In our example, $\mathsf{ECl}(q_0) = \{q_0\}$, which does not contain the accepting state $r_1$. Therefore, the initial state is not made accepting: $F' = \{r_1\}$.
+  }
+  
+  \wtstep{Base Case}{
+    We prove language equivalence by showing that $\widehat{\Delta}_{A'}(\{q_0\},w) = \widehat{\Delta}_A(\{q_0\},w)$ for all $w\in\Sigma^*$, by induction on $|w|$.
+    
+    For $w=\varepsilon$: $\widehat{\Delta}_{A'}(\{q_0\},\varepsilon)=\{q_0\}$ and $\widehat{\Delta}_A(\{q_0\},\varepsilon)=\mathsf{ECl}(q_0)$. These sets may differ, but acceptance of the empty word is handled perfectly by the $F'$ correction step above.
+  }{
+    $w=\varepsilon$: The set of reachable states is $\{q_0\}$. This is not in $F'$, so the empty word is correctly rejected.
+  }
 
-There is one boundary case.  In $A$, the empty word is accepted if and
-only if some accepting state is reachable from $q_0$ by $\varepsilon$-moves
-alone, since the input pointer never moves.  The new automaton would
-otherwise miss this case, because every transition of $A'$ consumes a
-real symbol.  We correct the final set:
-\[
-  F'=
-  \begin{cases}
-    F\cup\{q_0\}, & \mathsf{ECl}(q_0)\cap F\neq\emptyset,\\
-    F, & \text{otherwise.}
-  \end{cases}
-\]
-It remains to show $L(A')=L(A)$.  Since $A'$ and $A$ share the same
-state set, it suffices to show that reading any non-empty word always
-lands them in the same reachable-state set; acceptance then coincides
-because $F'$ was built to match $F$'s verdict on every word (including
-$\varepsilon$, which is handled by the correction above).  Formally, we
-prove the following invariant by induction on $|w|$: for every
-$w\in\Sigma^*$,
-\[
-  \widehat{\Delta}_{A'}(\{q_0\},w)
-  =
-  \widehat{\Delta}_A(\{q_0\},w),
-\]
-where $\widehat{\Delta}_A$ is the extended function of
-\cref{def:epsilon-nfa-hat-delta} and $\widehat{\Delta}_{A'}$ is the
-ordinary NFA extension of \cref{def:extended-delta} applied to $A'$.
-For $w=\varepsilon$: $\widehat{\Delta}_{A'}(\{q_0\},\varepsilon)=\{q_0\}$
-and $\widehat{\Delta}_A(\{q_0\},\varepsilon)=\mathsf{ECl}(q_0)$; these
-sets need not be equal in general, but acceptance of the empty word is
-handled entirely by the $F'$ correction above, so no further argument
-is needed here.
+  \wtstep{Inductive Step}{
+    Suppose the invariant holds for $w$, with $S=\widehat{\Delta}_A(\{q_0\},w)$. Notice $S$ is already $\varepsilon$-closed, so $\mathsf{ECl}(S)=S$.
+    \begin{align*}
+      \widehat{\Delta}_{A'}(\{q_0\},wa)
+      &= \bigcup_{p\in S}\Delta'(p,a) \quad \text{(IH)} \\
+      &= \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right) \\
+      &= \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right) \quad \text{($\mathsf{ECl}(p)\subseteq S$)} \\
+      &= \widehat{\Delta}_A(\{q_0\},wa)
+    \end{align*}
+  }{
+    Trace $w=a$: \\
+    $\Delta'(q_0,a) = \mathsf{ECl}(\Delta(q_0,a)) = \mathsf{ECl}(\{q_1\}) = \{q_1, r_0\}$. \\\\
+    Trace $wa=ab$: \\
+    From the active set $\{q_1, r_0\}$, the only $b$-transition is from $r_0$ to $r_1$. Since $r_1 \in F'$, $ab$ is accepted.
+  }
+\end{walkthrough}
 
-For the inductive step, suppose the invariant holds for $w$ and let
-$S=\widehat{\Delta}_A(\{q_0\},w)$.  Before expanding the chain, note
-that $S$ is already $\varepsilon$-closed: every output of
-$\widehat{\Delta}_A$ ends with an application of $\mathsf{ECl}$, so
-$\mathsf{ECl}(S)=S$ and in particular $\mathsf{ECl}(p)\subseteq S$ for
-every $p\in S$.  This is what licenses the third equality below.  Then
-\begin{align*}
-  \widehat{\Delta}_{A'}(\{q_0\},wa)
-  &= \bigcup_{p\in S}\Delta'(p,a)
-     &&\text{(NFA extended function, using IH)}\\
-  &= \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right)
-     &&\text{(definition of $\Delta'$)}\\
-  &= \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right)
-     &&\text{($\mathsf{ECl}(S)=S$, so $\bigcup_{p\in S}\mathsf{ECl}(p)=S$)}\\
-  &= \widehat{\Delta}_A(\{q_0\},wa).
-     &&\text{(definition of $\widehat{\Delta}_A$)}
-\end{align*}
-The third step is the key one: because $S$ is already closed, ranging
-over $\mathsf{ECl}(p)$ for each $p\in S$ adds no states beyond $S$
-itself, so the inner per-$p$ closures collapse into a single outer
-$\mathsf{ECl}$ over the direct $a$-successors.  Intersecting with $F'$
-then yields exactly the same accepting verdict as intersecting with $F$
-in $A$.
-\end{proof}
-
-\begin{example}[$\varepsilon$-removal on the concatenation automaton]
-\label{ex:epsilon-removal-worked}
-Consider the $\varepsilon$-NFA from \cref{ex:epsilon-nfa-preview} for
-$\{ab\}$: states $q_0,q_1,r_0,r_1$, transitions
-$q_0\xrightarrow{a}q_1$, $q_1\xrightarrow{\varepsilon}r_0$,
-$r_0\xrightarrow{b}r_1$, with $r_1$ accepting.
-The $\varepsilon$-closures are $\mathsf{ECl}(q_0)=\{q_0\}$,
-$\mathsf{ECl}(q_1)=\{q_1,r_0\}$, $\mathsf{ECl}(r_0)=\{r_0\}$,
-$\mathsf{ECl}(r_1)=\{r_1\}$.
-Applying the construction:
-\[
-  \Delta'(q_0,a)
-  =\mathsf{ECl}\bigl(\Delta(q_0,a)\bigr)
-  =\mathsf{ECl}(\{q_1\})
-  =\{q_1,r_0\},
-\]
-\[
-  \Delta'(q_1,b)
-  =\mathsf{ECl}\!\bigl(
-    \textstyle\bigcup_{p\in\{q_1,r_0\}}\Delta(p,b)\bigr)
-  =\mathsf{ECl}(\{r_1\})
-  =\{r_1\}.
-\]
-All other transitions are empty.  Since
-$\mathsf{ECl}(q_0)\cap F=\emptyset$, the final set stays $F'=\{r_1\}$.
-The resulting NFA accepts exactly $\{ab\}$, with no $\varepsilon$-edges.
-\end{example}
+\begin{takeaway}
+$\varepsilon$-transitions are syntactic sugar. They make it trivially easy to glue automata together, but they can always be compiled away later to recover a standard NFA.
+\end{takeaway}
 
 \begin{figure}[ht]
 \centering
@@ -538,13 +490,24 @@ number of $a$'s, already described in \cref{ex:regex-even-a} by
 $b^*(ab^*ab^*)^*$.
 \end{runningexample}
 
+\begin{proofmap}{The equivalence cycle}
+This theorem completes the cycle of formalisms. We already know how to go from NFAs to DFAs (\cref{thm:subset-construction}) and from $\varepsilon$-NFAs to NFAs (\cref{thm:epsilon-removal}). 
+
+To close the loop, this proof provides the two missing links:
+\begin{enumerate}[nosep]
+  \item \textbf{DFA $\to$ Regex:} A state-elimination dynamic programming algorithm.
+  \item \textbf{Regex $\to$ $\varepsilon$-NFA:} A structural composition (Thompson's construction).
+\end{enumerate}
+Together, these four algorithms mean we can freely translate between any of the formalisms.
+\end{proofmap}
+
 \begin{theorem}[Kleene equivalence]
 \label{thm:kleene}
 A language $L\subseteq\Sigma^*$ is recognized by a finite automaton if
 and only if it is denoted by a regular expression.
 \end{theorem}
 
-\begin{proof}
+\begin{walkthrough}{Kleene's two-way translation}
 We prove both directions constructively.  We start with the direction
 that is less obvious on first contact, because it explains where the
 Kleene star appears in the proof.
@@ -658,23 +621,23 @@ for membership and non-membership:
   $q_1$.
 \end{itemize}
 
+\wtstep{Base Case ($k=0$)}{
 We prove by induction on $k$ that each $R_{i,j}^k$ is denoted by a
 regular expression.  For $k=0$, no intermediate state is allowed, so a
 path from $q_i$ to $q_j$ is either the empty path (when $i=j$) or a
 single transition labelled by some $a\in\Sigma$.  Hence $R_{i,j}^0$ is a
 finite union of symbols, together with $\varepsilon$ when $i=j$; this is
 regular.
-
-In the parity running example this base layer is already concrete:
-\[
-\begin{array}{c@{\qquad}c}
-  R_{1,1}^0=\varepsilon+b, & R_{1,2}^0=a,\\[2mm]
-  R_{2,1}^0=a,             & R_{2,2}^0=\varepsilon+b.
-\end{array}
-\]
+}{
+In the parity running example this base layer is concrete:
+\vspace{-2mm}
+\begin{align*}
+  R_{1,1}^0&=\varepsilon+b, & R_{1,2}^0&=a,\\[1mm]
+  R_{2,1}^0&=a,             & R_{2,2}^0&=\varepsilon+b.
+\end{align*}
 With no intermediate state allowed, the only possible non-empty words
-have length one; this is why the table contains just the direct
-transition labels, plus $\varepsilon$ on the diagonal.
+have length one.
+}
 
 For the induction step, a path counted by $R_{i,j}^k$ either never
 visits $q_k$ as an intermediate state---in which case it lies in
@@ -692,8 +655,7 @@ around it any finite number of times, and exit.  This yields the recurrence
 \]
 which is regular by the induction hypothesis.
 
-\begin{figure}[htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[
   node distance=2.2cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -714,40 +676,40 @@ which is regular by the induction hypothesis.
     {Either avoid $q_k$, or enter it, make finitely many complete
     returns, and exit.};
 \end{tikzpicture}
-\caption{The inductive split in the automaton-to-expression direction
+\captionof{figure}{The inductive split in the automaton-to-expression direction
 of Kleene's theorem.  Allowing $q_k$ as a new intermediate state adds
 exactly the paths that enter $q_k$, repeat a $q_k$-to-$q_k$ block any
 finite number of times, and then leave.}
 \label{fig:kleene-rijk-split}
-\end{figure}
+\end{center}
 
+\wtstep{Trace for $k=1$}{
 This is the exact point where Kleene star is forced on us.  If a run
 passes through $q_k$ once, there is no middle loop.  If it passes through
 $q_k$ twice, there is one $q_k$-to-$q_k$ block.  If it passes through
 $q_k$ many times, there are many such blocks.  The star
 $(R_{k,k}^{k-1})^*$ summarizes all finite numbers of complete returns.
-
+}{
 For example, when $k=1$ in the parity DFA, the expression
-\[
-  R_{2,2}^1
-  =
-  R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0
-  =
-  (\varepsilon+b)+a(\varepsilon+b)^*a
-\]
-describes all words that start in the odd state, end in the odd state,
-and use only the even state as an intermediate stop.  Either we stay in
-$q_2$ by reading $\varepsilon$ or $b$, or we go to $q_1$, spend any
-finite amount of time looping there on $b$, and return to $q_2$ on
-another $a$.
+\vspace{-2mm}
+\begin{align*}
+  R_{2,2}^1 &= R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0 \\
+            &= (\varepsilon+b)+a(\varepsilon+b)^*a
+\end{align*}
+describes all words that start and end in $q_2$ using only $q_1$ as an intermediate stop.
+}
 
-Finally, the language of the automaton is
+\wtstep{Final Union}{
+Finally, the language of the automaton is exactly the union of all paths
+from the initial state to any accepting state, with no restrictions on
+intermediate states ($k=n$):
 \[
   L(A)=\bigcup_{q_j\in F} R_{1,j}^n,
 \]
-again a regular expression.  In the parity example $F=\{q_1\}$, so the
-constructed expression is $R_{1,1}^2$; after algebraic simplification,
-one familiar form is $b^*(ab^*ab^*)^*$.
+which is again a regular expression.
+}{
+In the parity example $F=\{q_1\}$, so the constructed expression is $R_{1,1}^2$. After algebraic simplification, one familiar form is $b^*(ab^*ab^*)^*$.
+}
 
 \medskip
 \noindent\textbf{Regular expression to automaton.}
@@ -782,8 +744,7 @@ $s$, with disjoint state sets.
   shows the wiring.
 \end{itemize}
 
-\begin{figure}[htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[
   node distance=1.3cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -803,14 +764,13 @@ $s$, with disjoint state sets.
   \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
   \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
 \end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for union $r+s$: a fresh
+\captionof{figure}{The $\varepsilon$-NFA construction for union $r+s$: a fresh
 initial state branches into the two sub-automata via $\varepsilon$-moves
 (orange), and both old exits feed into a fresh common accepting exit.}
 \label{fig:regex-union}
-\end{figure}
+\end{center}
 
-\begin{figure}[htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[
   node distance=1.5cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -828,15 +788,14 @@ initial state branches into the two sub-automata via $\varepsilon$-moves
     {The accepting exit of the first automaton is spliced to the\\
      entry of the second by a single $\varepsilon$-move (in orange).};
 \end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for concatenation in the
+\captionof{figure}{The $\varepsilon$-NFA construction for concatenation in the
 regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
 the entry of $s$ are wired together by an $\varepsilon$-move, and the
 exit $f_s$ becomes the accepting exit of the combined automaton.}
 \label{fig:regex-concat}
-\end{figure}
+\end{center}
 
-\begin{figure}[htb]
-\centering
+\begin{center}
 \begin{tikzpicture}[
   node distance=1.3cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -853,13 +812,13 @@ exit $f_s$ becomes the accepting exit of the combined automaton.}
   \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
   \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
 \end{tikzpicture}
-\caption{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
+\captionof{figure}{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
 fresh initial state $i$ can either jump directly to the accepting exit
 $f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
 copy of $r$, the automaton either loops back for another repetition or
 exits to $f$.}
 \label{fig:regex-star}
-\end{figure}
+\end{center}
 
 Each construction mirrors exactly the semantic operation: choose a
 branch for union, run one machine after the other for concatenation, and
@@ -867,7 +826,11 @@ repeat any finite number of times for star.  By
 \cref{thm:epsilon-removal} we can then eliminate $\varepsilon$-moves,
 determinize, and obtain a DFA.  Hence every regular expression denotes
 an automaton-recognizable language.
-\end{proof}
+\end{walkthrough}
+
+\begin{takeaway}
+Kleene's theorem is the bridge between algebra and state machines. The state-elimination algorithm proves that every finite state machine can be unwound into a regular expression, while Thompson's construction proves that every expression can be structurally wired into an automaton. They describe the exact same computational power.
+\end{takeaway}
 
 \begin{formaldetails}[Same construction, read from the goal backward]
 The automaton-to-expression half above builds $R_{i,j}^k$ upward from
@@ -1591,59 +1554,50 @@ exactly the property that lets an automaton store a single state for
 both prefixes---after the append, both computations still represent the
 same future behaviour.
 
-\begin{proof}[Proof of \cref{thm:myhill-nerode}]
-We prove the logical equivalence in a cycle: $(1)\implies(2)\implies(3)\implies(1)$.
+\begin{walkthrough}{Myhill--Nerode equivalence cycle}
+  \wtstep{(1) $\implies$ (2): Find a finite memory structure}{
+    Assume $L$ is regular, so it is recognized by some DFA $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$. By \cref{prop:automaton-relation-properties}, the automaton relation $\sim_{\mathcal{A}}$ is a right-invariant equivalence relation of finite index that is compatible with $L$. Thus $L$ is a union of some classes of $\sim_{\mathcal{A}}$.
+  }{
+    Given the parity DFA for "even number of $a$'s", $\sim_{\mathcal{A}}$ cleanly partitions all words into just two classes based on which state they reach: the 'even' class and the 'odd' class.
+  }
 
-\medskip\noindent\textbf{(1) $\implies$ (2).}
-Assume $L$ is regular, so it is recognized by some DFA $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$.
-By \cref{prop:automaton-relation-properties}, the automaton relation $\sim_{\mathcal{A}}$ is a right-invariant equivalence relation of finite index that is compatible with $L$. Thus $L$ is a union of some classes of $\sim_{\mathcal{A}}$, proving statement (2).
+  \wtstep{(2) $\implies$ (3): Any valid grouping refines $\sim_L$}{
+    Assume there exists some right-invariant equivalence $\sim$ of finite index compatible with $L$. If $x \sim y$, then for any continuation $z$, $xz \sim yz$ by right-invariance. Because $\sim$ is compatible with $L$, $xz \sim yz$ implies $xz \in L \iff yz \in L$. But this is exactly the definition of $x \sim_L y$. 
 
-\medskip\noindent\textbf{(2) $\implies$ (3).}
-Assume there exists some right-invariant equivalence relation $\sim$ of finite index that is compatible with $L$. If $x \sim y$, then for any continuation $z$, we have $xz \sim yz$ by right-invariance. Because $\sim$ is compatible with $L$, $xz \sim yz$ implies that $xz \in L \iff yz \in L$. But this is exactly the definition of $x \sim_L y$. 
+    Therefore, $x \sim y \implies x \sim_L y$. This means every $\sim$-class is contained in a single $\sim_L$-class. Therefore $\sim_L$ has no more classes than $\sim$, meaning $\sim_L$ also has finite index.
+  }{
+    Because 'even' and 'odd' words have strictly different futures in the language, our initial 'even/odd' grouping perfectly matched $\sim_L$. But even if we started with a clunkier relation (like grouping by modulo 4), it would still refine down to $\sim_L$.
+  }
 
-Therefore, $x \sim y \implies x \sim_L y$. This is the refinement step: every $\sim$-class is contained in a single
-$\sim_L$-class.  Equivalently, the partition induced by $\sim$ is
-finer than the partition induced by $\sim_L$.  Therefore
-$\sim_L$ has no more classes than $\sim$.  Since $\sim$ has finite
-index, $\sim_L$ has finite index as well.
-
-\medskip\noindent\textbf{(3) $\implies$ (1).}
-Assume $\sim_L$ has finite index. We must construct a DFA that recognizes $L$. But where do we get the states? We use the equivalence classes themselves! Since there are only finitely many classes (finite index), they form a perfect finite set of states. We build the \emph{quotient DFA}:
-\[
-  A_L=(\Sigma^*/{\sim_L},\Sigma,\delta,[\varepsilon],F_L)
-\]
-where $\Sigma^*/{\sim_L}$ is the set of all equivalence classes. We define the transitions and final states as:
-\[
-  \delta([w],a)=[wa]
-  \quad\text{and}\quad
-  F_L=\{[w]\mid w\in L\}.
-\]
-Intuitively, the automaton starts in the class containing the empty word. When it is in the class of word $w$ and reads a symbol $a$, it simply moves to the class containing the appended word $wa$.
-The transition is well-defined because $\sim_L$ is right-invariant:
-if $w\sim_L w'$, then $wa\sim_L w'a$. The accepting set is
-well-defined because $\sim_L$ is compatible with $L$ (\cref{lem:myhill-nerode-right-invariant}), so equivalent words are either both in $L$ or both outside $L$.
-
-After reading a word $w$, the quotient automaton is in state $[w]$.
-Thus it accepts exactly the words whose equivalence class belongs to $F_L$, which is exactly $L$.
-\end{proof}
+  \wtstep{(3) $\implies$ (1): Quotient automaton construction}{
+    Assume $\sim_L$ has finite index. We construct the \emph{quotient DFA}:
+    \[
+      A_L=(\Sigma^*/{\sim_L},\Sigma,\delta,[\varepsilon],F_L)
+    \]
+    where $\Sigma^*/{\sim_L}$ is the set of equivalence classes. We define:
+    \[
+      \delta([w],a)=[wa] \quad\text{and}\quad F_L=\{[w]\mid w\in L\}.
+    \]
+    This is well-defined precisely because $\sim_L$ is right-invariant and compatible with $L$. The automaton ends in state $[w]$, meaning it accepts exactly $L$.
+  }{
+    Since there are exactly 2 classes in $\sim_L$, we build a 2-state quotient automaton. We start in $[\varepsilon]$ (the even class). Reading an $a$ takes us to $[a]$ (the odd class).
+  }
+\end{walkthrough}
 
 \begin{proposition}[Minimality]
 \label{prop:myhill-nerode-minimality}
-The quotient automaton built from $\sim_L$ has the minimum possible
+The quotient automaton $A_L$ built from $\sim_L$ has the minimum possible
 number of states among all DFAs recognizing $L$.
 \end{proposition}
 
 \begin{proof}
-Let $A$ be any DFA recognizing $L$.  If two words reach the same state
-in $A$, then they are equivalent under $\sim_{\mathcal{A}}$, which implies they are $\sim_L$-equivalent by the (2) $\implies$ (3) step of the previous proof.  Therefore a single state of $A$ can represent only one
-Myhill--Nerode class.  Since every class is reached by some word, $A$
-must have at least as many states as there are $\sim_L$-classes.  The
-quotient automaton has exactly that many states, so it is minimal.
+Let $A$ be any DFA recognizing $L$. If two words reach the same state
+in $A$, they are equivalent under $\sim_{\mathcal{A}}$, which implies they are $\sim_L$-equivalent by the (2) $\implies$ (3) step of the previous proof. Therefore a single state of $A$ can represent only one Myhill--Nerode class. Since every class is reached by some word, $A$ must have at least as many states as there are $\sim_L$-classes. 
 \end{proof}
 
-The minimal DFA for $L$ is therefore canonical up to renaming of states:
-merge exactly the prefixes with the same continuation behaviour, and no
-more.
+\begin{takeaway}
+The Myhill--Nerode theorem is not just abstract nonsense --- it gives us the absolute best possible DFA for free! By grouping words exactly by their future behavior, we squeeze out every drop of redundancy. The states of the minimal DFA are exactly the equivalence classes of $\sim_L$. The minimal DFA is therefore canonical up to renaming of states.
+\end{takeaway}
 
 \section*{Notation Recap}
 \addcontentsline{toc}{section}{Notation Recap}

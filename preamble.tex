@@ -593,6 +593,166 @@
   \end{chapteropeningframe}%
 }
 
+% ============================================================
+%  Proof-as-Story-Arc framework
+% ============================================================
+
+% --- proof catalyst (why this result?) ---
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=vvteal!4,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=vvteal,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+]{catalystframe}
+\newenvironment{catalyst}[1]{%
+  \booltrue{infullwidth}%
+  \begin{adjustwidth}{-5mm}{-35mm}%
+  \begin{catalystframe}%
+  \noindent{\small\sffamily\bfseries\color{vvteal!80!black}%
+    \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
+    Why this result?\enspace---\enspace#1}%
+  \par\vspace{5pt}\small\sffamily%
+}{%
+  \end{catalystframe}%
+  \end{adjustwidth}%
+  \boolfalse{infullwidth}%
+}
+
+% --- counterpoint (what breaks without condition X?) ---
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=vvcounter!5,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=vvcounter,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+]{counterpointframe}
+\newenvironment{counterpoint}[1]{%
+  \booltrue{infullwidth}%
+  \begin{adjustwidth}{-5mm}{-35mm}%
+  \begin{counterpointframe}%
+  \noindent{\small\sffamily\bfseries\color{vvcounter!80!black}%
+    \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
+    Counterpoint\enspace---\enspace#1}%
+  \par\vspace{5pt}\small\sffamily%
+}{%
+  \end{counterpointframe}%
+  \end{adjustwidth}%
+  \boolfalse{infullwidth}%
+}
+
+% --- takeaway (operational meaning) ---
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=vvteal!3,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=vvteal,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+]{takeawayframe}
+\newenvironment{takeaway}{%
+  \begin{takeawayframe}%
+  \small\sffamily\bfseries%
+}{%
+  \end{takeawayframe}%
+}
+
+% --- proof walkthrough (stepped proof with example panels) ---
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=vvlogic!4,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=vvlogic,
+  innertopmargin=9pt,
+  innerbottommargin=9pt,
+  innerleftmargin=12pt,
+  innerrightmargin=12pt,
+]{walkthroughframe}
+\newcommand{\wtstep}[3]{%
+  {\small\sffamily\bfseries\color{vvlogic}#1}%
+  \par\vspace{4pt}%
+  \noindent
+  \begin{minipage}[t]{0.58\linewidth}
+    \vspace{0pt}%
+    #2%
+  \end{minipage}%
+  \hfill
+  \begin{minipage}[t]{0.38\linewidth}
+    \vspace{0pt}%
+    {\footnotesize\sffamily\bfseries\color{vvteal}\raisebox{0.5pt}{\(\blacktriangleright\)}\enspace\MakeUppercase{Example}}%
+    \par\vspace{3pt}%
+    {\small\sffamily\color{vvteal!80!black} #3}%
+  \end{minipage}%
+  \par\vspace{8pt}%
+  {\color{accentlight}\hrule height 0.4pt}%
+  \par\vspace{8pt}%
+}
+\newenvironment{walkthrough}[1]{%
+  \booltrue{infullwidth}%
+  \begin{adjustwidth}{-5mm}{-35mm}%
+  \begin{walkthroughframe}%
+  \noindent{\small\sffamily\bfseries\color{vvlogic!80!black}%
+    \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
+    Proof walkthrough\enspace---\enspace#1}%
+  \par\vspace{6pt}%
+}{%
+  \end{walkthroughframe}%
+  \end{adjustwidth}%
+  \boolfalse{infullwidth}%
+}
+
+% --- proof map (dependency diagram for complex proofs) ---
+\newmdenv[
+  skipabove=\bigskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=graphite!3,
+  hidealllines=true,
+  roundcorner=4pt,
+  innertopmargin=12pt,
+  innerbottommargin=12pt,
+  innerleftmargin=14pt,
+  innerrightmargin=12pt,
+]{proofmapframe}
+\newenvironment{proofmap}[1]{%
+  \begin{proofmapframe}%
+  \noindent{\small\sffamily\bfseries\color{graphite!80!black}%
+    \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
+    Proof map\enspace---\enspace#1}%
+  \par\vspace{6pt}%
+  \centering%
+}{%
+  \end{proofmapframe}%
+}
+
+
 % --- page-break guards for semantic blocks ---
 \BeforeBeginEnvironment{definition}{\Needspace{6\baselineskip}}
 \BeforeBeginEnvironment{example}{\Needspace{6\baselineskip}}
@@ -610,3 +770,8 @@
 \BeforeBeginEnvironment{runningexample}{\Needspace{7\baselineskip}}
 \BeforeBeginEnvironment{summarybox}{\Needspace{7\baselineskip}}
 \BeforeBeginEnvironment{chapteropening}{\Needspace{10\baselineskip}}
+\BeforeBeginEnvironment{catalyst}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{counterpoint}{\Needspace{7\baselineskip}}
+\BeforeBeginEnvironment{takeaway}{\Needspace{5\baselineskip}}
+\BeforeBeginEnvironment{walkthrough}{\Needspace{10\baselineskip}}
+\BeforeBeginEnvironment{proofmap}{\Needspace{8\baselineskip}}
