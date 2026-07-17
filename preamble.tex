@@ -681,20 +681,7 @@
 }
 
 % --- proof walkthrough (stepped proof with example panels) ---
-\newmdenv[
-  skipabove=\bigskipamount,
-  skipbelow=\bigskipamount,
-  topline=false,
-  rightline=false,
-  bottomline=false,
-  leftline=true,
-  linewidth=3pt,
-  linecolor=vvlogic,
-  innertopmargin=9pt,
-  innerbottommargin=9pt,
-  innerleftmargin=12pt,
-  innerrightmargin=12pt,
-]{walkthroughframe}
+
 \newcommand{\wtstep}[3]{%
   {\small\sffamily\bfseries\color{vvlogic}#1}%
   \par\vspace{4pt}%
@@ -717,13 +704,13 @@
 \newenvironment{walkthrough}[1]{%
   \booltrue{infullwidth}%
   \begin{adjustwidth}{-5mm}{-35mm}%
-  \begin{walkthroughframe}%
+  \vspace{\bigskipamount}%
   \noindent{\small\sffamily\bfseries\color{vvlogic!80!black}%
     \raisebox{0.5pt}{\rule{6pt}{6pt}}\enspace%
     Proof walkthrough\enspace---\enspace#1}%
   \par\vspace{6pt}%
 }{%
-  \end{walkthroughframe}%
+  \vspace{\bigskipamount}%
   \end{adjustwidth}%
   \boolfalse{infullwidth}%
 }
