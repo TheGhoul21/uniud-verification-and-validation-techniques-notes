@@ -73,6 +73,61 @@ To maintain high quality and pedagogical cohesion, every chapter must follow a s
   proof (stating the goal before the construction), fold it directly into the
   proof's own introduction instead of adding a box.
 
+## Proof-as-Story-Arc Framework
+
+For major results (theorems, propositions), use the structured narrative arc
+rather than bare `\begin{proof}...\end{proof}`. The framework provides five
+modular components — not every result needs all of them.
+
+### Catalyst
+
+Use `\begin{catalyst}{title}...\end{catalyst}` before a theorem to set up
+*why* the result is needed. State the gap, limitation, or open question that
+the theorem resolves. Keep it to 2–4 sentences.
+
+### Proof Walkthrough
+
+Use `\begin{walkthrough}{title}...\end{walkthrough}` instead of
+`\begin{proof}` for major results. Inside, use `\wtstep{label}{formal}{example}`
+to break the proof into labeled steps, each paired with a concrete example
+panel:
+
+- **Step label**: a short phrase ("Setup", "Base case", "Inductive step",
+  "Conclusion").
+- **Formal argument**: the mathematical reasoning for that step.
+- **Example panel**: the same step traced on the chapter's running example.
+
+For short lemmas and corollaries, the standard `\begin{proof}` is fine.
+
+### Counterpoint
+
+Use `\begin{counterpoint}{title}...\end{counterpoint}` after a theorem to
+show what breaks if a hypothesis is dropped. Use these when there is a
+genuinely illuminating failure case — not as mandatory decoration after every
+result.
+
+### Proof Map
+
+Use `\begin{proofmap}{title}...\end{proofmap}` before a multi-lemma proof
+(e.g., Büchi complementation) to show a TikZ dependency diagram of how the
+pieces fit together.
+
+### Takeaway
+
+Use `\begin{takeaway}...\end{takeaway}` after a proof to distill the
+operational meaning. This is not a restatement of the theorem — it is the
+practical "so what?" that tells the reader what the result means for their
+work.
+
+### Usage Guide
+
+| Result type       | Catalyst | Proof Map | Walkthrough | Counterpoint | Takeaway |
+|-------------------|----------|-----------|-------------|--------------|----------|
+| Major theorem     | ✓        | optional  | ✓ (full)    | ✓            | ✓        |
+| Lemma             | —        | —         | ✓ (light)   | optional     | —        |
+| Proposition       | ✓        | —         | ✓           | optional     | ✓        |
+| Corollary         | —        | —         | — (obvious) | optional     | ✓        |
+
 ## Examples
 
 - Use recurring examples across chapters:
