@@ -1,0 +1,13 @@
+---
+title: "Subset Construction Proof Lab"
+pagetitle: "Subset Construction — Interactive Proof Lab"
+description: "An interactive proof of correctness for the NFA-to-DFA subset construction."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="subset-construction"></div>
+<noscript>
+  <h1>Subset construction</h1>
+  <p>After every prefix, the DFA state is exactly the set of NFA states reachable after that prefix. The union transition preserves this equality one symbol at a time, and a subset is final exactly when it contains an NFA final state.</p>
+</noscript>
+```

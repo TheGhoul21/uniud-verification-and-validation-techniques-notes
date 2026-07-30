@@ -1,0 +1,13 @@
+---
+title: "Büchi–Expression Equivalence Proof Lab"
+pagetitle: "Büchi–Expression Equivalence — Interactive Proof Lab"
+description: "An interactive proof relating Büchi automata and omega-regular expressions."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="buchi-expression-equivalence"></div>
+<noscript>
+  <h1>Büchi–expression equivalence</h1>
+  <p>An expression term builds a Büchi automaton that completes infinitely many blocks. Conversely, an accepting run revisits one final state infinitely often and can be cut into a prefix leading to that state followed by infinitely many non-empty return loops.</p>
+</noscript>
+```

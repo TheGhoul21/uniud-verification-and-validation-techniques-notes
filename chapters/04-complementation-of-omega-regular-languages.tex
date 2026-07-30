@@ -694,11 +694,15 @@ visit $s_1$.  Hence $UV'^\omega\subseteq\overline{L(A)}$: this class
 product belongs entirely to the complement.
 \end{example}
 
+\Needspace{18\baselineskip}
 \begin{theorem}[Complementation of B\"uchi-recognizable languages]
 \label{thm:buchi-complementation}
 If $L\subseteq\Sigma^\omega$ is $\omega$-regular, then
 $\overline{L}$ is $\omega$-regular.
 \end{theorem}
+\prooflablink{proofs/chapter-04/buchi-complementation.html}{%
+Partition infinite words into saturated class products, then collect
+the products that lie wholly outside the language.}
 
 \begin{proof}
 Let $A$ be a B\"uchi automaton with $L=L(A)$ and let $\approx_A$ be its

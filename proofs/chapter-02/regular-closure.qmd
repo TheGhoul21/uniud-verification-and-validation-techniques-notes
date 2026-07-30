@@ -1,0 +1,13 @@
+---
+title: "Regular Closure Proof Lab"
+pagetitle: "Closure of Regular Languages — Interactive Proof Lab"
+description: "Interactive constructions proving the closure properties of regular languages."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="regular-closure"></div>
+<noscript>
+  <h1>Closure of regular languages</h1>
+  <p>Union, concatenation, and star follow from regular-expression or epsilon-NFA composition. Complement swaps final states after determinization and completion. Intersection uses a synchronous product with accepting set F1 times F2.</p>
+</noscript>
+```

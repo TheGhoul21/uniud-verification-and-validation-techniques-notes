@@ -1,0 +1,11 @@
+format:
+  html:
+    toc: false
+    page-layout: full
+    title-block-style: none
+    include-in-header:
+      - text: |
+          <link rel="stylesheet" href="/proofs/proof-lab.css">
+          <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" defer></script>
+          <script src="/proofs/proof-lab-content.js" defer></script>
+          <script src="/proofs/proof-lab.js" defer></script>

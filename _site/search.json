@@ -1,5 +1,40 @@
 [
   {
+    "objectID": "proofs/index.html",
+    "href": "proofs/index.html",
+    "title": "Proof Labs",
+    "section": "",
+    "text": "Interactive theorem companion\n    Proof Labs\n    \n      See the mechanism, predict the next proof state, then open the formal justification.\n    \n    \n      Each lab keeps one mathematical visual in the foreground. The example\n      explains the current step; the formal argument proves it for every case.\n    \n  \n\n  \n    Chapter 1 · Finite-State Automata\n    \n      \n        Theorem 1\n        Subset construction\n        Synchronize every NFA run with one deterministic subset.\n      \n    \n  \n\n  \n    Chapter 2 · Regular Languages and Decision Problems\n    \n      \n        Theorem 2\n        ε-removal\n        Compile free paths into ordinary symbol transitions.\n      \n      \n        Theorem 3\n        Kleene equivalence\n        Follow the constructive cycle between automata and expressions.\n      \n      \n        Theorem 4\n        Closure of regular languages\n        Read every closure property as an automaton compiler.\n      \n      \n        Theorem 5\n        Small model property\n        Delete a repeated-state loop from a shortest accepting run.\n      \n      \n        Theorem 6\n        Myhill–Nerode\n        Turn indistinguishable futures into the canonical DFA.\n      \n    \n  \n\n  \n    Chapter 3 · Automata over Infinite Words\n    \n      \n        Theorem 7\n        Basic ω-regular closure\n        Alternate recurring obligations in Büchi intersection.\n      \n      \n        Theorem 8\n        Büchi–expression equivalence\n        Cut an accepting run into a finite prefix and recurring loops.\n      \n    \n  \n\n  \n    Chapter 4 · Complementation of ω-Regular Languages\n    \n      \n        Theorem 9\n        Büchi complementation\n        Partition all infinite words into saturated class products."
+  },
+  {
+    "objectID": "proofs/chapter-03/omega-closure.html",
+    "href": "proofs/chapter-03/omega-closure.html",
+    "title": "ω-Regular Closure Proof Lab",
+    "section": "",
+    "text": "Basic ω-regular closure\n  Omega-power restarts after every finite block, concatenation hands off after a finite prefix, and union makes an initial nondeterministic choice. Intersection alternates between waiting for the two Büchi final sets, accepting after each completed round."
+  },
+  {
+    "objectID": "proofs/chapter-02/small-model-property.html",
+    "href": "proofs/chapter-02/small-model-property.html",
+    "title": "Small Model Property Proof Lab",
+    "section": "",
+    "text": "Small model property\n  Choose a shortest accepted word. If its length were at least the number of states, its run would repeat a state. Removing the non-empty loop between the repetitions would preserve the accepting suffix and produce a shorter accepted word, a contradiction."
+  },
+  {
+    "objectID": "proofs/chapter-02/myhill-nerode.html",
+    "href": "proofs/chapter-02/myhill-nerode.html",
+    "title": "Myhill–Nerode Proof Lab",
+    "section": "",
+    "text": "Myhill–Nerode theorem\n  A DFA induces a finite compatible right-invariant relation. Every such relation refines the relation of identical future behavior. If that canonical relation has finite index, its equivalence classes form a quotient DFA recognizing the language."
+  },
+  {
+    "objectID": "proofs/chapter-02/epsilon-removal.html",
+    "href": "proofs/chapter-02/epsilon-removal.html",
+    "title": "ε-Removal Proof Lab",
+    "section": "",
+    "text": "ε-removal\n  Replace each symbol transition by epsilon-closure, one symbol, and epsilon-closure again. Correct the initial final state exactly when its epsilon-closure meets the old final set. Induction on the word length then preserves reachability and acceptance."
+  },
+  {
     "objectID": "notebooks/14-buchi-emptiness-lasso.html",
     "href": "notebooks/14-buchi-emptiness-lasso.html",
     "title": "Notebook 14: Büchi Emptiness — The Lasso Test",
@@ -193,7 +228,7 @@
     "href": "index.html",
     "title": "Verification and Validation Techniques",
     "section": "",
-    "text": "Università degli Studi di Udine · A.A. 2025–2026\n    Verification and Validation Techniques\n    \n      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Each topic pairs an interactive notebook with the complete lecture notes available as a downloadable PDF.\n    \n    \n      \n        \n        \n          Open the Full Lecture Notes\n          281 pages · Complete appunti · PDF\n        \n        \n      \n    \n  \n\n  \n  \n  \n    Course Materials\n    \n      \n        NB 1\n        Finite-State Automata\n        Alphabets, words, languages, and DFAs — hands-on interactive intro\n      \n      \n        NB 2\n        NFA Reachable States\n        Step through the blackboard NFA example and trace active state sets\n      \n      \n        NB 3\n        Subset Construction\n        Convert any NFA to an equivalent DFA step by step\n      \n      \n        NB 4\n        ε-Closure & ε-Removal\n        Compute epsilon-closures and remove ε-transitions from NFAs\n      \n      \n        NB 5\n        Product Automaton\n        Construct the intersection of two DFAs via the product construction\n      \n      \n        NB 6\n        Reachability Fixpoint\n        Compute reachable states with a fixpoint algorithm; explore decision problems\n      \n      \n        NB 7\n        Kleene State Elimination\n        Convert any DFA to a regular expression via state elimination (Kleene's theorem)\n      \n      \n        NB 8\n        Regex to Automaton (Kleene)\n        Dynamically generate NFAs from Regex and trace R_i,j^k paths\n      \n      \n        NB 9\n        Linear Temporal Logic (LTL)\n        Syntax and semantics of temporal logic for formal verification\n      \n      \n        NB 10\n        Model Checking Basics\n        Algorithmic verification of systems against temporal properties\n      \n      \n        MAPS\n        Interactive Chapter Mind Maps\n        Explore all 15 chapters from their main arteries down to individual topics\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
+    "text": "Università degli Studi di Udine · A.A. 2025–2026\n    Verification and Validation Techniques\n    \n      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Major theorems have guided Proof Labs, and the complete lecture notes remain available as a downloadable PDF.\n    \n    \n      \n        \n        \n          Open the Full Lecture Notes\n          283 pages · Complete appunti · PDF\n        \n        \n      \n    \n  \n\n  \n  \n  \n    Course Materials\n    \n      \n        PROOF LABS\n        Interactive Theorem Proofs\n        Predict each proof step, inspect the dominant visual, and reveal the formal justification\n      \n      \n        NB 1\n        Finite-State Automata\n        Alphabets, words, languages, and DFAs — hands-on interactive intro\n      \n      \n        NB 2\n        NFA Reachable States\n        Step through the blackboard NFA example and trace active state sets\n      \n      \n        NB 3\n        Subset Construction\n        Convert any NFA to an equivalent DFA step by step\n      \n      \n        NB 4\n        ε-Closure & ε-Removal\n        Compute epsilon-closures and remove ε-transitions from NFAs\n      \n      \n        NB 5\n        Product Automaton\n        Construct the intersection of two DFAs via the product construction\n      \n      \n        NB 6\n        Reachability Fixpoint\n        Compute reachable states with a fixpoint algorithm; explore decision problems\n      \n      \n        NB 7\n        Kleene State Elimination\n        Convert any DFA to a regular expression via state elimination (Kleene's theorem)\n      \n      \n        NB 8\n        Regex to Automaton (Kleene)\n        Dynamically generate NFAs from Regex and trace R_i,j^k paths\n      \n      \n        NB 9\n        Linear Temporal Logic (LTL)\n        Syntax and semantics of temporal logic for formal verification\n      \n      \n        NB 10\n        Model Checking Basics\n        Algorithmic verification of systems against temporal properties\n      \n      \n        MAPS\n        Interactive Chapter Mind Maps\n        Explore all 15 chapters from their main arteries down to individual topics\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
   },
   {
     "objectID": "mindmaps/01-finite-state-automata.html",
@@ -411,5 +446,40 @@
     "title": "Notebook 13: Vectorial Closure — 🔀W",
     "section": "",
     "text": "Select a preset for \\(W\\) and an ultimately periodic word \\(\\alpha = u \\cdot v^\\omega\\). The widget shows which prefixes of \\(\\alpha\\) belong to \\(W\\).\n\n\n\n  \n    \n      Preset (W and Word)\n      \n        1. Ends with 'ack' (Success)\n        2. Ends with 'ack' (Failure)\n        3. Even Length Words\n        4. Starts and Ends with 'a'\n        5. Exact word {ab}\n      \n    \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n  \n\n  \n    \n    \n  \n\n  \n    \n    \n    \n    \n      Step →\n      Reset"
+  },
+  {
+    "objectID": "proofs/chapter-01/subset-construction.html",
+    "href": "proofs/chapter-01/subset-construction.html",
+    "title": "Subset Construction Proof Lab",
+    "section": "",
+    "text": "Subset construction\n  After every prefix, the DFA state is exactly the set of NFA states reachable after that prefix. The union transition preserves this equality one symbol at a time, and a subset is final exactly when it contains an NFA final state."
+  },
+  {
+    "objectID": "proofs/chapter-02/kleene-equivalence.html",
+    "href": "proofs/chapter-02/kleene-equivalence.html",
+    "title": "Kleene Equivalence Proof Lab",
+    "section": "",
+    "text": "Kleene equivalence\n  State elimination converts an automaton into a regular expression by induction over allowed intermediate states. Structural induction converts a regular expression into an epsilon-NFA, which can then be stripped of epsilon transitions."
+  },
+  {
+    "objectID": "proofs/chapter-02/regular-closure.html",
+    "href": "proofs/chapter-02/regular-closure.html",
+    "title": "Regular Closure Proof Lab",
+    "section": "",
+    "text": "Closure of regular languages\n  Union, concatenation, and star follow from regular-expression or epsilon-NFA composition. Complement swaps final states after determinization and completion. Intersection uses a synchronous product with accepting set F1 times F2."
+  },
+  {
+    "objectID": "proofs/chapter-03/buchi-expression-equivalence.html",
+    "href": "proofs/chapter-03/buchi-expression-equivalence.html",
+    "title": "Büchi–Expression Equivalence Proof Lab",
+    "section": "",
+    "text": "Büchi–expression equivalence\n  An expression term builds a Büchi automaton that completes infinitely many blocks. Conversely, an accepting run revisits one final state infinitely often and can be cut into a prefix leading to that state followed by infinitely many non-empty return loops."
+  },
+  {
+    "objectID": "proofs/chapter-04/buchi-complementation.html",
+    "href": "proofs/chapter-04/buchi-complementation.html",
+    "title": "Büchi Complementation Proof Lab",
+    "section": "",
+    "text": "Büchi complementation\n  Finite transition-profile classes generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while homogeneous decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products."
   }
 ]

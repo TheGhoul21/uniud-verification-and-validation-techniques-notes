@@ -102,6 +102,9 @@ complete proofs for stated theorem-level results, and targeted exercises.
 - Open every chapter with a compact radial mind map derived from its heading
   hierarchy. The website counterpart must expose the same structure
   interactively down to individual topics.
+- Give every theorem a dedicated interactive Proof Lab on the companion site.
+  The PDF must link directly from the theorem statement to its specific lab;
+  the first production tranche covers the nine theorems in Chapters 1--4.
 - After changing chapter headings, run `node scripts/generate-mindmaps.mjs`;
   generated map pages and TikZ fragments are build artifacts kept in the
   repository and must not be edited by hand.
