@@ -3,6 +3,7 @@
 
 \chapter{Tree Languages and Tree Automata}
 \label{ch:tree-languages-automata}
+\chaptermindmap{10}
 
 \cref{ch:omega-automata,ch:omega-complementation} built the theory of $\omega$-words: a single infinite word models one linear execution of a reactive system, which is the natural substrate for linear-time specifications such as LTL. Yet a reactive system is rarely committed to a single future. A non-deterministic transition relation, a concurrent scheduler, an environment that may inject inputs at any time --- all of these mean that from a given configuration the system may evolve in \emph{many} distinct ways. Verification questions like ``does \emph{every} possible run eventually grant the request?'' or ``is there \emph{some} run that avoids the deadlock?'' cannot be answered by inspecting one path in isolation; they quantify over the whole bundle of possible futures at once.
 

@@ -133,11 +133,123 @@
     "text": "For the default word bba, the reachable sets are: [ {q}, {q_2,q_4}, {q,q_1,q_5}, {q_1,q_3,q_4}. ]\nThe important point is the third step. When the final a is read, the branch currently in q disappears because there is no outgoing a-transition from q; the other branches continue and their successors are unioned together."
   },
   {
+    "objectID": "mindmaps/index.html",
+    "href": "mindmaps/index.html",
+    "title": "Interactive Chapter Mind Maps",
+    "section": "",
+    "text": "Interactive Chapter Mind Maps\n  \n    Every map follows the actual chapter structure: sections become the main\n    arteries, while nested headings and titled conceptual blocks form the\n    topic-level outer rings.\n  \n  \n    \n      Chapter 1\n      Finite-State Automata and Regular Languages\n      4 sections · 12 topics\n    \n    \n      Chapter 2\n      Regular Languages and Decision Problems\n      4 sections · 18 topics\n    \n    \n      Chapter 3\n      Automata over Infinite Words\n      5 sections · 22 topics\n    \n    \n      Chapter 4\n      Complementation of ω-Regular Languages\n      6 sections · 20 topics\n    \n    \n      Chapter 5\n      Synthesis and Infinite Games\n      6 sections · 29 topics\n    \n    \n      Chapter 6\n      Planning as Model Checking\n      8 sections · 21 topics\n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      12 sections · 36 topics\n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      12 sections · 26 topics\n    \n    \n      Chapter 9\n      Deterministic Omega-Automata and Star-Free Languages\n      5 sections · 17 topics\n    \n    \n      Chapter 10\n      Tree Languages and Tree Automata\n      4 sections · 20 topics\n    \n    \n      Chapter 11\n      Linear Temporal Logic\n      8 sections · 26 topics\n    \n    \n      Chapter 12\n      LTL Model Checking and Fairness\n      3 sections · 7 topics\n    \n    \n      Chapter 13\n      CTL and Symbolic Model Checking\n      6 sections · 20 topics\n    \n    \n      Chapter 14\n      Learning Regular Languages\n      5 sections · 15 topics\n    \n    \n      Chapter 15\n      Security Protocol Verification with Tamarin\n      5 sections · 22 topics"
+  },
+  {
+    "objectID": "mindmaps/14-learning-regular-languages.html",
+    "href": "mindmaps/14-learning-regular-languages.html",
+    "title": "Mind Map 14: Learning Regular Languages",
+    "section": "",
+    "text": "Chapter 14 · Learning Regular Languages\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    5 sections · 15 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 14\n      Learning Regular Languages\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 13\n    All mind maps\n    Chapter 15"
+  },
+  {
+    "objectID": "mindmaps/12-ltl-model-checking-and-fairness.html",
+    "href": "mindmaps/12-ltl-model-checking-and-fairness.html",
+    "title": "Mind Map 12: LTL Model Checking and Fairness",
+    "section": "",
+    "text": "Chapter 12 · LTL Model Checking and Fairness\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    3 sections · 7 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 12\n      LTL Model Checking and Fairness\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 11\n    All mind maps\n    Chapter 13"
+  },
+  {
+    "objectID": "mindmaps/10-tree-languages-tree-automata.html",
+    "href": "mindmaps/10-tree-languages-tree-automata.html",
+    "title": "Mind Map 10: Tree Languages and Tree Automata",
+    "section": "",
+    "text": "Chapter 10 · Tree Languages and Tree Automata\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    4 sections · 20 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 10\n      Tree Languages and Tree Automata\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 9\n    All mind maps\n    Chapter 11"
+  },
+  {
+    "objectID": "mindmaps/08-s1s-buchi-theorem.html",
+    "href": "mindmaps/08-s1s-buchi-theorem.html",
+    "title": "Mind Map 8: S1S, the Büchi Theorem, and Deterministic Büchi Automata",
+    "section": "",
+    "text": "Chapter 8 · S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    12 sections · 26 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 7\n    All mind maps\n    Chapter 9"
+  },
+  {
+    "objectID": "mindmaps/06-planning-as-model-checking.html",
+    "href": "mindmaps/06-planning-as-model-checking.html",
+    "title": "Mind Map 6: Planning as Model Checking",
+    "section": "",
+    "text": "Chapter 6 · Planning as Model Checking\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    8 sections · 21 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 6\n      Planning as Model Checking\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 5\n    All mind maps\n    Chapter 7"
+  },
+  {
+    "objectID": "mindmaps/04-complementation-of-omega-regular-languages.html",
+    "href": "mindmaps/04-complementation-of-omega-regular-languages.html",
+    "title": "Mind Map 4: Complementation of ω-Regular Languages",
+    "section": "",
+    "text": "Chapter 4 · Complementation of ω-Regular Languages\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    6 sections · 20 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 4\n      Complementation of ω-Regular Languages\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 3\n    All mind maps\n    Chapter 5"
+  },
+  {
+    "objectID": "mindmaps/02-regular-languages-and-decision-problems.html",
+    "href": "mindmaps/02-regular-languages-and-decision-problems.html",
+    "title": "Mind Map 2: Regular Languages and Decision Problems",
+    "section": "",
+    "text": "Chapter 2 · Regular Languages and Decision Problems\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    4 sections · 18 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 2\n      Regular Languages and Decision Problems\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 1\n    All mind maps\n    Chapter 3"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Verification and Validation Techniques",
     "section": "",
-    "text": "Università degli Studi di Udine · A.A. 2025–2026\n    Verification and Validation Techniques\n    \n      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Each topic pairs an interactive notebook with the complete lecture notes available as a downloadable PDF.\n    \n    \n      Open PDF Notes\n    \n  \n\n  \n  \n  \n    Course Materials\n    \n      \n        NB 1\n        Finite-State Automata\n        Alphabets, words, languages, and DFAs — hands-on interactive intro\n      \n      \n        NB 2\n        NFA Reachable States\n        Step through the blackboard NFA example and trace active state sets\n      \n      \n        NB 3\n        Subset Construction\n        Convert any NFA to an equivalent DFA step by step\n      \n      \n        NB 4\n        ε-Closure & ε-Removal\n        Compute epsilon-closures and remove ε-transitions from NFAs\n      \n      \n        NB 5\n        Product Automaton\n        Construct the intersection of two DFAs via the product construction\n      \n      \n        NB 6\n        Reachability Fixpoint\n        Compute reachable states with a fixpoint algorithm; explore decision problems\n      \n      \n        NB 7\n        Kleene State Elimination\n        Convert any DFA to a regular expression via state elimination (Kleene's theorem)\n      \n      \n        NB 8\n        Regex to Automaton (Kleene)\n        Dynamically generate NFAs from Regex and trace R_i,j^k paths\n      \n      \n        NB 9\n        Linear Temporal Logic (LTL)\n        Syntax and semantics of temporal logic for formal verification\n      \n      \n        NB 10\n        Model Checking Basics\n        Algorithmic verification of systems against temporal properties\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
+    "text": "Università degli Studi di Udine · A.A. 2025–2026\n    Verification and Validation Techniques\n    \n      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Each topic pairs an interactive notebook with the complete lecture notes available as a downloadable PDF.\n    \n    \n      \n        \n        \n          Open the Full Lecture Notes\n          281 pages · Complete appunti · PDF\n        \n        \n      \n    \n  \n\n  \n  \n  \n    Course Materials\n    \n      \n        NB 1\n        Finite-State Automata\n        Alphabets, words, languages, and DFAs — hands-on interactive intro\n      \n      \n        NB 2\n        NFA Reachable States\n        Step through the blackboard NFA example and trace active state sets\n      \n      \n        NB 3\n        Subset Construction\n        Convert any NFA to an equivalent DFA step by step\n      \n      \n        NB 4\n        ε-Closure & ε-Removal\n        Compute epsilon-closures and remove ε-transitions from NFAs\n      \n      \n        NB 5\n        Product Automaton\n        Construct the intersection of two DFAs via the product construction\n      \n      \n        NB 6\n        Reachability Fixpoint\n        Compute reachable states with a fixpoint algorithm; explore decision problems\n      \n      \n        NB 7\n        Kleene State Elimination\n        Convert any DFA to a regular expression via state elimination (Kleene's theorem)\n      \n      \n        NB 8\n        Regex to Automaton (Kleene)\n        Dynamically generate NFAs from Regex and trace R_i,j^k paths\n      \n      \n        NB 9\n        Linear Temporal Logic (LTL)\n        Syntax and semantics of temporal logic for formal verification\n      \n      \n        NB 10\n        Model Checking Basics\n        Algorithmic verification of systems against temporal properties\n      \n      \n        MAPS\n        Interactive Chapter Mind Maps\n        Explore all 15 chapters from their main arteries down to individual topics\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
+  },
+  {
+    "objectID": "mindmaps/01-finite-state-automata.html",
+    "href": "mindmaps/01-finite-state-automata.html",
+    "title": "Mind Map 1: Finite-State Automata and Regular Languages",
+    "section": "",
+    "text": "Chapter 1 · Finite-State Automata and Regular Languages\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    4 sections · 12 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 1\n      Finite-State Automata and Regular Languages\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n    \n    All mind maps\n    Chapter 2"
+  },
+  {
+    "objectID": "mindmaps/03-automata-over-infinite-words.html",
+    "href": "mindmaps/03-automata-over-infinite-words.html",
+    "title": "Mind Map 3: Automata over Infinite Words",
+    "section": "",
+    "text": "Chapter 3 · Automata over Infinite Words\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    5 sections · 22 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 3\n      Automata over Infinite Words\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 2\n    All mind maps\n    Chapter 4"
+  },
+  {
+    "objectID": "mindmaps/05-synthesis-and-games.html",
+    "href": "mindmaps/05-synthesis-and-games.html",
+    "title": "Mind Map 5: Synthesis and Infinite Games",
+    "section": "",
+    "text": "Chapter 5 · Synthesis and Infinite Games\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    6 sections · 29 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 5\n      Synthesis and Infinite Games\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 4\n    All mind maps\n    Chapter 6"
+  },
+  {
+    "objectID": "mindmaps/07-reactive-systems-smv-model-checking.html",
+    "href": "mindmaps/07-reactive-systems-smv-model-checking.html",
+    "title": "Mind Map 7: Reactive Systems, SMV, and Explicit Model Checking",
+    "section": "",
+    "text": "Chapter 7 · Reactive Systems, SMV, and Explicit Model Checking\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    12 sections · 36 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 6\n    All mind maps\n    Chapter 8"
+  },
+  {
+    "objectID": "mindmaps/09-deterministic-automata-star-free-languages.html",
+    "href": "mindmaps/09-deterministic-automata-star-free-languages.html",
+    "title": "Mind Map 9: Deterministic Omega-Automata and Star-Free Languages",
+    "section": "",
+    "text": "Chapter 9 · Deterministic Omega-Automata and Star-Free Languages\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    5 sections · 17 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 9\n      Deterministic Omega-Automata and Star-Free Languages\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 8\n    All mind maps\n    Chapter 10"
+  },
+  {
+    "objectID": "mindmaps/11-linear-temporal-logic.html",
+    "href": "mindmaps/11-linear-temporal-logic.html",
+    "title": "Mind Map 11: Linear Temporal Logic",
+    "section": "",
+    "text": "Chapter 11 · Linear Temporal Logic\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    8 sections · 26 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 11\n      Linear Temporal Logic\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 10\n    All mind maps\n    Chapter 12"
+  },
+  {
+    "objectID": "mindmaps/13-ctl-and-symbolic-model-checking.html",
+    "href": "mindmaps/13-ctl-and-symbolic-model-checking.html",
+    "title": "Mind Map 13: CTL and Symbolic Model Checking",
+    "section": "",
+    "text": "Chapter 13 · CTL and Symbolic Model Checking\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    6 sections · 20 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 13\n      CTL and Symbolic Model Checking\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 12\n    All mind maps\n    Chapter 14"
+  },
+  {
+    "objectID": "mindmaps/15-security-protocol-verification-with-tamarin.html",
+    "href": "mindmaps/15-security-protocol-verification-with-tamarin.html",
+    "title": "Mind Map 15: Security Protocol Verification with Tamarin",
+    "section": "",
+    "text": "Chapter 15 · Security Protocol Verification with Tamarin\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    5 sections · 22 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 15\n      Security Protocol Verification with Tamarin\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 14\n    All mind maps"
   },
   {
     "objectID": "notebooks/01-intro.html",
