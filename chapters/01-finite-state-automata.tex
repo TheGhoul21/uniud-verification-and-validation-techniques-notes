@@ -710,6 +710,7 @@ if restricting ourselves to DFAs means losing any languages.
 The answer is that it adds only convenience.  If we restrict ourselves to
 DFAs, we do not lose any language.
 
+\Needspace{18\baselineskip}
 \begin{theorem}[Subset construction]
 \label{thm:subset-construction}
 For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
@@ -717,6 +718,9 @@ For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
   L(\mathcal{D})=L(\mathcal{A}).
 \]
 \end{theorem}
+\prooflablink{proofs/chapter-01/subset-construction.html}{%
+Track every NFA branch inside one deterministic subset, predict each
+transition, and test the existential accepting-state rule.}
 
 \begin{formaldetails}[Construction]
 Let $\mathcal{A}=(Q,A,\Delta,q_0,F)$ be an NFA.  We build a DFA

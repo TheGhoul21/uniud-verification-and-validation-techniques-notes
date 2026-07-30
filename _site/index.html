@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — browser-based visualizations of automata, LTL, and model checking.">
+<meta name="description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — guided theorem proofs, automata visualizations, LTL, and model checking.">
 
 <title>Verification and Validation Techniques — Appunti e Interactive Course Companion | UniUD</title>
 <style>
@@ -105,12 +105,12 @@ cookieconsent.run({
 
 
 <meta property="og:title" content="Verification and Validation Techniques — Appunti e Interactive Course Companion | UniUD">
-<meta property="og:description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — browser-based visualizations of automata, LTL, and model checking.">
+<meta property="og:description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — guided theorem proofs, automata visualizations, LTL, and model checking.">
 <meta property="og:image" content="https://vvt.aliteia.com/images/social-preview.jpg">
 <meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:title" content="Verification and Validation Techniques — Appunti e Interactive Course Companion | UniUD">
-<meta name="twitter:description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — browser-based visualizations of automata, LTL, and model checking.">
+<meta name="twitter:description" content="Appunti e interactive companion for the Verification and Validation Techniques course at UniUD — guided theorem proofs, automata visualizations, LTL, and model checking.">
 <meta name="twitter:image" content="https://vvt.aliteia.com/images/social-preview.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -135,6 +135,10 @@ cookieconsent.run({
   <li class="nav-item">
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./proofs/index.html"> 
+<span class="menu-text">Proof Labs</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="./mindmaps/index.html"> 
@@ -226,16 +230,16 @@ cookieconsent.run({
   "@context": "https://schema.org",
   "@type": "Course",
   "name": "Verification and Validation Techniques",
-  "description": "Interactive companion for the Verification and Validation Techniques course at the University of Udine — browser-based visualizations of finite automata, NFA-to-DFA subset construction, epsilon-closure, product automata, and reachability fixpoint algorithms.",
+  "description": "Interactive companion for the Verification and Validation Techniques course at the University of Udine — guided theorem proofs, mind maps, and browser-based formal verification visualizations.",
   "provider": {
     "@type": "CollegeOrUniversity",
     "name": "Università degli Studi di Udine"
   },
   "inLanguage": "en",
-  "learningResourceType": ["Lecture notes", "Interactive visualization"],
+  "learningResourceType": ["Lecture notes", "Interactive proof", "Interactive visualization"],
   "about": [
     "Finite-State Automata", "Deterministic Finite Automata", "Nondeterministic Finite Automata",
-    "Subset Construction", "Epsilon-Closure", "Product Automaton",
+    "Subset Construction", "Epsilon-Closure", "Myhill-Nerode", "Buchi Automata", "Product Automaton",
     "Reachability Fixpoint", "Formal Verification", "Model Checking"
   ]
 }
@@ -252,14 +256,14 @@ cookieconsent.run({
     <p class="desc">
       Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,
       product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.
-      Each topic pairs an interactive notebook with the complete lecture notes available as a downloadable PDF.
+      Major theorems have guided Proof Labs, and the complete lecture notes remain available as a downloadable PDF.
     </p>
     <p class="hero-links">
       <a class="hero-cta" href="main.pdf" target="_blank" rel="noopener noreferrer">
         <i class="bi bi-file-earmark-pdf-fill hero-cta-icon"></i>
         <span class="hero-cta-copy">
           <span class="hero-cta-title">Open the Full Lecture Notes</span>
-          <span class="hero-cta-meta">281 pages · Complete appunti · PDF</span>
+          <span class="hero-cta-meta">283 pages · Complete appunti · PDF</span>
         </span>
         <i class="bi bi-arrow-right hero-cta-arrow"></i>
       </a>
@@ -271,6 +275,11 @@ cookieconsent.run({
   
     <div class="chapter-label">Course Materials</div>
     <div class="card-grid">
+      <a class="algo-card" href="./proofs/index.html">
+        <span class="card-num">PROOF LABS</span>
+        <span class="card-title">Interactive Theorem Proofs</span>
+        <span class="card-desc">Predict each proof step, inspect the dominant visual, and reveal the formal justification</span>
+      </a>
       <a class="algo-card" href="./notebooks/01-intro.html">
         <span class="card-num">NB 1</span>
         <span class="card-title">Finite-State Automata</span>

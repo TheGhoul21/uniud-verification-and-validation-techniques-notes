@@ -1,0 +1,13 @@
+---
+title: "Small Model Property Proof Lab"
+pagetitle: "Small Model Property — Interactive Proof Lab"
+description: "An interactive proof that every non-empty n-state DFA has a witness shorter than n."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="small-model-property"></div>
+<noscript>
+  <h1>Small model property</h1>
+  <p>Choose a shortest accepted word. If its length were at least the number of states, its run would repeat a state. Removing the non-empty loop between the repetitions would preserve the accepting suffix and produce a shorter accepted word, a contradiction.</p>
+</noscript>
+```

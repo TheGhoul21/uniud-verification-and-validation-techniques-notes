@@ -611,6 +611,36 @@
 %  Proof-as-Story-Arc framework
 % ============================================================
 
+% --- direct link from a theorem to its interactive Proof Lab ---
+\newmdenv[
+  skipabove=\medskipamount,
+  skipbelow=\bigskipamount,
+  backgroundcolor=accent!4,
+  topline=false,
+  rightline=false,
+  bottomline=false,
+  leftline=true,
+  linewidth=3pt,
+  linecolor=accent,
+  innertopmargin=8pt,
+  innerbottommargin=8pt,
+  innerleftmargin=11pt,
+  innerrightmargin=11pt,
+]{prooflablinkframe}
+\newcommand{\prooflablink}[2]{%
+  \Needspace{4\baselineskip}%
+  \begin{prooflablinkframe}%
+  \noindent{\small\sffamily\bfseries\color{accent!75!black}%
+    Interactive proof lab\enspace\(\longrightarrow\)\enspace%
+    \href{https://vvt.aliteia.com/#1}{Open the guided proof}}%
+  \par\vspace{3pt}%
+  {\small\sffamily #2}%
+  \par\vspace{2pt}%
+  {\scriptsize\sffamily\color{graphite!65}%
+    \href{https://vvt.aliteia.com/#1}{vvt.aliteia.com/#1}}%
+  \end{prooflablinkframe}%
+}
+
 % --- proof catalyst (why this result?) ---
 \newmdenv[
   skipabove=\bigskipamount,

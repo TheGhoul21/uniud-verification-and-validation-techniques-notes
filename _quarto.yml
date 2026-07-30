@@ -5,6 +5,8 @@ project:
     - "*.qmd"
     - "notebooks/*.qmd"
     - "mindmaps/*.qmd"
+    - "proofs/*.qmd"
+    - "proofs/chapter-*/*.qmd"
     - "!docs/"
   resources:
     - "CNAME"
@@ -12,11 +14,14 @@ project:
     - "robots.txt"
     - "mindmaps/mindmap.css"
     - "mindmaps/mindmap.js"
+    - "proofs/proof-lab.css"
+    - "proofs/proof-lab-content.js"
+    - "proofs/proof-lab.js"
 
 website:
   title: "Verification and Validation Techniques — UniUD"
   site-url: "https://vvt.aliteia.com"
-  description: "Interactive companion for the Verification and Validation Techniques course at Università degli Studi di Udine — browser-based automata visualizations covering finite-state automata, NFA-to-DFA subset construction, epsilon-closure, product automata, and reachability fixpoint algorithms."
+  description: "Interactive companion for the Verification and Validation Techniques course at Università degli Studi di Udine — guided theorem proofs, mind maps, and browser-based automata visualizations."
   favicon: images/favicon.svg
   open-graph:
     site-name: "Verification and Validation Techniques — UniUD"
@@ -36,6 +41,8 @@ website:
     left:
       - text: Home
         href: index.qmd
+      - text: Proof Labs
+        href: proofs/index.qmd
       - text: Mind Maps
         href: mindmaps/index.qmd
       - text: Notebooks

@@ -1,0 +1,13 @@
+---
+title: "ε-Removal Proof Lab"
+pagetitle: "ε-Removal — Interactive Proof Lab"
+description: "An interactive proof that epsilon transitions can be compiled out of an NFA."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="epsilon-removal"></div>
+<noscript>
+  <h1>ε-removal</h1>
+  <p>Replace each symbol transition by epsilon-closure, one symbol, and epsilon-closure again. Correct the initial final state exactly when its epsilon-closure meets the old final set. Induction on the word length then preserves reachability and acceptance.</p>
+</noscript>
+```

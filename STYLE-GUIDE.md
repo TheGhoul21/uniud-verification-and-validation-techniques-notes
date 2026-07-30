@@ -173,6 +173,34 @@ work.
 - Do not hand-edit files in `mindmaps/generated/` or generated chapter-map
   `.qmd` files; change the source headings, generator, or shared map styles.
 
+### Interactive Proof Labs
+
+- Every theorem should eventually have a dedicated website page under
+  `proofs/chapter-NN/` and a direct `\prooflablink` immediately after its
+  statement in the LaTeX chapter.
+- The proof visualization is the main character. On desktop it receives most
+  of the available width; the current obligation, choices, feedback, invariant,
+  and optional formal sentence occupy a narrow contextual rail. On mobile the
+  same regions stack into one centered column.
+- Each step asks for a mathematically meaningful prediction before revealing
+  the next proof state. A wrong choice must explain the causal failure, not
+  merely mark an answer incorrect.
+- Interactive questions support the exposition; they do not replace it. Give
+  every lab a concise proof strategy, every step a serious technical paragraph
+  explaining its logical role, and the page a complete proof synthesis that
+  reconnects the local steps into one argument.
+- Keep this prose formal, continuous, and appropriate for university notes.
+  Narrative means mathematical motivation and connective reasoning, not
+  fictional framing, gamification, characters, or adventure language.
+- The concrete visual explains the mechanism; the formal sentence proves it
+  for every instance. Keep that distinction explicit.
+- Reuse `proofs/proof-lab.js` and `proofs/proof-lab.css`. Put theorem-specific
+  diagrams and steps in `proofs/proof-lab-content.js`; do not fork the runtime
+  into page-local copies.
+- Pages must remain readable without JavaScript through a complete static
+  proof outline. Do not use autoplay or interactions without mathematical
+  semantics.
+
 ## Asides
 
 - Use `\aside{...}` for short margin or interstitial notes that add intuition,

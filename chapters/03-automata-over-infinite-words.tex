@@ -557,6 +557,7 @@ is how many of these operations still make sense---and still keep us
 inside the class---once the words are infinite.  The next theorem
 collects the ones that do.
 
+\Needspace{18\baselineskip}
 \begin{theorem}[Basic closure properties]
 \label{thm:omega-basic-closure}
 Let $V\subseteq\Sigma^*$ be a regular finite-word language and let
@@ -572,6 +573,9 @@ $\overrightarrow{W}$ of a regular $W\subseteq\Sigma^*$ is
 $\omega$-regular; we single it out because
 \cref{ch:deterministic-automata-star-free} builds on it.
 \end{theorem}
+\prooflablink{proofs/chapter-03/omega-closure.html}{%
+See why B\"uchi intersection alternates recurring obligations instead
+of requiring two final states at the same instant.}
 
 The theorem is as notable for what it excludes as for what it lists.
 Every finite-word closure lifts except one: complementation.  This is
@@ -767,11 +771,15 @@ $W_{s,s'}$.  So every $W_{s,s'}$ is regular, and we are free to use these
 languages as the $U_i$ and $V_i$ building blocks of an $\omega$-regular
 expression.
 
+\Needspace{18\baselineskip}
 \begin{theorem}[B\"uchi-expression equivalence]
 \label{thm:buchi-expression-equivalence}
 A language $L\subseteq\Sigma^\omega$ is accepted by a B\"uchi automaton
 if and only if it can be denoted by an $\omega$-regular expression.
 \end{theorem}
+\prooflablink{proofs/chapter-03/buchi-expression-equivalence.html}{%
+Cut an accepting run into a finite prefix and infinitely many non-empty
+loops around one recurrent final state.}
 
 \begin{proof}
 We again prove both directions constructively.

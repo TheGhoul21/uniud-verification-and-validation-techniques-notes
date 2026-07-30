@@ -1,0 +1,538 @@
+:root {
+  --proof-sky: #30bced;
+  --proof-sky-soft: #daf3fc;
+  --proof-graphite: #303036;
+  --proof-paper: #fffaff;
+  --proof-tomato: #fc5130;
+  --proof-teal: #00897b;
+  --proof-teal-soft: #dff3ef;
+  --proof-violet: #7e57c2;
+  --proof-violet-soft: #eee7fa;
+  --proof-line: #d7d7dc;
+  --proof-muted: #696970;
+}
+
+.proof-lab {
+  width: min(100%, 1500px);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 4rem) clamp(.75rem, 2.4vw, 2.5rem) 5rem;
+  color: var(--proof-graphite);
+}
+
+.proof-lab__header {
+  max-width: 940px;
+  margin: 0 auto clamp(2rem, 5vw, 4.5rem);
+  text-align: center;
+}
+
+.proof-lab__breadcrumb {
+  margin: 0 0 .8rem;
+  color: #167b9e;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.proof-lab__header h1 {
+  margin: 0 0 .75rem;
+  color: var(--proof-graphite);
+  font-size: clamp(2.15rem, 5vw, 4.6rem);
+  line-height: 1.02;
+  letter-spacing: -.04em;
+}
+
+.proof-lab__statement {
+  max-width: 72ch;
+  margin: 0 auto .65rem;
+  color: var(--proof-graphite);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.05rem, 1.7vw, 1.32rem);
+}
+
+.proof-lab__intro {
+  max-width: 62ch;
+  margin: 0 auto;
+  color: var(--proof-muted);
+}
+
+.proof-lab__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(285px, 1fr);
+  gap: clamp(1.5rem, 4vw, 4.75rem);
+  align-items: center;
+}
+
+.proof-lab__canvas {
+  min-width: 0;
+  border-right: 1px solid var(--proof-line);
+  padding-right: clamp(1rem, 3vw, 3.25rem);
+}
+
+.proof-lab__canvas-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: .6rem;
+  color: var(--proof-muted);
+  font-size: .78rem;
+}
+
+.proof-lab__canvas-bar strong {
+  color: var(--proof-graphite);
+  font-size: .86rem;
+}
+
+.proof-lab__diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 390px;
+  overflow: visible;
+}
+
+.proof-lab__canvas-note {
+  min-height: 1.7rem;
+  margin: .45rem 0 0;
+  color: var(--proof-muted);
+  text-align: center;
+}
+
+.proof-lab__rail {
+  min-width: 0;
+}
+
+.proof-lab__progress {
+  display: flex;
+  gap: .48rem;
+  margin-bottom: 1.35rem;
+}
+
+.proof-lab__progress span {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--proof-line);
+  transition: width .2s ease, background-color .2s ease;
+}
+
+.proof-lab__progress span.is-done {
+  background: var(--proof-teal);
+}
+
+.proof-lab__progress span.is-current {
+  width: 30px;
+  background: var(--proof-tomato);
+}
+
+.proof-lab__step-label {
+  margin: 0 0 .35rem;
+  color: var(--proof-tomato);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.proof-lab__rail h2 {
+  margin: 0 0 .55rem;
+  color: var(--proof-graphite);
+  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  line-height: 1.15;
+}
+
+.proof-lab__exposition {
+  margin: 0 0 .8rem;
+  color: var(--proof-graphite);
+  line-height: 1.55;
+}
+
+.proof-lab__question {
+  margin: 0 0 1rem;
+  color: var(--proof-muted);
+  font-size: .94rem;
+}
+
+.proof-lab__choices {
+  display: grid;
+  gap: .55rem;
+}
+
+.proof-lab__choice,
+.proof-lab__button {
+  border: 1px solid var(--proof-line);
+  border-radius: 9px;
+  padding: .62rem .78rem;
+  background: #fff;
+  color: var(--proof-graphite);
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.proof-lab__choice:hover,
+.proof-lab__button:hover {
+  border-color: var(--proof-sky);
+  background: var(--proof-sky-soft);
+}
+
+.proof-lab__choice.is-correct {
+  border-color: var(--proof-teal);
+  background: var(--proof-teal-soft);
+}
+
+.proof-lab__choice.is-wrong {
+  border-color: var(--proof-tomato);
+  background: #fee8e3;
+}
+
+.proof-lab__choice:focus-visible,
+.proof-lab__button:focus-visible,
+.proof-lab__nav a:focus-visible {
+  outline: 3px solid rgba(48, 188, 237, .42);
+  outline-offset: 2px;
+}
+
+.proof-lab__feedback {
+  min-height: 3.1rem;
+  margin: .8rem 0 0;
+  color: #167b9e;
+  font-weight: 600;
+}
+
+.proof-lab__feedback.is-error {
+  color: #ae371f;
+}
+
+.proof-lab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  margin-top: .55rem;
+}
+
+.proof-lab__button {
+  text-align: center;
+}
+
+.proof-lab__button--primary {
+  border-color: #167b9e;
+  background: var(--proof-sky);
+}
+
+.proof-lab__button[disabled] {
+  cursor: not-allowed;
+  opacity: .42;
+}
+
+.proof-lab__hint {
+  margin: .65rem 0 0;
+  border-left: 3px solid var(--proof-violet);
+  padding-left: .75rem;
+  color: var(--proof-muted);
+}
+
+.proof-lab__formal,
+.proof-lab__theorem-details {
+  margin-top: .9rem;
+  border-top: 1px solid var(--proof-line);
+  padding-top: .75rem;
+}
+
+.proof-lab__formal summary,
+.proof-lab__theorem-details summary {
+  color: #167b9e;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.proof-lab__formal p,
+.proof-lab__theorem-details p {
+  margin: .65rem 0 0;
+  color: var(--proof-muted);
+}
+
+.proof-lab__invariant {
+  margin-top: 1rem;
+  border-left: 3px solid var(--proof-teal);
+  padding: .45rem 0 .45rem .8rem;
+  color: var(--proof-graphite);
+  font-size: .9rem;
+}
+
+.proof-lab__invariant strong {
+  display: block;
+  margin-bottom: .18rem;
+  color: var(--proof-teal);
+  font-size: .68rem;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.proof-lab__nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: clamp(2.5rem, 6vw, 5rem);
+  border-top: 1px solid var(--proof-line);
+  padding-top: 1rem;
+}
+
+.proof-lab__synthesis {
+  max-width: 940px;
+  margin: clamp(2.5rem, 6vw, 5rem) auto 0;
+  border-top: 1px solid var(--proof-line);
+  border-bottom: 1px solid var(--proof-line);
+  padding: 1rem 0;
+}
+
+.proof-lab__synthesis summary {
+  color: #167b9e;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.proof-lab__synthesis p {
+  max-width: 82ch;
+  margin: .9rem 0 0;
+  color: var(--proof-graphite);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.7;
+}
+
+.proof-lab__nav a {
+  color: #167b9e;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.proof-lab__nav a:last-child {
+  margin-left: auto;
+  text-align: right;
+}
+
+.proof-lab__lane {
+  stroke: var(--proof-line);
+  stroke-width: 1;
+}
+
+.proof-lab__lane-label,
+.proof-lab__edge-label,
+.proof-lab__annotation {
+  fill: var(--proof-muted);
+  font-family: "Cabin", sans-serif;
+}
+
+.proof-lab__lane-label {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.proof-lab__edge {
+  fill: none;
+  stroke: #a0a0a7;
+  stroke-width: 2.2;
+  transition: stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
+}
+
+.proof-lab__edge.is-active {
+  stroke: var(--proof-tomato);
+  stroke-width: 4;
+}
+
+.proof-lab__edge.is-dim {
+  opacity: .22;
+}
+
+.proof-lab__edge-label {
+  font-size: 13px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: var(--proof-paper);
+  stroke-width: 5px;
+}
+
+.proof-lab__node-shape {
+  fill: #fff;
+  stroke: #9999a1;
+  stroke-width: 2.2;
+  transition: fill .2s ease, stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
+}
+
+.proof-lab__node.is-active .proof-lab__node-shape {
+  fill: var(--proof-sky-soft);
+  stroke: #167b9e;
+  stroke-width: 4;
+}
+
+.proof-lab__node.is-good .proof-lab__node-shape {
+  fill: var(--proof-teal-soft);
+  stroke: var(--proof-teal);
+}
+
+.proof-lab__node.is-bad .proof-lab__node-shape {
+  fill: #fee8e3;
+  stroke: var(--proof-tomato);
+}
+
+.proof-lab__node.is-dim {
+  opacity: .28;
+}
+
+.proof-lab__node.is-accepting .proof-lab__node-shape {
+  stroke-width: 4;
+}
+
+.proof-lab__node-text,
+.proof-lab__node-detail {
+  fill: var(--proof-graphite);
+  font-family: "Cabin", sans-serif;
+  text-anchor: middle;
+}
+
+.proof-lab__node-text {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.proof-lab__node-detail {
+  fill: var(--proof-muted);
+  font-size: 12px;
+}
+
+.proof-lab-index {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.proof-lab-index__chapter {
+  margin-top: 2.25rem;
+}
+
+.proof-lab-index__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: .8rem;
+}
+
+.proof-lab-index__card {
+  display: block;
+  border: 1px solid var(--proof-line);
+  border-left: 4px solid var(--proof-sky);
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+  color: var(--proof-graphite);
+  text-decoration: none;
+}
+
+.proof-lab-index__card:hover {
+  border-color: var(--proof-sky);
+  color: var(--proof-graphite);
+  text-decoration: none;
+}
+
+.proof-lab-index__card small {
+  color: var(--proof-tomato);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.proof-lab-index__card strong {
+  display: block;
+  margin: .35rem 0;
+}
+
+.proof-lab-index__card span {
+  color: var(--proof-muted);
+  font-size: .9rem;
+}
+
+@media (max-width: 1200px) {
+  .proof-lab {
+    max-width: 840px;
+  }
+
+  .proof-lab__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-lab__canvas {
+    border-right: 0;
+    border-bottom: 1px solid var(--proof-line);
+    padding-right: 0;
+    padding-bottom: 1.25rem;
+  }
+
+  .proof-lab__rail {
+    max-width: 680px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .proof-lab__progress,
+  .proof-lab__actions {
+    justify-content: center;
+  }
+
+  .proof-lab__choice {
+    text-align: center;
+  }
+
+  .proof-lab__invariant,
+  .proof-lab__hint,
+  .proof-lab__formal {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .proof-lab__header {
+    margin-bottom: 2rem;
+  }
+
+  .proof-lab__diagram {
+    min-height: 260px;
+  }
+
+  .proof-lab__canvas-bar,
+  .proof-lab__nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .proof-lab__nav a:last-child {
+    margin-left: 0;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proof-lab *,
+  .proof-lab *::before,
+  .proof-lab *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+@media print {
+  .proof-lab__choices,
+  .proof-lab__actions {
+    display: none;
+  }
+
+  .proof-lab__workspace {
+    display: block;
+  }
+
+  .proof-lab__canvas {
+    border: 0;
+    padding: 0;
+  }
+}

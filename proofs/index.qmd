@@ -1,0 +1,90 @@
+---
+title: "Proof Labs"
+pagetitle: "Interactive Proof Labs — Verification and Validation Techniques"
+description: "Guided, visual and interactive explanations of the main theorems in the Verification and Validation Techniques notes."
+---
+
+```{=html}
+<div class="proof-lab-index">
+  <header class="proof-lab__header">
+    <p class="proof-lab__breadcrumb">Interactive theorem companion</p>
+    <h1>Proof Labs</h1>
+    <p class="proof-lab__statement">
+      See the mechanism, predict the next proof state, then open the formal justification.
+    </p>
+    <p class="proof-lab__intro">
+      Each lab keeps one mathematical visual in the foreground. The example
+      explains the current step; the formal argument proves it for every case.
+    </p>
+  </header>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 1 · Finite-State Automata</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-01/subset-construction.html">
+        <small>Theorem 1</small>
+        <strong>Subset construction</strong>
+        <span>Synchronize every NFA run with one deterministic subset.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 2 · Regular Languages and Decision Problems</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-02/epsilon-removal.html">
+        <small>Theorem 2</small>
+        <strong>ε-removal</strong>
+        <span>Compile free paths into ordinary symbol transitions.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-02/kleene-equivalence.html">
+        <small>Theorem 3</small>
+        <strong>Kleene equivalence</strong>
+        <span>Follow the constructive cycle between automata and expressions.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-02/regular-closure.html">
+        <small>Theorem 4</small>
+        <strong>Closure of regular languages</strong>
+        <span>Read every closure property as an automaton compiler.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-02/small-model-property.html">
+        <small>Theorem 5</small>
+        <strong>Small model property</strong>
+        <span>Delete a repeated-state loop from a shortest accepting run.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-02/myhill-nerode.html">
+        <small>Theorem 6</small>
+        <strong>Myhill–Nerode</strong>
+        <span>Turn indistinguishable futures into the canonical DFA.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 3 · Automata over Infinite Words</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-03/omega-closure.html">
+        <small>Theorem 7</small>
+        <strong>Basic ω-regular closure</strong>
+        <span>Alternate recurring obligations in Büchi intersection.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-03/buchi-expression-equivalence.html">
+        <small>Theorem 8</small>
+        <strong>Büchi–expression equivalence</strong>
+        <span>Cut an accepting run into a finite prefix and recurring loops.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 4 · Complementation of ω-Regular Languages</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-04/buchi-complementation.html">
+        <small>Theorem 9</small>
+        <strong>Büchi complementation</strong>
+        <span>Partition all infinite words into saturated class products.</span>
+      </a>
+    </div>
+  </section>
+</div>
+```

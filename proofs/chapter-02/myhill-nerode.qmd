@@ -1,0 +1,13 @@
+---
+title: "Myhill–Nerode Proof Lab"
+pagetitle: "Myhill–Nerode — Interactive Proof Lab"
+description: "An interactive proof of the Myhill-Nerode characterization of regular languages."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="myhill-nerode"></div>
+<noscript>
+  <h1>Myhill–Nerode theorem</h1>
+  <p>A DFA induces a finite compatible right-invariant relation. Every such relation refines the relation of identical future behavior. If that canonical relation has finite index, its equivalence classes form a quotient DFA recognizing the language.</p>
+</noscript>
+```

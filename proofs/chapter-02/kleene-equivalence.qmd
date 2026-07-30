@@ -1,0 +1,13 @@
+---
+title: "Kleene Equivalence Proof Lab"
+pagetitle: "Kleene Equivalence — Interactive Proof Lab"
+description: "An interactive proof of the equivalence between finite automata and regular expressions."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="kleene-equivalence"></div>
+<noscript>
+  <h1>Kleene equivalence</h1>
+  <p>State elimination converts an automaton into a regular expression by induction over allowed intermediate states. Structural induction converts a regular expression into an epsilon-NFA, which can then be stripped of epsilon transitions.</p>
+</noscript>
+```

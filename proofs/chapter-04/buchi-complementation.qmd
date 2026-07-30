@@ -1,0 +1,13 @@
+---
+title: "Büchi Complementation Proof Lab"
+pagetitle: "Büchi Complementation — Interactive Proof Lab"
+description: "An interactive proof that omega-regular languages are closed under complementation."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="buchi-complementation"></div>
+<noscript>
+  <h1>Büchi complementation</h1>
+  <p>Finite transition-profile classes generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while homogeneous decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products.</p>
+</noscript>
+```

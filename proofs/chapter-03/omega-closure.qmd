@@ -1,0 +1,13 @@
+---
+title: "ω-Regular Closure Proof Lab"
+pagetitle: "ω-Regular Closure — Interactive Proof Lab"
+description: "Interactive constructions proving basic closure properties of omega-regular languages."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="omega-closure"></div>
+<noscript>
+  <h1>Basic ω-regular closure</h1>
+  <p>Omega-power restarts after every finite block, concatenation hands off after a finite prefix, and union makes an initial nondeterministic choice. Intersection alternates between waiting for the two Büchi final sets, accepting after each completed round.</p>
+</noscript>
+```
