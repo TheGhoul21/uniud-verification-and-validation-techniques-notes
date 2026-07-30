@@ -24,33 +24,36 @@ question to emptiness, using the identity
   L(A_{\mathrm{sys}})\cap \overline{L(A_{\mathrm{spec}})}=\emptyset.
 \]
 The same reduction works for $\omega$-words, provided we can complement
-a B\"uchi automaton.  Intersection and emptiness are already manageable:
-intersection uses the asynchronous product of
+a B\"uchi-recognizable language effectively.  Intersection and emptiness
+are already manageable: intersection uses the asynchronous product of
 \cref{fig:buchi-intersection-phases}, and emptiness reduces to finding a
 reachable accepting cycle (\cref{prop:buchi-emptiness}).  The hard part
 is complementation.
 
-For finite words, complementing a complete DFA is literally free: swap
-the accepting and non-accepting states, and the sink completion of
-\cref{ch:fsa} does the rest.  For B\"uchi automata this route is closed,
-and the detour is non-trivial.  This chapter develops the classical
-algebraic proof that $\omega$-regular languages are nonetheless closed
-under complement.  The roadmap is a chain of refinements, each section
-answering a question forced by the previous one:
+For finite words, complementing a complete DFA requires only swapping
+the accepting and non-accepting states; the sink completion of
+\cref{ch:fsa} ensures that every word has a run.  Neither step transfers
+directly to B\"uchi automata.  This chapter therefore develops the
+classical algebraic proof that $\omega$-regular languages are nonetheless
+closed under complement.  The argument proceeds through a sequence of
+finite abstractions, each resolving an obstacle exposed by the previous
+one:
 \begin{itemize}[nosep]
-  \item why does the finite-word trick fail, and what replaces it?
+  \item the failure of the finite-word construction and the requirements
+        for its replacement
         (\cref{sec:buchi-complement-fails});
-  \item finite-index congruences, which summarize finite words by
+  \item finite-index congruences, which summarize finite words with
         finitely many labels (\cref{sec:congruence-saturation});
-  \item transition profiles, the concrete congruence induced by a
-        B\"uchi automaton (\cref{sec:automaton-congruence});
-  \item a Ramsey-style decomposition, which represents every infinite
+  \item transition profiles, which provide the concrete congruence
+        induced by a B\"uchi automaton
+        (\cref{sec:automaton-congruence});
+  \item a Ramsey-style decomposition, which partitions every infinite
         word as a prefix followed by infinitely many congruent blocks
         (\cref{sec:ramsey-decomposition});
-  \item the saturation construction, which turns these ingredients into
+  \item saturation, which turns these ingredients into
         an effective automaton for the complement
         (\cref{sec:omega-complement-theorem});
-  \item and finally the decidability of inclusion, the model-checking
+  \item the resulting decidability of inclusion, the model-checking
         payoff (\cref{sec:buchi-model-checking-consequence}).
 \end{itemize}
 
@@ -71,7 +74,7 @@ answering a question forced by the previous one:
     \node[cstep] (nba) at (0,0) {B\"uchi automaton\\$A$};
     \node[hard] (prof) at (3.7,0) {transition\\profiles};
     \node[hard] (ramsey) at (7.4,0) {Ramsey\\decomposition};
-    \node[cstep, vv counterexample] (sat) at (11.1,0) {saturated\\rejecting\\classes};
+    \node[cstep, vv counterexample] (sat) at (11.1,0) {rejecting\\class\\products};
     \node[acceptstep] (comp) at (14.8,0) {automaton for\\$\overline{L(A)}$};
 
     \draw[arr] (nba) -- node[arlbl] {finite\\blocks} (prof);
@@ -82,8 +85,9 @@ answering a question forced by the previous one:
   }
   \caption{The complementation proof is not a state-flipping construction.
            It compresses finite blocks into profiles, uses Ramsey stability
-           to describe infinite words by ultimately periodic blocks, and then
-           builds the complement from the saturated rejecting classes.}
+           to obtain a homogeneous block decomposition, and then
+           builds the complement from the class products disjoint from
+           the original language.}
   \label{fig:buchi-complementation-roadmap}
 \end{figure}
 
@@ -100,9 +104,10 @@ on each finite word exactly one of ``the run ends in $F$'' and ``the run
 ends in $Q\setminus F$'' holds.
 
 Two things break for B\"uchi automata.  First, the automata are
-non-deterministic, so there is no single run whose endpoint we can flip.
+nondeterministic, so there is no unique run whose acceptance status we
+can reverse.
 Second, and more fundamentally, deterministic B\"uchi automata are
-strictly weaker than non-deterministic ones, so we cannot even
+strictly weaker than nondeterministic ones, so we cannot even
 determinize first and then swap.
 
 \begin{example}[The complement of the running request/ack language]
@@ -121,20 +126,23 @@ It is easy to recognize $\overline{L}$ \emph{non-deterministically}:
 guess the position after which no more \texttt{ack} arrives, then stay
 in an accepting state while reading only \texttt{req}.  But a
 \emph{deterministic} B\"uchi automaton cannot recognize $\overline{L}$.
-To accept, it would have to visit an accepting state infinitely often
-along every word of $\overline{L}$; yet while it is still seeing
-\texttt{ack} symbols (which any finite prefix of a word in $\overline{L}$
-may contain) it has no deterministic way to know whether this
-\texttt{ack} is the last one.  By the time it can be certain, finitely
-many accepting visits may already have been spent.
+The obstruction is that no finite prefix determines whether the latest
+\texttt{ack} is the last one.  After any finite prefix, the continuation
+consisting only of \texttt{req} must be accepted, so its unique run must
+eventually revisit an accepting state.  If one delays the next
+\texttt{ack} until after such a visit and repeats this choice
+indefinitely, the resulting word contains infinitely many
+acknowledgements while its run still visits accepting states infinitely
+often.  Thus the deterministic B\"uchi condition cannot separate the
+two cases.
 \end{example}
 
 The lesson is not that complementation is impossible.  The class of
 $\omega$-regular languages \emph{is} closed under complement, and we
-will prove it.  The lesson is that the proof cannot be the finite-word
-proof: there is no state-swapping shortcut.  We need machinery that
-reasons about infinite runs without ever ``waiting for the end''.
-Finite-index congruences are exactly that machinery.
+will prove it.  The lesson is that the finite-word proof does not
+transfer: there is no state-swapping shortcut.  We instead need a finite
+summary of finite blocks that preserves the information relevant to
+infinite acceptance.  Finite-index congruences provide this summary.
 
 
 % ============================================================
@@ -180,11 +188,17 @@ $\text{odd}+\text{even}=\text{odd}$, and so on), so
 $\equiv_{\mathrm{par}}$ is a congruence of index $2$.
 \end{example}
 
-Parity is far too coarse to be useful for verification, but it captures
-the shape of the idea: a congruence summarizes each finite word by a
-label drawn from a finite set, and concatenation acts on these labels
-through a finite table.  The automaton congruence we build later in this
-chapter has exactly this shape, with a much richer label set.
+Parity is too coarse for the acceptance questions considered here, but
+it captures the shape of the idea: a congruence summarizes each finite
+word by a label drawn from a finite set, and concatenation acts on these
+labels through a finite table.  The automaton congruence we build later
+in this chapter has exactly this shape, with a much richer label set.
+
+A finite summary supports complementation only if it also determines
+language membership uniformly.  Saturation states precisely this
+additional requirement: once the class of a prefix and the class of all
+subsequent blocks are fixed, membership may no longer depend on the
+particular representatives chosen from those classes.
 
 \begin{definition}[Saturation]
 \label{def:saturation}
@@ -301,9 +315,10 @@ corresponds to mixed membership and violates saturation.}
 \label{fig:saturation-intuition}
 \end{figure}
 
-This is a strong finiteness property.  It says that once we know the
-class of a finite prefix and the class repeated forever, the membership
-of the resulting infinite word is fixed.
+Thus saturation converts a finite classification of blocks into an
+all-or-nothing classification of infinite words.  Once the class of a
+finite prefix and the class repeated forever are known, membership of
+every resulting infinite word is fixed.
 
 \begin{proposition}[Saturation and complement]
 \label{prop:saturation-complement}
@@ -334,7 +349,10 @@ transition well-defined.
 
 There are only finitely many pairs of classes $(U,V)$.  Since $L$ is
 saturated, each product $UV^\omega$ is either contained in $L$ or
-disjoint from $L$.  Therefore
+disjoint from $L$.  Moreover, every infinite word belongs to at least
+one such product: the homogeneous decomposition proved in
+\cref{lem:homogeneous-decomposition} supplies a prefix class $U$ and a
+repeated block class $V$.  Therefore
 \[
   \overline{L}
   =
@@ -345,13 +363,14 @@ $UV^\omega$ is $\omega$-regular, and finite unions of $\omega$-regular
 languages are $\omega$-regular.
 \end{proof}
 
-So complementation reduces to two tasks: finding a finite-index
-congruence that saturates $L(A)$, and showing that such a congruence
-always exists.  The next two sections supply both.  First we build, from
-the automaton $A$ itself, a concrete finite-index congruence
-$\approx_A$ that knows about accepting visits.  Then we invoke a
-Ramsey-style decomposition to argue that $\approx_A$ does saturate
-$L(A)$.
+Complementation has therefore been reduced to constructing a suitable
+finite-index congruence and proving that it saturates $L(A)$.  The next
+two sections provide the ingredients for these tasks.  First, from the
+automaton $A$ itself, we build a concrete congruence $\approx_A$ that
+records accepting visits.  We then establish the Ramsey-style
+decomposition needed to show that its class products cover all infinite
+words.  The saturation proof will combine these two ingredients in
+\cref{sec:omega-complement-theorem}.
 
 
 % ============================================================
@@ -392,9 +411,9 @@ $p\in F$.  The convention is harmless but important: when transition
 profiles are concatenated, accepting information at the gluing state is
 not silently lost.
 
-The second relation is the one that finite-word automata do not need.
-For B\"uchi acceptance, a repeated block is useful only if it can be
-traversed while seeing acceptance.
+The accepting-path relation is essential because a repeated block
+contributes to B\"uchi acceptance only if it can be traversed while
+visiting $F$.
 
 \begin{definition}[Transition profile]
 \label{def:transition-profile}
@@ -409,12 +428,12 @@ answers for every pair $(p,q)$.
 \end{definition}
 
 The operational test is: given two finite words $u$ and $v$, check every
-ordered pair of states $(p,q)$ and ask three questions --- is $q$
-reachable from $p$ via $u$?  via $v$?  and in each case, does an
-accepting path exist?  If $u$ and $v$ give identical answers on every
-pair, they are $\approx_A$-equivalent.  Equivalent words are
-interchangeable as finite blocks inside any infinite run without
-affecting acceptance.
+ordered pair of states $(p,q)$.  For each word, ask whether $q$ is
+reachable from $p$ and whether an accepting path exists.  If $u$ and
+$v$ give identical answers to both questions for every pair, they are
+$\approx_A$-equivalent.  They can then replace one another between the
+same boundary states while preserving the accepting visits relevant to
+an infinite run.
 
 The relation $\approx_A$ has finite index because each word determines a
 finite Boolean table over $Q\times Q$.  It is also a congruence: the
@@ -558,9 +577,9 @@ while reading the proof.  We cut the infinite word at an increasing
 sequence of positions $i_0<i_1<i_2<\cdots$, and the segments between
 consecutive cuts all carry the same congruence colour $V$.  Because the
 congruence has finite index, Ramsey's theorem guarantees that such an
-infinite monochromatic sequence of cuts always exists --- it is a
-pigeonhole argument played out in two dimensions over the positions of
-$\alpha$.
+infinite monochromatic sequence of cuts always exists.  Unlike an
+ordinary pigeonhole argument, the colouring is assigned to pairs of
+positions, because each pair determines one finite segment of $\alpha$.
 
 \begin{lemma}[Homogeneous decomposition]
 \label{lem:homogeneous-decomposition}
@@ -609,30 +628,30 @@ its own blocks.
 Return to the automaton $A$ of \cref{fig:profile-automaton}.  Consider
 the $\omega$-word
 \[
-  \alpha = a\underbrace{bc}_{\textstyle v_1}\underbrace{abc}_{\textstyle v_2}
-           \underbrace{abc}_{\textstyle v_3}\cdots
+  \alpha =
+  \underbrace{abc}_{\textstyle v_1}
+  \underbrace{abcc}_{\textstyle v_2}
+  \underbrace{abccc}_{\textstyle v_3}\cdots .
 \]
-which is \emph{not} ultimately periodic (we could scatter extra $c$'s
-irregularly), yet we can cut it after the initial $a$ and then into
-blocks $bc, abc, abc, \ldots$  The blocks $abc$ all have the same
-$\approx_A$-profile: they take $s_0$ to $s_2$ while visiting
-$s_1\in F$, and take $s_2$ to $s_2$ while visiting $s_1\in F$.  The
-first block $bc$ may differ, but every block from the second onward
-shares the same class $V$.  This is exactly the decomposition promised by
-\cref{lem:homogeneous-decomposition}: a finite prefix $u_0=a$, then
-infinitely many blocks from the same idempotent class $V$.
+The number of trailing $c$'s grows from block to block, so $\alpha$ is
+not ultimately periodic.  Nevertheless, every block $v_i=ab c^i$ has
+the same $\approx_A$-profile: it takes $s_0$ to $s_2$ while visiting
+$s_1\in F$, and takes $s_2$ to $s_2$ while visiting $s_1\in F$.
+Therefore all the $v_i$ belong to one class $V$.  Concatenating any two
+such blocks yields the same profile again, so $V$ is idempotent.  This
+is exactly the decomposition promised by
+\cref{lem:homogeneous-decomposition}, with $u_0=\varepsilon$ and
+infinitely many non-empty blocks from the same idempotent class $V$.
 \end{example}
 
 \aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha(k,m)$ and $\alpha(k',m)$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
 
-Two remarks will help when reading the proof below.  First, the
-idempotence $V\cdot V\subseteq V$ is what lets us treat the infinite
-suffix as a genuine $V^\omega$ rather than a looser vectorial closure.
-Second, although the boundary states of the accepting run live in the
-finite set $Q$ and therefore repeat, we never need to identify which
-state repeats: we only count, infinitely often, segments that visit
-$F$.  This is the abstract, infinity-driven step that the proof
-exploits.
+Two observations will be useful in the saturation proof below.  First,
+idempotence $V\cdot V\subseteq V$ ensures that merging adjacent
+homogeneous blocks does not change their class.  Second, the boundary
+states of an accepting run need not be fixed in advance.  It is enough
+to preserve, block by block, the same endpoints and the infinitely many
+segments that visit $F$.
 
 
 % ============================================================
@@ -643,9 +662,13 @@ exploits.
 We now assemble the pieces: the transition-profile congruence
 $\approx_A$ of \cref{sec:automaton-congruence}, the saturation lemmas of
 \cref{sec:congruence-saturation}, and the Ramsey decomposition of
-\cref{sec:ramsey-decomposition}.  The crucial step is to show that
-$\approx_A$ actually saturates $L(A)$.  We isolate that fact as a lemma
-so that the complementation theorem becomes a clean assembly.
+\cref{sec:ramsey-decomposition}.  The local replacement principle says
+that equivalent blocks preserve finite path information; the Ramsey
+decomposition ensures that finitely many such block classes cover every
+infinite word.  It remains to connect these two facts by showing that
+$\approx_A$ saturates $L(A)$.  We isolate this step as a lemma so that
+the complementation theorem becomes a direct assembly of the preceding
+results.
 
 \begin{lemma}[The automaton congruence saturates $L(A)$]
 \label{lem:profile-saturation}
@@ -734,15 +757,20 @@ in one of them.  Therefore
   \bigcup\{UV^\omega : UV^\omega\cap L=\emptyset\},
 \]
 a finite union.  Each class $U$ and $V$ is a regular finite-word language
-(recognized by a finite automaton built from the graph of $A$), so each
+(recognized by an effectively constructible class automaton, as in
+\cref{lem:complement-from-saturation}), so each
 $UV^\omega$ is $\omega$-regular by \cref{thm:omega-basic-closure}, and
 finite unions of $\omega$-regular languages are $\omega$-regular.
+The profile classes can be enumerated, their products constructed, and
+their intersections with $L(A)$ tested for emptiness.  Hence the
+argument also yields the effective construction claimed in the
+statement; its steps are made explicit below.
 \end{proof}
 
-The proof is non-constructive only in appearance.  It actually describes
-an effective procedure for building a B\"uchi automaton that recognizes
-$\overline{L(A)}$, and that procedure is the algorithmic content behind
-the model-checking reductions at the end of the chapter.
+The following construction extracts that algorithm from the proof.  It
+replaces the apparent semantic classification of class products by
+finite enumeration and emptiness tests, thereby making the
+complementation procedure explicit.
 
 \begin{formaldetails}[The complement automaton by saturation]
 \textbf{Construction.}  Given $A=(Q,\Sigma,\Delta,q_0,F)$:
@@ -770,23 +798,32 @@ product $UV^\omega\subseteq\overline{L(A)}$, and each discarded
 $B_{U,V}$ recognizes a product $UV^\omega\subseteq L(A)$.  This
 all-or-nothing split is exactly the content of
 \cref{lem:profile-saturation}; the emptiness test in step~3 merely
-detects which side each pair falls on.  The invariant holds initially
-(no pair has been classified) and is preserved every time step~3
-classifies one more pair, because the classification is total: there is
-no borderline case.
+detects which side each pair falls on.  During the enumeration, the loop
+invariant is that every pair already processed has been placed on its
+correct side.  It holds before the first test and is preserved because
+saturation excludes a mixed product that intersects both $L(A)$ and its
+complement.
 
 \textbf{Termination.}  There are at most $3^{n^2}$ classes by
 \cref{prop:double-tilde-index}, hence at most $3^{2n^2}$ pairs to test.
-Each emptiness test is a graph search on a product of polynomial size.
+Each emptiness test is a graph search on a product whose size is
+polynomial in the two automata supplied to that test.
 The procedure therefore always halts.
 
 \textbf{Complexity.}  The number $3^{n^2}$ of profile classes dominates
 the blow-up: the complement automaton produced by this construction has
 $2^{\Oh(n^2)}$ states.  Sharper (Safra-style) constructions bring the
 bound down to $2^{\Oh(n\log n)}$ states, which is asymptotically optimal.
-Either way, complementation is intrinsicly exponential in the number of
-states --- the free finite-word lunch is genuinely over.
+Either way, complementation is intrinsically exponential in the number
+of states, unlike the state-swapping construction available for finite
+words.
 \end{formaldetails}
+
+The same decomposition principle also explains why ultimately periodic
+words determine an $\omega$-regular language completely.  If two such
+languages differed, closure under Boolean operations would isolate a
+non-empty $\omega$-regular difference, and that difference would contain
+an ultimately periodic witness.
 
 \begin{proposition}[Ultimately periodic fingerprint]
 \label{prop:ultimately-periodic-fingerprint}
@@ -826,15 +863,16 @@ $L(A)\cap\overline{L(B)}$, and finally test B\"uchi emptiness by looking
 for a reachable accepting cycle.
 \end{proof}
 
-The same reduction schema decides the other classical problems:
+The same reduction pattern decides the other classical problems:
 universality $L(A)=\Sigma^\omega$ reduces to
 $\overline{L(A)}=\emptyset$, and equivalence $L(A)=L(B)$ reduces to two
-inclusions.  Each bottoms out in a reachable-accepting-cycle search,
-which runs in time linear in the product graph.  The cost is hidden in
-complementation: as noted in the construction above, the whole pipeline
-is dominated by the $2^{\Oh(n\log n)}$ state blow-up of the best known
-complementation procedure.  This is the price of moving from finite to
-infinite words.
+inclusions.  Each reduction ultimately reaches a
+reachable-accepting-cycle search, which is linear in the constructed
+product graph.  The dominant cost occurs earlier, during
+complementation: as noted above, the complete pipeline inherits the
+$2^{\Oh(n\log n)}$ state blow-up of the sharpest complementation
+constructions.  This distinguishes the infinite-word setting from the
+finite-word case, where complementation introduces no state blow-up.
 
 This is the automata-theoretic backbone of model checking: search for an
 execution of the system that violates the specification.  If none
@@ -857,9 +895,9 @@ exists, inclusion holds.
 
 \begin{summarybox}
 \begin{itemize}[nosep]
-  \item B\"uchi complementation cannot be done by simply swapping final
+  \item B\"uchi complementation cannot be done by simply swapping accepting
         states; deterministic B\"uchi automata are strictly weaker than
-        non-deterministic ones.
+        nondeterministic ones.
   \item A finite-index congruence summarizes each finite word by a label
         from a finite set, with concatenation acting through a finite
         table.
@@ -904,13 +942,20 @@ $L(A)\subseteq L(B)$ for B\"uchi automata.  Which operation is the
 technically hardest one?
 \end{chapex}
 
+\Needspace{13\baselineskip}
 \begin{chapex}[The complete profile congruence]
 Consider the B\"uchi automaton $A$ of \cref{fig:profile-automaton}.
-As discussed in lecture, the transition-profile congruence $\approx_A$
-induces exactly nine equivalence classes over $\Sigma^*$.
+The transition-profile congruence $\approx_A$ for this automaton induces
+exactly nine equivalence classes over $\Sigma^*$.
 \begin{enumerate}
-  \item Find all nine $\approx_A$-classes. For each class, provide a regular expression describing the words it contains (for example, one class contains $b, bab, babab\dots$ and can be written as $(ba)^*b$).
-  \item Verify that this is indeed a congruence by picking two classes, concatenating them, and showing that the result falls cleanly into another single class.
-  \item Express $L(A)$ exactly as a union of four class products $U_i (V_i)^\omega$, choosing $U_i$ and $V_i$ from your nine classes.
+  \item Find all nine $\approx_A$-classes.  For each class, provide a
+        regular expression describing its words.  For example, one class
+        contains $b,bab,babab,\ldots$ and can be written as $(ba)^*b$.
+  \item Verify the congruence property on two classes: concatenate
+        representatives and show that every resulting word belongs to a
+        single class.
+  \item Express $L(A)$ exactly as a union of four class products
+        $U_i(V_i)^\omega$, choosing $U_i$ and $V_i$ from the nine
+        classes.
 \end{enumerate}
 \end{chapex}
