@@ -568,10 +568,6 @@ $L,L_1,L_2\subseteq\Sigma^\omega$ be $\omega$-regular.  Then:
   \item the union $L_1\cup L_2$ and the intersection $L_1\cap L_2$ are
         $\omega$-regular.
 \end{enumerate}
-The same techniques show that the vectorial closure
-$\overrightarrow{W}$ of a regular $W\subseteq\Sigma^*$ is
-$\omega$-regular; we single it out because
-\cref{ch:deterministic-automata-star-free} builds on it.
 \end{theorem}
 \prooflablink{proofs/chapter-03/omega-closure.html}{%
 See why B\"uchi intersection alternates recurring obligations instead
@@ -672,14 +668,21 @@ non-deterministic, even when both inputs are deterministic.
     in the first two components, some $F_1$-state occurs infinitely often
     \emph{and} some $F_2$-state occurs infinitely often---precisely the
     B\"uchi condition of the intersection.
-
-\textbf{Vectorial closure $\overrightarrow{W}$ (sketch).}  Start from a
-finite-word automaton for $W$ and reinterpret the very same graph as a
-B\"uchi automaton, keeping the accepting states unchanged.  Visiting an
-accepting state infinitely often is, verbatim, hitting $W$ with
-infinitely many prefixes, so this automaton accepts exactly
-$\overrightarrow{W}$.
 \end{formaldetails}
+
+\begin{corollary}[Vectorial closure of a regular language]
+\label{cor:regular-vectorial-closure}
+If $W\subseteq\Sigma^*$ is regular, then its vectorial closure
+$\overrightarrow{W}$ is $\omega$-regular.
+\end{corollary}
+
+\begin{proof}
+Start from a finite-word automaton for $W$ and reinterpret the same graph
+as a B\"uchi automaton, keeping the accepting states unchanged.  A run
+visits an accepting state infinitely often exactly when infinitely many
+prefixes of its input belong to $W$.  Thus its language is
+$\overrightarrow{W}$.
+\end{proof}
 
 \Cref{fig:buchi-intersection-phases} depicts only the control idea of the
 intersection product.  The actual product also carries the two automaton
@@ -774,8 +777,14 @@ expression.
 \Needspace{18\baselineskip}
 \begin{theorem}[B\"uchi-expression equivalence]
 \label{thm:buchi-expression-equivalence}
-A language $L\subseteq\Sigma^\omega$ is accepted by a B\"uchi automaton
-if and only if it can be denoted by an $\omega$-regular expression.
+For every B\"uchi automaton $\mathcal{A}$ there exists an
+$\omega$-regular expression denoting $L(\mathcal{A})$.  Conversely,
+every language denoted by an $\omega$-regular expression is accepted by
+some B\"uchi automaton.
+
+Equivalently, a language $L\subseteq\Sigma^\omega$ is accepted by a
+B\"uchi automaton if and only if it can be denoted by an
+$\omega$-regular expression.
 \end{theorem}
 \prooflablink{proofs/chapter-03/buchi-expression-equivalence.html}{%
 Cut an accepting run into a finite prefix and infinitely many non-empty
