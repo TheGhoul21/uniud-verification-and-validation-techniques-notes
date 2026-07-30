@@ -100,7 +100,7 @@
 \usepackage{caption}    % provides \caption*{} for unnumbered captions
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, decorations.pathmorphing, decorations.pathreplacing,
-                matrix, fit, backgrounds, automata}
+                matrix, fit, backgrounds, automata, mindmap}
 
 % --- booklet layout ---
 \usepackage{fancyhdr}
@@ -311,6 +311,29 @@
   }{%
     \marginnote{\footnotesize\itshape #2}[#1]%
   }%
+}
+
+% ---- generated chapter mind maps ----
+% Regenerate with: node scripts/generate-mindmaps.mjs
+\newcommand{\chaptermindmap}[1]{%
+  \par\medskip
+  \booltrue{infullwidth}%
+  \begin{adjustwidth}{-5mm}{-35mm}%
+    \begin{center}%
+      \begingroup
+      \hyphenpenalty=10000
+      \exhyphenpenalty=10000
+      \resizebox{!}{0.58\textheight}{%
+        \input{mindmaps/generated/chapter-#1.tex}%
+      }%
+      \par\vspace{4pt}%
+      {\footnotesize\sffamily\color{graphite!75}%
+        Chapter map: sections form the main arteries; outer nodes are individual topics.}%
+      \endgroup
+    \end{center}%
+  \end{adjustwidth}%
+  \boolfalse{infullwidth}%
+  \par\bigskip
 }
 
 % ---- running examples ----

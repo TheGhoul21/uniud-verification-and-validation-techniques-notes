@@ -158,6 +158,21 @@ work.
   - orange/violet for environment choices or highlighted transitions;
   - gray for rejected/sink/irrelevant structure.
 
+### Chapter Mind Maps
+
+- Each chapter opens with a radial overview: the chapter is the root, sections
+  are the main arteries, and subsections or subsubsections are the outer topics.
+  Where a section has no nested headings, use its titled definitions, results,
+  examples, and construction boxes as topic-level leaves.
+- The map is an orientation aid, not a replacement for bridge paragraphs or
+  narrative structure.
+- The website version must support zooming, panning, search, branch folding,
+  and highlighting the full artery of a selected topic.
+- The PDF and website maps share the LaTeX heading hierarchy as their source of
+  truth. After changing headings, run `node scripts/generate-mindmaps.mjs`.
+- Do not hand-edit files in `mindmaps/generated/` or generated chapter-map
+  `.qmd` files; change the source headings, generator, or shared map styles.
+
 ## Asides
 
 - Use `\aside{...}` for short margin or interstitial notes that add intuition,

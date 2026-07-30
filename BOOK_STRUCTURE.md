@@ -99,6 +99,12 @@ complete proofs for stated theorem-level results, and targeted exercises.
 - Preserve the two-module structure with `\part{...}` in the LaTeX book.
 - Do not order chapters by the interleaved lecture calendar.
 - Keep a source mapping from every chapter section back to Course/Lecture IDs.
+- Open every chapter with a compact radial mind map derived from its heading
+  hierarchy. The website counterpart must expose the same structure
+  interactively down to individual topics.
+- After changing chapter headings, run `node scripts/generate-mindmaps.mjs`;
+  generated map pages and TikZ fragments are build artifacts kept in the
+  repository and must not be edited by hand.
 - Write in the same style as `../uniud-operations-research`: formal definitions
   followed by intuition, concrete examples before general rules, figures for
   major constructions, and explicit bridge sections between concepts.

@@ -4,11 +4,14 @@ project:
   render:
     - "*.qmd"
     - "notebooks/*.qmd"
+    - "mindmaps/*.qmd"
     - "!docs/"
   resources:
     - "CNAME"
     - "privacy-policy.html"
     - "robots.txt"
+    - "mindmaps/mindmap.css"
+    - "mindmaps/mindmap.js"
 
 website:
   title: "Verification and Validation Techniques — UniUD"
@@ -33,6 +36,8 @@ website:
     left:
       - text: Home
         href: index.qmd
+      - text: Mind Maps
+        href: mindmaps/index.qmd
       - text: Notebooks
         menu:
           - text: "1. Intro to Finite-State Automata"
