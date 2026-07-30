@@ -73,8 +73,8 @@ Each $s_i$ is a snapshot of the system's internal state.  Reading the
 indices $0, 1, 2, \ldots$ as time positions, the execution is exactly
 an \emph{$\omega$-word} over the alphabet of state labels, in the sense
 of \cref{def:omega-word} in Part~I.  This is more than an analogy: the
-request/acknowledgement traces we used to motivate B\"uchi automata in
-\cref{fig:infinitely-many-ack} were already behaviours of an idealised
+document-editor traces we used to motivate B\"uchi automata in
+\cref{fig:infinitely-many-save} were already behaviours of an idealised
 reactive system.  The sequence is potentially infinite, so proving a
 property of the system means proving something about this infinite
 flow---very much like reasoning about the natural numbers
@@ -596,11 +596,11 @@ which part of a specification we are dealing with determines the
 algorithm we run.
 \end{remark}
 
-The req/ack traces of \cref{ch:omega-automata} give us a familiar
-vocabulary for the two families: ``every \texttt{req} is followed by
-\texttt{ack} within two steps'' is a safety property, while
-``\texttt{ack} occurs infinitely often''---the very property recognised
-by the B\"uchi automaton of \cref{fig:infinitely-many-ack}---is a
+The editor traces of \cref{ch:omega-automata} give us a familiar
+vocabulary for the two families: ``every \texttt{edit} is followed by
+\texttt{save} within two steps'' is a safety property, while
+``\texttt{save} occurs infinitely often''---the very property recognised
+by the B\"uchi automaton of \cref{fig:infinitely-many-save}---is a
 liveness property.  The temporal logics LTL and CTL of
 \cref{ch:ltl} and the later CTL material will give us the syntax to
 write both kinds compactly; for now the informal vocabulary is enough.

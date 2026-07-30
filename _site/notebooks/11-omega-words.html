@@ -297,10 +297,11 @@ window.Quarto = {
 <h1>Infinite Words and <span class="math inline">\(In(\alpha)\)</span></h1>
 <p>This notebook explores <strong>ultimately periodic</strong> <span class="math inline">\(\omega\)</span>-words. These are infinite words of the form <span class="math inline">\(\alpha = u \cdot v^\omega\)</span>, where <span class="math inline">\(u\)</span> is a finite prefix called the <em>stem</em>, and <span class="math inline">\(v\)</span> is a finite word called the <em>period</em> that repeats infinitely often.</p>
 <p>We also compute <span class="math inline">\(In(\alpha)\)</span>, which is the set of symbols from the alphabet that appear <strong>infinitely often</strong> in the word <span class="math inline">\(\alpha\)</span>. For an ultimately periodic word, <span class="math inline">\(In(\alpha)\)</span> is exactly the set of symbols present in the period <span class="math inline">\(v\)</span>.</p>
+<p>The running example is an editor that is opened once and then remains active. For instance, <span class="math inline">\(\texttt{open}\cdot(\texttt{edit}\ \texttt{save})^\omega\)</span> describes an execution in which editing and saving both recur. The one-time <code>open</code> belongs to the stem and therefore does not belong to <span class="math inline">\(In(\alpha)\)</span>.</p>
 <hr>
 <section id="widget-1-omega-word-explorer" class="level2">
 <h2 class="anchored" data-anchor-id="widget-1-omega-word-explorer">Widget 1: <span class="math inline">\(\omega\)</span>-Word Explorer</h2>
-<p>Enter a stem <span class="math inline">\(u\)</span> and a period <span class="math inline">\(v\)</span> (comma or space-separated symbols, e.g., <code>req</code>, <code>ack</code>). The word strip below will visualize the infinite word <span class="math inline">\(\alpha = u \cdot v^\omega\)</span>.</p>
+<p>Enter a stem <span class="math inline">\(u\)</span> and a period <span class="math inline">\(v\)</span> (comma or space-separated symbols, e.g., <code>open</code>, <code>edit</code>, <code>save</code>). The word strip below will visualize the infinite word <span class="math inline">\(\alpha = u \cdot v^\omega\)</span>.</p>
 <style>
 :root {
   --sc-primary: #30bced;
@@ -464,11 +465,11 @@ window.Quarto = {
   <div class="input-row">
     <div class="input-group">
       <label for="nb11-u">Stem (u)</label>
-      <input type="text" id="nb11-u" value="req" placeholder="e.g. a b">
+      <input type="text" id="nb11-u" value="open" placeholder="e.g. open">
     </div>
     <div class="input-group">
       <label for="nb11-v">Period (v)</label>
-      <input type="text" id="nb11-v" value="req ack" placeholder="e.g. a b">
+      <input type="text" id="nb11-v" value="edit save" placeholder="e.g. edit save">
     </div>
     <div class="input-group" style="justify-content: flex-end;">
       <button class="sc-btn" id="nb11-update">Update Word</button>
@@ -476,7 +477,7 @@ window.Quarto = {
   </div>
   
   <div class="sc-explain" id="nb11-explain">
-    Showing the word α = <code>req</code> · (<code>req ack</code>)<sup>ω</sup>
+    Showing the word α = <code>open</code> · (<code>edit save</code>)<sup>ω</sup>
   </div>
 
   <div class="sc-panel">

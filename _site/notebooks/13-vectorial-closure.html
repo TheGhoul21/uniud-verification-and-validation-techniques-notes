@@ -298,7 +298,8 @@ window.Quarto = {
 <p>The <strong>vectorial closure</strong> <span class="math inline">\(\vec{W}\)</span> of a language <span class="math inline">\(W \subseteq \Sigma^*\)</span> of finite words is the set of all <span class="math inline">\(\omega\)</span>-words <span class="math inline">\(\alpha\)</span> such that infinitely many finite prefixes of <span class="math inline">\(\alpha\)</span> belong to <span class="math inline">\(W\)</span>.</p>
 <p>Formally: <span class="math display">\[ \alpha \in \vec{W} \iff \text{there exist infinitely many } n \ge 0 \text{ such that } \alpha(0, n) \in W \]</span></p>
 <p>Notice the difference with infinite concatenation <span class="math inline">\(W^\omega\)</span>: to be in <span class="math inline">\(W^\omega\)</span>, a word must be factorable into infinitely many blocks from <span class="math inline">\(W\)</span>. To be in <span class="math inline">\(\vec{W}\)</span>, the word itself must have infinitely many prefixes falling into <span class="math inline">\(W\)</span>.</p>
-<p>In a request-acknowledge system, if <span class="math inline">\(W\)</span> is the set of finite traces ending in an acknowledgement, then <span class="math inline">\(\vec{W}\)</span> contains exactly those infinite traces where acknowledgements occur infinitely often.</p>
+<p>For the running editor example, let <span class="math inline">\(W=\{\texttt{open}\,x\,\texttt{save} :
+x\in\{\texttt{edit},\texttt{idle},\texttt{save}\}^*\}\)</span>. Then <span class="math inline">\(\vec{W}\)</span> contains exactly the well-formed infinite editor traces whose prefixes end immediately after a save infinitely often—equivalently, the traces in which saving recurs forever.</p>
 <hr>
 <section id="widget-prefix-membership-explorer" class="level2">
 <h2 class="anchored" data-anchor-id="widget-prefix-membership-explorer">Widget: Prefix Membership Explorer</h2>
@@ -444,8 +445,8 @@ window.Quarto = {
     <div class="input-group" style="flex: 1; min-width: 200px;">
       <label>Preset (W and Word)</label>
       <select id="nb13-preset">
-        <option value="0">1. Ends with 'ack' (Success)</option>
-        <option value="1">2. Ends with 'ack' (Failure)</option>
+        <option value="0">1. Editor saves recur (Success)</option>
+        <option value="1">2. Editor stops saving (Failure)</option>
         <option value="2">3. Even Length Words</option>
         <option value="3">4. Starts and Ends with 'a'</option>
         <option value="4">5. Exact word {ab}</option>
@@ -483,16 +484,23 @@ window.Quarto = {
 
 <script>
 (function() {
+  const editorOperations = new Set(['edit', 'idle', 'save']);
+  const isSavedEditorPrefix = (arr) =>
+    arr.length >= 2 &&
+    arr[0] === 'open' &&
+    arr.slice(1).every((event) => editorOperations.has(event)) &&
+    arr[arr.length - 1] === 'save';
+
   const PRESETS = [
     {
-      desc: "W = { words over {req,ack} ending with 'ack' }",
-      u: "req", v: "req ack",
-      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+      desc: "W = { open · x · save | x uses only edit, idle, save }",
+      u: "open", v: "edit save",
+      isIn: isSavedEditorPrefix
     },
     {
-      desc: "W = { words over {req,ack} ending with 'ack' }",
-      u: "req", v: "req req",
-      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+      desc: "W = { open · x · save | x uses only edit, idle, save }",
+      u: "open save", v: "edit idle",
+      isIn: isSavedEditorPrefix
     },
     {
       desc: "W = { words of even length }",

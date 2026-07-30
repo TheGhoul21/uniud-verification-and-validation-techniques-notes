@@ -31,7 +31,12 @@ $$ In(\rho) \cap F \neq \emptyset $$
 
 ## Widget 1: Run $\alpha$ on a DBA
 
-Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitely many $b$'s.
+The running editor first consumes the one-time initialization event
+`open`. The DBA below monitors the infinite operation stream that follows,
+over
+$\Gamma=\{\texttt{edit},\texttt{idle},\texttt{save}\}$. It accepts exactly
+when `save` occurs infinitely often.
+
 - States: $q_0$ (initial), $q_1$ (accepting, double circle)
 - $F = \{q_1\}$
 
@@ -171,11 +176,11 @@ Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitel
   <div class="input-row">
     <div class="input-group">
       <label for="nb12-u">Stem (u)</label>
-      <input type="text" id="nb12-u" value="a" placeholder="e.g. a">
+      <input type="text" id="nb12-u" value="edit" placeholder="e.g. edit">
     </div>
     <div class="input-group">
       <label for="nb12-v">Period (v)</label>
-      <input type="text" id="nb12-v" value="a b" placeholder="e.g. a b">
+      <input type="text" id="nb12-v" value="edit save" placeholder="e.g. edit save">
     </div>
     <div class="input-group">
       <button class="sc-btn" id="nb12-update">Run Automaton</button>
@@ -184,7 +189,7 @@ Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitel
 
   <div class="sc-workspace">
     <div class="sc-panel">
-      <h4>DBA: "Infinitely many b's"</h4>
+      <h4>DBA: "Infinitely many saves"</h4>
       <svg viewBox="0 0 300 120" style="width:100%;height:auto;display:block;" role="img">
         <defs>
           <marker id="nb12-arrow" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -193,18 +198,18 @@ Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitel
         </defs>
         <!-- initial -->
         <line x1="10" y1="60" x2="48" y2="60" stroke="#303036" stroke-width="2" marker-end="url(#nb12-arrow)"/>
-        <!-- q0 to q1 (b) -->
+        <!-- q0 to q1 (save) -->
         <path d="M 98 48 C 130 10, 170 10, 202 48" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb12-arrow)"/>
-        <text x="145" y="25" font-weight="700" fill="#303036">b</text>
-        <!-- q1 to q0 (a) -->
+        <text x="145" y="25" text-anchor="middle" font-weight="700" fill="#303036">save</text>
+        <!-- q1 to q0 (edit, idle) -->
         <path d="M 202 72 C 170 110, 130 110, 98 72" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb12-arrow)"/>
-        <text x="145" y="105" font-weight="700" fill="#303036">a</text>
-        <!-- q0 loop (a) -->
+        <text x="145" y="108" text-anchor="middle" font-weight="700" fill="#303036">edit, idle</text>
+        <!-- q0 loop (edit, idle) -->
         <path d="M 60 42 C 40 0, 100 0, 80 42" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb12-arrow)"/>
-        <text x="65" y="10" font-weight="700" fill="#303036">a</text>
-        <!-- q1 loop (b) -->
+        <text x="70" y="10" text-anchor="middle" font-weight="700" fill="#303036">edit, idle</text>
+        <!-- q1 loop (save) -->
         <path d="M 220 42 C 200 0, 260 0, 240 42" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb12-arrow)"/>
-        <text x="225" y="10" font-weight="700" fill="#303036">b</text>
+        <text x="230" y="10" text-anchor="middle" font-weight="700" fill="#303036">save</text>
         
         <!-- nodes -->
         <g transform="translate(70,60)">
@@ -235,8 +240,8 @@ Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitel
   }
 
   const delta = {
-    'q0': { 'a': 'q0', 'b': 'q1' },
-    'q1': { 'a': 'q0', 'b': 'q1' }
+    'q0': { 'edit': 'q0', 'idle': 'q0', 'save': 'q1' },
+    'q1': { 'edit': 'q0', 'idle': 'q0', 'save': 'q1' }
   };
   const F = new Set(['q1']);
 
@@ -263,9 +268,9 @@ Below is a DBA over $\Sigma = \{a, b\}$. It accepts words that contain infinitel
     for (let i = 0; i < maxSteps; i++) {
       let sym = i < u.length ? u[i] : v[(i - u.length) % v.length];
       
-      // If symbol is not a or b, treat as rejecting sink implicitly
-      if (sym !== 'a' && sym !== 'b') {
-          document.getElementById('nb12-verdict').innerHTML = `<div class='verdict-box verdict-fail'>Unknown symbol: ${sym}. Alphabet is {a, b}.</div>`;
+      // Unknown editor operations are treated as an implicit rejecting sink.
+      if (!Object.hasOwn(delta[state], sym)) {
+          document.getElementById('nb12-verdict').innerHTML = `<div class='verdict-box verdict-fail'>Unknown symbol: ${sym}. Alphabet is {edit, idle, save}.</div>`;
           return;
       }
       

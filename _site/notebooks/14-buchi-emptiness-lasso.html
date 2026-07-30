@@ -297,6 +297,7 @@ window.Quarto = {
 <h1>Büchi Emptiness — The Lasso Test</h1>
 <p>For a Büchi automaton <span class="math inline">\(\mathcal{A}\)</span>, the language <span class="math inline">\(L(\mathcal{A})\)</span> is non-empty if and only if there exists an accepting state <span class="math inline">\(q_f \in F\)</span> that is: 1. <strong>Reachable</strong> from an initial state. 2. <strong>On a cycle</strong> (reachable from itself).</p>
 <p>If such a state <span class="math inline">\(q_f\)</span> exists, the path from the initial state to <span class="math inline">\(q_f\)</span> is called the <strong>stem</strong> (<span class="math inline">\(u\)</span>), and the cycle from <span class="math inline">\(q_f\)</span> back to <span class="math inline">\(q_f\)</span> is called the <strong>period</strong> (<span class="math inline">\(v\)</span>). The automaton then accepts the ultimately periodic <span class="math inline">\(\omega\)</span>-word <span class="math inline">\(\alpha = u \cdot v^\omega\)</span>. This structure is called a <strong>lasso</strong>, and finding one is the core algorithm used in model checking to find counterexamples.</p>
+<p>The first preset applies this directly to the running editor monitor: one reachable cycle containing the accepting save-checkpoint proves that at least one infinite execution saves forever.</p>
 <hr>
 <section id="widget-find-a-lasso" class="level2">
 <h2 class="anchored" data-anchor-id="widget-find-a-lasso">Widget: Find a Lasso</h2>
@@ -392,7 +393,7 @@ svg .edge.active text { fill: #fc5130; }
 <div class="sc-lab" id="nb14-w1">
   <div class="input-row">
     <select id="nb14-preset">
-      <option value="0">1. "ack infinitely often" (NON-EMPTY)</option>
+      <option value="0">1. "save infinitely often" (NON-EMPTY)</option>
       <option value="1">2. "Thomas parity example" (NON-EMPTY)</option>
       <option value="2">3. "Unreachable accept state" (EMPTY)</option>
     </select>
@@ -426,10 +427,10 @@ svg .edge.active text { fill: #fc5130; }
         <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L8,3 z" fill="context-stroke"></path></marker></defs>
         <line x1="20" y1="100" x2="68" y2="100" stroke="#303036" stroke-width="2" marker-end="url(#arr)"/>
         
-        <g class="edge" id="e-q-q"><path d="M 80 82 C 60 40, 140 40, 120 82" marker-end="url(#arr)"/><text x="90" y="35" font-weight="700">req</text></g>
-        <g class="edge" id="e-q-f"><path d="M 128 90 C 160 60, 240 60, 272 90" marker-end="url(#arr)"/><text x="190" y="70" font-weight="700">ack</text></g>
-        <g class="edge" id="e-f-q"><path d="M 272 110 C 240 140, 160 140, 128 110" marker-end="url(#arr)"/><text x="190" y="145" font-weight="700">req</text></g>
-        <g class="edge" id="e-f-f"><path d="M 280 82 C 260 40, 340 40, 320 82" marker-end="url(#arr)"/><text x="290" y="35" font-weight="700">ack</text></g>
+        <g class="edge" id="e-q-q"><path d="M 80 82 C 60 40, 140 40, 120 82" marker-end="url(#arr)"/><text x="100" y="35" text-anchor="middle" font-weight="700">edit, idle</text></g>
+        <g class="edge" id="e-q-f"><path d="M 128 90 C 160 60, 240 60, 272 90" marker-end="url(#arr)"/><text x="200" y="70" text-anchor="middle" font-weight="700">save</text></g>
+        <g class="edge" id="e-f-q"><path d="M 272 110 C 240 140, 160 140, 128 110" marker-end="url(#arr)"/><text x="200" y="145" text-anchor="middle" font-weight="700">edit, idle</text></g>
+        <g class="edge" id="e-f-f"><path d="M 280 82 C 260 40, 340 40, 320 82" marker-end="url(#arr)"/><text x="300" y="35" text-anchor="middle" font-weight="700">save</text></g>
         
         <g class="node" id="n-q" transform="translate(100,100)"><circle class="bg" r="28"/><text text-anchor="middle" dy="5" font-weight="700">q</text></g>
         <g class="node accept" id="n-f" transform="translate(300,100)"><circle class="outer" r="34"/><circle class="bg" r="28"/><text text-anchor="middle" dy="5" font-weight="700">f</text></g>
@@ -437,8 +438,8 @@ svg .edge.active text { fill: #fc5130; }
       steps: [
         { exp: "<b>Step 1: Find reachable states from initial state q.</b><br>R* = {q, f}", status: "R* = {q, f}", hl: ['q','f'], edges: [] },
         { exp: "<b>Step 2: Check if R* contains any accepting state.</b><br>F = {f}. So R* &cap; F = {f} &ne; &empty;.", status: "R* = {q, f}<br>Accepting in R*: {f}", hl: ['q','f'], target: 'f', edges: [] },
-        { exp: "<b>Step 3: Can we reach f from f (is there a cycle)?</b><br>Yes, via the 'ack' self-loop.", status: "Finding cycle for f... Found!", hl: ['q','f'], target: 'f', edges: ['e-f-f'] },
-        { exp: "<b>Step 4: Extract the Lasso.</b><br>Stem (q to f): u = 'ack'<br>Period (f to f): v = 'ack'<br>&rarr; Language is <b>NON-EMPTY</b>.", status: "<div class='verdict-box verdict-pass'><b>NON-EMPTY</b><br>Lasso: (ack) &middot; (ack)<sup>&omega;</sup></div>", hl: ['q','f'], target: 'f', edges: ['e-q-f', 'e-f-f'] }
+        { exp: "<b>Step 3: Can we reach f from f (is there a cycle)?</b><br>Yes, via the 'save' self-loop.", status: "Finding cycle for f... Found!", hl: ['q','f'], target: 'f', edges: ['e-f-f'] },
+        { exp: "<b>Step 4: Extract the Lasso.</b><br>Stem (q to f): u = 'save'<br>Period (f to f): v = 'save'<br>&rarr; Language is <b>NON-EMPTY</b>.", status: "<div class='verdict-box verdict-pass'><b>NON-EMPTY</b><br>Lasso: (save) &middot; (save)<sup>&omega;</sup></div>", hl: ['q','f'], target: 'f', edges: ['e-q-f', 'e-f-f'] }
       ]
     },
     {
