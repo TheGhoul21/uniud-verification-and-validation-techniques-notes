@@ -13,9 +13,9 @@ transitions are the steps it can take.}
 
 Verification starts with a simple modelling decision.  We describe a
 system by listing the situations it can be in, and the events that move
-it from one situation to another.  This gives us a directed graph with a
-finite set of nodes, but with enough structure to process input words.
-That structure is a \textbf{finite-state automaton}.
+it from one situation to another.  The result is a directed graph with a
+finite set of nodes, equipped with enough structure to process input
+words.  That structure is a \textbf{finite-state automaton}.
 
 This chapter builds the basic language.  We begin with alphabets and
 words, define deterministic and non-deterministic finite automata, and
@@ -168,7 +168,7 @@ treated as a special case.
 \label{ex:unary-words}
 Let $A=\{a\}$.  Then $A^*=\{\varepsilon,a,aa,aaa,\ldots\}$ 
 is the set of all finite sequences of $a$'s.
-$A^+$ on the other hand is $\{a,aa,aaa,\ldots\}$, which excludes the empty word.
+By contrast, $A^+=\{a,aa,aaa,\ldots\}$ excludes the empty word.
 \end{example}
 
 
@@ -225,7 +225,8 @@ formalize them.
 
 \begin{definition}[Deterministic finite automaton]
 \label{def:dfa}
-A \textbf{deterministic finite automaton} (DFA) is a tuple $\mathcal{A}=(Q,A,\delta,q_0,F)$ visually defined as:
+A \textbf{deterministic finite automaton} (DFA) is a tuple
+$\mathcal{A}=(Q,A,\delta,q_0,F)$ whose components are summarized below:
 \begin{center}
 \vspace{10pt}
 \begin{tikzpicture}[
@@ -339,7 +340,7 @@ $L$, because their last $a$ has no later $b$.
 The state $q_{\mathrm{wait}}$ means ``some $a$ has been seen and no
 later $b$ has appeared yet''.  The automaton does not count the $a$'s
 and the $b$'s.  It remembers only one bit of information: whether there
-is currently an unresolved $a$.  This is exactly the finite-memory point.
+is currently an unresolved $a$.  This is the central finite-memory idea.
 
 \aside{The contrast with balanced parentheses is important.  There,
 each opening parenthesis must be matched by the corresponding later
@@ -356,6 +357,7 @@ $\widehat{\delta}:Q\times A^*\to Q$ recursively:
   \qquad
   \widehat{\delta}(q,wa)=\delta(\widehat{\delta}(q,w),a).
 \]
+Here $q\in Q$, $w\in A^*$, and $a\in A$.
 \end{definition}
 
 This simply says: to read the word $wa$, first read $w$, then process the
@@ -378,22 +380,14 @@ the language.
 \subsection{Completeness and Sink States}
 \label{subsec:sink-state}
 
-\aside{In a formal DFA, every pair $(q,a)$ has exactly one next state
-because $\delta$ is a total function.  In drawings, however, authors
-often omit some arrows.  The issue is then not determinism but how to
-complete the picture.}
-
-Sometimes automata are drawn with some transitions omitted. This is often
-done to keep the picture simple, but formally a DFA must have a
-\emph{total} transition function. This means that for every state \(q\)
-and every input symbol \(a \in A\), the transition \(\delta(q,a)\)
-must be defined.
-
-An omitted transition should therefore be understood as a transition that
-goes to a rejecting ``dead'' or ``sink'' state. Once the automaton enters
-this sink state, it stays there forever, no matter which input symbol is
-read. Thus, any partially drawn DFA can be made into a formally correct
-DFA by adding a sink state and redirecting all missing transitions to it.
+Automata diagrams sometimes omit transitions to remain readable, but a
+formal DFA must have a \emph{total} transition function: for every state
+$q$ and input symbol $a\in A$, the state $\delta(q,a)$ must be defined.
+An omitted arrow is therefore understood as leading to a rejecting
+``dead'' or ``sink'' state.  Once the automaton enters this state, every
+subsequent symbol keeps it there.  Adding such a state and redirecting
+all missing transitions to it turns any partially drawn deterministic
+automaton into a formally complete DFA.
 
 \begin{definition}[Sink completion]
 \label{def:sink-completion}
@@ -477,7 +471,8 @@ choosing one immediately.
 
 \begin{definition}[Non-deterministic finite automaton]
 \label{def:nfa}
-A \textbf{non-deterministic finite automaton} (NFA) is a tuple $\mathcal{A}=(Q,A,\Delta,q_0,F)$ visually defined as:
+A \textbf{non-deterministic finite automaton} (NFA) is a tuple
+$\mathcal{A}=(Q,A,\Delta,q_0,F)$ whose components are summarized below:
 \begin{center}
 \vspace{10pt}
 \begin{tikzpicture}[
@@ -542,9 +537,9 @@ A \textbf{non-deterministic finite automaton} (NFA) is a tuple $\mathcal{A}=(Q,A
 \end{center}
 \end{definition}
 
-\aside{A DFA is just the special case where every pair $(q,a)$ has at
-most one outgoing transition.  In an NFA, the same pair may lead to
-several possible next states.}
+\aside{A DFA is the special case in which every pair $(q,a)$ has exactly
+one outgoing transition.  In an NFA, the same pair may have no
+successor, one successor, or several possible successors.}
 
 Equivalently, we can view the transition structure as a function
 \[
@@ -626,8 +621,8 @@ that are reachable by at least one run.}
 
 \begin{definition}[Run and acceptance for an NFA]
 \label{def:nfa-run}
-Let $w=a_0a_1\cdots a_{n-1}$.  A \textbf{run} of an NFA on $w$ is a
-sequence of states
+Let $w=a_0a_1\cdots a_{n-1}\in A^*$.  A \textbf{run} of an NFA on $w$
+is a sequence of states
 \[
   r_0,r_1,\ldots,r_n
 \]
@@ -717,6 +712,10 @@ For every NFA $\mathcal{A}$ there exists a DFA $\mathcal{D}$ such that
 \[
   L(\mathcal{D})=L(\mathcal{A}).
 \]
+Equivalently, for every alphabet $A$ and language $L\subseteq A^*$,
+$L$ is recognized by an NFA if and only if it is recognized by a DFA.
+Thus, deterministic and non-deterministic finite automata have the same
+expressive power over finite words.
 \end{theorem}
 \prooflablink{proofs/chapter-01/subset-construction.html}{%
 Track every NFA branch inside one deterministic subset, predict each
@@ -815,8 +814,10 @@ picture is deliberately about sets, not individual branches.
     $Q$.  On the right-hand side, $\widehat{\Delta}(q_0,w)$ is directly a
     subset of $Q$.  The invariant claims these two subsets coincide.
   }{
-    Consider the ``last symbol is $a$'' NFA. We will trace the determinization
-    on the word $w = aba$, matching the states in \cref{fig:subset-state}.
+    Consider the ``last symbol is $a$'' NFA, renaming its scanning state
+    $q_s$ as $q_0$ to match the construction.  We will trace the
+    determinization on $w=aba$, following the states in
+    \cref{fig:subset-state}.
   }
   
   \wtstep{Base case}{
@@ -868,8 +869,8 @@ picture is deliberately about sets, not individual branches.
 
 \begin{takeaway}
 Any NFA with $n$ states can be simulated by a DFA with at most $2^n$ states.
-The exponential blowup is unavoidable in the worst case, but most deterministic
-automata have far fewer reachable states in practice.
+The exponential blowup is unavoidable in the worst case.  For a particular
+NFA, however, only the subsets reachable from $\{q_0\}$ need to be retained.
 \end{takeaway}
 
 % ============================================================
@@ -903,7 +904,7 @@ The class of regular languages is a \emph{strict} subset of all
 languages over $A$.  This boundary is exactly what the theory is
 about: regular languages are the properties that a finite agent can
 check by reading the input once, using only a bounded amount of memory.
-The next example shows a natural language that slips through this net.
+The next example exhibits a natural language outside this class.
 
 \begin{example}[A non-regular language: $a^n b^n$]
 \label{ex:anbn-non-regular}

@@ -697,12 +697,17 @@ product belongs entirely to the complement.
 \Needspace{18\baselineskip}
 \begin{theorem}[Complementation of B\"uchi-recognizable languages]
 \label{thm:buchi-complementation}
-If $L\subseteq\Sigma^\omega$ is $\omega$-regular, then
+For every B\"uchi automaton $A$ one can effectively construct a
+B\"uchi automaton $\overline{A}$ such that
+\[
+  L(\overline{A})=\Sigma^\omega\setminus L(A).
+\]
+Consequently, if $L\subseteq\Sigma^\omega$ is $\omega$-regular, then
 $\overline{L}$ is $\omega$-regular.
 \end{theorem}
 \prooflablink{proofs/chapter-04/buchi-complementation.html}{%
-Partition infinite words into saturated class products, then collect
-the products that lie wholly outside the language.}
+Partition infinite words into saturated class products and collect
+those wholly outside the language.}
 
 \begin{proof}
 Let $A$ be a B\"uchi automaton with $L=L(A)$ and let $\approx_A$ be its
