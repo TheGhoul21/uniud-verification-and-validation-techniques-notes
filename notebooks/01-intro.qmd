@@ -278,8 +278,83 @@ The page is intentionally concrete. Each section lets you manipulate the definit
   background: #daf3fc;
 }
 
+.vv-editor-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(135px, 1fr));
+  gap: 10px;
+  margin: 1rem 0;
+}
+
+.vv-editor-state {
+  min-height: 92px;
+  padding: 12px;
+  border: 2px solid #d7d7dc;
+  border-radius: 12px;
+  background: #fffaff;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.vv-editor-state strong,
+.vv-editor-state span {
+  display: block;
+}
+
+.vv-editor-state span {
+  margin-top: .35rem;
+  color: #696970;
+  font-size: .86rem;
+}
+
+.vv-editor-state.is-active {
+  border-color: #1f8fb7;
+  background: #daf3fc;
+  transform: translateY(-3px);
+}
+
+.vv-editor-state[data-editor-state="closed"].is-active {
+  border-color: #00897b;
+  background: #dff3ef;
+}
+
+.vv-editor-state[data-editor-state="error"].is-active {
+  border-color: #fc5130;
+  background: #fee8e3;
+}
+
+.vv-event {
+  min-width: 42px;
+  min-height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  border: 1px solid #8ddaf5;
+  background: #fffaff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+}
+
+.vv-event.current {
+  background: #30bced;
+}
+
+.vv-event.done {
+  background: #daf3fc;
+}
+
 @media (max-width: 860px) {
   .vv-automaton {
+    grid-template-columns: 1fr;
+  }
+
+  .vv-editor-flow {
+    grid-template-columns: repeat(2, minmax(135px, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .vv-editor-flow {
     grid-template-columns: 1fr;
   }
 }
@@ -473,6 +548,74 @@ The machine has only two states because parity is the only information it needs 
 
 The deterministic point should be visible here: at every step there is exactly one next state.
 
+## 4. Running Example: A Document-Editor Session
+
+The parity DFA above is deliberately tiny, so that its transitions are easy to
+calculate by hand. The editor monitor is the semantic running example used in
+the book. It recognizes
+
+$$
+L_{\mathrm{session}}
+=
+\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}.
+$$
+
+A valid finite session opens once, performs any finite sequence of edits and
+saves, and closes once. The monitor does not store the document: it remembers
+only the phase of the protocol that determines which futures are still valid.
+
+```{=html}
+<div class="vv-lab" id="editor-lab">
+  <div class="vv-controls">
+    <div class="vv-field">
+      <label for="editor-word">Editor-event trace</label>
+      <input id="editor-word" type="text" value="open edit save close" />
+    </div>
+  </div>
+
+  <div class="vv-button-row">
+    <button class="vv-btn" id="editor-reset">Reset</button>
+    <button class="vv-btn alt" id="editor-prev">Step Back</button>
+    <button class="vv-btn alt" id="editor-next">Step Forward</button>
+    <button class="vv-btn alt" id="editor-run">Run to End</button>
+    <button class="vv-btn alt" id="editor-valid">Load valid trace</button>
+    <button class="vv-btn alt" id="editor-invalid">Load counterexample</button>
+  </div>
+
+  <div class="vv-word-track" id="editor-track"></div>
+
+  <div class="vv-editor-flow" aria-label="Abstract states of the editor-session monitor">
+    <div class="vv-editor-state" data-editor-state="before">
+      <strong>Before open</strong>
+      <span>Only <code>open</code> can begin a valid session.</span>
+    </div>
+    <div class="vv-editor-state" data-editor-state="open">
+      <strong>Editor open</strong>
+      <span><code>edit</code> and <code>save</code> preserve this phase.</span>
+    </div>
+    <div class="vv-editor-state" data-editor-state="closed">
+      <strong>Closed · accepting</strong>
+      <span>The whole input must end in this state.</span>
+    </div>
+    <div class="vv-editor-state" data-editor-state="error">
+      <strong>Protocol error</strong>
+      <span>No continuation can repair the malformed prefix.</span>
+    </div>
+  </div>
+
+  <div class="vv-output">
+    <div class="vv-meta" id="editor-meta"></div>
+    <p id="editor-status"></p>
+    <ol class="vv-log" id="editor-log"></ol>
+  </div>
+</div>
+```
+
+Try `open close`, `open edit edit save close`, and the counterexample
+`open edit close save`. The last `save` is not merely “unexpected”: once the
+session has closed, no suffix can make that prefix valid again. This is the
+future-behaviour distinction later formalized by the Myhill–Nerode theorem.
+
 ## Reading the Definitions Back Out of the Interaction
 
 The notebook is useful only if the interactions map back to the formal objects.
@@ -509,6 +652,7 @@ The final verdict depends only on the state reached after the full word is consu
 2. In the language explorer, check whether the empty word belongs to each sample language.
 3. In the DFA simulator, try `abba`, `aaa`, `bbbb`, and the empty word.
 4. Explain why the DFA only needs to remember parity, not the exact number of `a`'s.
+5. In the editor monitor, compare `open save close` with `open close save`. At which prefix do their possible valid futures become different?
 
 ```{=html}
 <script>
@@ -832,6 +976,149 @@ The final verdict depends only on the state reached after the full word is consu
   });
 
   updateDfaLab();
+
+  const editorWordInput = document.getElementById("editor-word");
+  const editorTrack = document.getElementById("editor-track");
+  const editorMeta = document.getElementById("editor-meta");
+  const editorStatus = document.getElementById("editor-status");
+  const editorLog = document.getElementById("editor-log");
+  const editorReset = document.getElementById("editor-reset");
+  const editorPrev = document.getElementById("editor-prev");
+  const editorNext = document.getElementById("editor-next");
+  const editorRun = document.getElementById("editor-run");
+  const editorValid = document.getElementById("editor-valid");
+  const editorInvalid = document.getElementById("editor-invalid");
+  const editorStates = [...document.querySelectorAll("[data-editor-state]")];
+  const editorAlphabet = new Set(["open", "edit", "save", "close"]);
+  let editorStepIndex = 0;
+
+  function parseEditorTrace(raw) {
+    return raw.trim() === "" ? [] : raw.trim().split(/[\s,]+/).filter(Boolean);
+  }
+
+  function editorTransition(state, event) {
+    if (!editorAlphabet.has(event)) return "error";
+    if (state === "before") return event === "open" ? "open" : "error";
+    if (state === "open") {
+      if (event === "edit" || event === "save") return "open";
+      return event === "close" ? "closed" : "error";
+    }
+    if (state === "closed") return "error";
+    return "error";
+  }
+
+  function buildEditorRun(events) {
+    const states = ["before"];
+    for (const event of events) {
+      states.push(editorTransition(states[states.length - 1], event));
+    }
+    return states;
+  }
+
+  function updateEditorLab() {
+    const events = parseEditorTrace(editorWordInput.value);
+    const states = buildEditorRun(events);
+    editorStepIndex = Math.min(editorStepIndex, events.length);
+    const currentState = states[editorStepIndex];
+    const finished = editorStepIndex === events.length;
+    const accepted = finished && currentState === "closed";
+
+    editorTrack.replaceChildren();
+    if (events.length === 0) {
+      const epsilon = document.createElement("span");
+      epsilon.className = "vv-event current";
+      epsilon.textContent = "ε";
+      editorTrack.appendChild(epsilon);
+    } else {
+      events.forEach((event, index) => {
+        const chip = document.createElement("span");
+        chip.className = "vv-event";
+        if (index < editorStepIndex) chip.classList.add("done");
+        if (index === editorStepIndex) chip.classList.add("current");
+        chip.textContent = event;
+        editorTrack.appendChild(chip);
+      });
+    }
+
+    editorStates.forEach((card) => {
+      card.classList.toggle("is-active", card.dataset.editorState === currentState);
+    });
+
+    editorMeta.replaceChildren();
+    [
+      "Abstract state: " + currentState,
+      "Processed events: " + editorStepIndex + "/" + events.length,
+      "Verdict: " + (finished ? (accepted ? "accepted" : "rejected") : "pending")
+    ].forEach((label) => {
+      const pill = document.createElement("span");
+      pill.className = "vv-pill";
+      pill.textContent = label;
+      editorMeta.appendChild(pill);
+    });
+
+    if (!finished) {
+      editorStatus.textContent = currentState === "error"
+        ? "This prefix is already irreparably malformed; later events cannot leave the error state."
+        : "The verdict is pending because unread events remain.";
+    } else if (accepted) {
+      editorStatus.textContent = "Accepted: the complete trace opens once, uses only edit/save while active, and closes once.";
+    } else if (currentState === "open") {
+      editorStatus.textContent = "Rejected: the finite input ended while the editor was still open.";
+    } else if (currentState === "before") {
+      editorStatus.textContent = "Rejected: the empty trace never opens and completes a session.";
+    } else {
+      editorStatus.textContent = "Rejected: the trace violates the editor-session protocol.";
+    }
+
+    editorLog.replaceChildren();
+    if (editorStepIndex === 0) {
+      const item = document.createElement("li");
+      item.textContent = "Start before the editor has been opened.";
+      editorLog.appendChild(item);
+    }
+    for (let index = 0; index < editorStepIndex; index += 1) {
+      const item = document.createElement("li");
+      item.textContent = "Read " + events[index] + ": " + states[index] + " → " + states[index + 1];
+      editorLog.appendChild(item);
+    }
+
+    editorPrev.disabled = editorStepIndex === 0;
+    editorNext.disabled = editorStepIndex === events.length;
+    editorRun.disabled = editorStepIndex === events.length;
+  }
+
+  editorWordInput.addEventListener("input", () => {
+    editorStepIndex = 0;
+    updateEditorLab();
+  });
+  editorReset.addEventListener("click", () => {
+    editorStepIndex = 0;
+    updateEditorLab();
+  });
+  editorPrev.addEventListener("click", () => {
+    editorStepIndex = Math.max(0, editorStepIndex - 1);
+    updateEditorLab();
+  });
+  editorNext.addEventListener("click", () => {
+    editorStepIndex = Math.min(parseEditorTrace(editorWordInput.value).length, editorStepIndex + 1);
+    updateEditorLab();
+  });
+  editorRun.addEventListener("click", () => {
+    editorStepIndex = parseEditorTrace(editorWordInput.value).length;
+    updateEditorLab();
+  });
+  editorValid.addEventListener("click", () => {
+    editorWordInput.value = "open edit save close";
+    editorStepIndex = 0;
+    updateEditorLab();
+  });
+  editorInvalid.addEventListener("click", () => {
+    editorWordInput.value = "open edit close save";
+    editorStepIndex = 0;
+    updateEditorLab();
+  });
+
+  updateEditorLab();
 })();
 </script>
 ```

@@ -110,29 +110,32 @@ Second, and more fundamentally, deterministic B\"uchi automata are
 strictly weaker than nondeterministic ones, so we cannot even
 determinize first and then swap.
 
-\begin{example}[The complement of the running request/ack language]
+\begin{example}[The complement of the running editor language]
 \label{ex:det-buchi-gap}
-Recall from \cref{ex:buchi-infinitely-many} the B\"uchi automaton for
-``\texttt{ack} occurs infinitely often'' over
-$\Sigma=\{\texttt{req},\texttt{ack}\}$.  Its complement is
+Recall from \cref{ex:buchi-infinitely-many-save} the editor that saves
+infinitely often.  After the initial \texttt{open}, its operation stream
+uses the alphabet
+$\Gamma=\{\texttt{edit},\texttt{save},\texttt{idle}\}$.  The complement
+of the recurrent-save property is
 \[
-  \overline{L}=\{\alpha : \text{only finitely many }\texttt{ack}
+  \overline{L}=\{\alpha\in\Gamma^\omega :
+                 \text{only finitely many }\texttt{save}
                  \text{ occur in }\alpha\},
 \]
-the property that from some position onwards no acknowledgement ever
-reappears.
+the property that from some position onwards no save ever reappears.
 
 It is easy to recognize $\overline{L}$ \emph{non-deterministically}:
-guess the position after which no more \texttt{ack} arrives, then stay
-in an accepting state while reading only \texttt{req}.  But a
+guess the position after which no more \texttt{save} arrives, then stay
+in an accepting state while reading only \texttt{edit} and
+\texttt{idle}.  But a
 \emph{deterministic} B\"uchi automaton cannot recognize $\overline{L}$.
 The obstruction is that no finite prefix determines whether the latest
-\texttt{ack} is the last one.  After any finite prefix, the continuation
-consisting only of \texttt{req} must be accepted, so its unique run must
+\texttt{save} is the last one.  After any finite prefix, the continuation
+consisting only of \texttt{idle} must be accepted, so its unique run must
 eventually revisit an accepting state.  If one delays the next
-\texttt{ack} until after such a visit and repeats this choice
+\texttt{save} until after such a visit and repeats this choice
 indefinitely, the resulting word contains infinitely many
-acknowledgements while its run still visits accepting states infinitely
+saves while its run still visits accepting states infinitely
 often.  Thus the deterministic B\"uchi condition cannot separate the
 two cases.
 \end{example}

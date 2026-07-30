@@ -25,11 +25,19 @@ This notebook explores **ultimately periodic** $\omega$-words. These are infinit
 
 We also compute $In(\alpha)$, which is the set of symbols from the alphabet that appear **infinitely often** in the word $\alpha$. For an ultimately periodic word, $In(\alpha)$ is exactly the set of symbols present in the period $v$.
 
+The running example is an editor that is opened once and then remains active.
+For instance,
+$\texttt{open}\cdot(\texttt{edit}\ \texttt{save})^\omega$ describes an
+execution in which editing and saving both recur. The one-time
+`open` belongs to the stem and therefore does not belong to $In(\alpha)$.
+
 ---
 
 ## Widget 1: $\omega$-Word Explorer
 
-Enter a stem $u$ and a period $v$ (comma or space-separated symbols, e.g., `req`, `ack`). The word strip below will visualize the infinite word $\alpha = u \cdot v^\omega$.
+Enter a stem $u$ and a period $v$ (comma or space-separated symbols, e.g.,
+`open`, `edit`, `save`). The word strip below will visualize the infinite word
+$\alpha = u \cdot v^\omega$.
 
 ```{=html}
 <style>
@@ -195,11 +203,11 @@ Enter a stem $u$ and a period $v$ (comma or space-separated symbols, e.g., `req`
   <div class="input-row">
     <div class="input-group">
       <label for="nb11-u">Stem (u)</label>
-      <input type="text" id="nb11-u" value="req" placeholder="e.g. a b">
+      <input type="text" id="nb11-u" value="open" placeholder="e.g. open">
     </div>
     <div class="input-group">
       <label for="nb11-v">Period (v)</label>
-      <input type="text" id="nb11-v" value="req ack" placeholder="e.g. a b">
+      <input type="text" id="nb11-v" value="edit save" placeholder="e.g. edit save">
     </div>
     <div class="input-group" style="justify-content: flex-end;">
       <button class="sc-btn" id="nb11-update">Update Word</button>
@@ -207,7 +215,7 @@ Enter a stem $u$ and a period $v$ (comma or space-separated symbols, e.g., `req`
   </div>
   
   <div class="sc-explain" id="nb11-explain">
-    Showing the word &alpha; = <code>req</code> &middot; (<code>req ack</code>)<sup>&omega;</sup>
+    Showing the word &alpha; = <code>open</code> &middot; (<code>edit save</code>)<sup>&omega;</sup>
   </div>
 
   <div class="sc-panel">

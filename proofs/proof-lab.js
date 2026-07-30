@@ -251,6 +251,15 @@
       element("p", "proof-lab__intro", config.intro)
     );
 
+    if (config.application) {
+      const application = element("aside", "proof-lab__application");
+      application.append(
+        element("strong", "", "Running example"),
+        element("span", "", config.application)
+      );
+      header.append(application);
+    }
+
     const theoremDetails = element("details", "proof-lab__theorem-details");
     theoremDetails.append(
       element("summary", "", "Proof strategy"),

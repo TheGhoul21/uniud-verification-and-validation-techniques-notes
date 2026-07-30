@@ -28,7 +28,12 @@ $$ \alpha \in \vec{W} \iff \text{there exist infinitely many } n \ge 0 \text{ su
 
 Notice the difference with infinite concatenation $W^\omega$: to be in $W^\omega$, a word must be factorable into infinitely many blocks from $W$. To be in $\vec{W}$, the word itself must have infinitely many prefixes falling into $W$.
 
-In a request-acknowledge system, if $W$ is the set of finite traces ending in an acknowledgement, then $\vec{W}$ contains exactly those infinite traces where acknowledgements occur infinitely often.
+For the running editor example, let
+$W=\{\texttt{open}\,x\,\texttt{save} :
+x\in\{\texttt{edit},\texttt{idle},\texttt{save}\}^*\}$.
+Then $\vec{W}$ contains exactly the well-formed infinite editor traces whose
+prefixes end immediately after a save infinitely often---equivalently, the
+traces in which saving recurs forever.
 
 ---
 
@@ -178,8 +183,8 @@ Select a preset for $W$ and an ultimately periodic word $\alpha = u \cdot v^\ome
     <div class="input-group" style="flex: 1; min-width: 200px;">
       <label>Preset (W and Word)</label>
       <select id="nb13-preset">
-        <option value="0">1. Ends with 'ack' (Success)</option>
-        <option value="1">2. Ends with 'ack' (Failure)</option>
+        <option value="0">1. Editor saves recur (Success)</option>
+        <option value="1">2. Editor stops saving (Failure)</option>
         <option value="2">3. Even Length Words</option>
         <option value="3">4. Starts and Ends with 'a'</option>
         <option value="4">5. Exact word {ab}</option>
@@ -217,16 +222,23 @@ Select a preset for $W$ and an ultimately periodic word $\alpha = u \cdot v^\ome
 
 <script>
 (function() {
+  const editorOperations = new Set(['edit', 'idle', 'save']);
+  const isSavedEditorPrefix = (arr) =>
+    arr.length >= 2 &&
+    arr[0] === 'open' &&
+    arr.slice(1).every((event) => editorOperations.has(event)) &&
+    arr[arr.length - 1] === 'save';
+
   const PRESETS = [
     {
-      desc: "W = { words over {req,ack} ending with 'ack' }",
-      u: "req", v: "req ack",
-      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+      desc: "W = { open · x · save | x uses only edit, idle, save }",
+      u: "open", v: "edit save",
+      isIn: isSavedEditorPrefix
     },
     {
-      desc: "W = { words over {req,ack} ending with 'ack' }",
-      u: "req", v: "req req",
-      isIn: (arr) => arr.length > 0 && arr[arr.length-1] === 'ack'
+      desc: "W = { open · x · save | x uses only edit, idle, save }",
+      u: "open save", v: "edit idle",
+      isIn: isSavedEditorPrefix
     },
     {
       desc: "W = { words of even length }",

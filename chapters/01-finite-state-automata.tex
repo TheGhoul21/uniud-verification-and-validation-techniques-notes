@@ -26,15 +26,36 @@ power for finite words.
 
 \aside{Why start with finite words? Real-world systems like operating systems or network protocols often run continuously, effectively generating \emph{infinite} words. We build the foundations on finite sequences first, but will later extend this theory to infinite words to model systems that do not terminate.}
 
+\begin{runningexample}{a finite document-editor session}
+Throughout the finite-word chapters, we use a small document editor as a
+reality anchor.  Its observable events are
+\[
+  \Sigma_{\mathrm{edit}}
+  =\{\texttt{open},\texttt{edit},\texttt{save},\texttt{close}\}.
+\]
+A well-formed completed session opens the editor once, performs any finite
+sequence of edits and saves, and then closes.  Examples include
+\[
+  \texttt{open}\ \texttt{close}
+  \qquad\text{and}\qquad
+  \texttt{open}\ \texttt{edit}\ \texttt{save}\ \texttt{close}.
+\]
+The trace \(\texttt{edit}\ \texttt{open}\ \texttt{close}\) is malformed
+because editing occurs before the editor is open.  This example will let us
+read automata states as software phases, regular expressions as trace
+specifications, and counterexamples as concrete invalid sessions.
+\end{runningexample}
+
 % ============================================================
 \section{Alphabets, Words, and Languages}
 \label{sec:alphabets-words}
 % ============================================================
 
 Before an automaton can read anything, we need to say what its inputs
-look like.  For a turnstile, the relevant observations might be
-\texttt{coin} and \texttt{push}; for a tiny parity example, they might
-be just $a$ and $b$.  In both cases we first fix the symbols that may
+look like.  For the running editor, the relevant observations are
+\texttt{open}, \texttt{edit}, \texttt{save}, and \texttt{close}; for a
+tiny parity example, they might be just $a$ and $b$.  In both cases we
+first fix the symbols that may
 appear, and then we study finite sequences of those symbols.
 
 \begin{definition}[Alphabet and word]
@@ -52,15 +73,15 @@ $A=\{a,b\}$, then $aab$, $baba$, and $bb$ are words.  The special
 word with no symbols is the \textbf{empty word}, written $\varepsilon$.
 It has length $0$.
 
-\begin{example}[A small alphabet]
+\begin{example}[Events in one editor session]
 \label{ex:small-alphabet}
-Let $A=\{\texttt{coin},\texttt{push}\}$.  A turnstile can observe
-words such as
+Let \(A=\Sigma_{\mathrm{edit}}\).  The editor can observe words such as
 \[
-  \texttt{coin}\;\texttt{push}\;\texttt{push}\;\texttt{coin}.
+  \texttt{open}\;\texttt{edit}\;\texttt{save}\;\texttt{close}.
 \]
-The symbols are events.  The word is the finite history of observed
-events.
+The symbols are software events.  The word is the finite history of one
+observed session.  At this stage every sequence over \(A\) is a word;
+the language of well-formed sessions will select only the valid ones.
 \end{example}
 
 \begin{definition}[Language]
@@ -300,6 +321,29 @@ count as success.
 \aside{Using a single initial state is mostly a convenience.  Variants
 with several initial states can be converted into this form without
 changing the recognized language.}
+
+\begin{example}[A DFA for completed editor sessions]
+\label{ex:editor-session-dfa}
+The running editor language needs four states with operational meanings:
+\[
+  q_{\mathrm{before}},\qquad
+  q_{\mathrm{open}},\qquad
+  q_{\mathrm{closed}},\qquad
+  q_{\mathrm{error}}.
+\]
+The run begins in \(q_{\mathrm{before}}\).  Event \texttt{open} moves it
+to \(q_{\mathrm{open}}\), where \texttt{edit} and \texttt{save} loop.
+Event \texttt{close} then moves it to the only accepting state
+\(q_{\mathrm{closed}}\).  Every event that violates this order---for
+example \texttt{edit} before \texttt{open}, a second \texttt{open}, or
+any event after \texttt{close}---moves to \(q_{\mathrm{error}}\), where
+all later events loop.
+
+The four states do not reproduce the editor implementation.  They retain
+only the phase information needed to decide whether the observed finite
+session is well formed.  The interactive version in Notebook~1 exposes
+this state change one event at a time.
+\end{example}
 
 \begin{example}[Every $a$ is eventually followed by a $b$]
 \label{ex:a-eventually-followed-by-b}
@@ -918,6 +962,15 @@ same number of $b$'s.  This is precisely the matching problem that
 single $b$ could discharge any number of pending $a$'s, whereas here
 each $a$ demands a \emph{distinct} later $b$.
 
+The same obstruction has a software reading.  Suppose a trace must
+contain \texttt{open}, followed by exactly \(n\) buffered
+\texttt{edit} events, then exactly \(n\) distinct \texttt{save} events,
+and finally \texttt{close}.  A monitor would have to retain the
+unbounded value of \(n\).  Renaming \texttt{edit} to \(a\) and
+\texttt{save} to \(b\) exposes the \(a^n b^n\) core.  This is a useful
+counterexample to the assumption that every plausible software
+requirement is automatically regular.
+
 Suppose a DFA with $k$ states reads the unary block $a^i$ for
 $i=0,1,\ldots,k$.  By the pigeonhole principle two of these prefixes,
 say $a^i$ and $a^j$ with $i<j$, must lead to the same state.  From that
@@ -981,6 +1034,14 @@ $2^Q$ & powerset of $Q$, used as the state space in determinization \\
 \begin{chapex}[Simulating a DFA]
 For the DFA in \cref{fig:even-a-dfa}, compute the reached state after
 reading each prefix of the word $abbaab$.  Is the whole word accepted?
+\end{chapex}
+
+\begin{chapex}[Editor-session monitor]
+Complete the transition table of the DFA described in
+\cref{ex:editor-session-dfa}.  Trace the words
+\(\texttt{open}\ \texttt{edit}\ \texttt{close}\) and
+\(\texttt{open}\ \texttt{close}\ \texttt{save}\), explaining the first
+prefix at which their runs differ semantically.
 \end{chapex}
 
 \begin{chapex}[One subset-construction step]

@@ -34,10 +34,10 @@ Reactive systems introduce a different time model.  Operating systems,
 controllers, servers, and embedded devices are designed to interact with
 their environment indefinitely rather than compute one answer and halt.
 Their correctness therefore cannot be assessed only at a final
-configuration; it must constrain the entire execution.  For a printer, for
-instance, the relevant property is not merely that it eventually prints
-once, but that every request is eventually served, regardless of how many
-requests follow.  Such executions are naturally represented by
+configuration; it must constrain the entire execution.  For a document
+editor, for instance, the relevant property is not merely that the document
+is saved once, but that saving remains possible and actually recurs while
+editing continues.  Such executions are naturally represented by
 \emph{infinite} words.
 
 The transition graph can remain finite, but finite-word acceptance no
@@ -76,11 +76,26 @@ the following chapters.
 
 \constructionpipeline{2}
 
-\begin{runningexample}{request/acknowledgement traces}
-Throughout the infinite-word chapters, think of a reactive component that
-observes requests and acknowledgements forever.  A typical liveness property is
-``acknowledgement occurs infinitely often'', and the counterexamples are
-ultimately periodic traces where acknowledgements eventually disappear.
+\begin{runningexample}{an editor that remains active}
+The finite editor session from \cref{ex:editor-session-dfa} ended with
+\texttt{close}.  We now model an editor that is opened once and then remains
+active, observing events from
+\[
+  \Sigma_{\mathrm{edit}}
+  =\{\texttt{open},\texttt{edit},\texttt{save},\texttt{idle}\}.
+\]
+Let $U=\{\texttt{open}\}$ and
+$V=(\texttt{edit}+\texttt{idle}+\texttt{save})^*\texttt{save}$.
+The language $UV^\omega$ contains exactly the well-formed infinite traces
+that start by opening the editor and then save infinitely often.  A trace such
+as
+\[
+  \texttt{open}\ \texttt{save}\,
+  (\texttt{edit}\ \texttt{idle})^\omega
+\]
+is a counterexample: it has one successful save, but saving eventually
+disappears.  This distinction between ``once'' and ``recurringly'' will remain
+the semantic thread through the chapter.
 \end{runningexample}
 
 
@@ -89,10 +104,11 @@ ultimately periodic traces where acknowledgements eventually disappear.
 \label{sec:omega-words}
 % ============================================================
 
-Consider the request/acknowledgement component from the running example.
+Consider the document editor from the running example.
 One possible execution is
 \[
-  \texttt{req}\ \texttt{ack}\ \texttt{req}\ \texttt{req}\ \texttt{ack}\cdots .
+  \texttt{open}\ \texttt{edit}\ \texttt{save}\ \texttt{idle}\
+  \texttt{edit}\ \texttt{save}\cdots .
 \]
 The dots are not an omitted ending.  They are part of the model: the
 component is expected to keep receiving inputs and producing observations
@@ -220,12 +236,19 @@ finite prefixes hit $W$ infinitely often---the $\exists^\omega n$
 notation from \cref{def:exists-omega} says exactly this in one symbol.
 
 \begin{example}[Vectorial closure on the running example]
-\label{ex:vectorial-closure-ack}
-Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, let $W$ be the set of
-finite words that end with \texttt{ack}.  Then $\overrightarrow{W}$ is
-the set of infinite traces such that infinitely many finite prefixes end
-with \texttt{ack}---in other words, exactly the traces in which
-\texttt{ack} occurs infinitely often.
+\label{ex:vectorial-closure-save}
+Let
+\[
+  W=\{\texttt{open}\,x\,\texttt{save} :
+       x\in\{\texttt{edit},\texttt{idle},\texttt{save}\}^*\}.
+\]
+Thus $W$ contains the finite, well-formed editor prefixes that end
+immediately after a save.  An infinite trace belongs to
+$\overrightarrow{W}$ precisely when infinitely many of its prefixes are
+in $W$.  Equivalently, the editor is opened once, no invalid event follows,
+and \texttt{save} occurs infinitely often.  The vectorial closure therefore
+turns the finite notion ``this prefix records a completed save'' into the
+recurrence property ``completed saves keep occurring''.
 \end{example}
 
 Vectorial closure expresses recurrence at the level of prefixes: membership
@@ -348,16 +371,22 @@ Thus $In(\alpha)$ is always non-empty.  It records recurrence while
 discarding all information confined to a finite prefix.
 
 \begin{example}[Infinity sets in the running example]
-\label{ex:infinitely-many-a}
-In our request/acknowledgement setting, a trace where \texttt{ack}
-appears at positions $1, 4, 7, \ldots$ and \texttt{req} fills every
-other position has both symbols occurring infinitely often, so
-$In(\alpha)=\{\texttt{req},\texttt{ack}\}$.  By contrast, a trace that
-eventually stops acknowledging---where \texttt{ack} appears only
-finitely many times---gives $In(\alpha)=\{\texttt{req}\}$.  The infinity
-set therefore separates satisfaction from violation of this liveness
-property without recording the finite positions at which acknowledgements
-occur.
+\label{ex:infinitely-many-save}
+For the editor trace
+\[
+  \alpha=\texttt{open}\,
+          (\texttt{edit}\ \texttt{save}\ \texttt{idle})^\omega,
+\]
+the initial \texttt{open} occurs only once, while the other three events
+recur.  Hence
+$In(\alpha)=\{\texttt{edit},\texttt{save},\texttt{idle}\}$.
+By contrast,
+\[
+  \beta=\texttt{open}\ \texttt{edit}\ \texttt{save}\ \texttt{idle}^\omega
+\]
+has $In(\beta)=\{\texttt{idle}\}$: its single save has no influence on the
+infinity set.  Thus $In(\alpha)$ retains exactly the information needed to
+distinguish recurrent saving from a save confined to a finite prefix.
 \end{example}
 
 Applying the infinity-set construction to the sequence of visited states
@@ -411,17 +440,20 @@ us that the class of properties expressible by B\"uchi automata has a
 name and will turn out to have the same robust characterisations
 (expressions, closure, decidable emptiness) that regular languages enjoy.
 
-\begin{example}[Infinitely many acknowledgements]
-\label{ex:buchi-infinitely-many}
-Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, the property
-``\texttt{ack} occurs infinitely often'' is B\"uchi-recognisable.
-Use two states: a non-accepting scanning state and an accepting state
-entered whenever the current symbol is \texttt{ack}.  The accepting
-state is visited infinitely often exactly when infinitely many
-\texttt{ack} symbols appear.
+\begin{example}[Infinitely many saves]
+\label{ex:buchi-infinitely-many-save}
+Over $\Sigma_{\mathrm{edit}}$, the property
+``the editor is opened once and \texttt{save} occurs infinitely often''
+is B\"uchi-recognisable.  A first state checks the initial
+\texttt{open}.  The active-editor state is non-accepting; reading
+\texttt{save} moves to an accepting checkpoint.  Any subsequent
+\texttt{edit} or \texttt{idle} returns to the active state, whereas
+another \texttt{save} remains at the checkpoint.  Consequently, the
+accepting state is visited infinitely often exactly when saves recur
+infinitely often.
 \end{example}
 
-\Cref{fig:infinitely-many-ack} shows the whole construction.  The
+\Cref{fig:infinitely-many-save} shows the whole construction.  The
 accepting state is not a final destination; it is a checkpoint that the
 run must keep returning to.
 
@@ -433,16 +465,18 @@ run must keep returning to.
   accepting/.style={circle, draw, double, thick, minimum size=11mm, fill=teal!10},
   arr/.style={-Stealth, thick},
 ]
-  \node[state] (s) {$q$};
+  \node[state] (b) {$q_{\mathrm{before}}$};
+  \node[state, right=of b] (s) {$q$};
   \node[accepting, right=of s] (a) {$f$};
-  \draw[arr] ([xshift=-1.0cm]s.west) -- (s);
-  \draw[arr] (s) edge[loop above] node {\texttt{req}} (s);
-  \draw[arr, bend left=18] (s) to node[above] {\texttt{ack}} (a);
-  \draw[arr, bend left=18] (a) to node[below] {\texttt{req}} (s);
-  \draw[arr] (a) edge[loop above] node {\texttt{ack}} (a);
+  \draw[arr] ([xshift=-1.0cm]b.west) -- (b);
+  \draw[arr] (b) -- node[above] {\texttt{open}} (s);
+  \draw[arr] (s) edge[loop above] node {\texttt{edit}, \texttt{idle}} (s);
+  \draw[arr, bend left=18] (s) to node[above] {\texttt{save}} (a);
+  \draw[arr, bend left=18] (a) to node[below] {\texttt{edit}, \texttt{idle}} (s);
+  \draw[arr] (a) edge[loop above] node {\texttt{save}} (a);
 \end{tikzpicture}
-\caption{A B\"uchi automaton for infinitely many acknowledgements.}
-\label{fig:infinitely-many-ack}
+\caption{A B\"uchi automaton for an editor that saves infinitely often.}
+\label{fig:infinitely-many-save}
 \end{figure}
 
 \begin{example}[Parity between occurrences]
@@ -577,8 +611,8 @@ Finally, note the $\omega$-language $L_2\subseteq\Sigma^\omega$ already encounte
 
 The examples above show how to design individual automata.  For
 verification, however, we also need to combine specifications.  If one
-automaton describes ``requests are acknowledged infinitely often'' and
-another describes a fairness assumption about the environment, then model
+automaton describes ``the editor saves infinitely often'' and another
+describes ``the interface refreshes infinitely often'', then model
 checking will ask about their conjunction, disjunction, or about a finite
 initialisation phase followed by an infinite behaviour.  Closure
 properties tell us that these combinations stay inside the same automata
@@ -1221,8 +1255,8 @@ Compute $In(\alpha)$.  Is $\alpha$ ultimately periodic?
 \end{chapex}
 
 \begin{chapex}[B\"uchi acceptance]
-Modify \cref{fig:infinitely-many-ack} to accept the property
-``only finitely many \texttt{req} symbols occur''.  Hint: the automaton
+Modify \cref{fig:infinitely-many-save} to accept the property
+``only finitely many \texttt{edit} events occur''.  Hint: the automaton
 will need a nondeterministic guess.
 \end{chapex}
 
@@ -1232,8 +1266,9 @@ connected components to decide emptiness.  Which SCCs are relevant?
 \end{chapex}
 
 \begin{chapex}[Writing an $\omega$-regular expression]
-Over $\Sigma=\{\texttt{req},\texttt{ack}\}$, write an $\omega$-regular
-expression for the language ``\texttt{ack} occurs infinitely often''.
-Write a second expression for ``\texttt{ack} occurs only finitely
-often''.
+Let $\Gamma=\{\texttt{edit},\texttt{save},\texttt{idle}\}$.  Write an
+$\omega$-regular expression for the well-formed editor traces that begin
+with \texttt{open} and contain infinitely many \texttt{save} events.
+Write a second expression for the traces that contain only finitely many
+\texttt{save} events.
 \end{chapex}

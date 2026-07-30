@@ -12,10 +12,11 @@ The point of the theory is not only
 recognition, but effective verification.}
 
 In \cref{ch:fsa} we built finite automata to recognize finite-word
-behaviours: a turnstile event sequence, a parity check over $\{a,b\}$,
-and so on.  Automata are an \emph{operational} description---they tell
-us how to scan a word.  But they are not the only way to describe the
-same languages, and they are not always the most convenient one.
+behaviours: completed document-editor sessions, a parity check over
+$\{a,b\}$, and so on.  Automata are an \emph{operational}
+description---they tell us how to scan a word.  But they are not the
+only way to describe the same languages, and they are not always the
+most convenient one.
 
 This chapter adds three complementary viewpoints, each answering a
 different question that the operational model alone leaves open.
@@ -103,6 +104,22 @@ $a$.
 This is the same language recognized by the DFA in
 \cref{fig:even-a-dfa}.  The expression describes the structure of the
 word; the automaton describes how to scan it.
+
+\begin{runningexample}{the editor language as an expression}
+For the document editor of \cref{ex:editor-session-dfa}, the complete
+finite-session language has the restricted regular expression
+\[
+  r_{\mathrm{session}}
+  =
+  \texttt{open}\,
+  (\texttt{edit}+\texttt{save})^*\,
+  \texttt{close}.
+\]
+The three parts have direct operational meanings: enter the editor once,
+perform an arbitrary finite sequence of allowed operations, then close.
+The DFA and the expression describe the same set of traces at different
+levels of abstraction.  Kleene's theorem will formalize that equivalence.
+\end{runningexample}
 
 The restricted syntax is not the only option.  A more liberal variant
 admits Boolean operations directly inside expressions.
@@ -522,13 +539,15 @@ halves, and each half should be read as an algorithm: one eliminates
 automaton states until only an expression remains; the other wires an
 automaton out of expression syntax.
 
-\begin{runningexample}{The parity DFA during Kleene's proof}
-We keep the two-state DFA of \cref{ex:even-a-dfa} in view.  Rename the
-even state $q_1$ and the odd state $q_2$.  The initial and accepting
-state is $q_1$; reading $a$ toggles between the two states; reading $b$
-stays where it is.  The language is the set of words with an even
-number of $a$'s, already described in \cref{ex:regex-even-a} by
-$b^*(ab^*ab^*)^*$.
+\begin{runningexample}{semantic example and calculation microscope}
+The editor language \(r_{\mathrm{session}}\) is the semantic thread:
+Kleene's theorem guarantees that its four-phase DFA and its expression
+are interchangeable specifications.  For the line-by-line
+state-elimination calculation, however, we keep the smaller two-state
+parity DFA of \cref{ex:even-a-dfa} in view.  Rename its even and odd
+states \(q_1\) and \(q_2\); its language is already described by
+\(b^*(ab^*ab^*)^*\).  The small graph keeps the algebra readable, while
+the editor explains what the translation means for a software monitor.
 \end{runningexample}
 
 \begin{proofmap}{The equivalence cycle}
@@ -975,6 +994,22 @@ concatenation, Kleene star, complementation, and intersection.
 Treat each closure property as a concrete compiler and inspect the
 conditions needed by complementation and intersection.}
 
+\begin{runningexample}{composing editor requirements}
+Let \(L_{\mathrm{session}}\) be the well-formed session language and let
+\[
+  L_{\mathrm{saved}}
+  =\Sigma_{\mathrm{edit}}^*\,
+   \texttt{save}\,
+   \Sigma_{\mathrm{edit}}^*
+\]
+contain the traces with at least one save.  Closure under intersection
+gives a monitor for well-formed sessions that save at least once:
+\(L_{\mathrm{session}}\cap L_{\mathrm{saved}}\).  Closure under
+complement gives the malformed-session language
+\(\overline{L_{\mathrm{session}}}\).  These are direct applications of
+the product and final-state-swap constructions below.
+\end{runningexample}
+
 Union, concatenation, and star follow directly from regular expressions
 or $\varepsilon$-NFA constructions.  Complementation and intersection
 are more important for verification, so we spell them out.
@@ -1354,6 +1389,11 @@ the other.
 This is the finite-word prototype of model checking.  The system
 automaton describes possible behaviours; the specification automaton
 describes allowed behaviours.  Verification asks for language inclusion.
+For the running editor, an implementation model might generate several
+kinds of completed sessions, while \(L_{\mathrm{session}}\) specifies
+their required order.  Any word accepted by the model but rejected by
+the specification is then a concrete malformed session, not merely an
+abstract witness.
 
 
 % ============================================================
@@ -1370,6 +1410,20 @@ belongs to $L$ exactly when $P(w)$ is true.  This tells us what the
 language is, but not what finite memory would recognize it while the
 word is being read.  How do we know whether a finite-state description
 is even possible?  And if it is, what is the smallest one?
+
+\begin{runningexample}{future behaviour in the editor monitor}
+The prefixes of an editor trace fall into four semantically different
+families: no event has occurred yet; the editor is currently open; the
+session has closed correctly; or an ordering error has already occurred.
+Prefixes inside one family admit exactly the same successful
+continuations.  For example,
+\(\texttt{open}\ \texttt{edit}\) and
+\(\texttt{open}\ \texttt{save}\) can both be completed by
+\texttt{close}; a malformed prefix can never be repaired.  These four
+future behaviours are precisely the four states of
+\cref{ex:editor-session-dfa}.  Myhill--Nerode turns this observation into
+the canonical minimal DFA.
+\end{runningexample}
 
 \begin{example}[A predicate is not yet an automaton]
 \label{ex:predicate-versus-automaton}
@@ -1737,13 +1791,12 @@ swap final and non-final states without adding a sink state, what
 language do you get?  Compare it with the true complement of $\{a\}$.
 \end{chapex}
 
-\begin{chapex}[Product construction for the turnstile]
-The turnstile from \cref{ch:fsa} has two events: \texttt{coin} and
-\texttt{push}.  Let $A_1$ accept sequences in which every \texttt{push}
-is immediately preceded by a \texttt{coin}, and let $A_2$ accept
-sequences containing at least one~\texttt{push}.  Construct the product
-automaton for $L(A_1)\cap L(A_2)$ and list its accepting states.  Give
-the shortest accepted word.
+\begin{chapex}[Product construction for the editor]
+Let \(A_1\) be the editor-session DFA of
+\cref{ex:editor-session-dfa}, and let \(A_2\) accept traces containing
+at least one \texttt{save}.  Construct the product automaton for
+\(L(A_1)\cap L(A_2)\), identify its accepting states, and give its
+shortest accepted word.
 \end{chapex}
 
 \begin{chapex}[Myhill--Nerode classes for even-length words]
