@@ -268,7 +268,7 @@ Protocols evolve by rewriting one multiset of facts into another.
 \label{def:tamarin-rule}
 A rewrite rule has the shape
 \[
-  L \; \xrightarrow{\;A\;} \; R
+  L \; \tto{\;A\;} \; R
 \]
 where $L$ and $R$ are multisets of facts and $A$ is a multiset of action
 facts.  Informally, $L$ is the rule's premise, $R$ is its conclusion, and $A$
@@ -284,7 +284,7 @@ does create a new symbolic value.
 
 \begin{definition}[One rewriting step]
 \label{def:tamarin-step}
-Let $M$ be a multiset of facts and let $L \xrightarrow{A} R$ be a rule.
+Let $M$ be a multiset of facts and let $L \tto{A} R$ be a rule.
 If there exists a substitution $\sigma$ such that $L\sigma \subseteq M$,
 then one step of rewriting produces
 \[
@@ -574,7 +574,7 @@ The equational theory is the mechanism through which the Dolev-Yao attacker decr
 
 \subsection{The Unification Problem}
 
-To apply a rewrite rule $L \xrightarrow{A} R$ to a concrete multiset of facts $M$, Tamarin must find a substitution $\sigma$ such that the facts in $L\sigma$ match a subset of $M$. This matching process requires solving equations between terms:
+To apply a rewrite rule $L \tto{A} R$ to a concrete multiset of facts $M$, Tamarin must find a substitution $\sigma$ such that the facts in $L\sigma$ match a subset of $M$. This matching process requires solving equations between terms:
 \begin{itemize}
   \item In the \emph{free term algebra} (syntactic equality), matching is a special case of unification. The classical \textbf{Martelli-Montanari} algorithm (1982) solves unification in linear time by repeatedly transforming equations into solved forms.
   \item Modulo an \emph{equational theory} $E$ ($E$-unification), we must find a substitution $\sigma$ such that $t_1\sigma \equiv_E t_2\sigma$. In full generality, $E$-unification is undecidable, and even when decidable, it can yield infinitely many minimal unifiers.

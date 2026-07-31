@@ -362,6 +362,12 @@
   \end{runningexampleframe}%
 }
 
+% ---- transition arrow: label below the shaft (professor's convention) ----
+% Usage: s \tto{w} s'   or   s \tto{\varepsilon} s'
+% The label appears beneath the arrow, matching the blackboard notation where
+% the word is written below the arrowhead (to the right).
+\newcommand{\tto}[1]{\xrightarrow[{\;#1\;}]{}}
+
 % ---- complexity shortcuts ----
 \newcommand{\Oh}[1]{\mathcal{O}\!\left(#1\right)}
 \newcommand{\Th}[1]{\Theta\!\left(#1\right)}

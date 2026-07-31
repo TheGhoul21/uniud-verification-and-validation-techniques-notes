@@ -67,7 +67,7 @@ that infinite dialogue.
 \textbf{The infinite-execution viewpoint.}  Think of a reactive system's
 execution as an infinite sequence of \emph{time points}:
 \[
-  s_0 \xrightarrow{} s_1 \xrightarrow{} s_2 \xrightarrow{} \cdots
+  s_0 \tto{} s_1 \tto{} s_2 \tto{} \cdots
 \]
 Each $s_i$ is a snapshot of the system's internal state.  Reading the
 indices $0, 1, 2, \ldots$ as time positions, the execution is exactly
@@ -660,7 +660,7 @@ state space, every infinite path in a finite Kripke structure
 eventually enters a cycle.  Hence a liveness counterexample is always
 an \emph{ultimately periodic} path of the form
 \[
-  q_0 \to \cdots \to q_i \xrightarrow{\,\text{cycle}\,} q_i \to \cdots
+  q_0 \to \cdots \to q_i \tto{\,\text{cycle}\,} q_i \to \cdots
 \]
 where the cycle is repeated forever.  This is precisely the
 \emph{lasso} shape of \cref{def:ultimately-periodic} and

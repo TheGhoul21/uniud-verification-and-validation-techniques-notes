@@ -706,8 +706,8 @@ transitions; if it does, add a fresh copy $q_0'$ with the same outgoing
 transitions and no incoming ones, and make $q_0'$ initial---every run
 then leaves $q_0'$ once, at the very start, and never returns.
 To stitch blocks together without $\varepsilon$-moves, whenever a
-transition $q\xrightarrow{a}q_f$ enters an accepting state $q_f\in F$, add a
-parallel transition $q\xrightarrow{a}q_0$ back to the start.  Do
+transition $q\tto{a}q_f$ enters an accepting state $q_f\in F$, add a
+parallel transition $q\tto{a}q_0$ back to the start.  Do
 \emph{not} remove the original transitions into or out of $F$: a word of
 $V$ may pass through an accepting state, keep reading, and be accepted only at
 a later one, so deleting them would lose words.  Finally, strip $F$ of
@@ -723,8 +723,8 @@ once more.)
 finite-word automaton for $V$ and a B\"uchi automaton for $L$, with
 disjoint state sets.  Run the first and, on finishing a prefix in $V$,
 hand control to the second.  Without $\varepsilon$-moves, inspect every
-transition $p\xrightarrow{a}p_f$ of the $V$-automaton that enters an
-accepting state and add a parallel transition $p\xrightarrow{a}q_0^L$
+transition $p\tto{a}p_f$ of the $V$-automaton that enters an
+accepting state and add a parallel transition $p\tto{a}q_0^L$
 into the initial state of the $L$-automaton.  The accepting states of
 the combined machine are exactly those of $L$, since the first component
 only reads the finite prefix and then defers.  If $\varepsilon\in V$,
@@ -846,7 +846,7 @@ reassemble into an expression.
 Fix a B\"uchi automaton $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$.  For two
 states $s,s'\in Q$ and a finite word $w\in\Sigma^*$, write
 \[
-  s \xrightarrow{\;w\;} s'
+  s \tto{\;w\;} s'
 \]
 to mean that $\mathcal{A}$ has a computation over $w$ leading from $s$ to
 $s'$: a path in the graph from $s$ to $s'$ whose edge labels, read in
@@ -862,7 +862,7 @@ move through the graph, not about acceptance.
 ]
   \node[st] (s) {$s$};
   \node[st, right=3.6cm of s] (sp) {$s'$};
-  \draw[pth] (s) -- node[above=0.5mm, font=\small] {$w$} (sp);
+  \draw[pth] (s) -- node[below=0.5mm, near end, font=\small] {$w$} (sp);
   \node[below=6mm of s, xshift=1.8cm, font=\small\itshape, color=graphite!75]
     {a finite path of any length whose labels spell $w$};
 \end{tikzpicture}
@@ -871,7 +871,7 @@ move through the graph, not about acceptance.
 Now collect, for each ordered pair $s,s'\in Q$, every word that connects
 them:
 \[
-  W_{s,s'} \;=\; \{\, w\in\Sigma^* \;\mid\; s \xrightarrow{\;w\;} s' \,\}.
+  W_{s,s'} \;=\; \{\, w\in\Sigma^* \;\mid\; s \tto{\;w\;} s' \,\}.
 \]
 It is immediate that each $W_{s,s'}$ is a \emph{regular} finite-word
 language, and no new construction is required to see it.  Take the very

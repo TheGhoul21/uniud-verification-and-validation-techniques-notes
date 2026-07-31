@@ -347,7 +347,7 @@ $\overline{L}$ is $\omega$-regular.
 First note that every equivalence class of a finite-index congruence is
 a regular finite-word language.  Indeed, build a DFA whose states are
 the equivalence classes, whose initial state is $[\varepsilon]$, and
-whose transition is $[u]\xrightarrow{a}[ua]$.  Congruence makes this
+whose transition is $[u]\tto{a}[ua]$.  Congruence makes this
 transition well-defined.
 
 There are only finitely many pairs of classes $(U,V)$.  Since $L$ is
@@ -391,25 +391,25 @@ automata never needed and that B\"uchi acceptance forces on us.
 \label{def:path-profile-notation}
 For $p,q\in Q$ and $u\in\Sigma^*$, write
 \[
-  p \xrightarrow{u} q
+  p \tto{u} q
 \]
 when there is a path from $p$ to $q$ labelled $u$.  Write
 \[
-  p \xrightarrow{u}_{F} q
+  p \tto{u}_{F} q
 \]
 when there is such a path that visits at least one accepting state in
 $F$.
 \end{definition}
 
-How to read this: $p \xrightarrow{u} q$ answers ``can the automaton
+How to read this: $p \tto{u} q$ answers ``can the automaton
 reach $q$ from $p$ by reading $u$?'', while
-$p \xrightarrow{u}_{F} q$ answers the sharper question ``can it do so
+$p \tto{u}_{F} q$ answers the sharper question ``can it do so
 while passing through an accepting state?''.  The first relation is
 ordinary reachability; the second is the acceptance-aware refinement that
 B\"uchi complementation will need.
 
 Here ``visits'' includes the endpoints of the finite path.  Thus, for
-$u=\varepsilon$, we have $p\xrightarrow{\varepsilon}_{F}p$ exactly when
+$u=\varepsilon$, we have $p\tto{\varepsilon}_{F}p$ exactly when
 $p\in F$.  The convention is harmless but important: when transition
 profiles are concatenated, accepting information at the gluing state is
 not silently lost.
@@ -509,16 +509,16 @@ Consider the B\"uchi automaton $A$ of \cref{fig:profile-automaton}, with
 $F=\{s_1\}$.  We compute the transition profiles of two short words.
 
 For $u=c$, the only non-trivial entry is
-$s_2\xrightarrow{c}s_2$, and it does \emph{not} visit $F$ (the path
+$s_2\tto{c}s_2$, and it does \emph{not} visit $F$ (the path
 stays in $s_2\notin F$).  Every other pair $(p,q)$ has no $c$-labelled
 path.
 
-For $u=ab$, we have $s_0\xrightarrow{ab}_{F}s_2$ along the path
-$s_0\xrightarrow{a}s_1\xrightarrow{b}s_2$, which visits $s_1\in F$, and
-$s_2\xrightarrow{ab}_{F}s_2$ along the path
-$s_2\xrightarrow{a}s_1\xrightarrow{b}s_2$, which also visits $s_1$.  No
+For $u=ab$, we have $s_0\tto{ab}_{F}s_2$ along the path
+$s_0\tto{a}s_1\tto{b}s_2$, which visits $s_1\in F$, and
+$s_2\tto{ab}_{F}s_2$ along the path
+$s_2\tto{a}s_1\tto{b}s_2$, which also visits $s_1$.  No
 other pair has an $ab$-labelled path: in particular $s_1$ has no
-outgoing $a$-transition, so $s_1\xrightarrow{ab}q$ never holds.
+outgoing $a$-transition, so $s_1\tto{ab}q$ never holds.
 
 The two words $c$ and $ab$ therefore lie in different $\approx_A$-classes:
 the profile of $c$ has a single non-$F$ entry at $(s_2,s_2)$, while the
@@ -530,9 +530,9 @@ that $\approx_A$ attaches to every finite word.
 If $u\approx_A v$, then every finite path fact about $u$ that matters
 for B\"uchi acceptance also holds for $v$ with the same endpoints:
 \[
-  p\xrightarrow{u}q \Longleftrightarrow p\xrightarrow{v}q,
+  p\tto{u}q \Longleftrightarrow p\tto{v}q,
   \qquad
-  p\xrightarrow{u}_{F}q \Longleftrightarrow p\xrightarrow{v}_{F}q.
+  p\tto{u}_{F}q \Longleftrightarrow p\tto{v}_{F}q.
 \]
 Thus a run built from $u$-blocks can be imitated block by block with
 $v$-blocks, preserving the accepting visits that make the infinite run
@@ -686,9 +686,9 @@ $\alpha=u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$.
 Because $\alpha$ is accepted, fix an accepting run and write the states
 it visits at the block boundaries as
 \[
-  q_0=s_0 \xrightarrow{u_0} s_1
-      \xrightarrow{u_1} s_2
-      \xrightarrow{u_2} \cdots
+  q_0=s_0 \tto{u_0} s_1
+      \tto{u_1} s_2
+      \tto{u_2} \cdots
 \]
 Infinitely many of these block segments visit an accepting state;
 otherwise the whole run would visit $F$ only finitely often and would
@@ -780,8 +780,8 @@ complementation procedure explicit.
 \begin{enumerate}[nosep]
   \item Enumerate the finitely many $\approx_A$-classes.  Each class is a
         regular language: it is a Boolean combination of the languages
-        $W_{p,q}=\{u:p\xrightarrow{u}q\}$ and
-        $W^{F}_{p,q}=\{u:p\xrightarrow{u}_{F}q\}$, each recognized by
+        $W_{p,q}=\{u:p\tto{u}q\}$ and
+        $W^{F}_{p,q}=\{u:p\tto{u}_{F}q\}$, each recognized by
         the finite graph of $A$ with initial state $p$ and accepting
         state $q$ (and, for $W^{F}_{p,q}$, an extra flag recording
         whether $F$ has been seen).
@@ -888,8 +888,8 @@ exists, inclusion holds.
   $[u]_\equiv$ & equivalence class of the finite word $u$ \\
   $U, V$ & equivalence classes (sets of finite words) \\
   $UV^\omega$ & class product: a word from $U$ followed by $\omega$-many from $V$ \\
-  $p \xrightarrow{u} q$ & there is a path from $p$ to $q$ labelled $u$ \\
-  $p \xrightarrow{u}_{F} q$ & such a path exists and visits an accepting state \\
+  $p \tto{u} q$ & there is a path from $p$ to $q$ labelled $u$ \\
+  $p \tto{u}_{F} q$ & such a path exists and visits an accepting state \\
   $3^{n^2}$ & upper bound on the number of $\approx_A$-classes ($n=|Q|$) \\
   $\overline{L}$ & complement $\Sigma^\omega\setminus L$ \\
 \end{tabular}
@@ -931,8 +931,8 @@ one symbol.  Which class contains $\varepsilon$?
 
 \begin{chapex}[Why profiles need accepting information]
 In the automaton of \cref{fig:profile-automaton}, find two finite words
-$u$ and $v$ such that $s_2\xrightarrow{u}s_2$ and
-$s_2\xrightarrow{v}s_2$ (same endpoints), but one path visits $F$ and
+$u$ and $v$ such that $s_2\tto{u}s_2$ and
+$s_2\tto{v}s_2$ (same endpoints), but one path visits $F$ and
 the other does not.  Write the transition profile of each word and show
 that if we dropped the accepting-path column, the two profiles would
 coincide.  Construct an $\omega$-word accepted via $u$-blocks and argue

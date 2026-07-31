@@ -777,8 +777,8 @@ $\{0,1\}^{n-1}$ recognising $L(\Psi)$.
 \begin{proof}[Construction]
 $\mathcal{A}'$ is obtained from $\mathcal{A}$ by \emph{removing the
 $i$-th bit from every transition label}.  If $\mathcal{A}$ has a
-transition $q \xrightarrow{(b_1,\ldots,b_n)} q'$, then $\mathcal{A}'$
-has a transition $q \xrightarrow{(b_1,\ldots,b_{i-1},b_{i+1},\ldots,b_n)} q'$.
+transition $q \tto{(b_1,\ldots,b_n)} q'$, then $\mathcal{A}'$
+has a transition $q \tto{(b_1,\ldots,b_{i-1},b_{i+1},\ldots,b_n)} q'$.
 \end{proof}
 
 \medskip\noindent
@@ -791,17 +791,17 @@ automaton to process words of length $n-1$ and non-deterministically
 \begin{example}[Projection reduces the alphabet]
 An NBA $\mathcal{A}$ over $\{0,1\}^2 = \{00, 01, 10, 11\}$ with transitions:
 \[
-  q_0 \xrightarrow{00} q_1, \quad
-  q_1 \xrightarrow{11} q_1, \quad
-  q_1 \xrightarrow{10} q_2, \quad
-  q_2 \xrightarrow{11} q_2
+  q_0 \tto{00} q_1, \quad
+  q_1 \tto{11} q_1, \quad
+  q_1 \tto{10} q_2, \quad
+  q_2 \tto{11} q_2
 \]
 After projecting onto the first component (removing the second bit):
 \[
-  q_0 \xrightarrow{0} q_1, \quad
-  q_1 \xrightarrow{1} q_1, \quad
-  q_1 \xrightarrow{1} q_2, \quad
-  q_2 \xrightarrow{1} q_2.
+  q_0 \tto{0} q_1, \quad
+  q_1 \tto{1} q_1, \quad
+  q_1 \tto{1} q_2, \quad
+  q_2 \tto{1} q_2.
 \]
 The resulting $\mathcal{A}'$ over $\{0,1\}$ is \emph{non-deterministic}
 (two transitions from $q_1$ on symbol $1$), because the second component
@@ -1401,7 +1401,7 @@ Show that the formula $\varphi(x,y)$ from
 \begin{chapex}[B\"uchi theorem, easy direction]
 Given the NBA $\mathcal{A}$ with states $Q = \{q_0, q_1\}$,
 initial state $q_0$, $F = \{q_1\}$, and transitions
-$q_0 \xrightarrow{a} q_1$, $q_1 \xrightarrow{b} q_0$,
+$q_0 \tto{a} q_1$, $q_1 \tto{b} q_0$,
 write the S1S$_A$ sentence $\Phi_{\mathcal{A}}$ using the
 construction of \cref{sec:buchi-proof-fwd}.
 Identify $\varphi_1$, $\varphi_2$, $\varphi_3$ explicitly.

@@ -183,10 +183,10 @@ second, and let a later clean-up pass dissolve the free edges.
 \begin{example}[Wiring two automata with an $\varepsilon$-move]
 \label{ex:epsilon-nfa-preview}
 Suppose we have an automaton $A_1$ recognizing $\{a\}$ (one transition
-$q_0\xrightarrow{a}q_1$ with $q_1$ accepting) and an automaton $A_2$
-recognizing $\{b\}$ ($r_0\xrightarrow{b}r_1$ with $r_1$ accepting).
+$q_0\tto{a}q_1$ with $q_1$ accepting) and an automaton $A_2$
+recognizing $\{b\}$ ($r_0\tto{b}r_1$ with $r_1$ accepting).
 To build an automaton for the concatenation $\{ab\}$, we add a free
-edge $q_1\xrightarrow{\varepsilon}r_0$: after $A_1$ finishes, the
+edge $q_1\tto{\varepsilon}r_0$: after $A_1$ finishes, the
 machine silently jumps to $A_2$ without consuming input.  The result is
 an automaton with four states whose only accepted word is $ab$, built by
 wiring rather than redesigning.
@@ -367,7 +367,7 @@ $a=a$).}
   =\{q_1,r_0\}.
 \]
 After reading $a$ we are in $q_1$; the $\varepsilon$-closure then adds
-$r_0$ because $q_1\xrightarrow{\varepsilon}r_0$.
+$r_0$ because $q_1\tto{\varepsilon}r_0$.
 
 \medskip\noindent
 \textbf{Step 3 --- read $b$ (inductive step with $w=a$, $a=b$).}
@@ -423,7 +423,7 @@ why the empty word requires a separate final-state correction.}
     This collects exactly the destinations reachable by a sequence of $\varepsilon$-moves, an $a$-transition, and more $\varepsilon$-moves.
   }{
     Consider the concatenation $\varepsilon$-NFA in \cref{fig:epsilon-removal-example}:
-    $q_0\xrightarrow{a}q_1\xrightarrow{\varepsilon}r_0\xrightarrow{b}r_1$.
+    $q_0\tto{a}q_1\tto{\varepsilon}r_0\tto{b}r_1$.
     The $\varepsilon$-closures are: \\
     $\mathsf{ECl}(q_0)=\{q_0\}$, \\
     $\mathsf{ECl}(q_1)=\{q_1,r_0\}$.
@@ -1038,12 +1038,12 @@ determinize, complete, then swap final states.
 \begin{example}[Why swapping fails for NFAs]
 \label{ex:complement-nfa-failure}
 Consider the NFA over $\{a,b\}$ with states $q_0$ (initial) and $q_1$
-(accepting), transitions $q_0\xrightarrow{a}q_0$,
-$q_0\xrightarrow{a}q_1$, and $q_0\xrightarrow{b}q_0$.  This NFA
+(accepting), transitions $q_0\tto{a}q_0$,
+$q_0\tto{a}q_1$, and $q_0\tto{b}q_0$.  This NFA
 accepts every word containing at least one~$a$.  If we naively swap
 final and non-final states, $q_0$ becomes accepting and $q_1$ becomes
 non-accepting.  Now the word $a$ is still accepted---via the branch
-$q_0\xrightarrow{a}q_0$, which stays in the (now accepting) state
+$q_0\tto{a}q_0$, which stays in the (now accepting) state
 $q_0$.  The swapped automaton therefore accepts both $a$ and $b^*$,
 which is not the true complement $\{b\}^*$.  The error is that
 non-determinism provides an alternative accepting branch that the swap
@@ -1263,9 +1263,9 @@ length proves non-emptiness.
 For the other direction, assume $L(A)\neq\emptyset$ and choose an
 accepted word $z=a_1a_2\cdots a_m$ of minimum length.  Let
 \[
-  p_0 \xrightarrow{a_1} p_1
-      \xrightarrow{a_2} \cdots
-      \xrightarrow{a_m} p_m
+  p_0 \tto{a_1} p_1
+      \tto{a_2} \cdots
+      \tto{a_m} p_m
 \]
 be the accepting run, with $p_0=q_0$ and $p_m\in F$.
 
@@ -1283,7 +1283,7 @@ where
 \]
 The segment $v$ labels the part of the run
 \[
-  p_i \xrightarrow{v} p_j.
+  p_i \tto{v} p_j.
 \]
 But $p_i=p_j$, so $v$ is a closed loop: after reading $u$ the automaton
 is at $p_i$, reading $v$ returns it to the same state, and reading the
@@ -1292,8 +1292,8 @@ accepting state $p_m$.
 
 Therefore the loop can be skipped.  The word $uw$ follows the run
 \[
-  q_0 \xrightarrow{u} p_i
-      = p_j \xrightarrow{w} p_m,
+  q_0 \tto{u} p_i
+      = p_j \tto{w} p_m,
 \]
 so $uw\in L(A)$.  This word is strictly shorter than $z$, because
 $v$ is non-empty ($i<j$).  The letter names are not important here: the
@@ -1326,9 +1326,9 @@ minimal accepted word has length $m<n$.
 This proof is the pumping-lemma idea in its shortest-witness form.  Once
 an accepting run repeats a state, the repeated segment is a loop:
 \[
-  q_0 \xrightarrow{u} p_i
-      \xrightarrow{v} p_i
-      \xrightarrow{w} p_m.
+  q_0 \tto{u} p_i
+      \tto{v} p_i
+      \tto{w} p_m.
 \]
 Because the loop starts and ends in the same state, the automaton can
 traverse it any finite number of times:
