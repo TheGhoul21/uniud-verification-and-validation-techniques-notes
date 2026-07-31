@@ -50,7 +50,7 @@ strategy memory for Muller games, and weak/strong/strong-cyclic planning.
 | L03 | 653 | present | Kleene equivalence, closure constructions, decision reductions |
 | L04 | 654 | present | omega-words, Buchi acceptance, closure, asynchronous intersection |
 | L05 | 655 | present | omega-regular expressions, non-ultimately-periodic examples, congruence motivation |
-| L06 | 656 | present | Myhill-Nerode, right-invariant equivalences, quotient/minimal DFA |
+| L06 | 656 | present | Büchi emptiness decidability; Myhill-Nerode, right-invariant equivalences, quotient/minimal DFA |
 | L07 | 657 | present | transition profiles, accepting-path profiles, saturation, Ramsey setup |
 | L08 | 658 | present | Buchi complementation, inclusion, ultimately-periodic fingerprint |
 | L09 | 659 | present | railway interlocking case study, model-based verification, synthesis motivation |

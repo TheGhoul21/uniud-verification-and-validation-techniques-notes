@@ -31,7 +31,7 @@ and game-theoretic techniques used in verification.
   - Regular expressions, epsilon-NFAs, Kleene equivalence, closure properties,
     emptiness/inclusion/equivalence reductions, and Myhill--Nerode minimality.
 - **Chapter 3: Automata over Infinite Words**
-  - Sources: L04-L05.
+  - Sources: L04-L05 and the Büchi-emptiness result from L06.
   - Omega-words, Büchi automata, omega-regular languages, acceptance over
     infinite runs, closure properties, omega-regular expressions, lasso
     emptiness, and ultimately periodic witnesses.

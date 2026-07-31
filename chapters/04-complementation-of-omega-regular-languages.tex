@@ -27,7 +27,7 @@ The same reduction works for $\omega$-words, provided we can complement
 a B\"uchi-recognizable language effectively.  Intersection and emptiness
 are already manageable: intersection uses the asynchronous product of
 \cref{fig:buchi-intersection-phases}, and emptiness reduces to finding a
-reachable accepting cycle (\cref{prop:buchi-emptiness}).  The hard part
+reachable accepting cycle (\cref{thm:buchi-emptiness}).  The hard part
 is complementation.
 
 For finite words, complementing a complete DFA requires only swapping
@@ -792,7 +792,7 @@ complementation procedure explicit.
   \item Retain exactly those $B_{U,V}$ for which
         $L(B_{U,V})\cap L(A)=\emptyset$, decided by a
         reachable-accepting-cycle search on the asynchronous product
-        (\cref{prop:buchi-emptiness}).
+        (\cref{thm:buchi-emptiness}).
   \item Take the finite union of the retained $B_{U,V}$.
 \end{enumerate}
 

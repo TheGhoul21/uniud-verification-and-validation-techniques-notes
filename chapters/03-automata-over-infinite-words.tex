@@ -1005,12 +1005,19 @@ path reaches an accepting state that can be revisited along a cycle.  The
 infinite witness therefore collapses to a finite stem-and-loop pattern,
 and B\"uchi emptiness reduces to a finite graph problem.
 
-\begin{proposition}[B\"uchi emptiness]
-\label{prop:buchi-emptiness}
-Let $A$ be a B\"uchi automaton.  Then $L(A)\neq\emptyset$ if and only if
-some accepting state is reachable from $q_0$ and belongs to a directed
-cycle.
-\end{proposition}
+\begin{theorem}[Decidability of B\"uchi emptiness]
+\label{thm:buchi-emptiness}
+The emptiness problem for B\"uchi automata is decidable.  More precisely,
+for a B\"uchi automaton $A=(Q,\Sigma,\Delta,q_0,F)$,
+\[
+  \begin{aligned}
+    L(A)\neq\emptyset
+    \quad\Longleftrightarrow\quad&
+    \text{some }f\in F\text{ is reachable from }q_0\\
+    &\text{and belongs to a directed cycle.}
+  \end{aligned}
+\]
+\end{theorem}
 
 \begin{proof}
 If an accepting state $f$ is reachable and lies on a cycle, follow the
@@ -1020,6 +1027,14 @@ infinite run that visits $f$ infinitely often.
 Conversely, any accepting run visits some accepting state $f$ infinitely
 many times.  Between two visits to $f$ there is a non-empty finite path
 from $f$ back to $f$, hence a cycle reachable from $q_0$.
+
+This characterization gives a decision procedure on the finite transition
+graph.  First compute the states reachable from $q_0$, then compute its
+strongly connected components.  The language is non-empty exactly when a
+reachable component contains a state of $F$ and also contains a directed
+cycle (either at least two states or a state with a self-loop).  Reachability
+and strongly connected components can both be computed in
+$\Oh(|Q|+|\Delta|)$ time.
 \end{proof}
 
 \aside{A counterexample in model checking
@@ -1169,7 +1184,7 @@ enumerating the full language.  This finite representation is what makes
 lasso-shaped words central to B\"uchi emptiness.
 
 There is also a second, purely automata-theoretic reading of the same
-fact, going back to the lasso of \cref{prop:buchi-emptiness}: a general
+fact, going back to the lasso of \cref{thm:buchi-emptiness}: a general
 accepted word may switch to a different loop on each return to $f$,
 whereas the ultimately periodic witness simply commits to one loop and
 reuses it forever.
