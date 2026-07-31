@@ -854,6 +854,11 @@ $W_{s,s'}$.  So every $W_{s,s'}$ is regular, and we are free to use these
 languages as the $U_i$ and $V_i$ building blocks of an $\omega$-regular
 expression.
 
+\aside{In the lecture, the professor works over an alphabet written $A$
+rather than $\Sigma$, and later names the recurring final state $q_i$
+rather than $f$; both notations denote exactly the objects introduced
+here.}
+
 \Needspace{18\baselineskip}
 \begin{theorem}[B\"uchi-expression equivalence]
 \label{thm:buchi-expression-equivalence}
@@ -913,8 +918,8 @@ and the right-hand side has exactly the shape $\bigcup_i U_i V_i^\omega$
 demanded of an $\omega$-regular expression, with $U_f=W_{q_0,f}$ and
 $V_f=W_{f,f}\setminus\{\varepsilon\}$.
 
-The decomposition is a lasso: a finite prefix into $f$, then an infinite
-sequence of loops back to $f$.
+This finite prefix into $f$ followed by an infinite sequence of
+non-empty loops back to $f$ is usually called a lasso.
 
 \begin{center}
 \begin{tikzpicture}[
