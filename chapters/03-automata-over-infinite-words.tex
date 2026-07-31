@@ -805,10 +805,16 @@ from $V_i$.  A finite union provides finitely many alternatives for these
 two phases.  This is the infinite-word analogue of a regular expression.
 
 Before stating the equivalence, we isolate the finite-word machinery used
-in its automaton-to-expression direction.  An expression directly suggests
-an automaton construction; conversely, extracting an expression from a
-finite graph requires us to name the finite words connecting each pair of
-states.
+in its automaton-to-expression direction.  The two directions of the proof
+are not equally easy.  Going from an expression to an automaton is almost
+mechanical: the shape $UV^\omega$ already tells us how to build the
+automaton, by first reading $U$ and then looping through $V$ forever.
+Going the other way is harder: given only a graph of states and
+transitions, it is not obvious how to read off an expression describing
+its language just by staring at it.  The way forward is to stop looking at
+the whole graph at once, and instead name, for every pair of states, the
+finite words that connect them---these will be the building blocks we
+reassemble into an expression.
 
 Fix a B\"uchi automaton $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$.  For two
 states $s,s'\in Q$ and a finite word $w\in\Sigma^*$, write
