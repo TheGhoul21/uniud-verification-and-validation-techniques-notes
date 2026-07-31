@@ -773,7 +773,7 @@ come formula da memorizzare.
 
 ### Pilota 3 — Büchi emptiness e lasso witness
 
-**Fonte principale:** Capitolo 3, `prop:buchi-emptiness`; collegamento al
+**Fonte principale:** Capitolo 3, `thm:buchi-emptiness`; collegamento al
 `cor:ultimately-periodic-witness` e revisione di
 `notebooks/14-buchi-emptiness-lasso.qmd`.
 
