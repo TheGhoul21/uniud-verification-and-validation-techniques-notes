@@ -1113,15 +1113,47 @@ say $\alpha\in U_i V_i^\omega$.  Unfolding that term,
   \alpha = u\,v_1 v_2 v_3\cdots ,
   \qquad u\in U_i,\quad \text{each } v_j\in V_i .
 \]
-The blocks $v_1,v_2,\dots$ may all be different, but at least one of them,
-say $v_k$, is non-empty because their concatenation is an $\omega$-word.
-The definition does not require the blocks to vary.  Since $v_k\in V_i$,
-we have $v_k^\omega\in V_i^\omega$, so
+
+Before making the general choice, consider a concrete term with
+\[
+  U_i=\{ab\},
+  \qquad
+  V_i=\{c,de\}.
+\]
+One possible word in this term is
+\[
+  \alpha_{\mathrm{ex}}
+  =ab\;c\;de\;c\;c\;de\cdots ,
+\]
+where every block after $ab$ is chosen from $V_i$.  This is only one
+possible sequence of choices.  The same term also contains the words
+\[
+  ab\;c\;c\;c\cdots = ab\,c^\omega
+  \qquad\text{and}\qquad
+  ab\;de\;de\;de\cdots = ab\,(de)^\omega,
+\]
+because $V_i^\omega$ contains every infinite concatenation of blocks
+chosen from $V_i$, including a concatenation that chooses the same block
+at every position.
+
+Return now to the general decomposition of $\alpha$.  The prefix $u$ is
+finite, whereas $\alpha$ is an $\omega$-word.  Consequently, infinitely
+many of the blocks $v_1,v_2,\dots$ must be non-empty; otherwise their
+concatenation would be finite.  Choose one such block, say
+$v_k\in V_i$ with $v_k\neq\varepsilon$.  We may use the constant sequence
+\[
+  v_k,v_k,v_k,\dots
+\]
+in the definition of $V_i^\omega$.  Every entry still belongs to $V_i$,
+and the non-emptiness of $v_k$ ensures that their concatenation is an
+$\omega$-word.  Hence $v_k^\omega\in V_i^\omega$, and therefore
 \[
   \beta = u\,v_k^\omega = u\,v_k v_k v_k\cdots
 \]
-also lies in $U_i V_i^\omega\subseteq L$---and $\beta$ is ultimately
-periodic.
+lies in $U_i V_i^\omega\subseteq L$.  The new word $\beta$ need not be
+equal to $\alpha$: the goal is to exhibit some word of $L$ with a repeating
+tail.  Since $v_k$ is non-empty, $\beta$ has the form required of an
+ultimately periodic word.
 \end{proof}
 
 \begin{figure}[ht]
@@ -1135,42 +1167,42 @@ periodic.
   rl/.style={font=\footnotesize\itshape\color{graphite!75}},
   note/.style={font=\footnotesize\color{graphite!80}},
 ]
-  % general accepted word: blocks may differ (varying widths)
+  % general accepted word: blocks may differ; one non-empty block is selected
   \node[ublk] (u1) {$u$};
   \node[vgen, right=1.5pt of u1, minimum width=11mm] (g1) {$v_1$};
   \node[vgen, right=1.5pt of g1, minimum width=16mm] (g2) {$v_2$};
-  \node[vgen, right=1.5pt of g2, minimum width=8mm]  (g3) {$v_3$};
-  \node[vgen, right=1.5pt of g3, minimum width=13mm] (g4) {$v_4$};
-  \node[right=4pt of g4] (gd) {$\cdots$};
+  \node[right=4pt of g2] (gpre) {$\cdots$};
+  \node[vper, right=4pt of gpre, minimum width=13mm] (gk) {$v_k$};
+  \node[right=4pt of gk] (gd) {$\cdots$};
   \node[rl, left=6pt of u1] {general};
   \node[note, right=8pt of gd] {$\alpha = u\,v_1 v_2 v_3\cdots\ \in L$};
 
   % ultimately periodic word: the same block, reused (equal widths)
   \node[ublk, below=13mm of u1.south west, anchor=north west] (u2) {$u$};
-  \node[vper, right=1.5pt of u2, minimum width=11mm] (p1) {$v_1$};
-  \node[vper, right=1.5pt of p1, minimum width=11mm] (p2) {$v_1$};
-  \node[vper, right=1.5pt of p2, minimum width=11mm] (p3) {$v_1$};
-  \node[vper, right=1.5pt of p3, minimum width=11mm] (p4) {$v_1$};
+  \node[vper, right=1.5pt of u2, minimum width=11mm] (p1) {$v_k$};
+  \node[vper, right=1.5pt of p1, minimum width=11mm] (p2) {$v_k$};
+  \node[vper, right=1.5pt of p2, minimum width=11mm] (p3) {$v_k$};
+  \node[vper, right=1.5pt of p3, minimum width=11mm] (p4) {$v_k$};
   \node[right=4pt of p4] (pd) {$\cdots$};
   \node[rl, left=6pt of u2] {periodic};
-  \node[note, right=8pt of pd] {$\beta = u\,v_1^\omega\ \in L$};
+  \node[note, right=8pt of pd] {$\beta = u\,v_k^\omega\ \in L$};
 
-  % collapse: g1 and p1 are vertically aligned, so the arrow is vertical
-  \draw[-Stealth, thick, color=graphite!65] (g1.south) --
-     node[right=3pt, note] {keep $v_1$, drop the rest, repeat it forever} (p1.north);
+  % collapse the varying tail to repetitions of the selected block
+  \draw[-Stealth, thick, color=graphite!65] (gk.south) to[out=260,in=70]
+     node[right=3pt, note] {select non-empty $v_k$ and repeat it} (p2.north);
 \end{tikzpicture}
 \caption{The collapse behind \cref{cor:ultimately-periodic-witness}, seen
 on the word itself.  A general accepted word splits as a prefix $u$
-followed by blocks $v_1,v_2,\dots$ that may all differ; keeping only the
-first block and reusing it gives the ultimately periodic witness
-$u\,v_1^\omega$.  Both lie in the same term $U_iV_i^\omega$, hence in
-$L$.}
+followed by blocks $v_1,v_2,\dots$ that may all differ.  Selecting any
+non-empty block $v_k$ and reusing it gives the ultimately periodic witness
+$u\,v_k^\omega$.  Both words lie in the same term $U_iV_i^\omega$, hence
+in $L$.}
 \label{fig:up-collapse}
 \end{figure}
 
 \Cref{fig:up-collapse} shows this collapse at the level of the word: the
 varying blocks $v_1,v_2,\dots$ are overwritten by copies of the single
-block $v_1$.
+non-empty block $v_k$.
 
 This corollary is the infinite-word counterpart of the \emph{small model
 property} for finite automata (\cref{thm:small-model-finite}).  There,
