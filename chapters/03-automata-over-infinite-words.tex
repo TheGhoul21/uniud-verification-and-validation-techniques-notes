@@ -508,8 +508,16 @@ non-accepting sink; in a partial automaton the transition may remain
 undefined.
 
 The accepting status of $q_2$ does not affect the recognised language.
-If no further $a$ occurs, the last incomplete gap is irrelevant to the
-condition; if another $a$ occurs, the run can continue only from $q_1$.
+Two cases exhaust every infinite suffix from here.  If no further $a$
+ever occurs, the run reads an infinite tail of $b$'s and $c$'s, and $b/c$
+transitions bounce forever between $q_1$ and $q_2$; the run therefore
+visits $q_1$ infinitely often regardless of what we decree about $q_2$,
+and $q_1$ alone already witnesses acceptance.  If another $a$ does occur
+while the run sits in $q_2$, that transition leads to the non-accepting
+sink (or is simply undefined), killing the run outright---independently
+of whether $q_2$ was marked accepting.  So an infinite accepting run can
+only survive by reading every later $a$ from $q_1$, which is why $q_2$
+never needs to carry acceptance information of its own.
 
 The states therefore carry a clean semantic reading:
 \begin{itemize}[nosep]
@@ -681,6 +689,15 @@ block-restart mechanism; the remaining constructions reuse that mechanism
 or standard product constructions.
 
 \textbf{Property (1) --- $\omega$-power $V^\omega$ (full construction).}
+The main difficulty is not recognising one block from $V$---the
+finite-word automaton $\mathcal{A}$ already does that.  We must make the
+boundary between consecutive blocks visible to the B\"uchi acceptance
+condition, which can only talk about states recurring infinitely often.
+The construction therefore turns every completed $V$-block into a return
+to one distinguished accepting checkpoint: visiting that checkpoint
+infinitely often will mean that infinitely many blocks have been
+completed.
+
 Let $\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)$ recognise $V$.  Two harmless
 assumptions simplify the argument.  First, $\varepsilon\notin V$: an
 empty block contributes no symbol to an infinite concatenation, so
@@ -731,7 +748,17 @@ nondeterministic, even when both inputs are deterministic.
     own B\"uchi condition individually.
 
     The fix, due to Thomas, introduces a \emph{third component} $c\in\{0,1,2\}$
-    alongside the product state $(q_1,q_2)$.  The combined automaton is
+    alongside the product state $(q_1,q_2)$.  This component is not a copy
+    of either automaton's state: it is a small controller that remembers
+    which acceptance obligation the product is currently waiting for.
+    Concretely, $c=0$ is phase~1---``wait for $F_1$''; $c=1$ is
+    phase~2---``an $F_1$-state has just been seen, now wait for $F_2$'';
+    and $c=2$ is a fleeting marker recording that both obligations have
+    just been discharged, immediately resetting the controller to $c=0$ so
+    a new round can begin (see \cref{fig:buchi-intersection-phases}).
+    Making $c=2$ the accepting value therefore forces the product to
+    complete infinitely many such rounds, and hence to see both $F_1$ and
+    $F_2$ infinitely often.  The combined automaton is
     \[
       \mathcal{A} = (Q_1\times Q_2\times\{0,1,2\},\;\Sigma,\;\Delta,\;(q_1,q_2,0),\;F)
     \]
@@ -969,9 +996,14 @@ and the expression denotes exactly $L(\mathcal{A})$.
 \label{sec:buchi-emptiness}
 % ============================================================
 
-The expression theorem gives an algebraic characterisation; for
-verification, we also need an effective emptiness test.  B\"uchi emptiness
-reduces to a finite graph problem.
+The expression theorem tells us what $\omega$-regular languages look
+like, but it does not yet give us a direct way to decide whether a
+particular automaton accepts anything.  At first this seems to require
+searching through infinite runs one by one.  The finite transition graph
+makes that unnecessary: an accepting run exists exactly when a finite
+path reaches an accepting state that can be revisited along a cycle.  The
+infinite witness therefore collapses to a finite stem-and-loop pattern,
+and B\"uchi emptiness reduces to a finite graph problem.
 
 \begin{proposition}[B\"uchi emptiness]
 \label{prop:buchi-emptiness}
@@ -1032,13 +1064,20 @@ for finite words $u\in\Sigma^*$ and non-empty $v\in\Sigma^*$.
 
 \aside{In Italian: \emph{definitivamente periodico}.}
 
-An ultimately periodic word is \emph{finitely describable}: the two finite
-words $u$ and $v$ determine the entire infinite sequence.  A general
-$\omega$-word need not admit any finite description---there are only
-countably many finite descriptions but uncountably many $\omega$-words.
-The word $\beta=a\,b\,a\,b^2\,a\,b^3\cdots$ in the next example is not
-ultimately periodic.  Thus ultimately periodic words provide a
-particularly useful class of finite witnesses for infinitary behaviour.
+The letters $u$ and $v$ are not arbitrary: they are exactly the two
+labels already used in \Cref{fig:buchi-lasso}.  The finite path into the
+accepting cycle spells $u$, and the cycle itself, read once, spells $v$;
+repeating that same cycle forever produces $u\,v^\omega$.  An ultimately
+periodic word is thus nothing but the word read off a lasso.
+
+An ultimately periodic word is also \emph{finitely describable}: the two
+finite words $u$ and $v$ determine the entire infinite sequence.  A
+general $\omega$-word need not admit any finite description---there are
+only countably many finite descriptions but uncountably many
+$\omega$-words.  The word $\beta=a\,b\,a\,b^2\,a\,b^3\cdots$ of
+\cref{ex:non-omega-regular-languages} below is not ultimately periodic.
+Thus ultimately periodic words provide a particularly useful class of
+finite witnesses for infinitary behaviour.
 
 \begin{corollary}[Ultimately periodic witnesses]
 \label{cor:ultimately-periodic-witness}
@@ -1130,13 +1169,10 @@ enumerating the full language.  This finite representation is what makes
 lasso-shaped words central to B\"uchi emptiness.
 
 There is also a second, purely automata-theoretic reading of the same
-fact: an ultimately periodic word is the lasso of
-\cref{prop:buchi-emptiness} read off verbatim (\cref{fig:buchi-lasso}).  A
-non-empty B\"uchi automaton for $L$ has an accepting state reachable from
-$q_0$ and lying on a cycle; the finite path to it spells the prefix $u$,
-and the \emph{same} cycle repeated forever spells $v^\omega$.  A general
-accepted word may switch to a different loop on each return to $f$; the
-ultimately periodic witness simply commits to one loop and reuses it.
+fact, going back to the lasso of \cref{prop:buchi-emptiness}: a general
+accepted word may switch to a different loop on each return to $f$,
+whereas the ultimately periodic witness simply commits to one loop and
+reuses it forever.
 
 \begin{example}[Languages without periodic words]
 \label{ex:non-omega-regular-languages}
