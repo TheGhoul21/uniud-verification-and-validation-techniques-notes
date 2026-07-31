@@ -77,7 +77,7 @@ Now, how should we define acceptance for this deterministic automaton? In the BÃ
 Let us test this candidate DBA on the infinite word:
 $$\alpha = (ab)^\omega = a b a b a b \dots$$
 The run of the DBA on $\alpha$ is:
-$$\sigma = S_0 \xrightarrow{a} S_0 \xrightarrow{b} S_1 \xrightarrow{a} S_0 \xrightarrow{b} S_1 \dots$$
+$$\sigma = S_0 \tto{a} S_0 \tto{b} S_1 \tto{a} S_0 \tto{b} S_1 \dots$$
 This run visits $S_1$ infinitely often, which means the DBA accepts the word. However, $\alpha$ contains infinitely many $a$'s! It does not belong to the language $L_{fin\_a}$, which requires only finitely many $a$'s.
 
 Why did the subset construction fail?
