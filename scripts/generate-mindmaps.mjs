@@ -484,7 +484,9 @@ ${cards}
 }
 
 function latexEscape(text) {
+  const normalized = text.replaceAll("≈𝒜", "\uFFF2");
   const mathSymbols = new Map([
+    ["\uFFF2", "\\ensuremath{\\approx_{\\mathcal A}}"],
     ["ω", "\\ensuremath{\\omega}"],
     ["ε", "\\ensuremath{\\varepsilon}"],
     ["α", "\\ensuremath{\\alpha}"],
@@ -497,6 +499,8 @@ function latexEscape(text) {
     ["→", "\\ensuremath{\\to}"],
     ["⇒", "\\ensuremath{\\Rightarrow}"],
     ["≡", "\\ensuremath{\\equiv}"],
+    ["≈", "\\ensuremath{\\approx}"],
+    ["𝒜", "\\ensuremath{\\mathcal A}"],
     ["∩", "\\ensuremath{\\cap}"],
     ["∞", "\\ensuremath{\\infty}"],
     ["∈", "\\ensuremath{\\in}"],
@@ -523,7 +527,7 @@ function latexEscape(text) {
     ["–", "--"],
   ]);
 
-  return [...text].map((character) => (
+  return [...normalized].map((character) => (
     mathSymbols.get(character) || special.get(character) || character
   )).join("");
 }

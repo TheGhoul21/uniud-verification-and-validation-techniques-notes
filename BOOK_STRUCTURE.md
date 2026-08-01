@@ -37,7 +37,7 @@ and game-theoretic techniques used in verification.
     emptiness, and ultimately periodic witnesses.
 - **Chapter 4: Complementation of Omega-Regular Languages**
   - Sources: L07-L08, with supporting material from L05.
-  - Finite-index congruences, transition profiles, saturation, Ramsey
+  - Finite-index congruences, the relation $\approx_{\mathcal A}$, saturation, Ramsey
     decomposition, Büchi complementation, and inclusion.
 - **Chapter 5: Synthesis and Infinite Games**
   - Sources: L09-L11.

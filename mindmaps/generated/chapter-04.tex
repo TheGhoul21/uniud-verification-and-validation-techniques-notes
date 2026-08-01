@@ -27,29 +27,29 @@
 ]
   \node[mm root] (root) at (0,0) {Chapter 4\\Complementation of \ensuremath{\omega}-Regular Languages};
   \node[mm section, concept color=brightsky] (s1) at (81:5.1cm) {Why the Finite Trick Fails};
-  \node[mm topic, concept color=brightsky!44!white] (t1_1) at (81:9.8cm) {The complement of the running request/ack language};
+  \node[mm topic, concept color=brightsky!44!white] (t1_1) at (81:9.8cm) {The complement of the running editor language};
   \node[mm section, concept color=vvteal] (s2) at (27:5.1cm) {Congruences and Saturation};
   \node[mm topic, concept color=vvteal!44!white] (t2_1) at (63:9.8cm) {Congruence};
   \node[mm topic, concept color=vvteal!44!white] (t2_2) at (45:9.8cm) {Parity of length, a finite-index congruence};
   \node[mm topic, concept color=vvteal!44!white] (t2_3) at (27:9.8cm) {Saturation};
   \node[mm topic, concept color=vvteal!44!white] (t2_4) at (9:9.8cm) {Saturation and complement};
   \node[mm topic, concept color=vvteal!44!white] (t2_5) at (-9:9.8cm) {Complement from saturation};
-  \node[mm section, concept color=vvviolet] (s3) at (-72:5.1cm) {The Automaton Congruence};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_1) at (-27:9.8cm) {Path profile notation};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_2) at (-45:9.8cm) {Transition profile};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_3) at (-63:9.8cm) {Index bound};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_4) at (-81:9.8cm) {What the profile remembers};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_5) at (-99:9.8cm) {Two profiles on a small automaton};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_6) at (-117:9.8cm) {Replacement principle};
-  \node[mm section, concept color=vvorange] (s4) at (-144:5.1cm) {Ramsey Decomposition};
-  \node[mm topic, concept color=vvorange!44!white] (t4_1) at (-135:9.8cm) {Homogeneous decomposition};
-  \node[mm topic, concept color=vvorange!44!white] (t4_2) at (-153:9.8cm) {Ramsey decomposition on the running automaton};
-  \node[mm section, concept color=tomato] (s5) at (-207:5.1cm) {Closure under Complement};
-  \node[mm topic, concept color=tomato!44!white] (t5_1) at (-171:9.8cm) {The automaton congruence saturates L(A)};
-  \node[mm topic, concept color=tomato!44!white] (t5_2) at (-189:9.8cm) {Saturation on the running automaton};
-  \node[mm topic, concept color=tomato!44!white] (t5_3) at (-207:9.8cm) {Complementation of Büchi-recognizable languages};
-  \node[mm topic, concept color=tomato!44!white] (t5_4) at (-225:9.8cm) {The complement automaton by saturation};
-  \node[mm topic, concept color=tomato!44!white] (t5_5) at (-243:9.8cm) {Ultimately periodic fingerprint};
+  \node[mm section, concept color=vvviolet] (s3) at (-81:5.1cm) {The Relation \ensuremath{\approx_{\mathcal A}}};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_1) at (-27:9.8cm) {Path notation};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_2) at (-45:9.8cm) {Regular path languages};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_3) at (-63:9.8cm) {The relation \ensuremath{\approx_{\mathcal A}}};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_4) at (-81:9.8cm) {Properties of \ensuremath{\approx_{\mathcal A}}};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_5) at (-99:9.8cm) {What \ensuremath{\approx_{\mathcal A}} remembers};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_6) at (-117:9.8cm) {Two \ensuremath{\approx_{\mathcal A}}-classes on a small automaton};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_7) at (-135:9.8cm) {Replacement principle};
+  \node[mm section, concept color=vvorange] (s4) at (-162:5.1cm) {Ramsey Decomposition};
+  \node[mm topic, concept color=vvorange!44!white] (t4_1) at (-153:9.8cm) {Ramsey decomposition for \ensuremath{\omega}-words};
+  \node[mm topic, concept color=vvorange!44!white] (t4_2) at (-171:9.8cm) {Ramsey decomposition on the running automaton};
+  \node[mm section, concept color=tomato] (s5) at (-216:5.1cm) {Closure under Complement};
+  \node[mm topic, concept color=tomato!44!white] (t5_1) at (-189:9.8cm) {Saturation on the running automaton};
+  \node[mm topic, concept color=tomato!44!white] (t5_2) at (-207:9.8cm) {Complementation of Büchi-recognizable languages};
+  \node[mm topic, concept color=tomato!44!white] (t5_3) at (-225:9.8cm) {The complement automaton by saturation};
+  \node[mm topic, concept color=tomato!44!white] (t5_4) at (-243:9.8cm) {Ultimately periodic fingerprint};
   \node[mm section, concept color=brightsky] (s6) at (-261:5.1cm) {Model Checking Consequence};
   \node[mm topic, concept color=brightsky!44!white] (t6_1) at (-261:9.8cm) {Büchi inclusion};
 
@@ -69,6 +69,7 @@
     \draw[vvviolet!60!white, line width=5.5pt] (s3) -- (t3_4);
     \draw[vvviolet!60!white, line width=5.5pt] (s3) -- (t3_5);
     \draw[vvviolet!60!white, line width=5.5pt] (s3) -- (t3_6);
+    \draw[vvviolet!60!white, line width=5.5pt] (s3) -- (t3_7);
     \draw[vvorange, line width=11pt] (root) -- (s4);
     \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_1);
     \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_2);
@@ -77,7 +78,6 @@
     \draw[tomato!60!white, line width=5.5pt] (s5) -- (t5_2);
     \draw[tomato!60!white, line width=5.5pt] (s5) -- (t5_3);
     \draw[tomato!60!white, line width=5.5pt] (s5) -- (t5_4);
-    \draw[tomato!60!white, line width=5.5pt] (s5) -- (t5_5);
     \draw[brightsky, line width=11pt] (root) -- (s6);
     \draw[brightsky!60!white, line width=5.5pt] (s6) -- (t6_1);
   \end{scope}

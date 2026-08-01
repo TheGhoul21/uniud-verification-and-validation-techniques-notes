@@ -44,7 +44,7 @@ one:
         (\cref{sec:buchi-complement-fails});
   \item finite-index congruences, which summarize finite words with
         finitely many labels (\cref{sec:congruence-saturation});
-  \item transition profiles, which provide the concrete congruence
+  \item the relation $\approx_{\mathcal A}$, which provides the concrete congruence
         induced by a B\"uchi automaton
         (\cref{sec:automaton-congruence});
   \item a Ramsey-style decomposition, which partitions every infinite
@@ -71,11 +71,11 @@ one:
       arlbl/.style={midway, above=6pt, font=\tiny, align=center,
         fill=white, inner sep=0.6pt}
     ]
-    \node[cstep] (nba) at (0,0) {B\"uchi automaton\\$A$};
-    \node[hard] (prof) at (3.7,0) {transition\\profiles};
+    \node[cstep] (nba) at (0,0) {B\"uchi automaton\\$\mathcal A$};
+    \node[hard] (prof) at (3.7,0) {relation\\$\approx_{\mathcal A}$};
     \node[hard] (ramsey) at (7.4,0) {Ramsey\\decomposition};
     \node[cstep, vv counterexample] (sat) at (11.1,0) {rejecting\\class\\products};
-    \node[acceptstep] (comp) at (14.8,0) {automaton for\\$\overline{L(A)}$};
+    \node[acceptstep] (comp) at (14.8,0) {automaton for\\$\overline{L(\mathcal A)}$};
 
     \draw[arr] (nba) -- node[arlbl] {finite\\blocks} (prof);
     \draw[arr] (prof) -- node[arlbl] {stable\\colours} (ramsey);
@@ -84,8 +84,8 @@ one:
   \end{tikzpicture}%
   }
   \caption{The complementation proof is not a state-flipping construction.
-           It compresses finite blocks into profiles, uses Ramsey stability
-           to obtain a homogeneous block decomposition, and then
+           It compresses finite blocks into $\approx_{\mathcal A}$-classes, uses Ramsey stability
+           to obtain a Ramsey block decomposition, and then
            builds the complement from the class products disjoint from
            the original language.}
   \label{fig:buchi-complementation-roadmap}
@@ -194,8 +194,9 @@ $\equiv_{\mathrm{par}}$ is a congruence of index $2$.
 Parity is too coarse for the acceptance questions considered here, but
 it captures the shape of the idea: a congruence summarizes each finite
 word by a label drawn from a finite set, and concatenation acts on these
-labels through a finite table.  The automaton congruence we build later
-in this chapter has exactly this shape, with a much richer label set.
+labels through a finite table.  The relation $\approx_{\mathcal A}$
+introduced later in this chapter has exactly this
+shape, with a much richer label set.
 
 A finite summary supports complementation only if it also determines
 language membership uniformly.  Saturation states precisely this
@@ -353,8 +354,8 @@ transition well-defined.
 There are only finitely many pairs of classes $(U,V)$.  Since $L$ is
 saturated, each product $UV^\omega$ is either contained in $L$ or
 disjoint from $L$.  Moreover, every infinite word belongs to at least
-one such product: the homogeneous decomposition proved in
-\cref{lem:homogeneous-decomposition} supplies a prefix class $U$ and a
+one such product: the Ramsey decomposition proved in
+\cref{lem:ramsey-decomposition} supplies a prefix class $U$ and a
 repeated block class $V$.  Therefore
 \[
   \overline{L}
@@ -367,28 +368,37 @@ languages are $\omega$-regular.
 \end{proof}
 
 Complementation has therefore been reduced to constructing a suitable
-finite-index congruence and proving that it saturates $L(A)$.  The next
-two sections provide the ingredients for these tasks.  First, from the
-automaton $A$ itself, we build a concrete congruence $\approx_A$ that
-records accepting visits.  We then establish the Ramsey-style
+finite-index congruence and proving that it saturates $L(\mathcal A)$.
+The next two sections provide the ingredients for these tasks.  First,
+from the automaton $\mathcal A$ itself, we build the relation
+$\approx_{\mathcal A}$, which records accepting visits.  We then establish the Ramsey-style
 decomposition needed to show that its class products cover all infinite
 words.  The saturation proof will combine these two ingredients in
 \cref{sec:omega-complement-theorem}.
 
 
 % ============================================================
-\section{The Automaton Congruence}
+\section{The Relation \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜}}
 \label{sec:automaton-congruence}
 % ============================================================
 
-Let $A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  A finite word
+Let $\mathcal A=(Q,\Sigma,\Delta,q_0,F)$ be a B\"uchi automaton.  A finite word
 can be summarized by what it does to pairs of states.  The summary must
 record not only reachability between states, but also whether accepting
 states were seen along the way: this is the new ingredient that finite
 automata never needed and that B\"uchi acceptance forces on us.
 
-\begin{definition}[Path profile notation]
-\label{def:path-profile-notation}
+This construction generalizes the automaton relation
+$\sim_{\mathcal A}$ from \cref{def:automaton-right-equivalence}.  For a
+DFA on finite words, $u\sim_{\mathcal A}v$ means that $u$ and $v$ take
+the initial state to the same state; acceptance can then be checked when
+the input ends.  An $\omega$-word has no last position, so for a B\"uchi
+automaton it is not enough to compare the states reached from $q_0$.
+We must compare the behaviour of each finite block between \emph{every}
+pair of boundary states and remember whether that block can visit $F$.
+
+\begin{definition}[Path notation]
+\label{def:accepting-path-notation}
 For $p,q\in Q$ and $u\in\Sigma^*$, write
 \[
   p \tto{u} q
@@ -410,74 +420,200 @@ B\"uchi complementation will need.
 
 Here ``visits'' includes the endpoints of the finite path.  Thus, for
 $u=\varepsilon$, we have $p\tto{\varepsilon}_{F}p$ exactly when
-$p\in F$.  The convention is harmless but important: when transition
-profiles are concatenated, accepting information at the gluing state is
+$p\in F$.  The convention is harmless but important: when finite
+segments are concatenated, accepting information at the gluing state is
 not silently lost.
 
 The accepting-path relation is essential because a repeated block
 contributes to B\"uchi acceptance only if it can be traversed while
 visiting $F$.
 
-\begin{definition}[Transition profile]
-\label{def:transition-profile}
-For a finite word $u\in\Sigma^*$ and states $p,q\in Q$, record two
-facts:
-\begin{itemize}[nosep]
-  \item whether there exists a path from $p$ to $q$ labelled $u$;
-  \item whether there exists such a path that visits some state in $F$.
-\end{itemize}
-Two words are equivalent, written $u\approx_A v$, if they have the same
-answers for every pair $(p,q)$.
+The two kinds of finite paths also determine regular languages, a fact
+used later to construct automata for the equivalence classes.
+
+\begin{proposition}[Regular path languages]
+\label{prop:regular-path-languages}
+For every $p,q\in Q$, the finite-word languages
+\[
+  W_{p,q}=\{u\in\Sigma^*:p\tto{u}q\}
+  \qquad\text{and}\qquad
+  W^F_{p,q}=\{u\in\Sigma^*:p\tto{u}_{F}q\}
+\]
+are regular.
+\end{proposition}
+
+\begin{proof}
+For $W_{p,q}$, use the transition graph of $\mathcal A$ as a
+finite-word NFA, with $p$ as its initial state and $q$ as its only
+accepting state.
+
+For $W^F_{p,q}$, use states $Q\times\{0,1\}$.  The second component is
+a flag recording whether a state in $F$ has already been visited.  The
+initial state is $(p,1)$ if $p\in F$ and $(p,0)$ otherwise; whenever a
+transition enters $r\in F$, the flag becomes $1$ and remains $1$.
+The only accepting state is $(q,1)$.  This NFA accepts exactly the words
+that label a path from $p$ to $q$ visiting $F$, including possibly at
+one of the endpoints.
+\end{proof}
+
+\begin{definition}[The relation \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜}]
+\label{def:approx-a}
+For $u,v\in\Sigma^*$, define
+\[
+  u\approx_{\mathcal A}v
+  \quad\Longleftrightarrow\quad
+  \text{for every }p,q\in Q,
+  \begin{cases}
+    p\tto{u}q \Longleftrightarrow p\tto{v}q,\\
+    p\tto{u}_{F}q \Longleftrightarrow p\tto{v}_{F}q.
+  \end{cases}
+\]
+Thus two finite words are $\approx_{\mathcal A}$-equivalent when they have the
+same reachability behaviour and the same accepting-visit behaviour for
+every ordered pair of states.
 \end{definition}
 
 The operational test is: given two finite words $u$ and $v$, check every
 ordered pair of states $(p,q)$.  For each word, ask whether $q$ is
 reachable from $p$ and whether an accepting path exists.  If $u$ and
 $v$ give identical answers to both questions for every pair, they are
-$\approx_A$-equivalent.  They can then replace one another between the
+$\approx_{\mathcal A}$-equivalent.  They can then replace one another between the
 same boundary states while preserving the accepting visits relevant to
 an infinite run.
 
-The relation $\approx_A$ has finite index because each word determines a
-finite Boolean table over $Q\times Q$.  It is also a congruence: the
-transition profile of $uv$ is obtained by composing the profiles of $u$
-and $v$.
-
-\begin{proposition}[Index bound]
-\label{prop:double-tilde-index}
-If $A$ has $n$ states, then $\approx_A$ has at most $3^{n^2}$
-equivalence classes.
-\end{proposition}
+\begin{lemma}[Properties of \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜}]
+\label{lem:approx-a-properties}
+For every B\"uchi automaton $\mathcal A$, the relation
+$\approx_{\mathcal A}$ is a congruence of finite index that saturates
+$L(\mathcal A)$.  If $\mathcal A$ has $n$ states, its index is at most
+$3^{n^2}$.
+\end{lemma}
 
 \begin{proof}
-Fix a finite word $u$ and a pair of states $(p,q)$.  With respect to
-that pair, there are three relevant statuses:
+\emph{Equivalence relation.}
+Every word $u$ determines two Boolean relations on $Q\times Q$: whether
+$p\tto{u}q$ holds and whether $p\tto{u}_{F}q$ holds.  The relation
+$u\approx_{\mathcal A}v$ is equality of these two tables.  It is therefore
+reflexive, symmetric, and transitive.
+
+\emph{Congruence.}
+Suppose that $u\approx_{\mathcal A}v$ and
+$u'\approx_{\mathcal A}v'$.  A path labelled $uu'$ from $p$ to $q$
+exists exactly when there is some $r\in Q$ such that
+
+\[
+  p\tto{u}r \quad\text{and}\quad r\tto{u'}q.
+\]
+
+The same intermediate state $r$ witnesses a path labelled $vv'$, and
+the converse follows symmetrically.  Moreover, the $uu'$-path visits
+$F$ exactly when its $u$-part or its $u'$-part visits $F$.  The two
+equivalences in the definition preserve both alternatives, so the same
+accepting-visit fact holds for $vv'$.  Hence
+$uu'\approx_{\mathcal A}vv'$.
+
+\emph{Finite index.}
+Fix a word $u$ and a pair $(p,q)\in Q\times Q$.  There are only three
+possible statuses:
 \begin{enumerate}[nosep]
   \item no path labelled $u$ goes from $p$ to $q$;
-  \item some path labelled $u$ goes from $p$ to $q$, but no such path
-        visits an accepting state;
-  \item some path labelled $u$ goes from $p$ to $q$ and visits an
-        accepting state.
+  \item such a path exists, but none visits $F$;
+  \item such a path exists and one visits $F$.
 \end{enumerate}
-There are $n^2$ ordered pairs $(p,q)$.  A word therefore determines a
-matrix with $n^2$ entries, each entry chosen from at most three statuses.
-There are at most $3^{n^2}$ such matrices.  Two words with the same
-matrix are $\approx_A$-equivalent, so the number of equivalence classes
-is at most $3^{n^2}$.
+For $n^2$ ordered pairs, a word therefore determines one of at most
+$3^{n^2}$ tables.  Words with the same table are
+$\approx_{\mathcal A}$-equivalent, so the index is finite and bounded by
+$3^{n^2}$.
+
+\emph{Saturation of $L(\mathcal A)$.}
+Let $U,V$ be $\approx_{\mathcal A}$-classes and suppose that
+$UV^\omega\cap L(\mathcal A)\neq\emptyset$.  Choose
+
+\[
+  \alpha=uv_1v_2v_3\cdots\in UV^\omega\cap L(\mathcal A),
+  \qquad
+  u\in U,\quad v_i\in V\text{ for }i\geq 1,
+\]
+
+and fix an accepting run of $\mathcal A$ on $\alpha$.  If its states at
+the block boundaries are $q_0,s_1,s_2,\ldots$, then the prefix and the
+following factors satisfy, respectively,
+
+\[
+  \begin{aligned}
+    q_0 &\tto{u}   s_1,\\
+    s_1 &\tto{v_1} s_2,\\
+    s_2 &\tto{v_2} s_3,\\[-2pt]
+        &\ \vdots
+  \end{aligned}
+\]
+
+The same computation can be read pictorially by retaining only the
+states at the boundaries of the finite factors.  A marked $F$ records a
+segment whose path visits an accepting state; such a visit need not
+occur at a boundary state.
+
+\begin{center}
+\begin{tikzpicture}[
+  boundary/.style={circle, fill=graphite, inner sep=1.8pt},
+  runseg/.style={-Stealth, thick, draw=graphite!80},
+  fvisit/.style={circle, draw=vvteal!80!black, fill=vvteal!12,
+                 inner sep=1.4pt, font=\scriptsize\bfseries},
+]
+  \node[boundary, label=below:$q_0$] (q0) at (0,0) {};
+  \node[boundary, label=below:$s_1$] (s1) at (2.1,0) {};
+  \node[boundary, label=below:$s_2$] (s2) at (4.2,0) {};
+  \node[boundary, label=below:$s_3$] (s3) at (6.3,0) {};
+  \node[boundary, label=below:$s_4$] (s4) at (8.4,0) {};
+
+  \draw[runseg] (q0) to[bend left=28] node[midway, above=5pt] {$u$} (s1);
+  \draw[runseg] (s1) to[bend left=28]
+    node[midway, above=5pt] {$v_1$}
+    node[fvisit, midway, below=1pt] {$F$} (s2);
+  \draw[runseg] (s2) to[bend left=28] node[midway, above=5pt] {$v_2$} (s3);
+  \draw[runseg] (s3) to[bend left=28]
+    node[midway, above=5pt] {$v_3$}
+    node[fvisit, midway, below=1pt] {$F$} (s4);
+  \node[right=4mm of s4] {$\cdots$};
+\end{tikzpicture}
+\end{center}
+
+Infinitely many of these finite segments visit $F$; otherwise the run
+itself would visit $F$ only finitely often.
+
+Now take an arbitrary
+$\beta=u'v'_1v'_2\cdots\in UV^\omega$, where $u'\in U$ and
+$v'_i\in V$ for $i\geq 1$.  Since
+$u\approx_{\mathcal A}u'$, there is a $u'$-labelled path from $q_0$
+to the same boundary state $s_1$.  For every $i\geq 1$, since
+$v_i\approx_{\mathcal A}v'_i$, there is likewise a $v'_i$-labelled path
+from $s_i$ to $s_{i+1}$.  Whenever the corresponding $v_i$-segment
+visits $F$, the $v'_i$-segment can be chosen to visit $F$ as well.
+Stitching these paths together gives a run on $\beta$ that visits $F$
+infinitely often.  Thus $\beta\in L(\mathcal A)$.
+
+Since $\beta$ was arbitrary,
+$UV^\omega\subseteq L(\mathcal A)$.  Therefore
+$\approx_{\mathcal A}$ saturates $L(\mathcal A)$.
 \end{proof}
 
-\begin{example}[What the profile remembers]
+By \cref{prop:saturation-complement}, the same relation also saturates
+$\overline{L(\mathcal A)}$.  Thus every product $UV^\omega$ of
+$\approx_{\mathcal A}$-classes lies wholly inside $L(\mathcal A)$ or
+wholly inside its complement.
+
+\begin{example}[What \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜} remembers]
 \label{ex:profile-remembers}
-Suppose $Q=\{p,q,r\}$ and $F=\{r\}$.  For a block $u$, the profile does
-not remember the exact path labelled by $u$.  It remembers whether $u$
+Suppose $Q=\{p,q,r\}$ and $F=\{r\}$.  The relation
+$\approx_{\mathcal A}$ does not remember the exact path labelled by $u$.
+It remembers whether $u$
 can take $p$ to $q$, $p$ to $r$, and so on, and whether an accepting
 state was seen along the way.
 \end{example}
 
 This is exactly the information needed to reason about repeating finite
-blocks inside an infinite run.  Before proving the saturation property,
-let us make the definition concrete on a small automaton that we will
-reuse throughout the chapter.
+blocks inside an infinite run.  Let us now make the definition concrete
+on a small automaton that we will reuse throughout the chapter.
 
 \begin{figure}[ht]
 \centering
@@ -496,17 +632,18 @@ reuse throughout the chapter.
   \draw[arr] (s2) edge[loop above] node {$c$} (s2);
   \draw[arr, bend left=22] (s2) to node[above] {$a$} (s1);
 \end{tikzpicture}
-\caption{A small B\"uchi automaton $A$ to illustrate transition profiles.
+\caption{A small B\"uchi automaton $\mathcal A$ to illustrate $\approx_{\mathcal A}$.
 The only accepting state $s_1$ is shown in teal.  The automaton accepts
 the $\omega$-words in which the block $ab$ occurs infinitely often,
 separated by arbitrary $c$'s.}
 \label{fig:profile-automaton}
 \end{figure}
 
-\begin{example}[Two profiles on a small automaton]
+\begin{example}[Two \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜}-classes on a small automaton]
 \label{ex:profile-table}
-Consider the B\"uchi automaton $A$ of \cref{fig:profile-automaton}, with
-$F=\{s_1\}$.  We compute the transition profiles of two short words.
+Consider the B\"uchi automaton $\mathcal A$ of \cref{fig:profile-automaton}, with
+$F=\{s_1\}$.  We compare the summaries induced by
+$\approx_{\mathcal A}$ for two short words.
 
 For $u=c$, the only non-trivial entry is
 $s_2\tto{c}s_2$, and it does \emph{not} visit $F$ (the path
@@ -520,14 +657,14 @@ $s_2\tto{a}s_1\tto{b}s_2$, which also visits $s_1$.  No
 other pair has an $ab$-labelled path: in particular $s_1$ has no
 outgoing $a$-transition, so $s_1\tto{ab}q$ never holds.
 
-The two words $c$ and $ab$ therefore lie in different $\approx_A$-classes:
-the profile of $c$ has a single non-$F$ entry at $(s_2,s_2)$, while the
-profile of $ab$ has two $F$-entries.  This is the kind of finite summary
-that $\approx_A$ attaches to every finite word.
+The two words $c$ and $ab$ therefore lie in different $\approx_{\mathcal A}$-classes:
+the summary of $c$ has a single non-$F$ entry at $(s_2,s_2)$, while the
+summary of $ab$ has two $F$-entries.  This is the kind of finite summary
+that $\approx_{\mathcal A}$ attaches to every finite word.
 \end{example}
 
 \begin{formaldetails}[Replacement principle]
-If $u\approx_A v$, then every finite path fact about $u$ that matters
+If $u\approx_{\mathcal A} v$, then every finite path fact about $u$ that matters
 for B\"uchi acceptance also holds for $v$ with the same endpoints:
 \[
   p\tto{u}q \Longleftrightarrow p\tto{v}q,
@@ -536,8 +673,8 @@ for B\"uchi acceptance also holds for $v$ with the same endpoints:
 \]
 Thus a run built from $u$-blocks can be imitated block by block with
 $v$-blocks, preserving the accepting visits that make the infinite run
-B\"uchi-accepting.  This is the local reason why transition profiles
-saturate $\omega$-regular languages.
+B\"uchi-accepting.  This is the local reason why
+$\approx_{\mathcal A}$ saturates $\omega$-regular languages.
 \end{formaldetails}
 
 
@@ -561,7 +698,7 @@ words and finite colourings; it is the content of Ramsey's theorem.
   arr/.style={-Stealth, thick},
 ]
   \draw[thick] (0,0) -- (8.6,0);
-  \foreach \x/\lab in {0.5/$i_0$,2.4/$i_1$,4.3/$i_2$,6.2/$i_3$,8.1/$i_4$} {
+  \foreach \x/\lab in {0.5/$k_0$,2.4/$k_1$,4.3/$k_2$,6.2/$k_3$,8.1/$k_4$} {
     \node[cut] at (\x,0) {};
     \node[below=3mm] at (\x,0) {\lab};
   }
@@ -569,56 +706,108 @@ words and finite colourings; it is the content of Ramsey's theorem.
   \draw[arr, orange!80!black] (2.4,0.35) to[bend left=22] node[above] {$V$} (4.3,0.35);
   \draw[arr, violet!75!black] (0.5,0.95) to[bend left=22] node[above] {$V$} (4.3,0.95);
   \node[font=\small, align=center] at (4.4,-0.9)
-    {Homogeneity makes both adjacent blocks and their merge have the same class.};
+    {Adjacent blocks and their merge belong to the same class $V$.};
 \end{tikzpicture}
-\caption{Ramsey homogeneity: all selected segments carry the same congruence class.}
-\label{fig:ramsey-homogeneous-cuts}
+\caption{The selected segments all belong to the same congruence class.}
+\label{fig:ramsey-cuts}
 \end{figure}
 
-The picture in \cref{fig:ramsey-homogeneous-cuts} is the image to keep
+The picture in \cref{fig:ramsey-cuts} is the image to keep
 while reading the proof.  We cut the infinite word at an increasing
-sequence of positions $i_0<i_1<i_2<\cdots$, and the segments between
+sequence of positions $k_0<k_1<k_2<\cdots$, and the segments between
 consecutive cuts all carry the same congruence colour $V$.  Because the
-congruence has finite index, Ramsey's theorem guarantees that such an
-infinite monochromatic sequence of cuts always exists.  Unlike an
-ordinary pigeonhole argument, the colouring is assigned to pairs of
-positions, because each pair determines one finite segment of $\alpha$.
+congruence has finite index, a repeated use of the pigeonhole principle
+lets us extract such a sequence.  The key device used in the lecture is
+a second equivalence relation, this time on the \emph{positions} of
+$\alpha$, recording when two positions merge.
 
-\begin{lemma}[Homogeneous decomposition]
-\label{lem:homogeneous-decomposition}
+\begin{lemma}[Ramsey decomposition for $\omega$-words]
+\label{lem:ramsey-decomposition}
 Let $\equiv$ be a finite-index congruence on $\Sigma^*$.  Every
-$\omega$-word $\alpha$ can be decomposed as
-\[
-  \alpha = u_0u_1u_2\cdots
-\]
-where $u_0\in\Sigma^*$, each $u_i$ for $i\geq 1$ is non-empty, and all
-blocks $u_i$ with $i\geq 1$ belong to the same $\equiv$-class $V$.
-Moreover, the class can be chosen idempotent:
+$\omega$-word $\alpha$ belongs to $UV^\omega$ for some
+$\equiv$-classes $U,V$ satisfying
 \[
   V\cdot V \subseteq V.
 \]
 \end{lemma}
 
 \begin{proof}
-Colour each pair of positions $(i,j)$ with the $\equiv$-class of the
-finite segment $\alpha(i,j)$.  Since there are finitely many classes,
-the infinite Ramsey theorem gives an infinite set of positions
+\emph{Merging positions.}
+For positions $k,k'$ and a position
+$m>\max\{k,k'\}$, say that $k$ and $k'$ \textbf{merge at $m$}, and
+write $k\equiv_{\alpha,m}k'$, if
 \[
-  i_0<i_1<i_2<\cdots
+  \alpha(k,m)\equiv\alpha(k',m).
 \]
-such that all segments $\alpha(i_m,i_n)$ have the same colour.  Taking
-$u_0=\alpha(0,i_0)$ and $u_k=\alpha(i_{k-1},i_k)$ gives the desired
-decomposition.
+If they merge at $m$, then they remain merged at every $m'\geq m$,
+because
+\[
+  \alpha(k,m')=\alpha(k,m)\alpha(m,m'),
+  \qquad
+  \alpha(k',m')=\alpha(k',m)\alpha(m,m'),
+\]
+and congruence preserves equivalence after concatenating the same
+suffix.  We can therefore omit the witness and write
+$k\equiv_\alpha k'$ when the two positions merge at some future
+position.
 
-To see idempotence, take any two words $x,y\in V$.  Since $V$ is an
-equivalence class and $\equiv$ is a congruence, the class of $xy$ is the
-same as the class of a concatenation of two consecutive homogeneous
-segments:
+The relation $\equiv_\alpha$ is an equivalence relation.  Reflexivity
+and symmetry are immediate.  For transitivity, if $k$ merges with $k'$
+and $k'$ merges with $k''$, extend both witnesses to one sufficiently
+large position $m$; at $m$ all three corresponding segments are in the
+same $\equiv$-class.
+
+It also has finite index.  Suppose that $\equiv$ has $r$ classes and
+choose $r+1$ positions from distinct $\equiv_\alpha$-classes.  At one
+position $m$ larger than all of them, the $r+1$ segments ending at $m$
+fall into only $r$ classes of $\equiv$.  Two must be equivalent, so
+their starting positions merge at $m$, a contradiction.
+
+\emph{The vectorial-closure intermediate step.}
+The finite-index relation $\equiv_\alpha$ partitions the infinitely
+many positions of $\alpha$ into finitely many classes.  Hence one class
+contains an increasing infinite sequence
 \[
-  \alpha(i_0,i_1)\alpha(i_1,i_2)=\alpha(i_0,i_2).
+  k_0<k_1<k_2<\cdots .
 \]
-But $\alpha(i_0,i_2)$ has the same homogeneous colour $V$.  Hence
-$xy\in V$, so $V\cdot V\subseteq V$.
+The segments $\alpha(k_0,k_i)$ for $i\geq1$ belong to only finitely many
+$\equiv$-classes.  Passing to an infinite subsequence, assume that they
+all belong to the same class $V$.  If necessary, repeat the selection
+after removing position $0$, so that $k_0>0$.  Let $U$ be the class of
+the prefix $\alpha(0,k_0)$.  The suffix $\alpha(k_0,\omega)$ has
+infinitely many prefixes $\alpha(k_0,k_i)$ in $V$, and therefore
+\[
+  \alpha(k_0,\omega)\in\overrightarrow{V},
+  \qquad
+  \alpha\in U\overrightarrow{V}.
+\]
+This is the intermediate conclusion reached in L07.  It is not yet the
+required statement $\alpha\in UV^\omega$: infinitely many prefixes in
+$V$ do not by themselves say that the pieces between consecutive
+prefixes belong to $V$.
+
+\emph{From $U\overrightarrow{V}$ to $UV^\omega$.}
+Thin the sequence once more.  After choosing
+$k_0,\ldots,k_i$, the finitely many pairs among these positions all
+merge at some sufficiently large common witness.  Choose $k_{i+1}$
+from the remaining infinite sequence beyond that witness.  Persistence
+then ensures that $k_0,\ldots,k_i$ all merge at $k_{i+1}$.
+
+The first block $\alpha(k_0,k_1)$ lies in $V$ by construction.  For
+$i\geq1$, the positions $k_0$ and $k_i$ merge at $k_{i+1}$, so
+\[
+  \alpha(k_i,k_{i+1})
+  \equiv
+  \alpha(k_0,k_{i+1})\in V.
+\]
+Thus every consecutive block $\alpha(k_i,k_{i+1})$ lies in $V$, and
+the prefix $\alpha(0,k_0)$ lies in $U$.  Hence $\alpha\in UV^\omega$.
+
+Finally, let
+$a=\alpha(k_0,k_1)$ and $b=\alpha(k_1,k_2)$.  Both lie in $V$, and so
+does $ab=\alpha(k_0,k_2)$.  For arbitrary $x,y\in V$, congruence gives
+$xy\equiv ab$, hence $xy\in V$.  Therefore
+$V\cdot V\subseteq V$.
 \end{proof}
 
 The point is conceptual: although the word may not be periodic, it can
@@ -628,7 +817,7 @@ its own blocks.
 
 \begin{example}[Ramsey decomposition on the running automaton]
 \label{ex:ramsey-running}
-Return to the automaton $A$ of \cref{fig:profile-automaton}.  Consider
+Return to the automaton $\mathcal A$ of \cref{fig:profile-automaton}.  Consider
 the $\omega$-word
 \[
   \alpha =
@@ -638,23 +827,21 @@ the $\omega$-word
 \]
 The number of trailing $c$'s grows from block to block, so $\alpha$ is
 not ultimately periodic.  Nevertheless, every block $v_i=ab c^i$ has
-the same $\approx_A$-profile: it takes $s_0$ to $s_2$ while visiting
+the same $\approx_{\mathcal A}$-class: it takes $s_0$ to $s_2$ while visiting
 $s_1\in F$, and takes $s_2$ to $s_2$ while visiting $s_1\in F$.
 Therefore all the $v_i$ belong to one class $V$.  Concatenating any two
-such blocks yields the same profile again, so $V$ is idempotent.  This
+such blocks yields the same $\approx_{\mathcal A}$-class again, so $V$ is idempotent.  This
 is exactly the decomposition promised by
-\cref{lem:homogeneous-decomposition}, with $u_0=\varepsilon$ and
+\cref{lem:ramsey-decomposition}, with $u_0=\varepsilon$ and
 infinitely many non-empty blocks from the same idempotent class $V$.
 \end{example}
 
-\aside{On the whiteboard, the professor visualized this Ramsey argument by defining when two positions $k$ and $k'$ ``merge''. They merge at some future position $m$ if the segments $\alpha(k,m)$ and $\alpha(k',m)$ share the same congruence class. Because the index is finite, one can build an infinite sequence of positions where each segment merges into the same repeating class $V$, and merge adjacent marked segments to yield a block still in $V$.}
-
-Two observations will be useful in the saturation proof below.  First,
-idempotence $V\cdot V\subseteq V$ ensures that merging adjacent
-homogeneous blocks does not change their class.  Second, the boundary
-states of an accepting run need not be fixed in advance.  It is enough
-to preserve, block by block, the same endpoints and the infinitely many
-segments that visit $F$.
+The proof has two distinct finite-index arguments, exactly as in the
+lecture: first on the merging relation over positions, then on the
+classes of the segments $\alpha(k_0,k_i)$.  The vectorial-closure form
+$U\overrightarrow V$ records infinitely many good prefixes; the second
+subsequence extraction turns them into consecutive $V$-blocks, which
+is the form needed by saturation.
 
 
 % ============================================================
@@ -662,71 +849,34 @@ segments that visit $F$.
 \label{sec:omega-complement-theorem}
 % ============================================================
 
-We now assemble the pieces: the transition-profile congruence
-$\approx_A$ of \cref{sec:automaton-congruence}, the saturation lemmas of
+We now assemble the pieces: the relation $\approx_{\mathcal A}$ of
+\cref{sec:automaton-congruence}, the saturation lemmas of
 \cref{sec:congruence-saturation}, and the Ramsey decomposition of
-\cref{sec:ramsey-decomposition}.  The local replacement principle says
-that equivalent blocks preserve finite path information; the Ramsey
-decomposition ensures that finitely many such block classes cover every
-infinite word.  It remains to connect these two facts by showing that
-$\approx_A$ saturates $L(A)$.  We isolate this step as a lemma so that
-the complementation theorem becomes a direct assembly of the preceding
-results.
-
-\begin{lemma}[The automaton congruence saturates $L(A)$]
-\label{lem:profile-saturation}
-Let $A$ be a B\"uchi automaton and let $\approx_A$ be its
-transition-profile congruence.  For any two $\approx_A$-classes $U,V$,
-if $UV^\omega\cap L(A)\neq\emptyset$ then $UV^\omega\subseteq L(A)$.
-\end{lemma}
-
-\begin{proof}
-Pick an accepted word $\alpha\in UV^\omega\cap L(A)$ and decompose it as
-$\alpha=u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$.
-Because $\alpha$ is accepted, fix an accepting run and write the states
-it visits at the block boundaries as
-\[
-  q_0=s_0 \tto{u_0} s_1
-      \tto{u_1} s_2
-      \tto{u_2} \cdots
-\]
-Infinitely many of these block segments visit an accepting state;
-otherwise the whole run would visit $F$ only finitely often and would
-not be B\"uchi-accepting.
-
-Now take any other word $\beta=v_0v_1v_2\cdots\in UV^\omega$, with
-$v_0\in U$ and $v_i\in V$ for $i\geq 1$.  Because $u_0\approx_A v_0$,
-the word $v_0$ can drive $q_0$ to the same boundary state $s_1$.
-Because each $u_i\approx_A v_i$, each $v_i$ can drive $s_i$ to
-$s_{i+1}$.  Moreover, by the definition of $\approx_A$, whenever the
-original $u_i$-segment visits $F$, the replacement $v_i$-segment can be
-chosen to visit $F$ as well.  Stitching these replacement paths together
-produces a run of $A$ on $\beta$ that visits $F$ infinitely often, hence
-is accepting.
-
-We have shown that an arbitrary $\beta\in UV^\omega$ is accepted, so
-$UV^\omega\subseteq L(A)$.
-\end{proof}
+\cref{sec:ramsey-decomposition}.  The local replacement argument in
+\cref{lem:approx-a-properties} gives saturation, while the Ramsey
+decomposition ensures that finitely many such class products cover every
+infinite word.  The complementation theorem is now a direct assembly of
+these results.
 
 \begin{example}[Saturation on the running automaton]
 \label{ex:saturation-running}
 In the automaton of \cref{fig:profile-automaton}, let $U$ be the
-$\approx_A$-class of $a$ and $V$ the class of $abc$.  The word
+$\approx_{\mathcal A}$-class of $a$ and $V$ the class of $abc$.  The word
 $\alpha = a(abc)^\omega$ is accepted: the run visits $s_1\in F$ during
-every $abc$ block.  By \cref{lem:profile-saturation}, the entire product
-$UV^\omega$ is contained in $L(A)$.  Now let $V'$ be the class of $c$.
+every $abc$ block.  By \cref{lem:approx-a-properties}, the entire product
+$UV^\omega$ is contained in $L(\mathcal A)$.  Now let $V'$ be the class of $c$.
 No word in $UV'^\omega$ is accepted, because blocks from $V'$ never
-visit $s_1$.  Hence $UV'^\omega\subseteq\overline{L(A)}$: this class
+visit $s_1$.  Hence $UV'^\omega\subseteq\overline{L(\mathcal A)}$: this class
 product belongs entirely to the complement.
 \end{example}
 
 \Needspace{18\baselineskip}
 \begin{theorem}[Complementation of B\"uchi-recognizable languages]
 \label{thm:buchi-complementation}
-For every B\"uchi automaton $A$ one can effectively construct a
-B\"uchi automaton $\overline{A}$ such that
+For every B\"uchi automaton $\mathcal A$ one can effectively construct a
+B\"uchi automaton $\overline{\mathcal A}$ such that
 \[
-  L(\overline{A})=\Sigma^\omega\setminus L(A).
+  L(\overline{\mathcal A})=\Sigma^\omega\setminus L(\mathcal A).
 \]
 Consequently, if $L\subseteq\Sigma^\omega$ is $\omega$-regular, then
 $\overline{L}$ is $\omega$-regular.
@@ -736,18 +886,18 @@ Partition infinite words into saturated class products and collect
 those wholly outside the language.}
 
 \begin{proof}
-Let $A$ be a B\"uchi automaton with $L=L(A)$ and let $\approx_A$ be its
-transition-profile congruence.
+Let $\mathcal A$ be a B\"uchi automaton with $L=L(\mathcal A)$ and let
+$\approx_{\mathcal A}$ be the relation defined above.
 
-\emph{Saturation.}  By \cref{lem:profile-saturation}, each class product
+\emph{Saturation.}  By \cref{lem:approx-a-properties}, each class product
 $UV^\omega$ either misses $L$ or is contained in $L$.  By
 \cref{prop:saturation-complement}, the same all-or-nothing property
 holds for $\overline{L}$.
 
-\emph{Coverage.}  By \cref{lem:homogeneous-decomposition} applied to
-$\approx_A$, every $\omega$-word $\alpha$ can be written as
+\emph{Coverage.}  By \cref{lem:ramsey-decomposition} applied to
+$\approx_{\mathcal A}$, every $\omega$-word $\alpha$ can be written as
 $u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$, for some
-pair of $\approx_A$-classes $(U,V)$ with $V\cdot V\subseteq V$.  Hence
+pair of $\approx_{\mathcal A}$-classes $(U,V)$ with $V\cdot V\subseteq V$.  Hence
 every $\alpha$ belongs to at least one class product $UV^\omega$.
 
 \emph{Conclusion.}  Split the finitely many class products into those
@@ -764,8 +914,8 @@ a finite union.  Each class $U$ and $V$ is a regular finite-word language
 \cref{lem:complement-from-saturation}), so each
 $UV^\omega$ is $\omega$-regular by \cref{thm:omega-basic-closure}, and
 finite unions of $\omega$-regular languages are $\omega$-regular.
-The profile classes can be enumerated, their products constructed, and
-their intersections with $L(A)$ tested for emptiness.  Hence the
+The $\approx_{\mathcal A}$-classes can be enumerated, their products constructed,
+and their intersections with $L(\mathcal A)$ tested for emptiness.  Hence the
 argument also yields the effective construction claimed in the
 statement; its steps are made explicit below.
 \end{proof}
@@ -776,13 +926,13 @@ finite enumeration and emptiness tests, thereby making the
 complementation procedure explicit.
 
 \begin{formaldetails}[The complement automaton by saturation]
-\textbf{Construction.}  Given $A=(Q,\Sigma,\Delta,q_0,F)$:
+\textbf{Construction.}  Given $\mathcal A=(Q,\Sigma,\Delta,q_0,F)$:
 \begin{enumerate}[nosep]
-  \item Enumerate the finitely many $\approx_A$-classes.  Each class is a
+  \item Enumerate the finitely many $\approx_{\mathcal A}$-classes.  Each class is a
         regular language: it is a Boolean combination of the languages
         $W_{p,q}=\{u:p\tto{u}q\}$ and
         $W^{F}_{p,q}=\{u:p\tto{u}_{F}q\}$, each recognized by
-        the finite graph of $A$ with initial state $p$ and accepting
+        the finite graph of $\mathcal A$ with initial state $p$ and accepting
         state $q$ (and, for $W^{F}_{p,q}$, an extra flag recording
         whether $F$ has been seen).
   \item For each ordered pair of classes $(U,V)$ with $V\cdot
@@ -790,30 +940,31 @@ complementation procedure explicit.
         $U\cdot V^\omega$ using the closure constructions of
         \cref{thm:omega-basic-closure}.
   \item Retain exactly those $B_{U,V}$ for which
-        $L(B_{U,V})\cap L(A)=\emptyset$, decided by a
+        $L(B_{U,V})\cap L(\mathcal A)=\emptyset$, decided by a
         reachable-accepting-cycle search on the asynchronous product
         (\cref{thm:buchi-emptiness}).
   \item Take the finite union of the retained $B_{U,V}$.
 \end{enumerate}
 
 \textbf{Invariant.}  After step~3, each retained $B_{U,V}$ recognizes a
-product $UV^\omega\subseteq\overline{L(A)}$, and each discarded
-$B_{U,V}$ recognizes a product $UV^\omega\subseteq L(A)$.  This
+product $UV^\omega\subseteq\overline{L(\mathcal A)}$, and each discarded
+$B_{U,V}$ recognizes a product $UV^\omega\subseteq L(\mathcal A)$.  This
 all-or-nothing split is exactly the content of
-\cref{lem:profile-saturation}; the emptiness test in step~3 merely
+\cref{lem:approx-a-properties}; the emptiness test in step~3 merely
 detects which side each pair falls on.  During the enumeration, the loop
 invariant is that every pair already processed has been placed on its
 correct side.  It holds before the first test and is preserved because
-saturation excludes a mixed product that intersects both $L(A)$ and its
+saturation excludes a mixed product that intersects both $L(\mathcal A)$ and its
 complement.
 
 \textbf{Termination.}  There are at most $3^{n^2}$ classes by
-\cref{prop:double-tilde-index}, hence at most $3^{2n^2}$ pairs to test.
+\cref{lem:approx-a-properties}, hence at most $3^{2n^2}$ pairs to test.
 Each emptiness test is a graph search on a product whose size is
 polynomial in the two automata supplied to that test.
 The procedure therefore always halts.
 
-\textbf{Complexity.}  The number $3^{n^2}$ of profile classes dominates
+\textbf{Complexity.}  The number $3^{n^2}$ of
+$\approx_{\mathcal A}$-classes dominates
 the blow-up: the complement automaton produced by this construction has
 $2^{\Oh(n^2)}$ states.  Sharper (Safra-style) constructions bring the
 bound down to $2^{\Oh(n\log n)}$ states, which is asymptotically optimal.
@@ -884,13 +1035,14 @@ exists, inclusion holds.
 \subsection*{Notation Recap}
 
 \begin{tabular}{@{}l@{\quad}l@{}}
-  $\equiv$, $\approx_A$ & congruence on $\Sigma^*$; automaton-induced congruence \\
+  $\equiv$ & a congruence on $\Sigma^*$ \\
+  $\approx_{\mathcal A}$ & the relation induced by $\mathcal A$ \\
   $[u]_\equiv$ & equivalence class of the finite word $u$ \\
   $U, V$ & equivalence classes (sets of finite words) \\
   $UV^\omega$ & class product: a word from $U$ followed by $\omega$-many from $V$ \\
   $p \tto{u} q$ & there is a path from $p$ to $q$ labelled $u$ \\
   $p \tto{u}_{F} q$ & such a path exists and visits an accepting state \\
-  $3^{n^2}$ & upper bound on the number of $\approx_A$-classes ($n=|Q|$) \\
+  $3^{n^2}$ & upper bound on the number of $\approx_{\mathcal A}$-classes ($n=|Q|$) \\
   $\overline{L}$ & complement $\Sigma^\omega\setminus L$ \\
 \end{tabular}
 
@@ -906,9 +1058,8 @@ exists, inclusion holds.
         table.
   \item Saturation makes each class product $UV^\omega$ all-or-nothing;
         the complement is then a finite union of class products.
-  \item The transition-profile congruence $\approx_A$ is a concrete,
-        computable, finite-index congruence with at most $3^{n^2}$
-        classes.
+  \item The relation $\approx_{\mathcal A}$ is a concrete,
+        computable, finite-index congruence with at most $3^{n^2}$ classes.
   \item A Ramsey decomposition writes every $\omega$-word as a prefix
         followed by infinitely many congruent blocks, so saturation
         covers every word, not just the ultimately periodic ones.
@@ -929,12 +1080,13 @@ whose states are the two equivalence classes and whose transitions append
 one symbol.  Which class contains $\varepsilon$?
 \end{chapex}
 
-\begin{chapex}[Why profiles need accepting information]
+\begin{chapex}[Why $\approx_{\mathcal A}$ must record accepting visits]
 In the automaton of \cref{fig:profile-automaton}, find two finite words
 $u$ and $v$ such that $s_2\tto{u}s_2$ and
 $s_2\tto{v}s_2$ (same endpoints), but one path visits $F$ and
-the other does not.  Write the transition profile of each word and show
-that if we dropped the accepting-path column, the two profiles would
+the other does not.  Write the information recorded by
+$\approx_{\mathcal A}$ for each word and show
+that if we dropped the accepting-path information, the two summaries would
 coincide.  Construct an $\omega$-word accepted via $u$-blocks and argue
 that replacing them with $v$-blocks breaks acceptance.
 \end{chapex}
@@ -946,18 +1098,18 @@ technically hardest one?
 \end{chapex}
 
 \Needspace{13\baselineskip}
-\begin{chapex}[The complete profile congruence]
-Consider the B\"uchi automaton $A$ of \cref{fig:profile-automaton}.
-The transition-profile congruence $\approx_A$ for this automaton induces
+\begin{chapex}[Computing the $\approx_{\mathcal A}$-classes]
+Consider the B\"uchi automaton $\mathcal A$ of \cref{fig:profile-automaton}.
+The relation $\approx_{\mathcal A}$ for this automaton induces
 exactly nine equivalence classes over $\Sigma^*$.
 \begin{enumerate}
-  \item Find all nine $\approx_A$-classes.  For each class, provide a
+  \item Find all nine $\approx_{\mathcal A}$-classes.  For each class, provide a
         regular expression describing its words.  For example, one class
         contains $b,bab,babab,\ldots$ and can be written as $(ba)^*b$.
   \item Verify the congruence property on two classes: concatenate
         representatives and show that every resulting word belongs to a
         single class.
-  \item Express $L(A)$ exactly as a union of four class products
+  \item Express $L(\mathcal A)$ exactly as a union of four class products
         $U_i(V_i)^\omega$, choosing $U_i$ and $V_i$ from the nine
         classes.
 \end{enumerate}
