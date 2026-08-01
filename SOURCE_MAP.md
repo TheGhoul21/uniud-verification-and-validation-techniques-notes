@@ -39,7 +39,7 @@ have been deepened with the main technical points that were initially
 under-extracted: language concatenation and epsilon distinctions, epsilon-NFA
 closure elimination, restricted/general/star-free regular expressions,
 Myhill-Nerode quotient minimality, asynchronous Buchi intersection,
-non-ultimately-periodic examples, transition-profile saturation,
+non-ultimately-periodic examples, saturation by $\approx_{\mathcal A}$,
 ultimately-periodic fingerprints, railway interlocking verification, finite
 strategy memory for Muller games, and weak/strong/strong-cyclic planning.
 
@@ -51,7 +51,7 @@ strategy memory for Muller games, and weak/strong/strong-cyclic planning.
 | L04 | 654 | present | omega-words, Buchi acceptance, closure, asynchronous intersection |
 | L05 | 655 | present | omega-regular expressions, non-ultimately-periodic examples, congruence motivation |
 | L06 | 656 | present | Büchi emptiness decidability; Myhill-Nerode, right-invariant equivalences, quotient/minimal DFA |
-| L07 | 657 | present | transition profiles, accepting-path profiles, saturation, Ramsey setup |
+| L07 | 657 | present | relation $\approx_{\mathcal A}$, accepting paths, saturation, Ramsey setup |
 | L08 | 658 | present | Buchi complementation, inclusion, ultimately-periodic fingerprint |
 | L09 | 659 | present | railway interlocking case study, model-based verification, synthesis motivation |
 | L10 | 660 | present | game arenas, strategies, winning regions, automata-to-game construction |

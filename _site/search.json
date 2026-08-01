@@ -487,6 +487,6 @@
     "href": "proofs/chapter-04/buchi-complementation.html",
     "title": "Büchi Complementation Proof Lab",
     "section": "",
-    "text": "Büchi complementation\n  Finite transition-profile classes generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while homogeneous decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products."
+    "text": "Büchi complementation\n  The finite classes of the relation \\(\\approx_{\\mathcal A}\\) generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while the Ramsey decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products."
   }
 ]
