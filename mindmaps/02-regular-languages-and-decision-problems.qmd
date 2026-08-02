@@ -86,7 +86,7 @@ format:
       "name": "Regular Expressions and Kleene's Theorem",
       "kind": "Section",
       "source": "chapters/02-regular-languages-and-decision-problems.tex",
-      "line": 46,
+      "line": 47,
       "color": "#30bced",
       "latexColor": "brightsky",
       "children": [
@@ -94,21 +94,21 @@ format:
           "name": "Regular Expressions",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 50,
+          "line": 51,
           "children": []
         },
         {
           "name": "The ε-NFA Model",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 151,
+          "line": 168,
           "children": []
         },
         {
           "name": "Kleene's Theorem",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 476,
+          "line": 533,
           "children": []
         }
       ]
@@ -117,7 +117,7 @@ format:
       "name": "Closure Properties",
       "kind": "Section",
       "source": "chapters/02-regular-languages-and-decision-problems.tex",
-      "line": 898,
+      "line": 979,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -125,14 +125,14 @@ format:
           "name": "Complementation",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 916,
+          "line": 1017,
           "children": []
         },
         {
           "name": "Intersection",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 980,
+          "line": 1081,
           "children": []
         }
       ]
@@ -141,7 +141,7 @@ format:
       "name": "Decision Problems",
       "kind": "Section",
       "source": "chapters/02-regular-languages-and-decision-problems.tex",
-      "line": 1081,
+      "line": 1182,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -149,7 +149,7 @@ format:
           "name": "Reachability as a Fixpoint",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1230,
+          "line": 1343,
           "children": []
         }
       ]
@@ -158,7 +158,7 @@ format:
       "name": "The Myhill–Nerode View",
       "kind": "Section",
       "source": "chapters/02-regular-languages-and-decision-problems.tex",
-      "line": 1282,
+      "line": 1400,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
@@ -166,73 +166,73 @@ format:
           "name": "A predicate is not yet an automaton",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1296
+          "line": 1428
         },
         {
           "name": "Prefixes with the same future",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1327
+          "line": 1462
         },
         {
           "name": "Equivalence relation, classes, and index",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1349
+          "line": 1484
         },
         {
           "name": "Valid: Parity of length",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1361
+          "line": 1496
         },
         {
           "name": "Invalid: Shared letter",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1376
+          "line": 1511
         },
         {
           "name": "Right-invariant equivalence compatible with L",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1391
+          "line": 1526
         },
         {
           "name": "Myhill–Nerode equivalence of a language",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1408
+          "line": 1543
         },
         {
           "name": "Myhill–Nerode theorem",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1420
+          "line": 1556
         },
         {
           "name": "The automaton relation",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1439
+          "line": 1585
         },
         {
           "name": "Properties of _A",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1451
+          "line": 1597
         },
         {
           "name": "_L is right-invariant",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1465
+          "line": 1611
         },
         {
           "name": "Minimality",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1588
+          "line": 1734
         }
       ]
     }

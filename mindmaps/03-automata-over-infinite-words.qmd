@@ -18,7 +18,7 @@ format:
       <h1>Chapter 3 · Automata over Infinite Words</h1>
       <p>Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.</p>
     </div>
-    <span class="mm-count" id="mindmap-count">5 sections · 22 topics</span>
+    <span class="mm-count" id="mindmap-count">5 sections · 23 topics</span>
   </div>
 
   <div class="mm-toolbar">
@@ -86,7 +86,7 @@ format:
       "name": "Infinite Words",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 61,
+      "line": 103,
       "color": "#30bced",
       "latexColor": "brightsky",
       "children": [
@@ -94,7 +94,7 @@ format:
           "name": "ω-word",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 75
+          "line": 118
         }
       ]
     },
@@ -102,7 +102,7 @@ format:
       "name": "From Finite Languages to Infinite Languages",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 111,
+      "line": 154,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -110,31 +110,31 @@ format:
           "name": "ω-power",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 120
+          "line": 162
         },
         {
           "name": "Segments and suffixes",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 138
+          "line": 180
         },
         {
           "name": "Infinitely/finitely many positions",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 157
+          "line": 200
         },
         {
           "name": "Vectorial closure",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 180
+          "line": 225
         },
         {
           "name": "Vectorial closure on the running example",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 193
+          "line": 238
         }
       ]
     },
@@ -142,7 +142,7 @@ format:
       "name": "Büchi Automata",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 213,
+      "line": 265,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -150,49 +150,49 @@ format:
           "name": "Büchi automaton",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 227
+          "line": 279
         },
         {
           "name": "Infinitely often",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 304
+          "line": 359
         },
         {
           "name": "Infinity sets in the running example",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 318
+          "line": 373
         },
         {
           "name": "Run and Büchi acceptance",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 333
+          "line": 395
         },
         {
           "name": "ω-regular language",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 373
+          "line": 432
         },
         {
-          "name": "Infinitely many acknowledgements",
+          "name": "Infinitely many saves",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 384
+          "line": 443
         },
         {
           "name": "Parity between occurrences",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 418
+          "line": 482
         },
         {
           "name": "Complement of a Büchi language",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 470
+          "line": 560
         }
       ]
     },
@@ -200,7 +200,7 @@ format:
       "name": "Closure and Expressions",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 526,
+      "line": 616,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
@@ -208,25 +208,31 @@ format:
           "name": "Basic closure properties",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 560
+          "line": 651
         },
         {
           "name": "Constructions",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 597
+          "line": 685
+        },
+        {
+          "name": "Vectorial closure of a regular language",
+          "kind": "Topic",
+          "source": "chapters/03-automata-over-infinite-words.tex",
+          "line": 782
         },
         {
           "name": "ω-regular expression",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 702
+          "line": 819
         },
         {
           "name": "Büchi-expression equivalence",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 770
+          "line": 896
         }
       ]
     },
@@ -234,33 +240,33 @@ format:
       "name": "Emptiness and Lassos",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 860,
+      "line": 995,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": [
         {
-          "name": "Büchi emptiness",
+          "name": "Decidability of Büchi emptiness",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 867
+          "line": 1008
         },
         {
           "name": "Ultimately periodic word",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 915
+          "line": 1071
         },
         {
           "name": "Ultimately periodic witnesses",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 937
+          "line": 1097
         },
         {
           "name": "Languages without periodic words",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 1034
+          "line": 1224
         }
       ]
     }

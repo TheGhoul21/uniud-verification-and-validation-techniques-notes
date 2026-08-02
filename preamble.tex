@@ -368,6 +368,12 @@
 % the word is written below the arrowhead (to the right).
 \newcommand{\tto}[1]{\xrightarrow[{\;#1\;}]{}}
 
+% ---- position-merge relation (Ramsey decomposition, professor's convention) ----
+% Usage: k \posmerge{\alpha,m} k'   or   k \posmerge{\alpha} k'
+% An equals sign with a tilde above it, subscripted -- deliberately distinct
+% from \equiv, which is reserved for the finite-word congruence itself.
+\newcommand{\posmerge}[1]{\mathrel{\overset{\sim}{=}_{#1}}}
+
 % ---- complexity shortcuts ----
 \newcommand{\Oh}[1]{\mathcal{O}\!\left(#1\right)}
 \newcommand{\Th}[1]{\Theta\!\left(#1\right)}
