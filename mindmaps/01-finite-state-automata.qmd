@@ -86,7 +86,7 @@ format:
       "name": "Alphabets, Words, and Languages",
       "kind": "Section",
       "source": "chapters/01-finite-state-automata.tex",
-      "line": 30,
+      "line": 50,
       "color": "#30bced",
       "latexColor": "brightsky",
       "children": [
@@ -94,37 +94,37 @@ format:
           "name": "Alphabet and word",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 40
+          "line": 61
         },
         {
-          "name": "A small alphabet",
+          "name": "Events in one editor session",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 55
+          "line": 76
         },
         {
           "name": "Language",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 66
+          "line": 87
         },
         {
           "name": "Basic operations on words",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 107
+          "line": 128
         },
         {
           "name": "Kleene star",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 138
+          "line": 159
         },
         {
           "name": "Words from the alphabet {a}",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 167
+          "line": 188
         }
       ]
     },
@@ -132,7 +132,7 @@ format:
       "name": "Deterministic Finite Automata",
       "kind": "Section",
       "source": "chapters/01-finite-state-automata.tex",
-      "line": 176,
+      "line": 197,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -140,7 +140,7 @@ format:
           "name": "Completeness and Sink States",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 378,
+          "line": 424,
           "children": []
         }
       ]
@@ -149,7 +149,7 @@ format:
       "name": "Non-Deterministic Finite Automata",
       "kind": "Section",
       "source": "chapters/01-finite-state-automata.tex",
-      "line": 467,
+      "line": 505,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -157,25 +157,25 @@ format:
           "name": "Non-deterministic finite automaton",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 478
+          "line": 516
         },
         {
           "name": "Computing reachable states",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 570
+          "line": 609
         },
         {
           "name": "Run and acceptance for an NFA",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 627
+          "line": 666
         },
         {
           "name": "Guessing the last symbol",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 654
+          "line": 693
         }
       ]
     },
@@ -183,7 +183,7 @@ format:
       "name": "Determinizing an NFA",
       "kind": "Section",
       "source": "chapters/01-finite-state-automata.tex",
-      "line": 694,
+      "line": 733,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
@@ -191,7 +191,7 @@ format:
           "name": "Regular Languages",
           "kind": "Topic",
           "source": "chapters/01-finite-state-automata.tex",
-          "line": 872,
+          "line": 921,
           "children": []
         }
       ]

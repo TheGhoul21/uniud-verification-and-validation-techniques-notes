@@ -685,11 +685,231 @@ $\approx_{\mathcal A}$ saturates $\omega$-regular languages.
 
 The saturation lemmas above reduce complementation to a question about
 class products $UV^\omega$.  But a generic $\omega$-word $\alpha$ need
-not be literally of the form $uv^\omega$; it may have no period at all.
-To use saturation on \emph{every} $\omega$-word, we need to know that
-$\alpha$ can nonetheless be partitioned into finite blocks that all
-share one congruence class.  This is a combinatorial fact about infinite
-words and finite colourings; it is the content of Ramsey's theorem.
+not be literally of the form $uv^\omega$; it may have no period at all,
+like the word of \cref{ex:ramsey-running} below, whose gaps of
+\texttt{c}'s grow forever.  To use saturation on \emph{every}
+$\omega$-word, we need to know that $\alpha$ can nonetheless be
+partitioned into finite blocks that all share one congruence class.
+This is a combinatorial fact about infinite words and finite
+colourings, and it is an instance of a much more general principle,
+Ramsey's theorem.
+
+\aside{In the lecture, this argument was connected to Ramsey's theorem,
+a general combinatorial principle: knowing Ramsey's theorem is not
+required for what follows, the argument below is self-contained. For
+readers who do know it, here is the shape: colour every pair of
+positions by the $\equiv$-class of the segment between them, using the
+finitely many classes of $\equiv$ as the palette. Ramsey's theorem
+guarantees an infinite set of positions that is monochromatic --
+pairwise the same colour. That combinatorial engine fires twice below,
+once on positions and once on segments.}
+
+Two different kinds of objects are in play throughout this section, and
+keeping them apart is the main thing to hold onto while reading the
+proof.  \textbf{Positions} are natural numbers $0,1,2,\ldots$ marking
+places along $\alpha$.  \textbf{Segments} are the finite words
+$\alpha(k,m)$ sitting between two positions.  The construction below
+defines a new equivalence relation \emph{on positions} by inspecting
+the $\equiv$-class of the segment between them: a fact about segments
+(finite words, classified by the congruence $\equiv$) is used to
+manufacture a fact about positions (natural numbers, classified by how
+they sit relative to one another).  Losing track of which of the two
+you are reasoning about at a given moment is the most common source of
+confusion in what follows.
+
+Before the general definition, it helps to see what ``two positions
+behave the same'' can mean in the simplest possible case: the parity
+congruence $\equiv_{\mathrm{par}}$ of \cref{ex:parity-congruence},
+whose only two classes need no automaton bookkeeping to track.
+
+\begin{example}[Merging positions under the parity congruence]
+\label{ex:parity-merge}
+Fix any $\omega$-word $\alpha=\alpha(0)\alpha(1)\alpha(2)\cdots$ over
+any alphabet --- the symbols read are irrelevant here, since
+$\equiv_{\mathrm{par}}$ only looks at lengths.  Take positions $k=1$
+and $k'=3$, and ask: is there a future position $m$ at which the
+segments $\alpha(1,m)$ and $\alpha(3,m)$ have the same parity of
+length?  Take $m=4$: $\alpha(1,4)$ has length $3$ and $\alpha(3,4)$ has
+length $1$, both odd, so the two segments lie in the same
+$\equiv_{\mathrm{par}}$-class.  Positions $1$ and $3$ therefore merge
+at $4$.
+
+\begin{center}
+\begin{tikzpicture}[
+  postick/.style={circle, fill=graphite, inner sep=1.4pt},
+  hl/.style={circle, fill=vvteal!70!black, inner sep=2.2pt},
+  drop/.style={dashed, gray!60, thin},
+]
+  \draw[thick] (0,0) -- (7,0);
+  \foreach \x/\sym in {0/b,1/a,2/b,3/c,4/c,5/a,6/b,7/c} {
+    \node[postick] at (\x,0) {};
+    \node[above=2pt, font=\small\ttfamily] at (\x,0) {\sym};
+  }
+  \node[hl] at (1,0) {};
+  \node[hl] at (3,0) {};
+  \node[hl] at (4,0) {};
+  \node[below=3mm, font=\small] at (1,0) {$1$};
+  \node[below=3mm, font=\small] at (3,0) {$3$};
+  \node[below=3mm, font=\small] at (4,0) {$4$};
+
+  \draw [decorate,decoration={brace,amplitude=5pt,mirror}, thick, vvteal!70!black]
+    (3,-0.9) -- (4,-0.9) node [midway, yshift=-0.5cm, font=\small, black] {$\alpha(3,4)$: len.\ $1$};
+  \draw[drop] (3,0) -- (3,-0.9);
+  \draw[drop] (4,0) -- (4,-0.9);
+
+  \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
+    (1,-2.2) -- (4,-2.2) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(1,4)$: len.\ $3$};
+  \draw[drop] (1,0) -- (1,-2.2);
+  \draw[drop] (4,-0.9) -- (4,-2.2);
+\end{tikzpicture}
+\end{center}
+
+The symbols along the line are only there to depict a genuine
+$\omega$-word; the parity congruence ignores them and looks only at
+the two bracketed lengths.
+
+Once merged, always merged: for any later point $m'\geq 4$, the
+segments $\alpha(1,m')$ and $\alpha(3,m')$ extend $\alpha(1,4)$ and
+$\alpha(3,4)$ by the very same suffix $\alpha(4,m')$, so their lengths
+grow by the same amount and remain equal in parity.  In fact, for the
+parity congruence, two positions merge exactly when they have the same
+parity as natural numbers, regardless of the symbols read: every even
+position merges with every other even position, and likewise for odd
+positions, with no sifting required.  This is the smallest possible
+instance of what follows.  With a richer congruence such as
+$\approx_{\mathcal A}$, merging is a genuine, symbol-dependent event,
+and finding an infinite set of pairwise-merging positions will take
+real work.
+\end{example}
+
+The general definition mirrors this example, replacing
+$\equiv_{\mathrm{par}}$ by an arbitrary finite-index congruence.  It
+also needs its own symbol: the relation being defined lives on
+\emph{positions}, and reusing $\equiv$ for it would blur exactly the
+distinction just drawn between positions and segments.  In the
+lecture, this relation was written as an equals sign with a tilde
+above it, subscripted by $\alpha$ and (at first) by $m$; we follow that
+notation here, writing $k\posmerge{\alpha,m}k'$.
+
+\begin{definition}[Merging positions]
+\label{def:position-merge}
+Fix an $\omega$-word $\alpha$ and a finite-index congruence $\equiv$ on
+$\Sigma^*$.  For positions $k,k'$ and a position $m>\max\{k,k'\}$, say
+that $k$ and $k'$ \textbf{merge at $m$}, written $k\posmerge{\alpha,m}k'$,
+if
+\[
+  \alpha(k,m)\equiv\alpha(k',m).
+\]
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  postick/.style={circle, fill=graphite, inner sep=1.4pt},
+  hl/.style={circle, fill=vvteal!70!black, inner sep=2.2pt},
+  drop/.style={dashed, gray!60, thin},
+]
+  \draw[thick] (0,0) -- (7,0);
+  \foreach \x/\sym in {0/b,1/a,2/b,3/c,4/c,5/a,6/b,7/c} {
+    \node[postick] at (\x,0) {};
+    \node[above=2pt, font=\small\ttfamily] at (\x,0) {\sym};
+  }
+  \node[hl] at (1,0) {};
+  \node[hl] at (3,0) {};
+  \node[hl] at (5,0) {};
+  \node[below=3mm, font=\small] at (1,0) {$k$};
+  \node[below=3mm, font=\small] at (3,0) {$k'$};
+  \node[below=3mm, font=\small] at (5,0) {$m$};
+
+  \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, vvteal!70!black]
+    (3,-0.9) -- (5,-0.9) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(k',m)$};
+  \draw[drop] (3,0) -- (3,-0.9);
+  \draw[drop] (5,0) -- (5,-0.9);
+
+  \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
+    (1,-2.1) -- (5,-2.1) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(k,m)$};
+  \draw[drop] (1,0) -- (1,-2.1);
+  \draw[drop] (5,-0.9) -- (5,-2.1);
+\end{tikzpicture}
+\caption{The picture behind \cref{def:position-merge}: positions $k$
+and $k'$ merge at a later position $m$ exactly when the two segments
+$\alpha(k,m)$ and $\alpha(k',m)$ that reach $m$ lie in the same
+$\equiv$-class.  The word symbols along the line only depict a
+generic $\omega$-word; nothing about the definition depends on which
+alphabet is used.}
+\label{fig:position-merge}
+\end{figure}
+
+How to read it: $k\posmerge{\alpha,m}k'$ compares two \emph{segments}
+carved out of $\alpha$ --- the piece from $k$ to $m$ and the piece from
+$k'$ to $m$, pictured in \cref{fig:position-merge} --- through the
+finite label that $\equiv$ assigns to each.  The stopping point $m$ is
+chosen by us; the same two positions can fail to merge at one $m$ and
+succeed at a later one, though the next proposition shows that
+success, once reached, never reverses.
+
+\begin{proposition}[Persistence: merging cannot be broken]
+\label{prop:merge-persistence}
+If $k\posmerge{\alpha,m}k'$, then $k\posmerge{\alpha,m'}k'$ for every
+$m'\geq m$.
+\end{proposition}
+
+\begin{proof}
+For $m'\geq m$,
+\[
+  \alpha(k,m') = \alpha(k,m)\,\alpha(m,m'),
+  \qquad
+  \alpha(k',m') = \alpha(k',m)\,\alpha(m,m').
+\]
+Both segments extend the merging segments by the same suffix
+$\alpha(m,m')$.  Since $\alpha(k,m)\equiv\alpha(k',m)$ and $\equiv$ is
+a congruence, concatenating the same word on the right of both sides
+preserves the equivalence.
+\end{proof}
+
+\aside{In the lecture, this persistence property was pictured as a
+marriage that cannot be broken: once two positions merge, they stay
+together for the rest of the word.  What is fixed forever is only the
+fact that the two positions share \emph{some} class from that point on
+--- the shared class itself can still change at later merge points.}
+
+Persistence licenses a simplification used repeatedly below: once
+merged, we no longer need to remember which point witnessed the merge.
+
+\begin{definition}[Eventual merge]
+\label{def:eventual-merge}
+Write $k\posmerge{\alpha}k'$ when $k\posmerge{\alpha,m}k'$ for some
+position $m$.
+\end{definition}
+
+\begin{lemma}[\texorpdfstring{$\posmerge{\alpha}$}{the merge relation} is a finite-index equivalence]
+\label{lem:eventual-merge-finite-index}
+For every $\omega$-word $\alpha$, the relation $\posmerge{\alpha}$ is
+an equivalence relation on the natural numbers, and it has finite
+index whenever $\equiv$ does.
+\end{lemma}
+
+\begin{proof}
+\emph{Reflexive and symmetric.}  Immediate from
+\cref{def:position-merge}, since $\equiv$ itself is reflexive and
+symmetric.
+
+\emph{Transitive.}  Suppose $k\posmerge{\alpha}k'$ via witness $m_1$
+and $k'\posmerge{\alpha}k''$ via witness $m_2$.  By
+\cref{prop:merge-persistence}, both merges persist to
+$m=\max\{m_1,m_2\}$, giving $\alpha(k,m)\equiv\alpha(k',m)$ and
+$\alpha(k',m)\equiv\alpha(k'',m)$.  Transitivity of $\equiv$ yields
+$\alpha(k,m)\equiv\alpha(k'',m)$, i.e., $k\posmerge{\alpha}k''$.
+
+\emph{Finite index.}  Suppose $\equiv$ has $r$ classes, and suppose for
+contradiction that $\posmerge{\alpha}$ had more than $r$ classes.  Choose
+$r+1$ positions, pairwise not eventually merging, and pick a position
+$m$ larger than all of them.  The $r+1$ segments ending at $m$ then
+fall into only $r$ classes of $\equiv$, so two of them coincide --- but
+a coincidence is exactly a merge at $m$, contradicting the choice of
+the $r+1$ positions as pairwise non-merging.  Hence $\posmerge{\alpha}$
+has at most $r$ classes.
+\end{proof}
 
 \begin{figure}[ht]
 \centering
@@ -706,20 +926,22 @@ words and finite colourings; it is the content of Ramsey's theorem.
   \draw[arr, orange!80!black] (2.4,0.35) to[bend left=22] node[above] {$V$} (4.3,0.35);
   \draw[arr, violet!75!black] (0.5,0.95) to[bend left=22] node[above] {$V$} (4.3,0.95);
   \node[font=\small, align=center] at (4.4,-0.9)
-    {Adjacent blocks and their merge belong to the same class $V$.};
+    {Adjacent blocks, and their merge, all belong to the same class $V$.};
 \end{tikzpicture}
-\caption{The selected segments all belong to the same congruence class.}
+\caption{The target picture for the lemma below: cut $\alpha$ at an
+increasing sequence of positions so that every block between
+consecutive cuts, and every block obtained by merging adjacent cuts,
+lies in one class $V$.}
 \label{fig:ramsey-cuts}
 \end{figure}
 
-The picture in \cref{fig:ramsey-cuts} is the image to keep
-while reading the proof.  We cut the infinite word at an increasing
-sequence of positions $k_0<k_1<k_2<\cdots$, and the segments between
-consecutive cuts all carry the same congruence colour $V$.  Because the
-congruence has finite index, a repeated use of the pigeonhole principle
-lets us extract such a sequence.  The key device used in the lecture is
-a second equivalence relation, this time on the \emph{positions} of
-$\alpha$, recording when two positions merge.
+\Cref{fig:ramsey-cuts} is the picture to keep in mind for the rest of
+this section.  We want to cut $\alpha$ at an increasing sequence of
+positions $k_0<k_1<k_2<\cdots$ so that the segments between consecutive
+cuts all carry the same congruence colour $V$ --- and so that this
+colour is stable under merging adjacent blocks, since the resulting
+decomposition must support arbitrarily long repetitions of $V$-blocks,
+not just single ones.
 
 \begin{lemma}[Ramsey decomposition for $\omega$-words]
 \label{lem:ramsey-decomposition}
@@ -731,94 +953,12 @@ $\equiv$-classes $U,V$ satisfying
 \]
 \end{lemma}
 
-\begin{proof}
-\emph{Merging positions.}
-For positions $k,k'$ and a position
-$m>\max\{k,k'\}$, say that $k$ and $k'$ \textbf{merge at $m$}, and
-write $k\equiv_{\alpha,m}k'$, if
-\[
-  \alpha(k,m)\equiv\alpha(k',m).
-\]
-If they merge at $m$, then they remain merged at every $m'\geq m$,
-because
-\[
-  \alpha(k,m')=\alpha(k,m)\alpha(m,m'),
-  \qquad
-  \alpha(k',m')=\alpha(k',m)\alpha(m,m'),
-\]
-and congruence preserves equivalence after concatenating the same
-suffix.  We can therefore omit the witness and write
-$k\equiv_\alpha k'$ when the two positions merge at some future
-position.
-
-The relation $\equiv_\alpha$ is an equivalence relation.  Reflexivity
-and symmetry are immediate.  For transitivity, if $k$ merges with $k'$
-and $k'$ merges with $k''$, extend both witnesses to one sufficiently
-large position $m$; at $m$ all three corresponding segments are in the
-same $\equiv$-class.
-
-It also has finite index.  Suppose that $\equiv$ has $r$ classes and
-choose $r+1$ positions from distinct $\equiv_\alpha$-classes.  At one
-position $m$ larger than all of them, the $r+1$ segments ending at $m$
-fall into only $r$ classes of $\equiv$.  Two must be equivalent, so
-their starting positions merge at $m$, a contradiction.
-
-\emph{The vectorial-closure intermediate step.}
-The finite-index relation $\equiv_\alpha$ partitions the infinitely
-many positions of $\alpha$ into finitely many classes.  Hence one class
-contains an increasing infinite sequence
-\[
-  k_0<k_1<k_2<\cdots .
-\]
-The segments $\alpha(k_0,k_i)$ for $i\geq1$ belong to only finitely many
-$\equiv$-classes.  Passing to an infinite subsequence, assume that they
-all belong to the same class $V$.  If necessary, repeat the selection
-after removing position $0$, so that $k_0>0$.  Let $U$ be the class of
-the prefix $\alpha(0,k_0)$.  The suffix $\alpha(k_0,\omega)$ has
-infinitely many prefixes $\alpha(k_0,k_i)$ in $V$, and therefore
-\[
-  \alpha(k_0,\omega)\in\overrightarrow{V},
-  \qquad
-  \alpha\in U\overrightarrow{V}.
-\]
-This is the intermediate conclusion reached in L07.  It is not yet the
-required statement $\alpha\in UV^\omega$: infinitely many prefixes in
-$V$ do not by themselves say that the pieces between consecutive
-prefixes belong to $V$.
-
-\emph{From $U\overrightarrow{V}$ to $UV^\omega$.}
-Thin the sequence once more.  After choosing
-$k_0,\ldots,k_i$, the finitely many pairs among these positions all
-merge at some sufficiently large common witness.  Choose $k_{i+1}$
-from the remaining infinite sequence beyond that witness.  Persistence
-then ensures that $k_0,\ldots,k_i$ all merge at $k_{i+1}$.
-
-The first block $\alpha(k_0,k_1)$ lies in $V$ by construction.  For
-$i\geq1$, the positions $k_0$ and $k_i$ merge at $k_{i+1}$, so
-\[
-  \alpha(k_i,k_{i+1})
-  \equiv
-  \alpha(k_0,k_{i+1})\in V.
-\]
-Thus every consecutive block $\alpha(k_i,k_{i+1})$ lies in $V$, and
-the prefix $\alpha(0,k_0)$ lies in $U$.  Hence $\alpha\in UV^\omega$.
-
-Finally, let
-$a=\alpha(k_0,k_1)$ and $b=\alpha(k_1,k_2)$.  Both lie in $V$, and so
-does $ab=\alpha(k_0,k_2)$.  For arbitrary $x,y\in V$, congruence gives
-$xy\equiv ab$, hence $xy\in V$.  Therefore
-$V\cdot V\subseteq V$.
-\end{proof}
-
-The point is conceptual: although the word may not be periodic, it can
-be partitioned into blocks that are indistinguishable by the finite
-congruence, and the repeated block class is closed under concatenating
-its own blocks.
-
 \begin{example}[Ramsey decomposition on the running automaton]
 \label{ex:ramsey-running}
-Return to the automaton $\mathcal A$ of \cref{fig:profile-automaton}.  Consider
-the $\omega$-word
+Before proving the lemma in general, it is worth seeing its conclusion
+verified directly on one automaton, by inspection rather than by
+running any pigeonhole argument.  Return to the automaton
+$\mathcal A$ of \cref{fig:profile-automaton}.  Consider the $\omega$-word
 \[
   \alpha =
   \underbrace{abc}_{\textstyle v_1}
@@ -828,20 +968,154 @@ the $\omega$-word
 The number of trailing $c$'s grows from block to block, so $\alpha$ is
 not ultimately periodic.  Nevertheless, every block $v_i=ab c^i$ has
 the same $\approx_{\mathcal A}$-class: it takes $s_0$ to $s_2$ while visiting
-$s_1\in F$, and takes $s_2$ to $s_2$ while visiting $s_1\in F$.
-Therefore all the $v_i$ belong to one class $V$.  Concatenating any two
-such blocks yields the same $\approx_{\mathcal A}$-class again, so $V$ is idempotent.  This
-is exactly the decomposition promised by
-\cref{lem:ramsey-decomposition}, with $u_0=\varepsilon$ and
-infinitely many non-empty blocks from the same idempotent class $V$.
+$s_1\in F$, and takes $s_2$ to $s_2$ while visiting $s_1\in F$; from
+$s_1$ itself, no path labelled $v_i$ exists at all, since $s_1$ has no
+outgoing $a$-transition.  Therefore all the $v_i$ belong to one class
+$V$, and so does every concatenation of consecutively chosen $v_i$'s,
+since composing two paths of the shape ``$s_0$ or $s_2$ into $s_2$,
+visiting $F$'' yields a path of exactly the same shape.  Concatenating
+any two such blocks therefore yields the same $\approx_{\mathcal A}$-class
+again, so $V$ is idempotent.  This is exactly the decomposition
+promised by \cref{lem:ramsey-decomposition}, with prefix class
+$U=[\varepsilon]$ (an empty prefix, since $\alpha$ already starts with
+a $V$-block) and infinitely many non-empty blocks from the same
+idempotent class $V$.
 \end{example}
 
-The proof has two distinct finite-index arguments, exactly as in the
-lecture: first on the merging relation over positions, then on the
-classes of the segments $\alpha(k_0,k_i)$.  The vectorial-closure form
-$U\overrightarrow V$ records infinitely many good prefixes; the second
-subsequence extraction turns them into consecutive $V$-blocks, which
-is the form needed by saturation.
+The walkthrough below traces the same decomposition through the
+general machinery --- the pigeonhole arguments that would have found
+it even without \cref{ex:ramsey-running}'s shortcut of inspecting the
+automaton directly.
+
+\begin{walkthrough}{Ramsey decomposition for $\omega$-words}
+  \wtstep{Setup}{
+    We already have one finite-index equivalence, $\equiv$ itself, on
+    finite words.  \Cref{lem:eventual-merge-finite-index} manufactures
+    a second one, $\posmerge{\alpha}$, this time on positions.  The proof
+    pigeonholes through each of them once, in a specific order, and
+    ties the two together using persistence
+    (\cref{prop:merge-persistence}).
+  }{
+    Recall the non-ultimately-periodic word
+    $\alpha=v_1v_2v_3\cdots=abc\cdot abcc\cdot abccc\cdots$ of
+    \cref{ex:ramsey-running}.  We already know, by inspecting the
+    automaton, that $\alpha\in [\varepsilon]V^\omega$.  We now trace
+    the general argument on this same word, to see how it would have
+    reached the same conclusion without that shortcut.
+  }
+
+  \wtstep{Pigeonhole on positions}{
+    The relation $\posmerge{\alpha}$ has finite index
+    (\cref{lem:eventual-merge-finite-index}), and it partitions the
+    infinitely many positions of $\alpha$ into finitely many classes.
+    Hence one class contains an infinite increasing sequence
+    $k_0<k_1<k_2<\cdots$, all pairwise eventually merging.
+  }{
+    Take $\equiv\,=\,\approx_{\mathcal A}$.  The block boundaries
+    $k_0=0,k_1=3,k_2=7,k_3=12,\ldots$ (the cumulative lengths of
+    $v_1,v_2,v_3,\ldots$) are pairwise merging: for instance,
+    $\alpha(0,7)=v_1v_2$ and $\alpha(3,7)=v_2$ are both in $V$, so
+    positions $0$ and $3$ merge at $7$.  In general, locating such a
+    sequence takes the pigeonhole argument just cited, not inspection.
+  }
+
+  \wtstep{Pigeonhole on segments: vectorial closure}{
+    The segments $\alpha(k_0,k_i)$ for $i\geq1$ belong to only finitely
+    many $\equiv$-classes.  Passing to an infinite subsequence, assume
+    they all lie in one class $V$; if necessary, discard $k_0$ when it
+    equals position $0$ and repeat the selection, so that the
+    remaining analysis has a genuine prefix to name.  Writing $U$ for
+    the class of the prefix $\alpha(0,k_0)$, the suffix
+    $\alpha(k_0,\omega)$ has infinitely many prefixes in $V$, so by
+    \cref{def:vectorial-closure} (applied to the word
+    $\alpha(k_0,\omega)$ in place of $\alpha$),
+    \[
+      \alpha(k_0,\omega)\in\overrightarrow{V},
+      \qquad\text{hence}\qquad
+      \alpha\in U\overrightarrow{V}.
+    \]
+    This is real progress, but not yet the lemma's statement: knowing
+    that infinitely many \emph{cumulative} prefixes lie in $V$ says
+    nothing yet, on its own, about the individual pieces between
+    consecutive cuts.
+  }{
+    Every block $v_i=abc^i$ already lies in one class $V$
+    (\cref{ex:ramsey-running}), so every cumulative prefix
+    $\alpha(k_0,k_i)=v_1v_2\cdots v_i$ is a concatenation of
+    $V$-blocks, and one checks directly (as in
+    \cref{ex:ramsey-running}) that it lands back in $V$ itself.  Here
+    $U=[\varepsilon]$, since $k_0=0$ was not discarded: $\alpha$
+    happens to start with a $V$-block right away.
+  }
+
+  \wtstep{Thinning to real blocks}{
+    Thin the sequence once more, this time using persistence to link
+    the two pigeonhole arguments together.  Having chosen
+    $k_0,\ldots,k_i$, the finitely many pairs among them all merge by
+    some common witness (extend each pairwise witness to their
+    maximum).  Choose $k_{i+1}$ from the remaining infinite sequence
+    beyond that witness: persistence (\cref{prop:merge-persistence})
+    then guarantees that $k_0,\ldots,k_i$ all merge with each other
+    \emph{at} $k_{i+1}$ as well.  In particular $k_0$ merges with $k_i$
+    at $k_{i+1}$, so
+    \[
+      \alpha(k_i,k_{i+1}) \equiv \alpha(k_0,k_{i+1}) \in V,
+    \]
+    the second membership coming from the previous step.  Every
+    consecutive block $\alpha(k_i,k_{i+1})$ therefore lies in $V$, the
+    prefix $\alpha(0,k_0)$ lies in $U$, and $\alpha\in UV^\omega$.
+  }{
+    Here every consecutive block already coincides with some $v_j$,
+    each independently verified to lie in $V$, so the thinning changes
+    nothing visible.  The counterpoint below shows a situation in
+    which it does real work.
+  }
+
+  \wtstep{Idempotence and conclusion}{
+    Let $a=\alpha(k_0,k_1)$ and $b=\alpha(k_1,k_2)$.  Both lie in $V$,
+    and so does their concatenation $ab=\alpha(k_0,k_2)$.  For
+    arbitrary $x,y\in V$, congruence gives $xy\equiv ab$, hence
+    $xy\in V$.  Therefore $V\cdot V\subseteq V$, exactly as required by
+    the statement of \cref{lem:ramsey-decomposition}.
+  }{
+    Concatenating any two blocks $v_i,v_j$ again lands in $V$
+    (\cref{ex:ramsey-running}), matching the abstract argument: $V$ is
+    closed under self-concatenation.
+  }
+\end{walkthrough}
+
+\begin{counterpoint}{Why stopping at vectorial closure is not enough}
+Suppose the second pigeonhole argument were run \emph{without} first
+knowing that $k_0,k_1,k_2,\ldots$ pairwise merge --- say, by picking
+any sequence of positions whose cumulative prefixes
+$\alpha(k_0,k_i)$ happen to land in one class $V$, with no further
+care about how the sequence was chosen.  This still gives
+$\alpha\in U\overrightarrow V$, but nothing in that fact alone forces
+the pieces \emph{between} consecutive cuts, $\alpha(k_i,k_j)$, into
+$V$: two different indices can reach the same cumulative class $V$ by
+unrelated routes, and the segment strictly between them can belong to
+any class whatsoever.  What repairs this in the ``Thinning to real
+blocks'' step is persistence: because $k_0$ and $k_i$ were already
+known to eventually merge --- a fact about \emph{positions},
+established in the ``Pigeonhole on positions'' step, before segment
+classes were even considered --- the merge persists all the way to
+$k_{i+1}$, and only then can the known class of the cumulative prefix
+$\alpha(k_0,k_{i+1})$ be transferred onto the gap
+$\alpha(k_i,k_{i+1})$.  The order of the two pigeonhole arguments is
+therefore load-bearing: positions must be shown to merge with each
+other \emph{first}, so that persistence is available to hand the class
+of the cumulative prefix down to every later gap.
+\end{counterpoint}
+
+\begin{takeaway}
+No matter how irregular an $\omega$-word looks --- even
+non-ultimately-periodic, like the growing-gap word above --- a
+finite-index congruence always finds a prefix class $U$ and a
+self-composable repeating class $V$ that reconstruct it as $UV^\omega$.
+Combined with saturation (\cref{lem:approx-a-properties}), this is what
+lets \cref{sec:omega-complement-theorem} classify \emph{every} infinite
+word by testing only finitely many class products.
+\end{takeaway}
 
 
 % ============================================================
