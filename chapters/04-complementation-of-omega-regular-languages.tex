@@ -79,7 +79,7 @@ one:
 
     \draw[arr] (nba) -- node[arlbl] {finite\\blocks} (prof);
     \draw[arr] (prof) -- node[arlbl] {stable\\colours} (ramsey);
-    \draw[arr] (ramsey) -- node[arlbl] {$uv^\omega$\\blocks} (sat);
+    \draw[arr] (ramsey) -- node[arlbl] {$UV^\omega$\\class products} (sat);
     \draw[arr] (sat) -- node[arlbl] {build\\complement} (comp);
   \end{tikzpicture}%
   }
@@ -147,14 +147,37 @@ transfer: there is no state-swapping shortcut.  We instead need a finite
 summary of finite blocks that preserves the information relevant to
 infinite acceptance.  Finite-index congruences provide this summary.
 
+Before introducing the machinery, it helps to state its destination.
+We want to cover $\Sigma^\omega$ with finitely many regular sets of the
+form $UV^\omega$ such that each set has a uniform acceptance status: it
+lies either entirely inside $L(\mathcal A)$ or entirely outside it.  If
+we can do this, then
+\[
+  \overline{L(\mathcal A)}
+  =
+  \bigcup
+  \{UV^\omega : UV^\omega\cap L(\mathcal A)=\emptyset\},
+\]
+a finite union recognizable by a B\"uchi automaton.
+
+The three ingredients below establish exactly these requirements.
+Congruence classes provide finitely many possible block profiles; the
+relation $\approx_{\mathcal A}$ makes acceptance uniform within each
+class product; and the Ramsey decomposition guarantees that every
+$\omega$-word belongs to at least one such product.  In short, classes
+give a finite inventory, saturation tells us which inventory items are
+accepted or rejected, and Ramsey ensures that no infinite word is left
+unclassified.
+
 
 % ============================================================
 \section{Congruences and Saturation}
 \label{sec:congruence-saturation}
 % ============================================================
 
-The algebraic route partitions finite words into finitely many classes,
-then uses products of classes to describe infinite words.
+We begin with the finite inventory required by this plan: a congruence
+partitions finite words into finitely many classes, then products of
+those classes describe infinite words.
 
 The intuition is familiar from everyday arithmetic: we often care not
 about the exact value of a number but about a coarse summary --- even or

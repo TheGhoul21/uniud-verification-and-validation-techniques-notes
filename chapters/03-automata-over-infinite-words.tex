@@ -990,6 +990,21 @@ visits $f$ infinitely often, hence accepting.  So the two sides coincide,
 and the expression denotes exactly $L(\mathcal{A})$.
 \end{proof}
 
+\begin{remark}[Looking ahead: why this does not yet give complementation]
+The theorem above describes an $\omega$-regular language as a finite
+union of products $U_iV_i^\omega$, but this description alone does not
+tell us how to complement it.  The products may overlap, they cover the
+language rather than all of $\Sigma^\omega$, and there is no finite list
+of ``all the other products'' that we can simply take.
+
+\Cref{ch:omega-complementation} solves this problem by replacing the
+arbitrary regular languages $U_i,V_i$ with finitely many behavioural
+classes of finite blocks.  Ramsey decomposition will guarantee that
+their class products cover every $\omega$-word, while saturation will
+make each class product uniformly accepted or uniformly rejected.  The
+complement can then be assembled from the rejecting products.
+\end{remark}
+
 
 % ============================================================
 \section{Emptiness and Lassos}
