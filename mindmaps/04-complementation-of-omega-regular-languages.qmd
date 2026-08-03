@@ -18,7 +18,7 @@ format:
       <h1>Chapter 4 · Complementation of ω-Regular Languages</h1>
       <p>Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.</p>
     </div>
-    <span class="mm-count" id="mindmap-count">6 sections · 25 topics</span>
+    <span class="mm-count" id="mindmap-count">6 sections · 26 topics</span>
   </div>
 
   <div class="mm-toolbar">
@@ -229,16 +229,22 @@ format:
           "line": 885
         },
         {
+          "name": "The merge-classes on the running automaton",
+          "kind": "Topic",
+          "source": "chapters/04-complementation-of-omega-regular-languages.tex",
+          "line": 921
+        },
+        {
           "name": "Ramsey decomposition for ω-words",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 946
+          "line": 1051
         },
         {
           "name": "Ramsey decomposition on the running automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 956
+          "line": 1061
         }
       ]
     },
@@ -246,7 +252,7 @@ format:
       "name": "Closure under Complement",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 1122,
+      "line": 1277,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": [
@@ -254,25 +260,25 @@ format:
           "name": "Saturation on the running automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1135
+          "line": 1290
         },
         {
           "name": "Complementation of Büchi-recognizable languages",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1148
+          "line": 1303
         },
         {
           "name": "The complement automaton by saturation",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1202
+          "line": 1357
         },
         {
           "name": "Ultimately periodic fingerprint",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1256
+          "line": 1411
         }
       ]
     },
@@ -280,7 +286,7 @@ format:
       "name": "Model Checking Consequence",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 1274,
+      "line": 1429,
       "color": "#167b9e",
       "latexColor": "brightsky",
       "children": [
@@ -288,7 +294,7 @@ format:
           "name": "Büchi inclusion",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1280
+          "line": 1435
         }
       ]
     }
