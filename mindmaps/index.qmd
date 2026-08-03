@@ -37,7 +37,7 @@ format:
     <a class="mindmap-index-card" href="04-complementation-of-omega-regular-languages.html" style="--card-color: #30bced">
       <span class="chapter-number">Chapter 4</span>
       <strong>Complementation of ω-Regular Languages</strong>
-      <small>6 sections · 26 topics</small>
+      <small>6 sections · 28 topics</small>
     </a>
     <a class="mindmap-index-card" href="05-synthesis-and-games.html" style="--card-color: #30bced">
       <span class="chapter-number">Chapter 5</span>
