@@ -768,16 +768,45 @@ Thomas's chapter goes next.
 \label{sec:ramsey-decomposition}
 % ============================================================
 
-The saturation lemmas above reduce complementation to a question about
-class products $UV^\omega$.  But a generic $\omega$-word $\alpha$ need
-not be literally of the form $uv^\omega$; it may have no period at all,
-like the word of \cref{ex:ramsey-running} below, whose gaps of
-\texttt{c}'s grow forever.  To use saturation on \emph{every}
-$\omega$-word, we need to know that $\alpha$ can nonetheless be
-partitioned into finite blocks that all share one congruence class.
-This is a combinatorial fact about infinite words and finite
-colourings, and it is an instance of a much more general principle,
-Ramsey's theorem.
+The saturation lemmas above tell us that each class product
+$UV^\omega$ lies entirely inside the language or entirely outside it.
+To use this fact for complementation, however, we must first know that
+these class products cover every $\omega$-word.
+
+For the congruence $\approx_{\mathcal A}$ used in this chapter, an
+equivalence class is best read as a \emph{finite behavioural profile}.
+The profile of a finite block records how the block can move
+$\mathcal A$ between states and whether an accepting state can be
+visited along the way.  Thus a class $V$ is not one particular word:
+it collects all finite blocks that have the same observable effect on
+the automaton.
+
+This is the important difference between $uv^\omega$ and
+$UV^\omega$.  The word $uv^\omega=uvvv\cdots$ repeats one fixed block
+and is ultimately periodic.  By contrast, a word in $UV^\omega$ has
+the form
+\[
+  uv_1v_2v_3\cdots,
+  \qquad u\in U,\quad v_i\in V,
+\]
+where the blocks $v_i$ may all be different; they need only have the
+same profile.  For example, the word of \cref{ex:ramsey-running} uses
+the increasingly long blocks
+\[
+  \mathtt{abc},\quad \mathtt{abcc},\quad
+  \mathtt{abccc},\quad\ldots
+\]
+and is not periodic in its symbols.  Nevertheless, all these blocks
+have the same effect on the running automaton, so they belong to one
+class $V$: the word repeatedly presents the automaton with the same
+finite behaviour.
+
+The missing fact is that every $\omega$-word can be cut, after a finite
+prefix, into blocks that all belong to one congruence class.  If we
+regard the finitely many classes as colours assigned to finite
+segments of the word, this becomes a combinatorial statement about an
+infinite sequence coloured with finitely many colours.  It is the
+instance of Ramsey's theorem proved in this section.
 
 \aside{In the lecture, this argument was connected to Ramsey's theorem,
 a general combinatorial principle: knowing Ramsey's theorem is not
