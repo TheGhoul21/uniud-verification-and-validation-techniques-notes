@@ -911,6 +911,111 @@ the $r+1$ positions as pairwise non-merging.  Hence $\posmerge{\alpha}$
 has at most $r$ classes.
 \end{proof}
 
+The lemma is completely abstract: an equivalence relation on the
+natural numbers, of finite index, built from an equivalence relation on
+finite words.  Before moving on, it is worth seeing what its classes
+actually look like for one concrete $\alpha$, so that ``finitely many
+classes of positions'' stops being an abstract promise and becomes
+something you can point at.
+
+\begin{example}[The \texorpdfstring{$\posmerge{\alpha}$}{merge}-classes on the running automaton]
+\label{ex:position-classes-running}
+Take $\equiv\,=\,\approx_{\mathcal A}$ for the automaton $\mathcal A$ of
+\cref{fig:profile-automaton}, and let
+\[
+  \alpha =
+  \underbrace{abc}_{\textstyle v_1}
+  \underbrace{abcc}_{\textstyle v_2}
+  \underbrace{abccc}_{\textstyle v_3}\cdots ,
+\]
+the same growing-gap word used throughout this chapter.  Because
+$\mathcal A$ is deterministic and each of its three states has an
+outgoing transition on at most one letter ($s_0$ only on $a$, $s_1$
+only on $b$, $s_2$ only on $a$ and $c$), the very first symbol of a
+segment already decides which rows of its behaviour table can ever be
+non-empty: a segment starting with $a$ can only be read from $s_0$ or
+$s_2$; one starting with $b$ only from $s_1$; one starting with $c$
+only from $s_2$.  This split by first symbol turns out to be exactly
+the $\posmerge{\alpha}$-partition of the positions of $\alpha$.
+
+\begin{center}
+\begin{tikzpicture}[
+  ca/.style={circle, fill=vvteal!70!black, inner sep=2.1pt},
+  cb/.style={circle, fill=violet!65!black, inner sep=2.1pt},
+  cc/.style={circle, fill=orange!80!black, inner sep=2.1pt},
+]
+  \draw[thick] (0,0) -- (12.5,0);
+  \foreach \x/\sym/\cls in {
+    0/a/ca, 1/b/cb, 2/c/cc, 3/a/ca, 4/b/cb, 5/c/cc, 6/c/cc,
+    7/a/ca, 8/b/cb, 9/c/cc, 10/c/cc, 11/c/cc, 12/a/ca} {
+    \node[\cls] at (\x,0) {};
+    \node[above=2pt, font=\small\ttfamily] at (\x,0) {\sym};
+    \node[below=2mm, font=\scriptsize, gray!60] at (\x,0) {\x};
+  }
+  \node[right=3mm, font=\small, vvteal!70!black] at (12.5,0.55) {$\bullet$ class of $0$};
+  \node[right=3mm, font=\small, violet!65!black] at (12.5,0.0) {$\bullet$ class of $1$};
+  \node[right=3mm, font=\small, orange!80!black] at (12.5,-0.55) {$\bullet$ class of $2$};
+\end{tikzpicture}
+\end{center}
+
+Three classes are realized among the positions of $\alpha$, coloured
+above by which symbol sits there:
+\[
+  \{0,3,7,12,18,\ldots\}
+  \qquad
+  \{1,4,8,13,19,\ldots\}
+  \qquad
+  \{2,5,6,9,10,11,14,\ldots\}.
+\]
+The first set is exactly the sequence of block boundaries; the second
+is the position right after each block's leading $a$; the third
+collects every position inside a run of $c$'s, across every block.
+Three concrete checks make the partition tangible:
+
+\begin{itemize}[nosep]
+  \item \emph{$0$ and $3$ merge, and quickly.}  At $m=4$,
+        $\alpha(0,4)=\mathtt{abca}$ and $\alpha(3,4)=\mathtt{a}$ have
+        the identical table $\{(s_0,s_1)\mapsto\text{reach+}F,\,
+        (s_2,s_1)\mapsto\text{reach+}F\}$ (row $s_1$ empty in both,
+        since both start with a symbol $s_1$ cannot read).  So
+        $0\posmerge{\alpha,4}3$, hence $0\posmerge{\alpha}3$.  (They
+        also merge at $m=7$, the choice used later in this chapter ---
+        once merged, every later $m$ works too, by
+        \cref{prop:merge-persistence}.)
+  \item \emph{$0$ and $1$ never merge.}  Every segment starting at
+        position $0$ begins with $a$, so its row $s_1$ is empty at
+        every $m$; every segment starting at position $1$ begins with
+        $b$, so its rows $s_0$ and $s_2$ are empty at every $m$.  These
+        two ``permanently empty'' patterns can never coincide, so no
+        $m$ ever makes $\alpha(0,m)\equiv\alpha(1,m)$: positions $0$
+        and $1$ stay in different classes forever.
+  \item \emph{$2$ and $5$ merge, but not right away.}  At $m=7$, both
+        $\alpha(2,7)=\mathtt{cabcc}$ and $\alpha(5,7)=\mathtt{cc}$ have
+        only row $s_2$ non-empty (their sole possible start, since both
+        begin with $c$), but $\alpha(2,7)$ reaches $s_2$ \emph{having
+        visited} $F$ along the way, while $\alpha(5,7)$ reaches $s_2$
+        \emph{without} visiting $F$ --- same endpoint, different
+        $F$-status, so the tables disagree and
+        $2\not\posmerge{\alpha,7}5$.  Waiting one more block, at $m=8$
+        both $\alpha(2,8)=\mathtt{cabcca}$ and $\alpha(5,8)=\mathtt{cca}$
+        reach $s_1$ while visiting $F$, and
+        nothing else, from $s_2$ (their only non-empty row).  The
+        tables now agree, so $2\posmerge{\alpha,8}5$.  This is the
+        concrete instance of the warning already given after
+        \cref{def:position-merge}: the same two positions can fail to
+        merge at one $m$ and succeed only at a later one.
+\end{itemize}
+
+Only three classes appear here, far below the abstract bound of
+$3^{n^2}=3^9$ inherited from $\approx_{\mathcal A}$'s index on all of
+$\Sigma^*$ (\cref{lem:approx-a-properties}): that bound counts the
+classes available to \emph{any} word, while a single $\alpha$ only ever
+visits finitely many of them.  The infinite class
+$\{0,3,7,12,\ldots\}$ found here is exactly the sequence the
+``Pigeonhole on positions'' step of the walkthrough below will single
+out by this same argument, without needing to inspect $\alpha$ by hand.
+\end{example}
+
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
