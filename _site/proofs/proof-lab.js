@@ -227,6 +227,39 @@
     });
   }
 
+  // Choices may be plain strings (legacy labs: step.correct is the index,
+  // step.feedback/step.incorrect are shared by every wrong choice) or
+  // objects { text, correct, feedback, causalFailure, consequence,
+  // consequenceNote } (richer labs: each choice owns its own outcome and,
+  // optionally, its own diagram state). Both formats are read through the
+  // helpers below so existing lab content keeps working untouched.
+  function choiceText(choice) {
+    return typeof choice === "string" ? choice : choice.text;
+  }
+
+  function choiceIsCorrect(step, choice, index) {
+    if (choice && typeof choice === "object" && "correct" in choice) {
+      return !!choice.correct;
+    }
+    return index === step.correct;
+  }
+
+  function choiceOutcomeText(step, choice, wasCorrect) {
+    if (choice && typeof choice === "object") {
+      const specific = wasCorrect ? choice.feedback : choice.causalFailure;
+      if (specific) return specific;
+    }
+    return wasCorrect ? step.feedback : step.incorrect;
+  }
+
+  function choiceConsequence(choice) {
+    return (choice && typeof choice === "object") ? choice.consequence : null;
+  }
+
+  function choiceConsequenceNote(choice) {
+    return (choice && typeof choice === "object") ? choice.consequenceNote : null;
+  }
+
   function linkFor(item, direction) {
     if (!item) return null;
     const link = element("a", "", `${direction === "previous" ? "←" : ""}${item.label}${direction === "next" ? " →" : ""}`);
@@ -329,12 +362,18 @@
 
     function render() {
       const step = config.steps[stepIndex];
-      const visualState = solved ? step.reveal : (step.preview || step.reveal);
+      const chosen = selectedChoice === null ? null : step.choices[selectedChoice];
+      const consequence = chosen ? choiceConsequence(chosen) : null;
+      const visualState = solved
+        ? step.reveal
+        : (consequence || step.preview || step.reveal);
       drawDiagram(diagram, config.diagram, visualState || {});
 
       canvasState.textContent = step.visualLabel || step.label;
       canvasCount.textContent = `Step ${stepIndex + 1} of ${config.steps.length}`;
-      canvasNote.textContent = solved ? step.revealNote : step.previewNote;
+      canvasNote.textContent = solved
+        ? step.revealNote
+        : ((chosen && choiceConsequenceNote(chosen)) || step.previewNote);
       stepLabel.textContent = step.label;
       stepTitle.textContent = step.title;
       setMathText(exposition, step.exposition);
@@ -346,15 +385,15 @@
 
       choices.replaceChildren();
       step.choices.forEach((choice, index) => {
-        const button = element("button", "proof-lab__choice", choice);
+        const button = element("button", "proof-lab__choice", choiceText(choice));
         button.type = "button";
         button.setAttribute("aria-pressed", selectedChoice === index ? "true" : "false");
         if (selectedChoice === index) {
-          button.classList.add(index === step.correct ? "is-correct" : "is-wrong");
+          button.classList.add(choiceIsCorrect(step, choice, index) ? "is-correct" : "is-wrong");
         }
         button.addEventListener("click", () => {
           selectedChoice = index;
-          solved = index === step.correct;
+          solved = choiceIsCorrect(step, choice, index);
           render();
         });
         choices.append(button);
@@ -364,7 +403,7 @@
         setMathText(feedback, "Predict before revealing the next proof state.");
         feedback.classList.remove("is-error");
       } else {
-        setMathText(feedback, solved ? step.feedback : step.incorrect);
+        setMathText(feedback, choiceOutcomeText(step, chosen, solved));
         feedback.classList.toggle("is-error", !solved);
       }
 
@@ -373,7 +412,7 @@
       setMathText(formal.lastElementChild, step.formal);
       back.disabled = stepIndex === 0;
       next.disabled = !solved;
-      next.textContent = stepIndex === config.steps.length - 1 ? "Replay proof ↺" : "Continue →";
+      next.textContent = stepIndex === config.steps.length - 1 ? "Restart from step 1" : "Continue →";
       hintButton.textContent = hintVisible ? "Hide hint" : "Hint";
       queueMathTypeset([exposition, question, feedback, hint, formal.lastElementChild]);
     }
