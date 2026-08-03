@@ -985,7 +985,50 @@ idempotent class $V$.
 The walkthrough below traces the same decomposition through the
 general machinery --- the pigeonhole arguments that would have found
 it even without \cref{ex:ramsey-running}'s shortcut of inspecting the
-automaton directly.
+automaton directly.  Its ``Thinning to real blocks'' step hinges on one
+sub-step worth picturing on its own: the common witness $M$ for
+$k_0,\ldots,k_i$ need not itself be a member of the sequence, so it may
+fall strictly between two of its later positions.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  keep/.style={circle, fill=vvteal!70!black, inner sep=2pt},
+  drop/.style={circle, fill=gray!50, inner sep=1.6pt},
+]
+  \draw[thick] (0,0) -- (10.5,0);
+  \foreach \x/\lab in {0/k_0, 1.2/k_1, 2.4/k_i} {
+    \node[keep] at (\x,0) {};
+    \node[below=2mm, font=\small] at (\x,0) {$\lab$};
+  }
+  \node[font=\small] at (1.8,0.35) {$\cdots$};
+  \foreach \x in {3.6,4.8,6.0} {
+    \node[drop] at (\x,0) {};
+  }
+  \node[below=2mm, font=\small, gray!70] at (3.6,0) {$k_{i+1}$};
+  \node[below=2mm, font=\small, gray!70] at (6.0,0) {$k_j$};
+  \node[above=1pt, font=\scriptsize, gray!70] at (4.8,0.15) {discarded};
+  \draw[gray!60, thick] (7.2,-0.15) -- (7.2,0.15);
+  \node[above=1pt, font=\small] at (7.2,0.3) {$M$};
+  \node[keep] at (8.4,0) {};
+  \node[below=2mm, font=\small] at (8.4,-0.05) {$k_{j+1}$};
+  \node[below=8mm, font=\small, vvteal!70!black] at (8.4,-0.05)
+    {\textbf{new } $k_{i+1}$};
+
+  \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
+    (0,-1.5) -- (7.2,-1.5) node [midway, yshift=-0.55cm, font=\small, black]
+    {$k_0,\ldots,k_i$ all merge at $M$};
+  \draw[dashed, gray!60, thin] (0,0) -- (0,-1.5);
+  \draw[dashed, gray!60, thin] (7.2,0) -- (7.2,-1.5);
+\end{tikzpicture}
+\caption{Thinning the sequence.  The common merge witness $M$ for
+$k_0,\ldots,k_i$ lands between two positions of the original list,
+$k_j$ and $k_{j+1}$.  Discarding the finitely many positions
+$k_{i+1},\ldots,k_j$ still leaves an infinite tail, and by persistence
+$k_{j+1}$ --- renamed the new $k_{i+1}$ --- merges with every one of
+$k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
+\label{fig:ramsey-thinning}
+\end{figure}
 
 \begin{walkthrough}{Ramsey decomposition for $\omega$-words}
   \wtstep{Setup}{
@@ -1052,12 +1095,19 @@ automaton directly.
     Thin the sequence once more, this time using persistence to link
     the two pigeonhole arguments together.  Having chosen
     $k_0,\ldots,k_i$, the finitely many pairs among them all merge by
-    some common witness (extend each pairwise witness to their
-    maximum).  Choose $k_{i+1}$ from the remaining infinite sequence
-    beyond that witness: persistence (\cref{prop:merge-persistence})
-    then guarantees that $k_0,\ldots,k_i$ all merge with each other
-    \emph{at} $k_{i+1}$ as well.  In particular $k_0$ merges with $k_i$
-    at $k_{i+1}$, so
+    some common witness $M$ (extend each pairwise witness to their
+    maximum).  This $M$ need not itself belong to the sequence: as
+    \cref{fig:ramsey-thinning} pictures, it may fall strictly between
+    two later positions $k_j$ and $k_{j+1}$ of the original list.
+    Discard the finitely many positions $k_{i+1},\ldots,k_j$ in
+    between --- an infinite tail still remains --- and rename $k_{j+1}$
+    as the new $k_{i+1}$.  Since $k_{j+1}$ lies to the right of $M$,
+    persistence (\cref{prop:merge-persistence}) guarantees that
+    $k_0,\ldots,k_i$ all merge with each other \emph{at} this new
+    $k_{i+1}$ as well.  Repeating this for every $i$ builds, step by
+    step, one infinite subsequence along which consecutive positions
+    always merge with everything before them.  In particular $k_0$
+    merges with $k_i$ at $k_{i+1}$, so
     \[
       \alpha(k_i,k_{i+1}) \equiv \alpha(k_0,k_{i+1}) \in V,
     \]
@@ -1305,6 +1355,14 @@ finite-word case, where complementation introduces no state blow-up.
 This is the automata-theoretic backbone of model checking: search for an
 execution of the system that violates the specification.  If none
 exists, inclusion holds.
+
+\aside{In the lecture, the professor pointed out that complementation
+--- the technical core of everything in this chapter --- is also the
+key ingredient of what the literature calls B\"uchi's theorem.
+Complementation itself was not B\"uchi's original goal; it was an
+instrumental step toward it.  The original goal, connecting B\"uchi
+automata to the decidability of a monadic second-order logic of one
+successor (S1S), is the subject of \cref{ch:s1s-buchi}.}
 
 \subsection*{Notation Recap}
 
