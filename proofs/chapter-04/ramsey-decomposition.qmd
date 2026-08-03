@@ -8,6 +8,50 @@ description: "An interactive proof that every omega-word decomposes as a finite 
 <div class="proof-lab" data-proof-lab="ramsey-decomposition"></div>
 <noscript>
   <h1>Ramsey decomposition</h1>
-  <p>Every omega-word alpha belongs to U times V-omega for some classes U, V of a finite-index congruence, with V times V contained in V. Two nested pigeonhole arguments -- one on positions of alpha, one on segment classes -- linked by a persistence property, produce the decomposition even when alpha is not ultimately periodic.</p>
+  <p><strong>Theorem.</strong> Every omega-word alpha belongs to U&middot;V-omega for
+  some classes U, V of a finite-index congruence (=), with V&middot;V contained in V.</p>
+
+  <p><strong>Running example.</strong> The automaton has states s0, s1, s2 with
+  F = {s1} and transitions s0-a-&gt;s1, s1-b-&gt;s2, s2-c-&gt;s2 (self-loop),
+  s2-a-&gt;s1. The word alpha = abc&middot;abcc&middot;abccc&middot;&middot;&middot; has
+  ever-growing gaps of c's and is not ultimately periodic, yet every block abc^n
+  produces the same behaviour, so alpha decomposes as [epsilon]&middot;V-omega for a
+  single class V.</p>
+
+  <p><strong>Strategy.</strong> Build a second finite-index equivalence on the
+  positions of alpha by colouring each pair of positions with the (=)-class of the
+  segment between them. Pigeonhole gives an infinite pairwise-merging set of
+  positions; persistence (congruence applied to a shared future suffix) makes that
+  merge survive forever. A separate pigeonhole on cumulative-prefix classes gives
+  infinitely many prefixes in one class V; persistence then transfers V's class onto
+  each gap, turning them into genuine consecutive V-blocks. One witnessed
+  concatenation transports, via congruence, to V&middot;V contained in V.</p>
+
+  <p><strong>Proof outline.</strong></p>
+  <ol>
+    <li><em>Setup.</em> The congruence (=) compares the finite segments between
+    positions, not positions themselves; so build a relation on positions, colouring
+    a pair (k, k') by the (=)-class of the shared-future segments alpha(k, m) and
+    alpha(k', m).</li>
+    <li><em>Pigeonhole on positions.</em> That relation inherits finite index from
+    (=), so among any r+1 positions two must merge; run over all of N to get an
+    infinite pairwise-merging sequence k0 &lt; k1 &lt; k2 &lt; ...</li>
+    <li><em>Persistence.</em> (=) is right-invariant, so appending the shared suffix
+    to both sides shows: once two positions merge at some checkpoint m, they merge at
+    every later checkpoint m' &gt;= m.</li>
+    <li><em>Pigeonhole on segments.</em> Independently, pigeonhole the cumulative
+    prefixes alpha(k0, ki): infinitely many share one class V. This gives alpha in
+    U&middot;(infinitely many V-prefixes), but not yet consecutive blocks.</li>
+    <li><em>Thinning.</em> Thin the sequence so that k0, ..., ki all merge at k(i+1);
+    persistence transfers alpha(k0, k(i+1)) in V onto the gap, giving alpha(ki, k(i+1))
+    in V. Every consecutive block lies in V, so alpha in U&middot;V-omega.</li>
+    <li><em>Idempotence.</em> For one witnessed pair a = alpha(k0, k1), b =
+    alpha(k1, k2) with ab in V, congruence gives xy = ab in V for all x = a, y = b in
+    V; hence V&middot;V contained in V.</li>
+  </ol>
+
+  <p><strong>Conclusion.</strong> alpha in U&middot;V-omega with V&middot;V contained
+  in V &mdash; the Ramsey decomposition, holding even when alpha is not ultimately
+  periodic.</p>
 </noscript>
 ```
