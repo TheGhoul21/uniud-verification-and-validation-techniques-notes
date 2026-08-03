@@ -639,28 +639,57 @@ separated by arbitrary $c$'s.}
 \label{fig:profile-automaton}
 \end{figure}
 
+\aside{Only the four transitions drawn above exist: $\Delta$ is a
+relation, not required to be total (\cref{def:buchi}).  So $s_0$ has no
+transition on $b$ or $c$, $s_1$ none on $a$ or $c$, and $s_2$ none on
+$b$.  Reading such a symbol does not send the run to a sink or hold it
+in place --- the run simply has nowhere to go, and stops existing.
+Every ``no path'' entry below relies on this.}
+
 \begin{example}[Two \texorpdfstring{$\approx_{\mathcal A}$}{≈𝒜}-classes on a small automaton]
 \label{ex:profile-table}
 Consider the B\"uchi automaton $\mathcal A$ of \cref{fig:profile-automaton}, with
 $F=\{s_1\}$.  We compare the summaries induced by
-$\approx_{\mathcal A}$ for two short words.
+$\approx_{\mathcal A}$ for two short words.  Row $p$, column $q$ of
+each grid records the status of the pair $(p,q)$: ``$-$'' for no path,
+plain $q$ for a path that reaches $q$ without visiting $F$, and $q^F$
+for a path that reaches $q$ while visiting $F$.
+\[
+\begin{array}{c|ccc}
+  u=c  & s_0 & s_1 & s_2 \\ \hline
+  s_0  & -   & -   & -   \\
+  s_1  & -   & -   & -   \\
+  s_2  & -   & -   & s_2 \\
+\end{array}
+\qquad\qquad
+\begin{array}{c|ccc}
+  u=ab & s_0 & s_1 & s_2   \\ \hline
+  s_0  & -   & -   & s_2^F \\
+  s_1  & -   & -   & -     \\
+  s_2  & -   & -   & s_2^F \\
+\end{array}
+\]
 
 For $u=c$, the only non-trivial entry is
 $s_2\tto{c}s_2$, and it does \emph{not} visit $F$ (the path
 stays in $s_2\notin F$).  Every other pair $(p,q)$ has no $c$-labelled
-path.
+path --- in particular $s_0$ and $s_1$ have no outgoing $c$-transition
+at all, so their entire rows are empty.
 
 For $u=ab$, we have $s_0\tto{ab}_{F}s_2$ along the path
 $s_0\tto{a}s_1\tto{b}s_2$, which visits $s_1\in F$, and
 $s_2\tto{ab}_{F}s_2$ along the path
 $s_2\tto{a}s_1\tto{b}s_2$, which also visits $s_1$.  No
 other pair has an $ab$-labelled path: in particular $s_1$ has no
-outgoing $a$-transition, so $s_1\tto{ab}q$ never holds.
+outgoing $a$-transition, so $s_1\tto{ab}q$ never holds and row $s_1$ is
+empty.
 
-The two words $c$ and $ab$ therefore lie in different $\approx_{\mathcal A}$-classes:
-the summary of $c$ has a single non-$F$ entry at $(s_2,s_2)$, while the
-summary of $ab$ has two $F$-entries.  This is the kind of finite summary
-that $\approx_{\mathcal A}$ attaches to every finite word.
+The two grids above are literally the compared summaries: the table for
+$c$ has a single non-$F$ entry at $(s_2,s_2)$, while the table for $ab$
+has two $F$-entries, at $(s_0,s_2)$ and $(s_2,s_2)$ --- different
+entries at the very same position, so $c\not\approx_{\mathcal A}ab$.
+This grid is the kind of finite summary that $\approx_{\mathcal A}$
+attaches to every finite word.
 \end{example}
 
 \begin{formaldetails}[Replacement principle]
@@ -989,21 +1018,28 @@ Three concrete checks make the partition tangible:
         two ``permanently empty'' patterns can never coincide, so no
         $m$ ever makes $\alpha(0,m)\equiv\alpha(1,m)$: positions $0$
         and $1$ stay in different classes forever.
-  \item \emph{$2$ and $5$ merge, but not right away.}  At $m=7$, both
-        $\alpha(2,7)=\mathtt{cabcc}$ and $\alpha(5,7)=\mathtt{cc}$ have
-        only row $s_2$ non-empty (their sole possible start, since both
-        begin with $c$), but $\alpha(2,7)$ reaches $s_2$ \emph{having
-        visited} $F$ along the way, while $\alpha(5,7)$ reaches $s_2$
-        \emph{without} visiting $F$ --- same endpoint, different
-        $F$-status, so the tables disagree and
+  \item \emph{$2$ and $5$ merge, but not right away.}  Both positions
+        read $c$ first, so rows $s_0,s_1$ stay empty throughout
+        (the aside after \cref{fig:profile-automaton}); only row $s_2$
+        can ever hold an entry, and the table below tracks exactly that
+        row across the four segments compared:
+        \[
+        \begin{array}{c|cccc}
+          \text{row }s_2 & \alpha(2,7) & \alpha(5,7) & \alpha(2,8) & \alpha(5,8) \\ \hline
+                         & s_2^F        & s_2         & s_1^F        & s_1^F
+        \end{array}
+        \]
+        At $m=7$ the entries disagree: $\alpha(2,7)=\mathtt{cabcc}$
+        reaches $s_2$ \emph{having visited} $F$ along the way, while
+        $\alpha(5,7)=\mathtt{cc}$ reaches $s_2$ \emph{without} visiting
+        $F$ --- same endpoint, different $F$-status, so
         $2\not\posmerge{\alpha,7}5$.  Waiting one more block, at $m=8$
         both $\alpha(2,8)=\mathtt{cabcca}$ and $\alpha(5,8)=\mathtt{cca}$
-        reach $s_1$ while visiting $F$, and
-        nothing else, from $s_2$ (their only non-empty row).  The
-        tables now agree, so $2\posmerge{\alpha,8}5$.  This is the
-        concrete instance of the warning already given after
-        \cref{def:position-merge}: the same two positions can fail to
-        merge at one $m$ and succeed only at a later one.
+        reach $s_1$ while visiting $F$: the entries now agree, so
+        $2\posmerge{\alpha,8}5$.  This is the concrete instance of the
+        warning already given after \cref{def:position-merge}: the same
+        two positions can fail to merge at one $m$ and succeed only at
+        a later one.
 \end{itemize}
 
 Only three classes appear here, far below the abstract bound of
