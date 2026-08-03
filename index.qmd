@@ -35,9 +35,20 @@ format:
 <div class="landing">
 
   <!-- Hero -->
-  <div class="landing-hero">
+  <div class="landing-hero" aria-label="Verification and Validation Techniques — Lecture Notes">
+    <div class="landing-cover-lockup">
+      <div class="cover-title" role="heading" aria-level="1">
+        <span>VERIFICATION</span>
+        <span><span class="cover-amp">&amp;</span> VALIDATION</span>
+        <span>TECHNIQUES</span>
+      </div>
+      <div class="cover-subtitle">LECTURE NOTES</div>
+    </div>
+  </div>
+
+  <div class="landing-intro">
+    <div class="landing-intro-copy">
     <div class="uni-label">Università degli Studi di Udine · A.A. 2025–2026</div>
-    <h1>Verification and Validation Techniques</h1>
     <p class="desc">
       Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.
     </p>
@@ -46,12 +57,13 @@ format:
       product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.
       Major theorems have guided Proof Labs, and the complete lecture notes remain available as a downloadable PDF.
     </p>
+    </div>
     <p class="hero-links">
       <a class="hero-cta" href="main.pdf" target="_blank" rel="noopener noreferrer">
         <i class="bi bi-file-earmark-pdf-fill hero-cta-icon"></i>
         <span class="hero-cta-copy">
           <span class="hero-cta-title">Open the Full Lecture Notes</span>
-          <span class="hero-cta-meta">283 pages · Complete appunti · PDF</span>
+          <span class="hero-cta-meta">294 pages · Complete appunti · PDF</span>
         </span>
         <i class="bi bi-arrow-right hero-cta-arrow"></i>
       </a>
@@ -60,7 +72,7 @@ format:
 
   <!-- Canvas — card grid -->
   <div class="landing-canvas">
-  
+
     <div class="chapter-label">Course Materials</div>
     <div class="card-grid">
       <a class="algo-card" href="proofs/index.qmd">
