@@ -272,78 +272,105 @@
     let selectedChoice = null;
     let solved = false;
     let hintVisible = false;
+    let phase = "context"; // "context" | "question" | "result"
 
     root.classList.add("proof-lab");
     root.replaceChildren();
 
+    // ── Header ──
     const header = element("header", "proof-lab__header");
     header.append(
-      element("p", "proof-lab__breadcrumb", `Proof Labs · Chapter ${config.chapter}`),
       element("h1", "", config.title),
-      element("p", "proof-lab__statement", config.theorem),
-      element("p", "proof-lab__intro", config.intro)
+      element("p", "proof-lab__statement", config.theorem)
     );
 
-    if (config.application) {
-      const application = element("aside", "proof-lab__application");
-      application.append(
-        element("strong", "", "Running example"),
-        element("span", "", config.application)
-      );
-      header.append(application);
-    }
+    // Long-form context (overview, running example, strategy) lives below the
+    // workspace as collapsed panels, so the interactive card stays the hero at
+    // the top of the viewport instead of being pushed down a full screen.
+    const brief = element("section", "proof-lab__brief");
+    const briefItem = (label, text) => {
+      const item = element("details", "proof-lab__brief-item");
+      item.append(element("summary", "", label), element("p", "", text));
+      return item;
+    };
+    if (config.intro) brief.append(briefItem("Overview", config.intro));
+    if (config.application) brief.append(briefItem("Running example", config.application));
+    if (config.strategy) brief.append(briefItem("Proof strategy", config.strategy));
 
-    const theoremDetails = element("details", "proof-lab__theorem-details");
-    theoremDetails.append(
-      element("summary", "", "Proof strategy"),
-      element("p", "", config.strategy)
-    );
-    header.append(theoremDetails);
-
+    // ── Workspace card ──
     const workspace = element("section", "proof-lab__workspace");
+
+    // ── Topbar ──
+    const topbar = element("div", "proof-lab__topbar");
+    const stepLabel = element("span", "proof-lab__step-label");
+    const progress = element("div", "proof-lab__progress");
+    config.steps.forEach(() => progress.append(element("span")));
+    const stepCounter = element("span", "proof-lab__step-counter");
+    const phaseBadge = element("span", "proof-lab__phase-badge");
+    topbar.append(stepLabel, progress, stepCounter, phaseBadge);
+
+    // ── Canvas (diagram) ──
     const canvas = element("div", "proof-lab__canvas");
-    const canvasBar = element("div", "proof-lab__canvas-bar");
-    const canvasState = element("strong");
-    const canvasCount = element("span");
-    canvasBar.append(canvasState, canvasCount);
     const diagram = svgElement("svg", {
       id: `proof-diagram-${config.slug}`,
       class: "proof-lab__diagram"
     });
     const canvasNote = element("p", "proof-lab__canvas-note");
-    canvas.append(canvasBar, diagram, canvasNote);
+    canvas.append(diagram, canvasNote);
 
-    const rail = element("div", "proof-lab__rail");
-    rail.setAttribute("role", "complementary");
-    rail.setAttribute("aria-label", "Guided proof steps");
-    const progress = element("div", "proof-lab__progress");
-    config.steps.forEach(() => progress.append(element("span")));
-    const stepLabel = element("p", "proof-lab__step-label");
+    // ── Body (scrollable, holds all three phase sections) ──
+    const body = element("div", "proof-lab__body");
+
+    // ── Context phase ──
+    const ctxPhase = element("div", "proof-lab__phase proof-lab__phase--context");
     const stepTitle = element("h2");
-    const exposition = element("p", "proof-lab__exposition");
+    const exposition = element("div", "proof-lab__exposition");
+    const ctxActions = element("div", "proof-lab__actions");
+    const ctxBack = element("button", "proof-lab__button proof-lab__button--back");
+    ctxBack.type = "button";
+    ctxBack.textContent = "← Previous step";
+    const readyBtn = element("button", "proof-lab__button proof-lab__button--primary");
+    readyBtn.type = "button";
+    readyBtn.textContent = "Show question →";
+    ctxActions.append(ctxBack, readyBtn);
+    ctxPhase.append(stepTitle, exposition, ctxActions);
+
+    // ── Question phase ──
+    const qPhase = element("div", "proof-lab__phase proof-lab__phase--question");
     const question = element("p", "proof-lab__question");
     const choices = element("div", "proof-lab__choices");
-    const feedback = element("p", "proof-lab__feedback");
-    feedback.setAttribute("aria-live", "polite");
     const hint = element("p", "proof-lab__hint");
     hint.hidden = true;
-
-    const actions = element("div", "proof-lab__actions");
-    const back = element("button", "proof-lab__button", "← Back");
-    back.type = "button";
-    const hintButton = element("button", "proof-lab__button", "Hint");
+    const qActions = element("div", "proof-lab__actions");
+    const qBack = element("button", "proof-lab__button proof-lab__button--back");
+    qBack.type = "button";
+    qBack.textContent = "← Re-read";
+    const hintButton = element("button", "proof-lab__button");
     hintButton.type = "button";
-    const next = element("button", "proof-lab__button proof-lab__button--primary", "Continue →");
-    next.type = "button";
-    actions.append(back, hintButton, next);
+    hintButton.textContent = "Hint";
+    qActions.append(qBack, hintButton);
+    qPhase.append(question, choices, hint, qActions);
 
+    // ── Result phase ──
+    const rPhase = element("div", "proof-lab__phase proof-lab__phase--result");
+    const feedback = element("p", "proof-lab__feedback");
+    feedback.setAttribute("aria-live", "polite");
     const formal = element("details", "proof-lab__formal");
     formal.append(element("summary", "", "Why this step is valid"), element("p"));
     const invariant = element("div", "proof-lab__invariant");
     invariant.append(element("strong", "", "Persistent invariant"), element("span", "", config.invariant));
-    rail.append(progress, stepLabel, stepTitle, exposition, question, choices, feedback, hint, actions, formal, invariant);
-    workspace.append(canvas, rail);
+    const rActions = element("div", "proof-lab__actions");
+    const tryAgainBtn = element("button", "proof-lab__button proof-lab__button--back");
+    tryAgainBtn.type = "button";
+    const nextBtn = element("button", "proof-lab__button proof-lab__button--primary");
+    nextBtn.type = "button";
+    rActions.append(tryAgainBtn, nextBtn);
+    rPhase.append(feedback, formal, invariant, rActions);
 
+    body.append(ctxPhase, qPhase, rPhase);
+    workspace.append(topbar, canvas, body);
+
+    // ── Synthesis + nav ──
     const synthesis = element("details", "proof-lab__synthesis");
     synthesis.append(
       element("summary", "", "Read the complete proof"),
@@ -357,71 +384,33 @@
     if (previous) nav.append(previous);
     if (nextLab) nav.append(nextLab);
 
-    root.append(header, workspace, synthesis, nav);
-    queueMathTypeset([header, synthesis]);
+    // header + workspace share one viewport-tall stage: the header takes its
+    // natural height and the workspace flexes to fill the rest, so the card
+    // always fits the screen regardless of how far the theorem wraps.
+    const stage = element("div", "proof-lab__stage");
+    stage.append(header, workspace);
+    root.append(stage, brief, synthesis, nav);
+    queueMathTypeset([header, brief, synthesis]);
 
-    function render() {
-      const step = config.steps[stepIndex];
-      const chosen = selectedChoice === null ? null : step.choices[selectedChoice];
-      const consequence = chosen ? choiceConsequence(chosen) : null;
-      const visualState = solved
-        ? step.reveal
-        : (consequence || step.preview || step.reveal);
-      drawDiagram(diagram, config.diagram, visualState || {});
+    // ── Phase transitions ──
 
-      canvasState.textContent = step.visualLabel || step.label;
-      canvasCount.textContent = `Step ${stepIndex + 1} of ${config.steps.length}`;
-      canvasNote.textContent = solved
-        ? step.revealNote
-        : ((chosen && choiceConsequenceNote(chosen)) || step.previewNote);
-      stepLabel.textContent = step.label;
-      stepTitle.textContent = step.title;
-      setMathText(exposition, step.exposition);
-      setMathText(question, step.question);
+    readyBtn.addEventListener("click", () => {
+      phase = "question";
+      render();
+    });
 
-      [...progress.children].forEach((dot, index) => {
-        dot.className = index < stepIndex ? "is-done" : index === stepIndex ? "is-current" : "";
-      });
-
-      choices.replaceChildren();
-      step.choices.forEach((choice, index) => {
-        const button = element("button", "proof-lab__choice", choiceText(choice));
-        button.type = "button";
-        button.setAttribute("aria-pressed", selectedChoice === index ? "true" : "false");
-        if (selectedChoice === index) {
-          button.classList.add(choiceIsCorrect(step, choice, index) ? "is-correct" : "is-wrong");
-        }
-        button.addEventListener("click", () => {
-          selectedChoice = index;
-          solved = choiceIsCorrect(step, choice, index);
-          render();
-        });
-        choices.append(button);
-      });
-
-      if (selectedChoice === null) {
-        setMathText(feedback, "Predict before revealing the next proof state.");
-        feedback.classList.remove("is-error");
-      } else {
-        setMathText(feedback, choiceOutcomeText(step, chosen, solved));
-        feedback.classList.toggle("is-error", !solved);
-      }
-
-      setMathText(hint, step.hint);
-      hint.hidden = !hintVisible;
-      setMathText(formal.lastElementChild, step.formal);
-      back.disabled = stepIndex === 0;
-      next.disabled = !solved;
-      next.textContent = stepIndex === config.steps.length - 1 ? "Restart from step 1" : "Continue →";
-      hintButton.textContent = hintVisible ? "Hide hint" : "Hint";
-      queueMathTypeset([exposition, question, feedback, hint, formal.lastElementChild]);
-    }
-
-    back.addEventListener("click", () => {
+    ctxBack.addEventListener("click", () => {
       if (stepIndex === 0) return;
       stepIndex -= 1;
       selectedChoice = null;
       solved = false;
+      hintVisible = false;
+      phase = "context";
+      render();
+    });
+
+    qBack.addEventListener("click", () => {
+      phase = "context";
       hintVisible = false;
       render();
     });
@@ -431,14 +420,105 @@
       render();
     });
 
-    next.addEventListener("click", () => {
+    tryAgainBtn.addEventListener("click", () => {
+      if (solved) {
+        // "← Back" when solved: go to question
+        phase = "question";
+      } else {
+        // "← Try again": reset choice and go to question
+        selectedChoice = null;
+      }
+      phase = "question";
+      render();
+    });
+
+    nextBtn.addEventListener("click", () => {
       if (!solved) return;
       stepIndex = stepIndex === config.steps.length - 1 ? 0 : stepIndex + 1;
       selectedChoice = null;
       solved = false;
       hintVisible = false;
+      phase = "context";
       render();
     });
+
+    // ── Render ──
+
+    function render() {
+      workspace.dataset.phase = phase;
+
+      const step = config.steps[stepIndex];
+      const chosen = selectedChoice === null ? null : step.choices[selectedChoice];
+      const consequence = chosen ? choiceConsequence(chosen) : null;
+
+      // Diagram state depends on phase
+      let visualState;
+      if (phase === "result" && solved) {
+        visualState = step.reveal;
+      } else if (phase === "result" && consequence) {
+        visualState = consequence;
+      } else {
+        visualState = step.preview || step.reveal;
+      }
+      drawDiagram(diagram, config.diagram, visualState || {});
+
+      // Canvas note
+      if (phase === "result" && solved) {
+        canvasNote.textContent = step.revealNote || "";
+      } else if (phase === "result" && chosen) {
+        canvasNote.textContent = choiceConsequenceNote(chosen) || step.previewNote || "";
+      } else {
+        canvasNote.textContent = step.previewNote || "";
+      }
+
+      // Topbar
+      stepLabel.textContent = step.label;
+      stepCounter.textContent = `${stepIndex + 1} / ${config.steps.length}`;
+      phaseBadge.textContent = phase === "context" ? "Read" : phase === "question" ? "Answer" : "Result";
+      [...progress.children].forEach((dot, i) => {
+        dot.className = i < stepIndex ? "is-done" : i === stepIndex ? "is-current" : "";
+      });
+
+      // Context phase content
+      stepTitle.textContent = step.title;
+      setMathText(exposition, step.exposition);
+      ctxBack.disabled = stepIndex === 0;
+      ctxBack.hidden = stepIndex === 0;
+
+      // Question phase content
+      setMathText(question, step.question);
+      choices.replaceChildren();
+      step.choices.forEach((choice, index) => {
+        const button = element("button", "proof-lab__choice", choiceText(choice));
+        button.type = "button";
+        button.addEventListener("click", () => {
+          selectedChoice = index;
+          solved = choiceIsCorrect(step, choice, index);
+          phase = "result";
+          render();
+        });
+        choices.append(button);
+      });
+      setMathText(hint, step.hint);
+      hint.hidden = !hintVisible;
+      hintButton.textContent = hintVisible ? "Hide hint" : "Hint";
+
+      // Result phase content
+      if (selectedChoice !== null) {
+        setMathText(feedback, choiceOutcomeText(step, chosen, solved));
+        feedback.classList.toggle("is-error", !solved);
+      }
+      setMathText(formal.lastElementChild, step.formal);
+      tryAgainBtn.textContent = solved ? "← Back" : "← Try again";
+      nextBtn.disabled = !solved;
+      nextBtn.textContent = stepIndex === config.steps.length - 1 ? "Restart from step 1" : "Next step →";
+
+      // MathJax
+      queueMathTypeset([exposition, question, feedback, hint, formal.lastElementChild]);
+
+      // Scroll body to top on phase change
+      body.scrollTo({ top: 0, behavior: "instant" });
+    }
 
     render();
   }
