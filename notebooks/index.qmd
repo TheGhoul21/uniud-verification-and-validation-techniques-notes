@@ -1,0 +1,167 @@
+---
+title: "Notebooks"
+pagetitle: "Interactive Notebooks — Verification and Validation Techniques"
+description: "Browser-based interactive notebooks for the Verification and Validation Techniques course at UniUD — automata, infinite words, Büchi complementation, temporal logic, and model checking, grouped by chapter."
+format:
+  html:
+    toc: false
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Interactive Notebooks — Verification and Validation Techniques",
+  "description": "Browser-based interactive notebooks grouped by chapter: finite automata, infinite words, Büchi complementation, temporal logic, and model checking."
+}
+</script>
+
+<p style="font-size:15px;color:rgba(48,48,54,0.82);max-width:60ch;margin:0 0 2rem;">
+Each notebook keeps one construction or algorithm in the foreground and lets you
+drive it on concrete inputs. They follow the chapters of the lecture notes; work
+through a chapter's notebooks alongside its
+<a href="../proofs/index.qmd">Proof Labs</a> and
+<a href="../mindmaps/index.qmd">Mind Map</a>.
+</p>
+
+<div class="chapter-label">Chapter 1 · Finite-State Automata</div>
+<div class="card-grid">
+  <a class="algo-card" href="01-intro.qmd">
+    <span class="card-num">NB 1</span>
+    <span class="card-title">Intro to Finite-State Automata</span>
+    <span class="card-desc">Alphabets, words, languages, and DFAs — a hands-on first contact</span>
+  </a>
+  <a class="algo-card" href="02-nfa-reachable-states.qmd">
+    <span class="card-num">NB 2</span>
+    <span class="card-title">NFA Reachable States</span>
+    <span class="card-desc">Step through the blackboard NFA and trace its active state sets</span>
+  </a>
+  <a class="algo-card" href="03-subset-construction.qmd">
+    <span class="card-num">NB 3</span>
+    <span class="card-title">Subset Construction</span>
+    <span class="card-desc">Convert any NFA to an equivalent DFA, subset by subset</span>
+  </a>
+</div>
+
+<div class="chapter-label">Chapter 2 · Regular Languages &amp; Decision Problems</div>
+<div class="card-grid">
+  <a class="algo-card" href="04-epsilon-closure-removal.qmd">
+    <span class="card-num">NB 4</span>
+    <span class="card-title">ε-Closure &amp; ε-Removal</span>
+    <span class="card-desc">Compute ε-closures and compile ε-transitions away</span>
+  </a>
+  <a class="algo-card" href="05-product-automaton.qmd">
+    <span class="card-num">NB 5</span>
+    <span class="card-title">Product Automaton</span>
+    <span class="card-desc">Build the intersection of two DFAs by the product construction</span>
+  </a>
+  <a class="algo-card" href="06-reachability-fixpoint.qmd">
+    <span class="card-num">NB 6</span>
+    <span class="card-title">Reachability Fixpoint</span>
+    <span class="card-desc">Reachable states via a fixpoint, and the decision problems it settles</span>
+  </a>
+  <a class="algo-card" href="07-kleene-state-elimination.qmd">
+    <span class="card-num">NB 7</span>
+    <span class="card-title">Kleene State Elimination</span>
+    <span class="card-desc">Turn a DFA into a regular expression by eliminating states</span>
+  </a>
+  <a class="algo-card" href="08-regex-to-automata-kleene.qmd">
+    <span class="card-num">NB 8</span>
+    <span class="card-title">Regex to Automaton (Kleene)</span>
+    <span class="card-desc">Generate NFAs from a regex and trace the Rᵏᵢⱼ paths</span>
+  </a>
+</div>
+
+<div class="chapter-label">Chapter 3 · Automata over Infinite Words</div>
+<div class="card-grid">
+  <a class="algo-card" href="11-omega-words.qmd">
+    <span class="card-num">NB 11</span>
+    <span class="card-title">Infinite Words &amp; In(α)</span>
+    <span class="card-desc">ω-words, segments, and the infinity set of positions</span>
+  </a>
+  <a class="algo-card" href="12-buchi-runner.qmd">
+    <span class="card-num">NB 12</span>
+    <span class="card-title">Büchi Automaton Runner</span>
+    <span class="card-desc">Trace u·vω and test acceptance via In(ρ) ∩ F ≠ ∅</span>
+  </a>
+  <a class="algo-card" href="13-vectorial-closure.qmd">
+    <span class="card-num">NB 13</span>
+    <span class="card-title">Vectorial Closure</span>
+    <span class="card-desc">Which ω-words have infinitely many prefixes in a language W</span>
+  </a>
+  <a class="algo-card" href="14-buchi-emptiness-lasso.qmd">
+    <span class="card-num">NB 14</span>
+    <span class="card-title">Büchi Emptiness (Lasso)</span>
+    <span class="card-desc">Decide emptiness by hunting for a reachable accepting cycle</span>
+  </a>
+  <a class="algo-card" href="15-parity-blocks-buchi.qmd">
+    <span class="card-num">NB 15</span>
+    <span class="card-title">Parity Between a's</span>
+    <span class="card-desc">A deterministic Büchi automaton whose states encode a parity invariant</span>
+  </a>
+  <a class="algo-card" href="16-dba-vs-nba-gap.qmd">
+    <span class="card-num">NB 16</span>
+    <span class="card-title">The DBA vs NBA Gap</span>
+    <span class="card-desc">Why "finitely many saves" needs nondeterminism — no DBA can do it</span>
+  </a>
+  <a class="algo-card" href="17-omega-regular-expressions.qmd">
+    <span class="card-num">NB 17</span>
+    <span class="card-title">ω-Regular Expressions</span>
+    <span class="card-desc">The ⋃ Uᵢ·Vᵢω normal form and its Büchi automata</span>
+  </a>
+  <a class="algo-card" href="18-buchi-intersection-product.qmd">
+    <span class="card-num">NB 18</span>
+    <span class="card-title">Büchi Union &amp; Intersection</span>
+    <span class="card-desc">Trivial union vs the two-phase product for intersection</span>
+  </a>
+  <a class="algo-card" href="19-ultimately-periodic-witness.qmd">
+    <span class="card-num">NB 19</span>
+    <span class="card-title">Ultimately-Periodic Witnesses</span>
+    <span class="card-desc">Read a u·vω witness off a lasso; the fingerprint of non-emptiness</span>
+  </a>
+</div>
+
+<div class="chapter-label">Chapter 4 · Complementation of ω-Regular Languages</div>
+<div class="card-grid">
+  <a class="algo-card" href="20-finite-index-congruence.qmd">
+    <span class="card-num">NB 20</span>
+    <span class="card-title">Congruence &amp; Saturation</span>
+    <span class="card-desc">Finite-index congruences (parity) and what saturation means</span>
+  </a>
+  <a class="algo-card" href="21-approx-a-profile.qmd">
+    <span class="card-num">NB 21</span>
+    <span class="card-title">The Congruence ≈𝒜</span>
+    <span class="card-desc">The state×state profile a word attaches to a Büchi automaton</span>
+  </a>
+  <a class="algo-card" href="22-position-merge.qmd">
+    <span class="card-num">NB 22</span>
+    <span class="card-title">Merging Positions</span>
+    <span class="card-desc">When two positions merge, and why merging can never be broken</span>
+  </a>
+  <a class="algo-card" href="23-ramsey-decomposition.qmd">
+    <span class="card-num">NB 23</span>
+    <span class="card-title">Ramsey Decomposition</span>
+    <span class="card-desc">A non-periodic ω-word as prefix + one idempotent block class</span>
+  </a>
+  <a class="algo-card" href="24-saturation-complement.qmd">
+    <span class="card-num">NB 24</span>
+    <span class="card-title">Saturation → Complement</span>
+    <span class="card-desc">Assemble the complement automaton from disjoint class products</span>
+  </a>
+</div>
+
+<div class="chapter-label">Temporal Logic &amp; Model Checking · Part II preview</div>
+<div class="card-grid">
+  <a class="algo-card" href="09-ltl.qmd">
+    <span class="card-num">NB 9</span>
+    <span class="card-title">Linear Temporal Logic (LTL)</span>
+    <span class="card-desc">Syntax and semantics of temporal operators for verification</span>
+  </a>
+  <a class="algo-card" href="10-model-checking.qmd">
+    <span class="card-num">NB 10</span>
+    <span class="card-title">Model Checking Basics</span>
+    <span class="card-desc">Algorithmic verification of systems against temporal properties</span>
+  </a>
+</div>
+```

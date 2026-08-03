@@ -80,55 +80,10 @@ format:
         <span class="card-title">Interactive Theorem Proofs</span>
         <span class="card-desc">Predict each proof step, inspect the dominant visual, and reveal the formal justification</span>
       </a>
-      <a class="algo-card" href="notebooks/01-intro.qmd">
-        <span class="card-num">NB 1</span>
-        <span class="card-title">Finite-State Automata</span>
-        <span class="card-desc">Alphabets, words, languages, and DFAs — hands-on interactive intro</span>
-      </a>
-      <a class="algo-card" href="notebooks/02-nfa-reachable-states.qmd">
-        <span class="card-num">NB 2</span>
-        <span class="card-title">NFA Reachable States</span>
-        <span class="card-desc">Step through the blackboard NFA example and trace active state sets</span>
-      </a>
-      <a class="algo-card" href="notebooks/03-subset-construction.qmd">
-        <span class="card-num">NB 3</span>
-        <span class="card-title">Subset Construction</span>
-        <span class="card-desc">Convert any NFA to an equivalent DFA step by step</span>
-      </a>
-      <a class="algo-card" href="notebooks/04-epsilon-closure-removal.qmd">
-        <span class="card-num">NB 4</span>
-        <span class="card-title">ε-Closure &amp; ε-Removal</span>
-        <span class="card-desc">Compute epsilon-closures and remove ε-transitions from NFAs</span>
-      </a>
-      <a class="algo-card" href="notebooks/05-product-automaton.qmd">
-        <span class="card-num">NB 5</span>
-        <span class="card-title">Product Automaton</span>
-        <span class="card-desc">Construct the intersection of two DFAs via the product construction</span>
-      </a>
-      <a class="algo-card" href="notebooks/06-reachability-fixpoint.qmd">
-        <span class="card-num">NB 6</span>
-        <span class="card-title">Reachability Fixpoint</span>
-        <span class="card-desc">Compute reachable states with a fixpoint algorithm; explore decision problems</span>
-      </a>
-      <a class="algo-card" href="notebooks/07-kleene-state-elimination.qmd">
-        <span class="card-num">NB 7</span>
-        <span class="card-title">Kleene State Elimination</span>
-        <span class="card-desc">Convert any DFA to a regular expression via state elimination (Kleene's theorem)</span>
-      </a>
-      <a class="algo-card" href="notebooks/08-regex-to-automata-kleene.qmd">
-        <span class="card-num">NB 8</span>
-        <span class="card-title">Regex to Automaton (Kleene)</span>
-        <span class="card-desc">Dynamically generate NFAs from Regex and trace R_i,j^k paths</span>
-      </a>
-      <a class="algo-card" href="notebooks/09-ltl.qmd">
-        <span class="card-num">NB 9</span>
-        <span class="card-title">Linear Temporal Logic (LTL)</span>
-        <span class="card-desc">Syntax and semantics of temporal logic for formal verification</span>
-      </a>
-      <a class="algo-card" href="notebooks/10-model-checking.qmd">
-        <span class="card-num">NB 10</span>
-        <span class="card-title">Model Checking Basics</span>
-        <span class="card-desc">Algorithmic verification of systems against temporal properties</span>
+      <a class="algo-card" href="notebooks/index.qmd">
+        <span class="card-num">NOTEBOOKS</span>
+        <span class="card-title">Interactive Notebooks</span>
+        <span class="card-desc">24 browser-based notebooks, grouped by chapter — from DFAs and subset construction to Büchi automata, ω-regular complementation, LTL, and model checking</span>
       </a>
       <a class="algo-card" href="mindmaps/index.qmd">
         <span class="card-num">MAPS</span>

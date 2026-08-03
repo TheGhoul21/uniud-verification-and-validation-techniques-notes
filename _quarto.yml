@@ -46,55 +46,7 @@ website:
       - text: Mind Maps
         href: mindmaps/index.qmd
       - text: Notebooks
-        menu:
-          - text: "1. Intro to Finite-State Automata"
-            href: notebooks/01-intro.qmd
-          - text: "2. NFA Reachable States"
-            href: notebooks/02-nfa-reachable-states.qmd
-          - text: "3. Subset Construction (NFA to DFA)"
-            href: notebooks/03-subset-construction.qmd
-          - text: "4. ε-Closure & ε-Removal"
-            href: notebooks/04-epsilon-closure-removal.qmd
-          - text: "5. Product Automaton"
-            href: notebooks/05-product-automaton.qmd
-          - text: "6. Reachability Fixpoint"
-            href: notebooks/06-reachability-fixpoint.qmd
-          - text: "7. Kleene State Elimination"
-            href: notebooks/07-kleene-state-elimination.qmd
-          - text: "8. Regex to Automaton (Kleene)"
-            href: notebooks/08-regex-to-automata-kleene.qmd
-          - text: "9. Linear Temporal Logic (LTL)"
-            href: notebooks/09-ltl.qmd
-          - text: "10. Model Checking Basics"
-            href: notebooks/10-model-checking.qmd
-          - text: "11. Infinite Words & In(α)"
-            href: notebooks/11-omega-words.qmd
-          - text: "12. Büchi Automaton Runner"
-            href: notebooks/12-buchi-runner.qmd
-          - text: "13. Vectorial Closure"
-            href: notebooks/13-vectorial-closure.qmd
-          - text: "14. Büchi Emptiness (Lasso)"
-            href: notebooks/14-buchi-emptiness-lasso.qmd
-          - text: "15. Parity Between a's"
-            href: notebooks/15-parity-blocks-buchi.qmd
-          - text: "16. The DBA vs NBA Gap"
-            href: notebooks/16-dba-vs-nba-gap.qmd
-          - text: "17. ω-Regular Expressions"
-            href: notebooks/17-omega-regular-expressions.qmd
-          - text: "18. Büchi Union & Intersection"
-            href: notebooks/18-buchi-intersection-product.qmd
-          - text: "19. Ultimately-Periodic Witnesses"
-            href: notebooks/19-ultimately-periodic-witness.qmd
-          - text: "20. Congruence & Saturation"
-            href: notebooks/20-finite-index-congruence.qmd
-          - text: "21. The Congruence ≈𝒜"
-            href: notebooks/21-approx-a-profile.qmd
-          - text: "22. Merging Positions"
-            href: notebooks/22-position-merge.qmd
-          - text: "23. Ramsey Decomposition"
-            href: notebooks/23-ramsey-decomposition.qmd
-          - text: "24. Saturation → Complement"
-            href: notebooks/24-saturation-complement.qmd
+        href: notebooks/index.qmd
 
 format:
   html:
