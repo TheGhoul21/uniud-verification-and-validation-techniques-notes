@@ -1,0 +1,121 @@
+---
+title: "Notebook 22: Merging Positions & Persistence"
+pagetitle: "NB 22: Position Merge — VVT UniUD"
+description: "Two positions of an ω-word merge at m when the segments reaching m fall in the same congruence class. See merging under the parity congruence, and why merging, once achieved, can never be broken."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 22: Merging Positions and Persistence",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Merging Positions
+
+The Ramsey decomposition needs a second finite-index equivalence, this time on the **positions** of an $\omega$-word. Fix a congruence $\equiv$ on finite words. For positions $k,k'$ and a later position $m>\max\{k,k'\}$, say $k$ and $k'$ **merge at $m$**, written $k\mathrel{\widetilde{=}}_{\alpha,m}k'$, if the two segments reaching $m$ agree:
+$$ \alpha(k,m)\ \equiv\ \alpha(k',m). $$
+
+The stopping point $m$ is ours to choose; the same two positions may fail to merge at one $m$ and succeed at a later one. But **[persistence](#persistence)** says: once merged, always merged.
+
+We illustrate with the smallest possible congruence — **parity of length** $\equiv_{\mathrm{par}}$ — on the word from the chapter figure, $\alpha = b\,a\,b\,c\,c\,a\,b\,c\cdots$. Since $\equiv_{\mathrm{par}}$ ignores symbols, $\alpha(k,m)$ and $\alpha(k',m)$ have lengths $m-k$ and $m-k'$; they share parity **iff $k$ and $k'$ have the same parity as natural numbers**. (With a richer congruence like $\approx_{\mathcal A}$, merging becomes a genuine, symbol-dependent event.)
+
+---
+
+## Widget: pick two positions
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; }
+.posline { display:flex; gap:2px; margin:12px 0 4px; flex-wrap:wrap; }
+.poscell { width:38px; display:flex; flex-direction:column; align-items:center; }
+.possym { width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:6px; font-family:ui-monospace,monospace; font-weight:700; background:#eef1f7; border:1px solid #d3dae8; }
+.posidx { font-size:0.72rem; color:var(--sc-label); margin-top:3px; }
+.poscell.k .possym { background:#cdeafd; border-color:#30bced; }
+.poscell.kp .possym { background:#fde3c8; border-color:#e08a3c; }
+.poscell.m .possym { background:#d4f7ef; border-color:#2ec4b6; }
+.seg { font-family:ui-monospace,monospace; margin:4px 0; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fde8d6; border:2px dashed #e08a3c; }
+.ptable { border-collapse:collapse; margin-top:8px; font-family:ui-monospace,monospace; font-size:0.9rem; }
+.ptable td,.ptable th { border:1px solid var(--sc-border); padding:5px 10px; text-align:center; }
+</style>
+
+<div class="sc-lab" id="nb22">
+  <div class="input-row">
+    <div class="input-group"><label>Position k</label><select id="nb22-k"></select></div>
+    <div class="input-group"><label>Position k′</label><select id="nb22-kp"></select></div>
+  </div>
+  <div class="sc-panel">
+    <div class="posline" id="nb22-line"></div>
+    <div id="nb22-detail"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const word=['b','a','b','c','c','a','b','c'];  // positions 0..7
+  const N=word.length;
+  const kSel=document.getElementById('nb22-k'), kpSel=document.getElementById('nb22-kp');
+  for(let i=0;i<N-1;i++){ kSel.add(new Option(i,i)); kpSel.add(new Option(i,i)); }
+  kSel.value=1; kpSel.value=3;
+
+  function firstMerge(k,kp){
+    // parity congruence: segment lengths (m-k),(m-kp); merge iff same parity <=> k,kp same parity
+    if(k%2!==kp%2) return null;               // never merge
+    return Math.max(k,kp)+1;                   // earliest valid m
+  }
+  function render(){
+    let k=+kSel.value, kp=+kpSel.value;
+    const line=document.getElementById('nb22-line'); const detail=document.getElementById('nb22-detail');
+    const m=firstMerge(k,kp);
+    // draw line
+    line.innerHTML='';
+    for(let i=0;i<N;i++){
+      const cell=document.createElement('div');
+      let cls='poscell'; if(i===k)cls+=' k'; if(i===kp)cls+=' kp'; if(m!==null&&i===m)cls+=' m';
+      cell.className=cls;
+      cell.innerHTML=`<div class="possym">${word[i]}</div><div class="posidx">${i}</div>`;
+      line.appendChild(cell);
+    }
+    if(m===null){
+      detail.innerHTML=`<div class="verdict-box verdict-fail"><strong>Positions ${k} and ${kp} never merge.</strong> They have different parity (${k} is ${k%2?'odd':'even'}, ${kp} is ${kp%2?'odd':'even'}), so for every m the two segments differ in length by |${k}−${kp}| = ${Math.abs(k-kp)}, an odd number — opposite parities, always in different ≡par-classes.</div>`;
+      return;
+    }
+    const lk=m-k, lkp=m-kp;
+    let html=`<div class="seg">α(${k},${m}) = "${word.slice(k,m).join('')}" &nbsp; length ${lk} (${lk%2?'odd':'even'})</div>`;
+    html+=`<div class="seg">α(${kp},${m}) = "${word.slice(kp,m).join('')}" &nbsp; length ${lkp} (${lkp%2?'odd':'even'})</div>`;
+    html+=`<div class="verdict-box verdict-pass"><strong>${k} ⋍ ${kp} at m = ${m}.</strong> Both segments have ${lk%2?'odd':'even'} length, hence the same ≡par-class.</div>`;
+    // persistence table
+    html+=`<h4 style="margin-top:14px;">Persistence: once merged, always merged</h4><table class="ptable"><tr><th>m′</th>`;
+    const ms=[]; for(let j=0;j<6;j++) ms.push(m+j);
+    ms.forEach(mm=>html+=`<th>${mm}</th>`); html+='</tr><tr><th>len α(k,m′)%2</th>';
+    ms.forEach(mm=>html+=`<td>${(mm-k)%2}</td>`); html+='</tr><tr><th>len α(k′,m′)%2</th>';
+    ms.forEach(mm=>html+=`<td>${(mm-kp)%2}</td>`); html+='</tr><tr><th>merge?</th>';
+    ms.forEach(mm=>html+=`<td>${(mm-k)%2===(mm-kp)%2?'✓':'✗'}</td>`); html+='</tr></table>';
+    html+=`<p style="font-size:0.82rem;color:var(--sc-label);margin-top:8px;">Extending both segments by the same suffix α(${m},m′) keeps their lengths’ parity equal forever — merging cannot be broken.</p>`;
+    detail.innerHTML=html;
+  }
+  kSel.addEventListener('change',render); kpSel.addEventListener('change',render);
+  render();
+})();
+</script>
+```
+
+The default choice $k=1$, $k'=3$ reproduces the chapter's figure: the segments $\alpha(1,4)$ and $\alpha(3,4)$ have lengths $3$ and $1$, both odd, so they merge at $m=4$. For the parity congruence every even position merges with every even position and every odd with every odd — no real "sifting" is needed. The general Ramsey argument (**[Notebook 23](23-ramsey-decomposition.qmd)**) runs the same pigeonhole on a *richer* congruence, where finding an infinite pairwise-merging set takes genuine work.

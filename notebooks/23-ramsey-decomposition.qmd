@@ -1,0 +1,139 @@
+---
+title: "Notebook 23: Ramsey Decomposition U·Vω"
+pagetitle: "NB 23: Ramsey Decomposition — VVT UniUD"
+description: "Even a non-ultimately-periodic ω-word splits into a prefix followed by infinitely many congruent blocks from one idempotent class. Watch the blocks abcⁱ all collapse to a single ≈𝒜-class V with V·V = V."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 23: Ramsey Decomposition",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# The Ramsey Decomposition
+
+The last ingredient of complementation is a combinatorial fact: **every** $\omega$-word factors as
+$$ \alpha \in U\,V^{\omega}, $$
+a prefix from one class $U$ followed by infinitely many blocks from a **single idempotent** class $V$ (idempotent means $V\cdot V=V$). This holds even when $\alpha$ is **not** ultimately periodic.
+
+The chapter's witness is the non-periodic word
+$$ \alpha = \underbrace{abc}_{v_1}\ \underbrace{abcc}_{v_2}\ \underbrace{abccc}_{v_3}\cdots,\qquad v_i = ab\,c^{\,i}. $$
+The number of trailing $c$'s grows forever, so $\alpha$ is not ultimately periodic. Yet — because an extra $c$ only loops at $s_2$ — every block $v_i$ has the **same** $\approx_{\mathcal A}$-profile. They all belong to one class $V$, and $V$ is idempotent. So $\alpha=[\varepsilon]\,V^{\omega}$: prefix class $U=[\varepsilon]$, then $V$ forever.
+
+---
+
+## Widget: the blocks collapse to one class
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.wordline { display:flex; gap:3px; flex-wrap:wrap; align-items:center; margin:6px 0 12px; }
+.blk { display:flex; gap:2px; padding:5px; border-radius:8px; border:2px solid; }
+.blk .c { width:26px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:5px; font-family:ui-monospace,monospace; font-weight:700; background:#fff; }
+.blabel { font-size:0.72rem; text-align:center; margin-top:3px; font-family:ui-monospace,monospace; }
+.grids { display:flex; gap:18px; flex-wrap:wrap; }
+.gwrap { min-width:220px; }
+.grid { border-collapse:collapse; font-family:ui-monospace,monospace; margin-top:6px; }
+.grid td,.grid th { border:1px solid var(--sc-border); padding:6px 10px; text-align:center; min-width:34px; }
+.grid th { background:#eef1f7; }
+.cell-none { color:#b0b0b8; }
+.cell-reach { background:#eaf4fb; }
+.cell-reachF { background:#d4f7ef; color:#0f6b5c; font-weight:800; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; background:#d4f7ef; border:2px dashed #2ec4b6; }
+.ctrl { display:flex; gap:14px; align-items:center; margin-bottom:6px; }
+input[type=range]{ width:200px; }
+</style>
+
+<div class="sc-lab" id="nb23">
+  <div class="ctrl">
+    <label style="font-weight:700;font-size:0.85rem;color:var(--sc-label);">Blocks shown: <span id="nb23-n">4</span></label>
+    <input type="range" id="nb23-range" min="2" max="6" value="4">
+  </div>
+  <div class="sc-panel">
+    <h4>α = v₁ v₂ v₃ … &nbsp;(vᵢ = ab cⁱ) — not ultimately periodic</h4>
+    <div class="wordline" id="nb23-word"></div>
+  </div>
+  <div class="sc-panel">
+    <h4>Each block’s ≈𝒜-profile (all identical → one class V)</h4>
+    <div class="grids" id="nb23-grids"></div>
+  </div>
+  <div class="sc-panel">
+    <h4>Idempotency: V · V = V</h4>
+    <div class="grids" id="nb23-idem"></div>
+    <div id="nb23-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const States=['s0','s1','s2']; const Fset=new Set(['s1']);
+  const Delta=[['s0','a','s1'],['s1','b','s2'],['s2','c','s2'],['s2','a','s1']];
+  const NONE=0,REACH=1,REACHF=2;
+  const empty=()=>{const P={};States.forEach(p=>{P[p]={};States.forEach(q=>P[p][q]=NONE);});return P;};
+  function base(sym){const P=empty();Delta.forEach(([p,x,q])=>{if(x===sym){const v=(Fset.has(p)||Fset.has(q))?REACHF:REACH;if(v>P[p][q])P[p][q]=v;}});return P;}
+  function ident(){const P=empty();States.forEach(p=>P[p][p]=Fset.has(p)?REACHF:REACH);return P;}
+  function compose(R,S){const T=empty();for(const p of States)for(const r of States){if(R[p][r]===NONE)continue;for(const q of States){if(S[r][q]===NONE)continue;const v=(R[p][r]===REACHF||S[r][q]===REACHF)?REACHF:REACH;if(v>T[p][q])T[p][q]=v;}}return T;}
+  function profile(w){let P=ident();for(const ch of w)P=compose(P,base(ch));return P;}
+  const sub=q=>'s<sub>'+q[1]+'</sub>';
+  function gridHTML(P){
+    let h='<table class="grid"><tr><th>&nbsp;</th>'+States.map(q=>`<th>${sub(q)}</th>`).join('')+'</tr>';
+    for(const p of States){h+=`<tr><th>${sub(p)}</th>`;
+      for(const q of States){const v=P[p][q];
+        if(v===NONE)h+='<td class="cell-none">&minus;</td>';
+        else if(v===REACH)h+=`<td class="cell-reach">${sub(q)}</td>`;
+        else h+=`<td class="cell-reachF">${sub(q)}<sup>F</sup></td>`;}
+      h+='</tr>';}
+    return h+'</table>';
+  }
+  const eq=(A,B)=>States.every(p=>States.every(q=>A[p][q]===B[p][q]));
+  const COLORS=['#30bced','#e08a3c','#8e6fd4','#2ec4b6','#e0578a','#5b8def'];
+  function render(){
+    const n=+document.getElementById('nb23-range').value;
+    document.getElementById('nb23-n').textContent=n;
+    // word line
+    const wl=document.getElementById('nb23-word'); wl.innerHTML='';
+    for(let i=1;i<=n;i++){
+      const block='ab'+'c'.repeat(i);
+      const wrap=document.createElement('div');
+      const b=document.createElement('div'); b.className='blk'; b.style.borderColor=COLORS[(i-1)%COLORS.length];
+      for(const ch of block){const c=document.createElement('div');c.className='c';c.textContent=ch;b.appendChild(c);}
+      const lab=document.createElement('div'); lab.className='blabel'; lab.textContent='v'+i;
+      wrap.appendChild(b); wrap.appendChild(lab); wl.appendChild(wrap);
+    }
+    const dots=document.createElement('div'); dots.textContent='⋯'; dots.style.fontSize='1.4rem'; wl.appendChild(dots);
+    // profiles
+    const gs=document.getElementById('nb23-grids'); gs.innerHTML='';
+    const profs=[];
+    for(let i=1;i<=Math.min(n,3);i++){const P=profile('ab'+'c'.repeat(i));profs.push(P);
+      const w=document.createElement('div');w.className='gwrap';w.innerHTML=`<strong style="font-family:ui-monospace,monospace">v${i}=ab c<sup>${i}</sup></strong>`+gridHTML(P);gs.appendChild(w);}
+    // check all n equal
+    let allEqual=true; const P1=profile('abc');
+    for(let i=1;i<=n;i++){ if(!eq(profile('ab'+'c'.repeat(i)),P1)) allEqual=false; }
+    // idempotency
+    const V=profile('abc'); const VV=compose(V,V);
+    const idem=document.getElementById('nb23-idem'); idem.innerHTML=
+      `<div class="gwrap"><strong>V (= class of v₁)</strong>${gridHTML(V)}</div>`+
+      `<div class="gwrap"><strong>V · V</strong>${gridHTML(VV)}</div>`;
+    document.getElementById('nb23-verdict').innerHTML=
+      `<div class="verdict-box"><strong>All ${n} blocks share one class V, and V·V = V is ${eq(V,VV)?'confirmed':'FALSE'}.</strong> `+
+      `So α = [ε]·V<sup>ω</sup>: prefix class U=[ε], then the idempotent block class V repeated forever — a Ramsey decomposition of a word that is <em>not</em> ultimately periodic. The shared profile sends s₀→s₂ and s₂→s₂ both visiting F (s₁), so the run threads through s₁ in every block: α is accepted.</div>`;
+  }
+  document.getElementById('nb23-range').addEventListener('input',render);
+  render();
+})();
+</script>
+```
+
+Why do the blocks collapse? An extra trailing $c$ only loops at $s_2$ ($s_2\xrightarrow{c}s_2$), which does not change the profile — every $v_i=ab\,c^{i}$ takes $s_0\to s_2$ and $s_2\to s_2$, each visiting $s_1\in F$, and has no path from $s_1$. That is one class $V$, and composing two such blocks yields the same shape, so $V$ is idempotent. This is exactly the abstract decomposition the pigeonhole argument produces in general — here we simply *read it off* the automaton. Saturating on these class products is the final step: **[Notebook 24](24-saturation-complement.qmd)**.

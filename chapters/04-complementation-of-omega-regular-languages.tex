@@ -1379,9 +1379,9 @@ theorem follows by classifying these finitely many products.
 \begin{example}[Saturation on the running automaton]
 \label{ex:saturation-running}
 In the automaton of \cref{fig:profile-automaton}, let $U$ be the
-$\approx_{\mathcal A}$-class of $a$ and $V$ the class of $abc$.  The word
-$\alpha = a(abc)^\omega$ is accepted: the run visits $s_1\in F$ during
-every $abc$ block.  By \cref{lem:approx-a-properties}, the entire product
+$\approx_{\mathcal A}$-class of $ab$ and $V$ the class of $abc$.  The word
+$\alpha = ab(abc)^\omega$ is accepted: the prefix $ab$ leads $s_0$ to
+$s_2$, from where the run visits $s_1\in F$ during every $abc$ block.  By \cref{lem:approx-a-properties}, the entire product
 $UV^\omega$ is contained in $L(\mathcal A)$.  Now let $V'$ be the class of $c$.
 No word in $UV'^\omega$ is accepted, because blocks from $V'$ never
 visit $s_1$.  Hence $UV'^\omega\subseteq\overline{L(\mathcal A)}$: this class

@@ -1,0 +1,151 @@
+---
+title: "Notebook 24: Saturation → the Complement Automaton"
+pagetitle: "NB 24: Büchi Complement by Saturation — VVT UniUD"
+description: "The payoff: since ≈𝒜 saturates L(𝒜), every class product U·Vω lies wholly inside L or wholly outside it. Collect the ones outside and you have the complement — an effective Büchi complementation."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 24: Saturation and the Complement Automaton",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Building the Complement
+
+All the pieces now combine. Because $\approx_{\mathcal A}$ is a finite-index congruence that **saturates** $L(\mathcal A)$, and the Ramsey decomposition writes every $\omega$-word as some class product $U\,V^{\omega}$ (with $V$ idempotent), each such product is **entirely inside** $L(\mathcal A)$ or **entirely disjoint** from it. The complement is then just the union of the disjoint ones:
+$$ \overline{L(\mathcal A)} \;=\; \bigcup\bigl\{\,U\,V^{\omega} \;:\; U\,V^{\omega}\cap L(\mathcal A)=\emptyset \,\bigr\}, $$
+a **finite** union. The classes can be enumerated, their products formed, and each intersection with $L(\mathcal A)$ tested for emptiness — an *effective* construction.
+
+We test products on the chapter's automaton $\mathcal A$ (accepts "$ab$ infinitely often, separated by $c$'s"). Pick a prefix $U$ and an idempotent block $V$; the widget runs the representative $u\cdot v^{\omega}$ and reports whether that whole product sits in $L$ or in $\overline{L}$.
+
+> **A note on the running example.** The chapter's Example on saturation states $\alpha=a(abc)^{\omega}$ is accepted with $U=[a]$. On the *deterministic* $\mathcal A$ that run actually **dies** — after $a$ the automaton is in $s_1$, which has no outgoing $a$. The correct accepted witness is $ab(abc)^{\omega}$, i.e. $U=[ab]$ (the prefix must reach $s_2$, where the $abc$-block loops). The widget below uses that verified witness.
+
+---
+
+## Widget: classify class products
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; width:120px; }
+.run-strip { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.run-step { display:flex; flex-direction:column; align-items:center; width:34px; }
+.run-sym { font-size:0.78rem; color:var(--sc-label); font-weight:700; }
+.run-state { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:14px; font-weight:700; font-family:ui-monospace,monospace; font-size:0.74rem; background:#e8e8e8; border:2px solid #999; }
+.run-state.accept { background:#d4f7ef; border-color:#2ec4b6; }
+.run-state.dead { background:#fee8e3; border-color:#fc5130; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; }
+.verdict-L { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-C { background:#e7e0fb; border:2px dashed #8e6fd4; }
+.ptable { border-collapse:collapse; margin-top:8px; font-family:ui-monospace,monospace; font-size:0.9rem; width:100%; }
+.ptable td,.ptable th { border:1px solid var(--sc-border); padding:6px 10px; text-align:left; }
+.tag { padding:1px 8px; border-radius:10px; font-weight:700; font-size:0.8rem; }
+.tag.L { background:#d4f7ef; color:#0f6b5c; } .tag.C { background:#e7e0fb; color:#5a3fa0; }
+.formula { font-family:ui-monospace,monospace; background:#f4f1fb; border:1px solid #d9cef2; border-radius:8px; padding:12px; margin-top:12px; }
+</style>
+
+<div class="sc-lab" id="nb24">
+  <div class="input-row">
+    <div class="input-group"><label>Prefix u (class U)</label><input type="text" id="nb24-u" value="ab"></div>
+    <div class="input-group"><label>Block v (class V)</label><input type="text" id="nb24-v" value="abc"></div>
+    <div class="input-group">
+      <label>Preset</label>
+      <select id="nb24-preset">
+        <option value="0">U=[ab], V=[abc]</option>
+        <option value="1">U=[ab], V=[c]</option>
+        <option value="2">U=[a], V=[abc]</option>
+        <option value="3">U=[ε], V=[abc]</option>
+        <option value="4">U=[ε], V=[c]</option>
+      </select>
+    </div>
+    <div class="input-group"><button class="sc-btn" id="nb24-go">Classify</button></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4>Run of u·vω on 𝒜 (prefix + 3 blocks)</h4>
+    <div class="run-strip" id="nb24-strip"></div>
+    <div id="nb24-verdict"></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4>Enumerated class products → the complement</h4>
+    <table class="ptable" id="nb24-table"></table>
+    <div class="formula" id="nb24-formula"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const delta={ s0:{a:'s1'}, s1:{b:'s2'}, s2:{c:'s2',a:'s1'} };
+  const F=new Set(['s1']); const init='s0';
+  const parse=s=>s.trim().replace(/\s|,/g,'').split('').filter(x=>x.length);
+  function runProduct(u,v,cycles=3){
+    const seq=u.concat(...Array(cycles).fill(v));
+    let state=init; const steps=[{sym:'',state}]; const tail=new Set(); let dead=false;
+    for(let i=0;i<seq.length;i++){
+      const nxt=delta[state]&&delta[state][seq[i]];
+      if(nxt===undefined){ steps.push({sym:seq[i],state:'✗',dead:true}); dead=true; break; }
+      state=nxt; steps.push({sym:seq[i],state}); if(i>=u.length) tail.add(state);
+    }
+    const accepted = !dead && [...tail].some(q=>F.has(q));
+    return {steps,accepted,dead,tail:[...tail]};
+  }
+  function drawRun(steps){
+    const strip=document.getElementById('nb24-strip'); strip.innerHTML='';
+    steps.forEach(s=>{const box=document.createElement('div');box.className='run-step';
+      const sy=document.createElement('div');sy.className='run-sym';sy.innerHTML=s.sym===''?'&nbsp;':s.sym;
+      const st=document.createElement('div');st.className='run-state'+(s.dead?' dead':(F.has(s.state)?' accept':''));
+      st.innerHTML=s.dead?'&#10007;':'s<sub>'+s.state[1]+'</sub>';
+      box.appendChild(sy);box.appendChild(st);strip.appendChild(box);});
+  }
+  function classify(u,v){ return runProduct(u,v).accepted ? 'L' : 'C'; }
+  const PRODUCTS=[['ab','abc'],['ab','c'],['a','abc'],['','abc'],['','c']];
+  function go(){
+    const u=parse(document.getElementById('nb24-u').value), v=parse(document.getElementById('nb24-v').value);
+    const vd=document.getElementById('nb24-verdict');
+    if(!v.length){vd.innerHTML="<div class='verdict-box verdict-C'>Block v cannot be empty.</div>";return;}
+    for(const w of [u,v]) for(const s of w) if(!['a','b','c'].includes(s)){vd.innerHTML=`<div class='verdict-box verdict-C'>Unknown symbol "${s}". Alphabet is {a,b,c}.</div>`;return;}
+    const r=runProduct(u,v); drawRun(r.steps);
+    const inL=r.accepted;
+    vd.innerHTML=`<div class="verdict-box ${inL?'verdict-L':'verdict-C'}"><strong>U·Vω = [${u.join('')||'ε'}]·[${v.join('')}]ω ⊆ ${inL?'L(𝒜)':'L(𝒜)ᶜ (the complement)'}.</strong><br>`+
+      (inL ? `In(ρ)∩F = { s₁ } — the run threads through s₁∈F in every block, so the whole product is accepted.`
+           : (r.dead ? `The run dies (a missing transition), so no word of this product is accepted — the product lies entirely in the complement.`
+                     : `In(ρ) = { ${r.tail.map(x=>'s'+x[1]).join(', ')} }, disjoint from F — no accepting state recurs, so the whole product lies in the complement.`))+`</div>`;
+    // enumerate table
+    const tbl=document.getElementById('nb24-table');
+    tbl.innerHTML='<tr><th>class product</th><th>witness u·vω</th><th>run</th><th>side</th></tr>';
+    const comp=[];
+    for(const [pu,pv] of PRODUCTS){
+      const rr=runProduct(pu,pv); const side=rr.accepted?'L':'C'; if(side==='C')comp.push(`[${pu||'ε'}]·[${pv}]ω`);
+      tbl.innerHTML+=`<tr><td>[${pu||'ε'}]·[${pv}]ω</td><td>${(pu||'ε')}·(${pv})ω</td><td>${rr.accepted?'accepts':(rr.dead?'dies':'no F recurs')}</td><td><span class="tag ${side}">${side==='L'?'L(𝒜)':'complement'}</span></td></tr>`;
+    }
+    document.getElementById('nb24-formula').innerHTML=`L(𝒜)ᶜ &supe; &nbsp; ${comp.join(' &nbsp;∪&nbsp; ')}<br><span style="font-size:0.82rem;color:#5a3fa0">(the complement automaton is the union of every class product disjoint from L — here, the products tagged “complement”.)</span>`;
+  }
+  document.getElementById('nb24-preset').addEventListener('change',()=>{
+    const p=PRODUCTS[+document.getElementById('nb24-preset').value];
+    document.getElementById('nb24-u').value=p[0]; document.getElementById('nb24-v').value=p[1]; go();
+  });
+  document.getElementById('nb24-go').addEventListener('click',go);
+  ['nb24-u','nb24-v'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')go();}));
+  go();
+})();
+</script>
+```
+
+This is the whole complementation theorem in miniature: no state-flipping trick (that failed back in **[Notebook 16](16-dba-vs-nba-gap.qmd)**), but a finite algebra of class products, each decided in or out by an emptiness test, with the "out" ones assembled into a Büchi automaton for $\overline{L(\mathcal A)}$. Decidable inclusion — and hence $\omega$-regular model checking — follows.

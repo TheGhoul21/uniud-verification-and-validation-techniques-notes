@@ -1,0 +1,155 @@
+---
+title: "Notebook 21: The ≈𝒜 Profile of a Word"
+pagetitle: "NB 21: The Congruence ≈𝒜 — VVT UniUD"
+description: "The heart of Büchi complementation: the profile a word attaches to a Büchi automaton — which states reach which, and whether an accepting state is seen. Compute the state×state grid and see when two words are ≈𝒜-equivalent."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 21: The Congruence ≈𝒜",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# What $\approx_{\mathcal A}$ Remembers
+
+The congruence at the core of the complementation proof does **not** remember the exact word. For a finite word $u$ it remembers only, for every pair of states $(p,q)$:
+
+- whether some path labelled $u$ goes from $p$ to $q$ at all, and
+- if so, whether such a path can **visit an accepting state** along the way.
+
+This is a finite **profile** — a grid over $Q\times Q$ with entries in $\{-,\ q,\ q^{F}\}$:
+
+- $-$ : **no path** from $p$ to $q$ labelled $u$;
+- $q$ : a path reaches $q$, but **without** visiting $F$;
+- $q^{F}$ : a path reaches $q$ **visiting** an accepting state.
+
+Two words are **$\approx_{\mathcal A}$-equivalent** exactly when they have the *same grid*. There are finitely many grids, so $\approx_{\mathcal A}$ has finite index — and it saturates $L(\mathcal A)$. The automaton $\mathcal A$ used here (from the chapter) accepts the $\omega$-words in which the block $ab$ occurs infinitely often, separated by $c$'s. Note $\Delta$ is **partial**: a missing transition means the run has nowhere to go, not a sink.
+
+---
+
+## Widget: compute and compare profiles
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; width:130px; }
+.grids { display:flex; gap:24px; flex-wrap:wrap; }
+.gwrap { flex:1; min-width:240px; }
+.grid { border-collapse:collapse; font-family:ui-monospace,monospace; margin-top:6px; }
+.grid td,.grid th { border:1px solid var(--sc-border); padding:8px 12px; text-align:center; min-width:38px; }
+.grid th { background:#eef1f7; }
+.cell-none { color:#b0b0b8; }
+.cell-reach { background:#eaf4fb; }
+.cell-reachF { background:#d4f7ef; color:#0f6b5c; font-weight:800; }
+.verdict-box { margin-top:14px; border-radius:8px; padding:12px 16px; font-size:1.02rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fde8d6; border:2px dashed #e08a3c; }
+</style>
+
+<div class="sc-lab" id="nb21">
+  <div class="input-row">
+    <div class="input-group"><label>Word u₁</label><input type="text" id="nb21-w1" value="c"></div>
+    <div class="input-group"><label>Word u₂ (compare)</label><input type="text" id="nb21-w2" value="ab"></div>
+    <div class="input-group">
+      <label>Preset pair</label>
+      <select id="nb21-preset">
+        <option value="0">c  vs  ab</option>
+        <option value="1">ab  vs  abc</option>
+        <option value="2">abc  vs  abcc</option>
+        <option value="3">a  vs  ba</option>
+        <option value="4">ε  vs  cc</option>
+      </select>
+    </div>
+    <div class="input-group"><button class="sc-btn" id="nb21-go">Compute</button></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4>Automaton 𝒜 &nbsp;(F = {s₁})</h4>
+    <svg viewBox="0 0 300 90" style="width:100%;max-width:420px;height:auto" role="img">
+      <defs><marker id="nb21m" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#303036"/></marker></defs>
+      <line x1="4" y1="45" x2="28" y2="45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"/>
+      <path d="M 62 45 L 108 45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"/><text x="85" y="36" text-anchor="middle" font-weight="700">a</text>
+      <path d="M 142 45 L 188 45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"/><text x="165" y="36" text-anchor="middle" font-weight="700">b</text>
+      <path d="M 232 30 C 224 4, 250 4, 244 30" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb21m)"/><text x="238" y="4" text-anchor="middle" font-weight="700">c</text>
+      <path d="M 208 58 C 175 82, 145 82, 125 58" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb21m)"/><text x="165" y="84" text-anchor="middle" font-weight="700">a</text>
+      <g transform="translate(45,45)"><circle r="17" fill="#e8e8f0" stroke="#999" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700">s&#8320;</text></g>
+      <g transform="translate(125,45)"><circle r="21" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="1.5"/><circle r="16" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700">s&#8321;</text></g>
+      <g transform="translate(210,45)"><circle r="17" fill="#e8e8f0" stroke="#999" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700">s&#8322;</text></g>
+    </svg>
+  </div>
+
+  <div class="sc-panel">
+    <div class="grids">
+      <div class="gwrap"><h4 id="nb21-t1"></h4><div id="nb21-g1"></div></div>
+      <div class="gwrap"><h4 id="nb21-t2"></h4><div id="nb21-g2"></div></div>
+    </div>
+    <div id="nb21-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const States=['s0','s1','s2']; const Fset=new Set(['s1']);
+  const Delta=[['s0','a','s1'],['s1','b','s2'],['s2','c','s2'],['s2','a','s1']];
+  const NONE=0,REACH=1,REACHF=2;
+  const empty=()=>{const P={};States.forEach(p=>{P[p]={};States.forEach(q=>P[p][q]=NONE);});return P;};
+  function base(sym){const P=empty();Delta.forEach(([p,x,q])=>{if(x===sym){const v=(Fset.has(p)||Fset.has(q))?REACHF:REACH;if(v>P[p][q])P[p][q]=v;}});return P;}
+  function ident(){const P=empty();States.forEach(p=>P[p][p]=Fset.has(p)?REACHF:REACH);return P;}
+  function compose(R,S){const T=empty();for(const p of States)for(const r of States){if(R[p][r]===NONE)continue;for(const q of States){if(S[r][q]===NONE)continue;const v=(R[p][r]===REACHF||S[r][q]===REACHF)?REACHF:REACH;if(v>T[p][q])T[p][q]=v;}}return T;}
+  function profile(w){let P=ident();for(const ch of w)P=compose(P,base(ch));return P;}
+  const parse=s=>s.trim().replace(/\s|,/g,'').split('').filter(x=>x.length);
+  const sub=q=>'s<sub>'+q[1]+'</sub>';
+  function gridHTML(P){
+    let h='<table class="grid"><tr><th>p \\ q</th>'+States.map(q=>`<th>${sub(q)}</th>`).join('')+'</tr>';
+    for(const p of States){
+      h+=`<tr><th>${sub(p)}</th>`;
+      for(const q of States){
+        const v=P[p][q];
+        if(v===NONE) h+='<td class="cell-none">&minus;</td>';
+        else if(v===REACH) h+=`<td class="cell-reach">${sub(q)}</td>`;
+        else h+=`<td class="cell-reachF">${sub(q)}<sup>F</sup></td>`;
+      }
+      h+='</tr>';
+    }
+    return h+'</table>';
+  }
+  function eq(A,B){return States.every(p=>States.every(q=>A[p][q]===B[p][q]));}
+  function go(){
+    const w1=parse(document.getElementById('nb21-w1').value), w2=parse(document.getElementById('nb21-w2').value);
+    for(const w of [w1,w2]) for(const s of w) if(!['a','b','c'].includes(s)){document.getElementById('nb21-verdict').innerHTML=`<div class='verdict-box verdict-fail'>Unknown symbol "${s}". Alphabet is {a,b,c}.</div>`;return;}
+    const P1=profile(w1),P2=profile(w2);
+    document.getElementById('nb21-t1').innerHTML='profile("'+(w1.join('')||'ε')+'")';
+    document.getElementById('nb21-t2').innerHTML='profile("'+(w2.join('')||'ε')+'")';
+    document.getElementById('nb21-g1').innerHTML=gridHTML(P1);
+    document.getElementById('nb21-g2').innerHTML=gridHTML(P2);
+    const same=eq(P1,P2);
+    document.getElementById('nb21-verdict').innerHTML=`<div class="verdict-box ${same?'verdict-pass':'verdict-fail'}"><strong>"${w1.join('')||'ε'}" ${same?'≈𝒜':'≉𝒜'} "${w2.join('')||'ε'}"</strong> — the two grids are ${same?'identical, so the words are indistinguishable to 𝒜':'different (some cell disagrees), so 𝒜 can tell them apart'}.</div>`;
+  }
+  document.getElementById('nb21-preset').addEventListener('change',()=>{
+    const pairs=[['c','ab'],['ab','abc'],['abc','abcc'],['a','ba'],['','cc']][+document.getElementById('nb21-preset').value];
+    document.getElementById('nb21-w1').value=pairs[0]; document.getElementById('nb21-w2').value=pairs[1]; go();
+  });
+  document.getElementById('nb21-go').addEventListener('click',go);
+  ['nb21-w1','nb21-w2'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')go();}));
+  go();
+})();
+</script>
+```
+
+The default pair reproduces the chapter's example: for $u=c$ the only non-trivial cell is $(s_2,s_2)=s_2$ (a $c$-loop that never touches $F$), whereas for $u=ab$ two cells carry $F$, at $(s_0,s_2)$ and $(s_2,s_2)$ — the path $s_0\!\to\!s_1\!\to\!s_2$ visits $s_1\in F$. Different cells at the same position, so $c\not\approx_{\mathcal A}ab$. Try `abc` vs `abcc`: **equal** grids — the extra $c$ just loops at $s_2$, which is why every block $ab\,c^{i}$ falls in one class (the key fact behind **[Notebook 23](23-ramsey-decomposition.qmd)**).

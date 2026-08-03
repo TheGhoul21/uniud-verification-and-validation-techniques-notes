@@ -75,6 +75,26 @@ website:
             href: notebooks/13-vectorial-closure.qmd
           - text: "14. Büchi Emptiness (Lasso)"
             href: notebooks/14-buchi-emptiness-lasso.qmd
+          - text: "15. Parity Between a's"
+            href: notebooks/15-parity-blocks-buchi.qmd
+          - text: "16. The DBA vs NBA Gap"
+            href: notebooks/16-dba-vs-nba-gap.qmd
+          - text: "17. ω-Regular Expressions"
+            href: notebooks/17-omega-regular-expressions.qmd
+          - text: "18. Büchi Union & Intersection"
+            href: notebooks/18-buchi-intersection-product.qmd
+          - text: "19. Ultimately-Periodic Witnesses"
+            href: notebooks/19-ultimately-periodic-witness.qmd
+          - text: "20. Congruence & Saturation"
+            href: notebooks/20-finite-index-congruence.qmd
+          - text: "21. The Congruence ≈𝒜"
+            href: notebooks/21-approx-a-profile.qmd
+          - text: "22. Merging Positions"
+            href: notebooks/22-position-merge.qmd
+          - text: "23. Ramsey Decomposition"
+            href: notebooks/23-ramsey-decomposition.qmd
+          - text: "24. Saturation → Complement"
+            href: notebooks/24-saturation-complement.qmd
 
 format:
   html:

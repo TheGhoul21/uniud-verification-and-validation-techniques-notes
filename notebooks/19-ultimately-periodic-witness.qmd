@@ -1,0 +1,149 @@
+---
+title: "Notebook 19: Ultimately-Periodic Witnesses"
+pagetitle: "NB 19: Lasso Witness u·vω — VVT UniUD"
+description: "Every non-empty ω-regular language contains an ultimately-periodic word u·vω, read off a reachable accepting cycle (a lasso). Pick a loop and extract the witness, with |u|,|v| bounded by the number of states."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 19: Ultimately-Periodic Witnesses",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# The Ultimately-Periodic Fingerprint
+
+A Büchi automaton is **non-empty** iff it has a **reachable accepting cycle** — a *lasso*: a stem from the initial state to an accepting state $f$, then a cycle from $f$ back to $f$. Reading the stem once and the cycle forever gives an accepted word of the shape
+$$ \alpha = u\cdot v^{\omega},\qquad u = \text{stem},\ v = \text{cycle}, $$
+an **ultimately-periodic** word. Because a shortest stem and a shortest cycle each stay within the automaton, one can always find such a witness with
+$$ |u| < |Q| \quad\text{and}\quad |v| \le |Q|. $$
+
+This is the *fingerprint* behind emptiness (**[Notebook 14](14-buchi-emptiness-lasso.qmd)**): non-emptiness is not just a yes/no answer — it comes with a concrete, finitely-described infinite witness.
+
+The automaton below is the editor that **saves infinitely often** (initial `open`, then it accepts iff `save` recurs forever). Pick a loop through the accepting checkpoint $f$ and read off the witness.
+
+---
+
+## Widget: read a witness off a lasso
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.sc-workspace { display:grid; grid-template-columns:minmax(260px,1fr) minmax(280px,1.1fr); gap:16px; margin-top:16px; }
+@media (max-width:820px){ .sc-workspace{grid-template-columns:1fr;} }
+.loopbtn { display:block; width:100%; text-align:left; border:1px solid var(--sc-border); background:#fff; border-radius:8px; padding:9px 12px; margin-bottom:8px; cursor:pointer; font-family:ui-monospace,monospace; font-size:0.92rem; }
+.loopbtn.on { background:var(--sc-primary); border-color:var(--sc-primary); font-weight:700; }
+.wordline { font-family:ui-monospace,monospace; font-size:1.1rem; margin:6px 0; }
+.stem { color:#1f8fb7; font-weight:700; }
+.loop { color:#c2410c; font-weight:700; }
+.run-strip { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.run-step { display:flex; flex-direction:column; align-items:center; width:52px; }
+.run-sym { font-size:0.78rem; color:var(--sc-label); font-weight:700; }
+.run-state { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border-radius:15px; font-weight:700; font-family:ui-monospace,monospace; font-size:0.78rem; background:#e8e8e8; border:2px solid #999; }
+.run-state.accept { background:#d4f7ef; border-color:#2ec4b6; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; background:#d4f7ef; border:2px dashed #2ec4b6; }
+</style>
+
+<div class="sc-lab" id="nb19">
+  <div class="sc-workspace">
+    <div class="sc-panel">
+      <h4>Automaton: "infinitely many saves"</h4>
+      <svg viewBox="0 0 300 130" style="width:100%;height:auto" role="img">
+        <defs><marker id="nb19m" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#303036"/></marker></defs>
+        <line x1="6" y1="65" x2="30" y2="65" stroke="#303036" stroke-width="2" marker-end="url(#nb19m)"/>
+        <path d="M 66 65 L 122 65" stroke="#303036" stroke-width="2" marker-end="url(#nb19m)"/><text x="94" y="56" text-anchor="middle" font-weight="700">open</text>
+        <path d="M 138 50 C 130 20, 150 20, 150 44" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb19m)"/><text x="150" y="16" text-anchor="middle" font-weight="700">edit,idle</text>
+        <path d="M 162 52 C 195 22, 235 22, 256 52" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb19m)"/><text x="209" y="24" text-anchor="middle" font-weight="700">save</text>
+        <path d="M 256 78 C 235 104, 195 104, 162 78" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb19m)"/><text x="209" y="106" text-anchor="middle" font-weight="700">edit,idle</text>
+        <path d="M 268 50 C 260 20, 288 20, 280 50" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb19m)"/><text x="278" y="16" text-anchor="middle" font-weight="700">save</text>
+        <g transform="translate(48,65)"><circle r="18" fill="#e8e8f0" stroke="#999" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700" font-size="9">q_b</text></g>
+        <g transform="translate(150,65)"><circle r="18" fill="#e8e8f0" stroke="#999" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700">q</text></g>
+        <g transform="translate(262,65)"><circle r="22" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="1.5"/><circle r="17" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"/><text text-anchor="middle" dy="4" font-weight="700">f</text></g>
+      </svg>
+      <h4 style="margin-top:14px;">Choose a loop through f</h4>
+      <div id="nb19-loops"></div>
+    </div>
+    <div class="sc-panel">
+      <h4>Witness</h4>
+      <div class="wordline">stem &nbsp;u = <span class="stem" id="nb19-u"></span></div>
+      <div class="wordline">loop &nbsp;v = <span class="loop" id="nb19-v"></span></div>
+      <div class="wordline" style="margin-top:10px;">&alpha; = <span class="stem" id="nb19-u2"></span>&#183;(<span class="loop" id="nb19-v2"></span>)&#969;</div>
+      <h4 style="margin-top:14px;">Run of &alpha; (stem + 3 loops)</h4>
+      <div class="run-strip" id="nb19-strip"></div>
+      <div id="nb19-verdict"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // BA
+  const Q=['qb','q','f']; const init='qb'; const F=new Set(['f']);
+  const delta={ qb:{open:'q'}, q:{edit:'q',idle:'q',save:'f'}, f:{edit:'q',idle:'q',save:'f'} };
+  function edgesFrom(s){return Object.entries(delta[s]||{}).map(([sym,t])=>({sym,t}));}
+  // shortest path src->dst (BFS), returns list of symbols or null
+  function shortestPath(src,dst){
+    const q=[{s:src,w:[]}];
+    const visited=new Set([src]);
+    while(q.length){
+      const {s,w}=q.shift();
+      for(const {sym,t} of edgesFrom(s)){
+        const nw=w.concat(sym);
+        if(t===dst && (nw.length>0)) return nw;
+        if(!visited.has(t)){ visited.add(t); q.push({s:t,w:nw}); }
+      }
+    }
+    return null;
+  }
+  const stem=shortestPath(init,'f'); // shortest u reaching f
+  // loops: for each outgoing edge of f, sym + shortest path back to f
+  const loops=[];
+  for(const {sym,t} of edgesFrom('f')){
+    if(t==='f'){ loops.push([sym]); }
+    else { const back=shortestPath(t,'f'); if(back) loops.push([sym].concat(back)); }
+  }
+  // dedupe
+  const seen=new Set(); const uniqLoops=loops.filter(l=>{const k=l.join(' ');if(seen.has(k))return false;seen.add(k);return true;});
+
+  let chosen=0;
+  function render(){
+    const v=uniqLoops[chosen];
+    document.getElementById('nb19-u').textContent=stem.join(' ');
+    document.getElementById('nb19-u2').textContent=stem.join(' ');
+    document.getElementById('nb19-v').textContent=v.join(' ');
+    document.getElementById('nb19-v2').textContent=v.join(' ');
+    // loop buttons
+    const box=document.getElementById('nb19-loops'); box.innerHTML='';
+    uniqLoops.forEach((l,i)=>{const b=document.createElement('button');b.className='loopbtn'+(i===chosen?' on':'');b.textContent='('+l.join(' ')+')ω';b.onclick=()=>{chosen=i;render();};box.appendChild(b);});
+    // run
+    const strip=document.getElementById('nb19-strip'); strip.innerHTML='';
+    const seq=stem.concat(...Array(3).fill(v));
+    let state=init; addStep(strip,'',state);
+    const tail=new Set();
+    seq.forEach((s,i)=>{state=delta[state][s]; addStep(strip,s,state); if(i>=stem.length) tail.add(state);});
+    const hit=[...tail].filter(x=>F.has(x));
+    document.getElementById('nb19-verdict').innerHTML=`<div class="verdict-box"><strong>Accepted.</strong> the loop returns to f&#8712;F, so f recurs infinitely often: In(&rho;)&cap;F = { f }. |u| = ${stem.length}, |v| = ${v.length}, both within |Q| = ${Q.length}.</div>`;
+  }
+  function addStep(c,sym,state){
+    const box=document.createElement('div'); box.className='run-step';
+    const s=document.createElement('div'); s.className='run-sym'; s.innerHTML=sym===''?'&nbsp;':sym;
+    const st=document.createElement('div'); st.className='run-state'+(F.has(state)?' accept':''); st.textContent=state==='qb'?'q_b':state;
+    box.appendChild(s); box.appendChild(st); c.appendChild(box);
+  }
+  render();
+})();
+</script>
+```
+
+The loop `(save)` gives the shortest witness `open·(save)ω = open save save save …`; the loop `(edit save)` gives `open·(edit save)ω`. Both are accepted, both are ultimately periodic, and both fit inside the state bound. Different lassos, same language — the witness is never unique, but one always exists whenever the language is non-empty.

@@ -1,0 +1,156 @@
+---
+title: "Notebook 16: The DBA vs NBA Gap"
+pagetitle: "NB 16: Deterministic Büchi Are Weaker — VVT UniUD"
+description: "Why 'finitely many saves' needs nondeterminism: an NBA guesses the last save and accepts, while no deterministic Büchi automaton can separate the two cases. The obstruction that forces the whole complementation chapter."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 16: The DBA vs NBA Gap",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Deterministic Büchi Automata Are Strictly Weaker
+
+For **finite** words, complementing a DFA is a one-line trick: complete it with a sink and swap accepting / non-accepting states. This fails for Büchi automata for two reasons — nondeterminism (no unique run to reverse) and, more deeply, that **deterministic Büchi automata (DBA) recognise strictly fewer languages than nondeterministic ones (NBA)**.
+
+The running witness is the complement of "infinitely many saves". After the initial `open`, over $\Gamma=\{\texttt{edit},\texttt{save},\texttt{idle}\}$:
+$$ \overline{L}=\{\alpha : \text{only finitely many } \texttt{save}\text{ occur}\}. $$
+
+This notebook shows both halves of the gap: an NBA **does** recognise $\overline L$, and a natural DBA attempt provably **fails**.
+
+---
+
+## Widget 1: The NBA recognises $\overline{L}$
+
+The NBA **guesses** the position after which no more `save` ever arrives, then jumps to an accepting component that reads only `edit`/`idle` (a `save` there kills the run). A word $u\cdot v^{\omega}$ has only finitely many saves **iff its period $v$ contains no `save`**.
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-btn.alt { background:var(--sc-bg); color:var(--sc-label); }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-bottom:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; }
+.run-strip { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.tok { padding:5px 8px; border-radius:6px; font-family:ui-monospace,monospace; font-weight:700; font-size:0.85rem; background:#e9edf5; border:1px solid #cdd6e6; }
+.tok.save { background:#ffe1d8; border-color:#fc5130; color:#8a2410; }
+.tok.stem { opacity:0.55; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.02rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fee8e3; border:2px dashed #fc5130; }
+</style>
+
+<div class="sc-lab" id="nb16a">
+  <div class="input-row">
+    <div class="input-group">
+      <label>Preset</label>
+      <select id="nb16-preset">
+        <option value="0">open · (edit idle)&#969; — saves stop</option>
+        <option value="1">open · (edit save)&#969; — saves forever</option>
+        <option value="2">open save save · (idle)&#969; — saves stop</option>
+        <option value="3">open · (save idle)&#969; — saves forever</option>
+      </select>
+    </div>
+    <div class="input-group"><label>Stem (u)</label><input type="text" id="nb16-u" style="width:150px" value="open"></div>
+    <div class="input-group"><label>Period (v)</label><input type="text" id="nb16-v" style="width:150px" value="edit idle"></div>
+    <div class="input-group"><button class="sc-btn" id="nb16-run">Check</button></div>
+  </div>
+  <div class="sc-panel">
+    <h4>Word &alpha; = u · v&#969; (stem + 3 periods)</h4>
+    <div class="run-strip" id="nb16-strip"></div>
+    <div id="nb16-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const parse=s=>s.trim().split(/[\s,]+/).filter(x=>x.length);
+  const PRE=[{u:'open',v:'edit idle'},{u:'open',v:'edit save'},{u:'open save save',v:'idle'},{u:'open',v:'save idle'}];
+  function run(){
+    const u=parse(document.getElementById('nb16-u').value), v=parse(document.getElementById('nb16-v').value);
+    const strip=document.getElementById('nb16-strip'), verdict=document.getElementById('nb16-verdict');
+    strip.innerHTML=''; verdict.innerHTML='';
+    if(!v.length){verdict.innerHTML="<div class='verdict-box verdict-fail'>Period cannot be empty.</div>";return;}
+    const seq=u.concat(...Array(3).fill(v));
+    seq.forEach((s,i)=>{const d=document.createElement('span');d.className='tok'+(s==='save'?' save':'')+(i<u.length?' stem':'');d.textContent=s;strip.appendChild(d);});
+    const savesInPeriod = v.includes('save');
+    if(!savesInPeriod){
+      verdict.innerHTML=`<div class="verdict-box verdict-pass"><strong>&alpha; &isin; L&#773; — accepted by the NBA.</strong><br>The period has no <code>save</code>, so after the stem no save ever returns. The NBA guesses the split right after the stem and reads the save-free tail in its accepting component. Only finitely many saves occur.</div>`;
+    } else {
+      verdict.innerHTML=`<div class="verdict-box verdict-fail"><strong>&alpha; &notin; L&#773; — rejected.</strong><br>The period contains <code>save</code>, so saves recur <em>infinitely often</em>. Wherever the NBA guesses the last save, a later save kills that accepting branch. No accepting run exists.</div>`;
+    }
+  }
+  function loadPreset(){const p=PRE[+document.getElementById('nb16-preset').value];document.getElementById('nb16-u').value=p.u;document.getElementById('nb16-v').value=p.v;run();}
+  document.getElementById('nb16-preset').addEventListener('change',loadPreset);
+  document.getElementById('nb16-run').addEventListener('click',run);
+  ['nb16-u','nb16-v'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')run();}));
+  loadPreset();
+})();
+</script>
+```
+
+---
+
+## Widget 2: Any deterministic attempt fails
+
+Here is the most natural DBA one might try for $\overline L$ — call it $\mathcal D$. It accepts whenever it keeps seeing non-`save` symbols:
+
+- $d_0$ (**accepting**): reading `edit` or `idle` stays / returns here.
+- $d_1$ (non-accepting): reading `save` goes here.
+
+$\mathcal D$ visits its accepting state $d_0$ infinitely often exactly when `edit`/`idle` occur infinitely often — which is **not** the same as "finitely many saves". The button below feeds $\mathcal D$ the adversarial word $(\texttt{save}\ \texttt{idle})^{\omega}$: it has **infinitely many saves** (so it is *not* in $\overline L$), yet $\mathcal D$ accepts it.
+
+```{=html}
+<div class="sc-lab" id="nb16b">
+  <div class="input-row" style="align-items:center;">
+    <button class="sc-btn" id="nb16b-run">Run &#119967; on (save idle)&#969;</button>
+    <span style="font-size:0.85rem;color:var(--sc-label);">the general obstruction: delay each save past the next visit to <em>d</em><sub>0</sub></span>
+  </div>
+  <div class="sc-panel">
+    <h4>Run of &#119967; (period shown 4&times;)</h4>
+    <div class="run-strip" id="nb16b-strip"></div>
+    <div id="nb16b-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const delta={d0:{save:'d1',edit:'d0',idle:'d0'},d1:{save:'d1',edit:'d0',idle:'d0'}};
+  const F=new Set(['d0']);
+  function run(){
+    const v=['save','idle']; const seq=[].concat(...Array(4).fill(v));
+    const strip=document.getElementById('nb16b-strip'), verdict=document.getElementById('nb16b-verdict');
+    strip.innerHTML='';
+    let state='d0'; const tail=new Set();
+    seq.forEach((s,i)=>{
+      state=delta[state][s]; tail.add(state);
+      const box=document.createElement('span');
+      box.className='tok'+(s==='save'?' save':'');
+      box.innerHTML=`${s}<br><small style="font-weight:400">${state}${F.has(state)?' &#9733;':''}</small>`;
+      strip.appendChild(box);
+    });
+    const good=[...tail].some(q=>F.has(q));
+    verdict.innerHTML=`<div class="verdict-box verdict-fail"><strong>&#119967; accepts</strong> — d<sub>0</sub>&#8712;F is visited infinitely often (every <code>idle</code>). But the word has <strong>infinitely many saves</strong>, so a correct recogniser of "finitely many saves" must <strong>reject</strong> it. &#119967; is wrong — and every DBA fails the same way: after any finite prefix an all-<code>idle</code> continuation must be accepted, so the unique run must revisit an accepting state; delay the next save until after that visit, repeat forever, and you get infinitely many saves with infinitely many accepting visits.</div>`;
+  }
+  document.getElementById('nb16b-run').addEventListener('click',run);
+  run();
+})();
+</script>
+```
+
+The lesson is **not** that complementation is impossible — $\omega$-regular languages *are* closed under complement. It is that the finite-word state-swapping shortcut does not transfer. The rest of the chapter builds the complement algebraically, via the congruence $\approx_{\mathcal A}$ and a Ramsey decomposition — see **[Notebook 21](21-approx-a-profile.qmd)** and **[Notebook 23](23-ramsey-decomposition.qmd)**.

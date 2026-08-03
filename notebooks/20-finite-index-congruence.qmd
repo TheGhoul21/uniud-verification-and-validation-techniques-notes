@@ -1,0 +1,162 @@
+---
+title: "Notebook 20: Finite-Index Congruences & Saturation"
+pagetitle: "NB 20: Congruence and Saturation — VVT UniUD"
+description: "The gentle entry to the complementation machinery: a congruence with finitely many classes (parity of length), why concatenation respects classes, and what it means for a language to be saturated — a union of classes."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 20: Finite-Index Congruences and Saturation",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Congruences and Saturation
+
+The algebraic route to complementation partitions finite words into **finitely many classes**, then describes infinite words by products of classes. The whole idea rests on two everyday intuitions.
+
+A **congruence** $\equiv$ on $\Sigma^{*}$ is an equivalence relation that is *respected by concatenation*: if $u\equiv u'$ and $w\equiv w'$ then $uw\equiv u'w'$. It has **finite index** if it has finitely many classes. The simplest non-trivial example — think even/odd — is **parity of length** over $\Sigma=\{a,b\}$:
+$$ u \equiv_{\mathrm{par}} u' \iff |u|\equiv|u'| \pmod 2. $$
+Two classes: `E` (even length, including $\varepsilon$) and `O` (odd length). The symbols read are irrelevant; only length parity matters.
+
+A language $L$ is **saturated** by $\equiv$ if it is a *union of whole classes* — equivalently, $u\equiv u'$ never separates a member from a non-member. Saturation is exactly the property that lets us complement by flipping which classes we keep.
+
+---
+
+## Widget 1: classes and concatenation
+
+Type two words. Each gets a class; their concatenation lands in the class predicted by the **class arithmetic** (E acts like $0$, O like $1$, modulo $2$) — never depending on *which* letters were used.
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; }
+.cls { display:inline-block; min-width:26px; text-align:center; padding:2px 9px; border-radius:12px; font-weight:800; font-family:ui-monospace,monospace; }
+.cls.E { background:#d4f7ef; color:#0f6b5c; border:1px solid #2ec4b6; }
+.cls.O { background:#fde8d6; color:#8a4b12; border:1px solid #e08a3c; }
+.arith { font-family:ui-monospace,monospace; font-size:1.1rem; margin-top:10px; }
+.ctable { border-collapse:collapse; margin-top:10px; font-family:ui-monospace,monospace; }
+.ctable td,.ctable th { border:1px solid var(--sc-border); padding:8px 14px; text-align:center; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fee8e3; border:2px dashed #fc5130; }
+</style>
+
+<div class="sc-lab" id="nb20a">
+  <div class="input-row">
+    <div class="input-group"><label>Word u</label><input type="text" id="nb20-u" value="a b a"></div>
+    <div class="input-group"><label>Word w</label><input type="text" id="nb20-w" value="b b"></div>
+    <div class="input-group"><button class="sc-btn" id="nb20-go">Concatenate</button></div>
+  </div>
+  <div class="sc-panel">
+    <div class="arith" id="nb20-out"></div>
+    <table class="ctable">
+      <tr><th>·</th><th>E</th><th>O</th></tr>
+      <tr><th>E</th><td>E</td><td>O</td></tr>
+      <tr><th>O</th><td>O</td><td>E</td></tr>
+    </table>
+    <p style="font-size:0.82rem;color:var(--sc-label);margin-top:8px;">Class of a word = parity of its length. The table is just addition mod 2 — that concatenation respects it is what makes ≡par a <em>congruence</em>.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const parse=s=>s.trim().split(/[\s,]+/).filter(x=>x.length);
+  const cls=w=> w.length%2===0 ? 'E':'O';
+  const chip=c=>`<span class="cls ${c}">${c}</span>`;
+  function go(){
+    const u=parse(document.getElementById('nb20-u').value), w=parse(document.getElementById('nb20-w').value);
+    const uw=u.concat(w);
+    const cu=cls(u),cw=cls(w),cuw=cls(uw);
+    const ok = cuw === (( (u.length+w.length)%2===0)?'E':'O');
+    document.getElementById('nb20-out').innerHTML=
+      `u = "${u.join('')||'ε'}" &rarr; ${chip(cu)} (len ${u.length})<br>`+
+      `w = "${w.join('')||'ε'}" &rarr; ${chip(cw)} (len ${w.length})<br>`+
+      `uw = "${uw.join('')||'ε'}" &rarr; ${chip(cuw)} (len ${uw.length})<br><br>`+
+      `class(uw) = ${chip(cu)} · ${chip(cw)} = ${chip(cuw)} &nbsp; ✓ predicted from the classes alone, not the letters.`;
+  }
+  document.getElementById('nb20-go').addEventListener('click',go);
+  ['nb20-u','nb20-w'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')go();}));
+  go();
+})();
+</script>
+```
+
+---
+
+## Widget 2: is $L$ saturated?
+
+A language is saturated iff every class lies **entirely inside** or **entirely outside** it. The widget probes each class with two representatives; if one is in $L$ and the other is not, the class is *split* and $L$ is **not** saturated by $\equiv_{\mathrm{par}}$.
+
+```{=html}
+<div class="sc-lab" id="nb20b">
+  <div class="input-row">
+    <div class="input-group" style="min-width:260px;">
+      <label>Language L</label>
+      <select id="nb20-lang">
+        <option value="0">L = words of even length</option>
+        <option value="1">L = words of odd length</option>
+        <option value="2">L = words containing at least one a</option>
+        <option value="3">L = words of length ≥ 3</option>
+      </select>
+    </div>
+  </div>
+  <div class="sc-panel" id="nb20-sat"></div>
+</div>
+
+<script>
+(function(){
+  const cls=w=> w.length%2===0 ? 'E':'O';
+  const chip=c=>`<span class="cls ${c}">${c}</span>`;
+  const LANGS=[
+    {name:'even length', test:w=>w.length%2===0},
+    {name:'odd length', test:w=>w.length%2===1},
+    {name:'contains an a', test:w=>w.includes('a')},
+    {name:'length ≥ 3', test:w=>w.length>=3}
+  ];
+  // representatives per class E,O
+  const reps={E:[[],['a','a'],['b','b'],['a','b']], O:[['a'],['b'],['a','a','a'],['b','a','b']]};
+  function render(){
+    const L=LANGS[+document.getElementById('nb20-lang').value];
+    let html=''; let saturated=true; const rows=[];
+    for(const c of ['E','O']){
+      const results=reps[c].map(w=>({w,inL:L.test(w)}));
+      const allIn=results.every(r=>r.inL), allOut=results.every(r=>!r.inL);
+      const split=!(allIn||allOut); if(split) saturated=false;
+      rows.push({c,results,split,verdict: allIn?'wholly IN':allOut?'wholly OUT':'SPLIT'});
+    }
+    html+=`<h4>Probing the two classes</h4>`;
+    for(const r of rows){
+      html+=`<div style="margin-bottom:8px;">${chip(r.c)} `+
+        r.results.map(x=>`"${x.w.join('')||'ε'}"${x.inL?'&#8712;':'&#8713;'}L`).join(' &nbsp; ')+
+        ` &rarr; <strong style="color:${r.split?'#c0392b':'#0f6b5c'}">${r.verdict}</strong></div>`;
+    }
+    html+=`<div class="verdict-box ${saturated?'verdict-pass':'verdict-fail'}">`+
+      (saturated
+        ? `<strong>Saturated.</strong> Each class is entirely in or entirely out, so L is a union of ≡par-classes. Complementing L is just flipping which classes we keep.`
+        : `<strong>Not saturated.</strong> A class is split — ≡par is too coarse to describe L, because two words of the same length parity disagree on membership. A finer congruence would be needed.`)
+      +`</div>`;
+    document.getElementById('nb20-sat').innerHTML=html;
+  }
+  document.getElementById('nb20-lang').addEventListener('change',render);
+  render();
+})();
+</script>
+```
+
+Parity is a toy congruence — it only saturates length-parity languages. The chapter's real congruence, $\approx_{\mathcal A}$, is much finer: it remembers *which states an automaton can traverse* on a word, and it saturates the language of any Büchi automaton. That is the subject of **[Notebook 21](21-approx-a-profile.qmd)**.

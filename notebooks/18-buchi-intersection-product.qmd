@@ -1,0 +1,138 @@
+---
+title: "Notebook 18: Büchi Closure — Union & Intersection"
+pagetitle: "NB 18: Büchi Intersection Product — VVT UniUD"
+description: "Union of Büchi automata is trivial; intersection needs a two-phase product that cycles through F₁ then F₂. Build the product for 'infinitely many a' ∩ 'infinitely many b' and watch the phase flag."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 18: Büchi Closure — Union and Intersection",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Closure Under Union and Intersection
+
+$\omega$-regular languages are closed under both operations, but the two constructions are not symmetric.
+
+- **Union** is trivial: put the two automata side by side (a disjoint sum). A word is accepted iff *some* component accepts it. No new idea is needed.
+- **Intersection** cannot just "accept when both accept": each automaton has its **own** accepting set, and a single Büchi condition must witness that $F_1$ **and** $F_2$ are each hit infinitely often. The fix is a **two-phase product**: track a phase flag that says *which* accepting set we are currently waiting for, flip $1\to2$ when we see $F_1$ and $2\to1$ when we see $F_2$, and make the $2\to1$ flip the accepting event. Completing the cycle infinitely often forces both sets to recur.
+
+The running example over $\Sigma=\{a,b\}$:
+$$ L_a = \text{"infinitely many } a\text{"}, \qquad L_b = \text{"infinitely many } b\text{"}, \qquad L_a\cap L_b = \text{"both infinitely often"}. $$
+
+Each component is a one-state Büchi automaton that "checkpoints" on its letter. In the product, $\alpha=u\cdot v^{\omega}$ is accepted **iff the period $v$ contains both an $a$ and a $b$**.
+
+---
+
+## Widget: the two-phase product
+
+```{=html}
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.seg { display:inline-flex; border:1px solid var(--sc-border); border-radius:8px; overflow:hidden; }
+.seg button { border:none; background:var(--sc-bg); padding:8px 16px; font-weight:700; cursor:pointer; font-size:0.9rem; color:var(--sc-label); }
+.seg button.on { background:var(--sc-primary); color:#050401; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; }
+.run-strip { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.pcell { display:flex; flex-direction:column; align-items:center; gap:2px; min-width:40px; padding:5px 6px; border-radius:6px; background:#eef1f7; border:1px solid #d3dae8; font-family:ui-monospace,monospace; }
+.pcell .sym { font-weight:700; font-size:0.95rem; }
+.pcell .ph { font-size:0.72rem; color:var(--sc-label); }
+.pcell.chk { background:#d4f7ef; border-color:#2ec4b6; }
+.pcell.stem { opacity:0.5; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.02rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fee8e3; border:2px dashed #fc5130; }
+</style>
+
+<div class="sc-lab" id="nb18">
+  <div class="input-row">
+    <div class="input-group">
+      <label>Operation</label>
+      <div class="seg" id="nb18-op"><button data-op="inter" class="on">∩ intersection</button><button data-op="union">∪ union</button></div>
+    </div>
+    <div class="input-group"><label>Stem (u)</label><input type="text" id="nb18-u" style="width:120px" value=""></div>
+    <div class="input-group"><label>Period (v)</label><input type="text" id="nb18-v" style="width:120px" value="a b"></div>
+    <div class="input-group"><button class="sc-btn" id="nb18-run">Run</button></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4 id="nb18-title">Product run — phase flag &amp; accepting checkpoints</h4>
+    <div class="run-strip" id="nb18-strip"></div>
+    <div id="nb18-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const parse=s=>s.trim().split(/[\s,]+/).filter(x=>x.length);
+  let op='inter';
+  function step(phase,sym){ // phase 1 waits for F1 (letter a); phase 2 waits for F2 (letter b)
+    let acc=false;
+    if(phase===1 && sym==='a') phase=2;
+    else if(phase===2 && sym==='b'){ phase=1; acc=true; }
+    return {phase,acc};
+  }
+  function run(){
+    const u=parse(document.getElementById('nb18-u').value), v=parse(document.getElementById('nb18-v').value);
+    const strip=document.getElementById('nb18-strip'), verdict=document.getElementById('nb18-verdict');
+    strip.innerHTML=''; verdict.innerHTML='';
+    if(!v.length){verdict.innerHTML="<div class='verdict-box verdict-fail'>Period cannot be empty.</div>";return;}
+    for(const s of u.concat(v)) if(!['a','b'].includes(s)){verdict.innerHTML=`<div class='verdict-box verdict-fail'>Unknown symbol "${s}". Alphabet is {a,b}.</div>`;return;}
+
+    if(op==='union'){
+      document.getElementById('nb18-title').textContent='Union — run each component; accept if either does';
+      const seq=u.concat(...Array(3).fill(v));
+      seq.forEach((s,i)=>{const d=document.createElement('div');d.className='pcell'+(i<u.length?' stem':'');d.innerHTML=`<span class="sym">${s}</span><span class="ph">&nbsp;</span>`;strip.appendChild(d);});
+      const accA=v.includes('a'), accB=v.includes('b');
+      const ok=accA||accB;
+      verdict.innerHTML=`<div class="verdict-box ${ok?'verdict-pass':'verdict-fail'}"><strong>&alpha; ${ok?'&isin;':'&notin;'} L_a ∪ L_b.</strong><br>L_a accepts (∞ many a): ${accA?'yes':'no'} &nbsp;|&nbsp; L_b accepts (∞ many b): ${accB?'yes':'no'}. Union just needs one of them — no product required.</div>`;
+      return;
+    }
+
+    document.getElementById('nb18-title').textContent='Intersection — two-phase product (flip 1→2 on a, 2→1 on b = checkpoint ★)';
+    const seq=u.concat(...Array(4).fill(v));
+    let phase=1;
+    // run stem
+    for(const s of u){ phase=step(phase,s).phase; }
+    // display stem
+    u.forEach(s=>{const d=document.createElement('div');d.className='pcell stem';d.innerHTML=`<span class="sym">${s}</span><span class="ph">·</span>`;strip.appendChild(d);});
+    // run periods with display
+    for(let i=0;i<4*v.length;i++){
+      const s=v[i%v.length]; const r=step(phase,s); phase=r.phase;
+      const d=document.createElement('div');d.className='pcell'+(r.acc?' chk':'');
+      d.innerHTML=`<span class="sym">${s}</span><span class="ph">φ=${phase}${r.acc?' ★':''}</span>`;
+      strip.appendChild(d);
+    }
+    // verdict via period rule (both a and b present => checkpoint recurs each period)
+    const ok = v.includes('a') && v.includes('b');
+    verdict.innerHTML=`<div class="verdict-box ${ok?'verdict-pass':'verdict-fail'}"><strong>&alpha; ${ok?'&isin;':'&notin;'} L_a ∩ L_b.</strong><br>${ok
+      ? 'The period contains both an a and a b, so each period completes a full 1→2→1 cycle: the checkpoint ★ recurs infinitely often. Both a and b occur infinitely often.'
+      : 'The period is missing '+(!v.includes('a')?'a':'b')+', so the phase gets stuck and the checkpoint ★ fires only finitely often (a transient at most). One letter occurs only finitely often.'}</div>`;
+  }
+  document.querySelectorAll('#nb18-op button').forEach(b=>b.addEventListener('click',()=>{
+    op=b.dataset.op; document.querySelectorAll('#nb18-op button').forEach(x=>x.classList.remove('on')); b.classList.add('on'); run();
+  }));
+  document.getElementById('nb18-run').addEventListener('click',run);
+  ['nb18-u','nb18-v'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')run();}));
+  run();
+})();
+</script>
+```
+
+Try `v = a` (only a's forever): the intersection **rejects** — the phase reaches $2$ waiting for a $b$ that never returns, so the checkpoint fires at most once. This asymmetry is exactly why intersection needs the phase flag while union does not. The same product underlies the reduction of model checking to emptiness — see **[Notebook 14](14-buchi-emptiness-lasso.qmd)**.
