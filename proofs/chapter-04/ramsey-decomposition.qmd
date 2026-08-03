@@ -1,0 +1,13 @@
+---
+title: "Ramsey Decomposition Proof Lab"
+pagetitle: "Ramsey Decomposition — Interactive Proof Lab"
+description: "An interactive proof that every omega-word decomposes as a finite prefix followed by infinitely many interchangeable repeating blocks."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="ramsey-decomposition"></div>
+<noscript>
+  <h1>Ramsey decomposition</h1>
+  <p>Every omega-word alpha belongs to U times V-omega for some classes U, V of a finite-index congruence, with V times V contained in V. Two nested pigeonhole arguments -- one on positions of alpha, one on segment classes -- linked by a persistence property, produce the decomposition even when alpha is not ultimately periodic.</p>
+</noscript>
+```
