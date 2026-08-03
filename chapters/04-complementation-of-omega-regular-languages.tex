@@ -748,18 +748,18 @@ at $4$.
   \node[hl] at (1,0) {};
   \node[hl] at (3,0) {};
   \node[hl] at (4,0) {};
-  \node[below=3mm, font=\small] at (1,0) {$1$};
-  \node[below=3mm, font=\small] at (3,0) {$3$};
-  \node[below=3mm, font=\small] at (4,0) {$4$};
+  \node[below=3mm, font=\small] (lab1) at (1,0) {$1$};
+  \node[below=3mm, font=\small] (lab3) at (3,0) {$3$};
+  \node[below=3mm, font=\small] (lab4) at (4,0) {$4$};
 
   \draw [decorate,decoration={brace,amplitude=5pt,mirror}, thick, vvteal!70!black]
     (3,-0.9) -- (4,-0.9) node [midway, yshift=-0.5cm, font=\small, black] {$\alpha(3,4)$: len.\ $1$};
-  \draw[drop] (3,0) -- (3,-0.9);
-  \draw[drop] (4,0) -- (4,-0.9);
+  \draw[drop] (lab3.south) -- (3,-0.9);
+  \draw[drop] (lab4.south) -- (4,-0.9);
 
   \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
     (1,-2.2) -- (4,-2.2) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(1,4)$: len.\ $3$};
-  \draw[drop] (1,0) -- (1,-2.2);
+  \draw[drop] (lab1.south) -- (1,-2.2);
   \draw[drop] (4,-0.9) -- (4,-2.2);
 \end{tikzpicture}
 \end{center}
@@ -817,18 +817,18 @@ if
   \node[hl] at (1,0) {};
   \node[hl] at (3,0) {};
   \node[hl] at (5,0) {};
-  \node[below=3mm, font=\small] at (1,0) {$k$};
-  \node[below=3mm, font=\small] at (3,0) {$k'$};
-  \node[below=3mm, font=\small] at (5,0) {$m$};
+  \node[below=3mm, font=\small] (labk) at (1,0) {$k$};
+  \node[below=3mm, font=\small] (labkp) at (3,0) {$k'$};
+  \node[below=3mm, font=\small] (labm) at (5,0) {$m$};
 
   \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, vvteal!70!black]
     (3,-0.9) -- (5,-0.9) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(k',m)$};
-  \draw[drop] (3,0) -- (3,-0.9);
-  \draw[drop] (5,0) -- (5,-0.9);
+  \draw[drop] (labkp.south) -- (3,-0.9);
+  \draw[drop] (labm.south) -- (5,-0.9);
 
   \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
     (1,-2.1) -- (5,-2.1) node [midway, yshift=-0.55cm, font=\small, black] {$\alpha(k,m)$};
-  \draw[drop] (1,0) -- (1,-2.1);
+  \draw[drop] (labk.south) -- (1,-2.1);
   \draw[drop] (5,-0.9) -- (5,-2.1);
 \end{tikzpicture}
 \caption{The picture behind \cref{def:position-merge}: positions $k$
@@ -997,9 +997,9 @@ fall strictly between two of its later positions.
   drop/.style={circle, fill=gray!50, inner sep=1.6pt},
 ]
   \draw[thick] (0,0) -- (10.5,0);
-  \foreach \x/\lab in {0/k_0, 1.2/k_1, 2.4/k_i} {
+  \foreach \x/\lab/\nm in {0/k_0/labk0, 1.2/k_1/labk1, 2.4/k_i/labki} {
     \node[keep] at (\x,0) {};
-    \node[below=2mm, font=\small] at (\x,0) {$\lab$};
+    \node[below=2mm, font=\small] (\nm) at (\x,0) {$\lab$};
   }
   \node[font=\small] at (1.8,0.35) {$\cdots$};
   \foreach \x in {3.6,4.8,6.0} {
@@ -1018,7 +1018,7 @@ fall strictly between two of its later positions.
   \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
     (0,-1.5) -- (7.2,-1.5) node [midway, yshift=-0.55cm, font=\small, black]
     {$k_0,\ldots,k_i$ all merge at $M$};
-  \draw[dashed, gray!60, thin] (0,0) -- (0,-1.5);
+  \draw[dashed, gray!60, thin] (labk0.south) -- (0,-1.5);
   \draw[dashed, gray!60, thin] (7.2,0) -- (7.2,-1.5);
 \end{tikzpicture}
 \caption{Thinning the sequence.  The common merge witness $M$ for
