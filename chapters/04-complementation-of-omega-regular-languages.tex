@@ -338,10 +338,14 @@ is contained in $\overline{L}$.  Thus the same all-or-nothing condition
 holds for the complement.
 \end{proof}
 
-\begin{lemma}[Complement from saturation]
+\begin{lemma}[Saturated languages are finite unions of class products]
 \label{lem:complement-from-saturation}
-If $L$ is saturated by a finite-index congruence $\equiv$, then
-$\overline{L}$ is $\omega$-regular.
+Let $\equiv$ be a finite-index congruence on $\Sigma^*$ that saturates
+$L\subseteq\Sigma^\omega$.  Then
+\[
+  L = \bigcup\{UV^\omega : U,V \text{ are } \equiv\text{-classes and } UV^\omega\cap L\neq\emptyset\},
+\]
+a finite union, and $L$ is $\omega$-regular.
 \end{lemma}
 
 \begin{proof}
@@ -349,22 +353,36 @@ First note that every equivalence class of a finite-index congruence is
 a regular finite-word language.  Indeed, build a DFA whose states are
 the equivalence classes, whose initial state is $[\varepsilon]$, and
 whose transition is $[u]\tto{a}[ua]$.  Congruence makes this
-transition well-defined.
+transition well-defined.  There are only finitely many pairs of
+classes $(U,V)$, so the union above is finite.
 
-There are only finitely many pairs of classes $(U,V)$.  Since $L$ is
-saturated, each product $UV^\omega$ is either contained in $L$ or
-disjoint from $L$.  Moreover, every infinite word belongs to at least
-one such product: the Ramsey decomposition proved in
-\cref{lem:ramsey-decomposition} supplies a prefix class $U$ and a
-repeated block class $V$.  Therefore
-\[
-  \overline{L}
-  =
-  \bigcup\{UV^\omega : UV^\omega\cap L=\emptyset\}.
-\]
-This is a finite union.  Each $U$ and $V$ is regular, so each
-$UV^\omega$ is $\omega$-regular, and finite unions of $\omega$-regular
-languages are $\omega$-regular.
+\emph{$\supseteq$.}  If $UV^\omega\cap L\neq\emptyset$, saturation gives
+$UV^\omega\subseteq L$.  So every term contributed to the union already
+lies inside $L$, and so does their union.
+
+\emph{$\subseteq$.}  Let $\alpha\in L$.  The Ramsey decomposition
+(\cref{lem:ramsey-decomposition}) supplies $\equiv$-classes $U,V$ with
+$\alpha\in UV^\omega$.  Since $\alpha\in UV^\omega\cap L$, this pair
+satisfies $UV^\omega\cap L\neq\emptyset$ and therefore contributes its
+product to the union; $\alpha$ lies in it.
+
+Each $U,V$ is regular, so each $UV^\omega$ is $\omega$-regular by
+\cref{thm:omega-basic-closure}, and this finite union is therefore
+$\omega$-regular.
+\end{proof}
+
+\begin{corollary}[Complement of a saturated language]
+\label{cor:complement-from-saturation}
+If $L$ is saturated by a finite-index congruence $\equiv$, then
+$\overline{L}$ is $\omega$-regular.
+\end{corollary}
+
+\begin{proof}
+By \cref{prop:saturation-complement}, $\equiv$ also saturates
+$\overline{L}$.  \Cref{lem:complement-from-saturation} applied to
+$\overline{L}$ gives
+$\overline{L}=\bigcup\{UV^\omega : UV^\omega\cap\overline{L}\neq\emptyset\}$,
+a finite union of $\omega$-regular languages, hence $\omega$-regular.
 \end{proof}
 
 Complementation has therefore been reduced to constructing a suitable
@@ -704,6 +722,44 @@ Thus a run built from $u$-blocks can be imitated block by block with
 $v$-blocks, preserving the accepting visits that make the infinite run
 B\"uchi-accepting.  This is the local reason why
 $\approx_{\mathcal A}$ saturates $\omega$-regular languages.
+\end{formaldetails}
+
+\begin{formaldetails}[Beyond this course: canonical, automaton-free congruences]
+Just as the automaton-specific relation $\sim_{\mathcal A}$ from
+\cref{def:automaton-right-equivalence} is refined by the canonical,
+automaton-independent Myhill--Nerode relation $\sim_L$ for a regular
+language $L\subseteq\Sigma^*$, the automaton-specific
+$\approx_{\mathcal A}$ built in this section is refined by two
+canonical congruences that depend only on the $\omega$-language $L$
+itself, not on any automaton recognizing it (W.~Thomas, \textit{Automata
+on Infinite Objects}, Handbook of Theoretical Computer Science
+vol.~B, 1990):
+\[
+  u\sim_L v
+  \iff
+  \forall\alpha\in\Sigma^\omega\
+  \bigl(u\alpha\in L \Leftrightarrow v\alpha\in L\bigr),
+\]
+\[
+  u\approx_L v
+  \iff
+  \forall x,y,z\in\Sigma^*\
+  \begin{cases}
+    xuyz^\omega\in L \Leftrightarrow xvyz^\omega\in L,\\
+    x(yuz)^\omega\in L \Leftrightarrow x(yvz)^\omega\in L.
+  \end{cases}
+\]
+The relation $\approx_L$ regards two finite words as equivalent exactly
+when no ultimately periodic word can tell them apart, whether they sit
+in the prefix or in the repeated block --- precisely the two roles $U$
+and $V$ play in every class product $UV^\omega$ of this chapter.  If
+$L$ is $\omega$-regular, $\sim_L$ and $\approx_L$ automatically have
+finite index, inherited from any recognizing automaton's
+$\approx_{\mathcal A}$.  The converse fails: finite index alone does
+not force regularity, saturation is still doing the real work.
+Pursuing this further leads to an algebraic characterization of
+$\omega$-regularity in terms of finite monoids, which is where
+Thomas's chapter goes next.
 \end{formaldetails}
 
 
@@ -1356,37 +1412,29 @@ those wholly outside the language.}
 
 \begin{proof}
 Let $\mathcal A$ be a B\"uchi automaton with $L=L(\mathcal A)$ and let
-$\approx_{\mathcal A}$ be the relation defined above.
+$\approx_{\mathcal A}$ be the relation defined above.  By
+\cref{lem:approx-a-properties}, $\approx_{\mathcal A}$ is a finite-index
+congruence that saturates $L$.  By
+\cref{cor:complement-from-saturation}, $\overline{L}$ is therefore
+$\omega$-regular --- this already proves the theorem's second sentence.
 
-\emph{Saturation.}  By \cref{lem:approx-a-properties}, each class product
-$UV^\omega$ either misses $L$ or is contained in $L$.  By
-\cref{prop:saturation-complement}, the same all-or-nothing property
-holds for $\overline{L}$.
-
-\emph{Coverage.}  By \cref{lem:ramsey-decomposition} applied to
-$\approx_{\mathcal A}$, every $\omega$-word $\alpha$ can be written as
-$u_0u_1u_2\cdots$ with $u_0\in U$ and $u_i\in V$ for $i\geq 1$, for some
-pair of $\approx_{\mathcal A}$-classes $(U,V)$ with $V\cdot V\subseteq V$.  Hence
-every $\alpha$ belongs to at least one class product $UV^\omega$.
-
-\emph{Conclusion.}  Split the finitely many class products into those
-contained in $L$ and those disjoint from $L$.  The latter are exactly
-those contained in $\overline{L}$, and every word of $\overline{L}$ lies
-in one of them.  Therefore
+To get the effective construction, spell out
+\cref{lem:complement-from-saturation}'s proof for $\overline L$
+directly.  Since $\approx_{\mathcal A}$ saturates $L$, and hence
+$\overline L$ (\cref{prop:saturation-complement}), every class product
+$UV^\omega$ is either contained in $L$ or disjoint from it; and the
+Ramsey decomposition (\cref{lem:ramsey-decomposition}) covers every
+$\omega$-word by some such product.  Therefore
 \[
   \overline{L}
   =
   \bigcup\{UV^\omega : UV^\omega\cap L=\emptyset\},
 \]
-a finite union.  Each class $U$ and $V$ is a regular finite-word language
-(recognized by an effectively constructible class automaton, as in
-\cref{lem:complement-from-saturation}), so each
-$UV^\omega$ is $\omega$-regular by \cref{thm:omega-basic-closure}, and
-finite unions of $\omega$-regular languages are $\omega$-regular.
-The $\approx_{\mathcal A}$-classes can be enumerated, their products constructed,
-and their intersections with $L(\mathcal A)$ tested for emptiness.  Hence the
-argument also yields the effective construction claimed in the
-statement; its steps are made explicit below.
+a finite union.  The $\approx_{\mathcal A}$-classes can be enumerated,
+their products constructed, and their intersections with $L(\mathcal
+A)$ tested for emptiness.  Hence the argument also yields the effective
+construction claimed in the statement; its steps are made explicit
+below.
 \end{proof}
 
 The following construction extracts that algorithm from the proof.  It
