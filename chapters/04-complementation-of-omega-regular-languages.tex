@@ -1358,30 +1358,23 @@ other \emph{first}, so that persistence is available to hand the class
 of the cumulative prefix down to every later gap.
 \end{counterpoint}
 
-\begin{takeaway}
-No matter how irregular an $\omega$-word looks --- even
-non-ultimately-periodic, like the growing-gap word above --- a
-finite-index congruence always finds a prefix class $U$ and a
-self-composable repeating class $V$ that reconstruct it as $UV^\omega$.
-Combined with saturation (\cref{lem:approx-a-properties}), this is what
-lets \cref{sec:omega-complement-theorem} classify \emph{every} infinite
-word by testing only finitely many class products.
-\end{takeaway}
-
-
 % ============================================================
 \section{Closure under Complement}
 \label{sec:omega-complement-theorem}
 % ============================================================
 
-We now assemble the pieces: the relation $\approx_{\mathcal A}$ of
-\cref{sec:automaton-congruence}, the saturation lemmas of
-\cref{sec:congruence-saturation}, and the Ramsey decomposition of
-\cref{sec:ramsey-decomposition}.  The local replacement argument in
-\cref{lem:approx-a-properties} gives saturation, while the Ramsey
-decomposition ensures that finitely many such class products cover every
-infinite word.  The complementation theorem is now a direct assembly of
-these results.
+The Ramsey decomposition applies to every $\omega$-word, including
+non-ultimately-periodic words such as the growing-gap word above.  It
+places each of them in a product $UV^\omega$, where $U$ and $V$ are
+classes of a finite-index congruence and $V\cdot V\subseteq V$.  Hence
+only finitely many such products are needed to cover all infinite words.
+
+We now combine this finite cover with the relation
+$\approx_{\mathcal A}$ of \cref{sec:automaton-congruence} and the
+saturation lemmas of \cref{sec:congruence-saturation}.  The local
+replacement argument in \cref{lem:approx-a-properties} makes each class
+product uniform with respect to acceptance, so the complementation
+theorem follows by classifying these finitely many products.
 
 \begin{example}[Saturation on the running automaton]
 \label{ex:saturation-running}
