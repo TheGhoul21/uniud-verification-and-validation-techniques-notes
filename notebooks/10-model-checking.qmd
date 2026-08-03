@@ -36,6 +36,6 @@ The theoretical foundations of model checking algorithms, state-space explosion 
 > [!TIP]
 > **Read the full chapter in the PDF**
 > 
-> For a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes.
+> For a deep dive into the algorithms that power modern formal verification tools, please refer to the accompanying notes developed from the course lectures.
 > <br><br>
 > [**Download the Full Lecture Notes (PDF)**](../main.pdf)

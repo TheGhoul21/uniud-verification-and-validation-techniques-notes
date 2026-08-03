@@ -27,7 +27,7 @@ While the first part of the course focuses on automata theory as a foundation, f
 
 ## Course Materials for LTL
 
-Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.
+Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the accompanying notes, developed from the course lectures.
 
 ### What you will learn in this chapter:
 - **LTL Syntax**: Propositional variables and temporal operators (Next, Until, Globally, Finally).

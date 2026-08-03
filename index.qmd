@@ -50,7 +50,7 @@ format:
     <div class="landing-intro-copy">
     <div class="uni-label">Università degli Studi di Udine · A.A. 2025–2026</div>
     <p class="desc">
-      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.
+      Personal lecture notes developed from the Verification and Validation Techniques lectures, with interactive companions.
     </p>
     <p class="desc">
       Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,
