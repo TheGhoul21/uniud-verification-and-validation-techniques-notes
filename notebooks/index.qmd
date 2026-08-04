@@ -158,10 +158,24 @@ through a chapter's notebooks alongside its
     <span class="card-title">Linear Temporal Logic (LTL)</span>
     <span class="card-desc">Syntax and semantics of temporal operators for verification</span>
   </a>
+</div>
+
+<div class="chapter-label">Chapter 7 · Reactive Systems, SMV &amp; Model Checking</div>
+<div class="card-grid">
   <a class="algo-card" href="10-model-checking.qmd">
     <span class="card-num">NB 10</span>
-    <span class="card-title">Model Checking Basics</span>
-    <span class="card-desc">Algorithmic verification of systems against temporal properties</span>
+    <span class="card-title">The Arbiter Kripke Structure</span>
+    <span class="card-desc">Click through the buggy/fixed arbiter and watch AG(request &rarr; AX busy) hold or break</span>
+  </a>
+  <a class="algo-card" href="25-smv-step-simulator.qmd">
+    <span class="card-num">NB 25</span>
+    <span class="card-title">SMV Step Simulator</span>
+    <span class="card-desc">Flip-flop, modulo-4 counter, and the five-digit mechanical counter, one next() at a time</span>
+  </a>
+  <a class="algo-card" href="26-fairness-sandbox.qmd">
+    <span class="card-num">NB 26</span>
+    <span class="card-title">Producer&ndash;Consumer Fairness Sandbox</span>
+    <span class="card-desc">Schedule producer/consumer steps yourself and watch an unfair run take shape</span>
   </a>
 </div>
 ```

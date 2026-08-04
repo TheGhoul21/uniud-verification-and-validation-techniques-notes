@@ -83,7 +83,7 @@ format:
       <a class="algo-card" href="notebooks/index.qmd">
         <span class="card-num">NOTEBOOKS</span>
         <span class="card-title">Interactive Notebooks</span>
-        <span class="card-desc">24 browser-based notebooks, grouped by chapter — from DFAs and subset construction to Büchi automata, ω-regular complementation, LTL, and model checking</span>
+        <span class="card-desc">26 browser-based notebooks, grouped by chapter — from DFAs and subset construction to Büchi automata, ω-regular complementation, LTL, and model checking</span>
       </a>
       <a class="algo-card" href="mindmaps/index.qmd">
         <span class="card-num">MAPS</span>

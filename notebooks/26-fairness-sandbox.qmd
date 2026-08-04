@@ -1,0 +1,241 @@
+---
+title: "Notebook 26: Producer–Consumer Fairness Sandbox"
+pagetitle: "Fairness Sandbox — Producer/Consumer, Justice & Compassion | VVT UniUD"
+description: "Schedule the producer and consumer processes yourself, one asynchronous step at a time, and watch what an unfair run looks like before it ever becomes an infinite counterexample."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 26: Producer–Consumer Fairness Sandbox",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# Producer–Consumer Fairness Sandbox
+
+Chapter 7's asynchronous producer&ndash;consumer example (`ex:prod-cons`) has a two-cell shared buffer. At each step, the scheduler runs *at most one* of the two processes; the other remains idle. This notebook lets you be the scheduler.
+
+- **Producer** fills the leftmost empty cell.
+- **Consumer** always empties cell 0; it keeps cell 1 only if cell 0 was non-empty just before running.
+
+The property to watch is $\mathbf{G}(\mathit{full} \to \mathbf{F}(\mathit{empty\_cell}))$: *whenever the buffer is full, some cell is eventually freed.* Without fairness, this is false&mdash;and you can build the exact schedule that breaks it.
+
+```{=html}
+<style>
+:root {
+  --fs-primary: #30bced;
+  --fs-primary-dark: #1f8fb7;
+  --fs-bg: #fffaff;
+  --fs-border: #d7d7dc;
+  --fs-text: #050401;
+  --fs-label: #303036;
+  --fs-warn-bg: #fee8e3;
+  --fs-warn-border: #fc5130;
+  --fs-ok-bg: #d4f7ef;
+  --fs-ok-border: #2ec4b6;
+}
+.fs-lab {
+  background: var(--fs-bg);
+  border: 1px solid var(--fs-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.fs-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.fs-btn {
+  border: 1px solid var(--fs-primary);
+  background: var(--fs-primary);
+  color: var(--fs-text);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.fs-btn.secondary { background: var(--fs-bg); color: var(--fs-primary-dark); }
+.fs-btn.warn { border-color: var(--fs-warn-border); color: #7a1f0d; background: #ffd9cf; }
+.fs-workspace {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(280px, 1.1fr);
+  gap: 16px;
+}
+@media (max-width: 820px) { .fs-workspace { grid-template-columns: 1fr; } }
+.fs-panel {
+  background: var(--fs-bg);
+  border: 1px solid var(--fs-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.fs-panel h4 {
+  margin: 0 0 10px; font-size: 0.85rem; color: var(--fs-label);
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.fs-buffer { display: flex; gap: 10px; margin-bottom: 10px; }
+.fs-cell {
+  width: 76px; height: 76px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; font-family: ui-monospace, monospace; font-weight: 700; font-size: 1.1rem;
+  background: #e8e8e8; border: 2px solid #999; color: var(--fs-text);
+}
+.fs-cell.filled { background: #daf3fc; border-color: #1f8fb7; }
+.fs-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.fs-badge {
+  font-family: ui-monospace, monospace; font-size: 0.78rem; font-weight: 700;
+  padding: 4px 10px; border-radius: 12px; border: 2px solid #999; background: #eee;
+}
+.fs-badge.enabled { background: var(--fs-ok-bg); border-color: var(--fs-ok-border); }
+.fs-badge.disabled { opacity: 0.5; }
+.fs-warning-box {
+  margin-top: 10px; border-radius: 8px; padding: 10px 14px;
+  font-family: ui-monospace, monospace; font-size: 0.88rem;
+}
+.fs-warning-ok { background: var(--fs-ok-bg); border: 2px dashed var(--fs-ok-border); }
+.fs-warning-bad { background: var(--fs-warn-bg); border: 2px dashed var(--fs-warn-border); }
+.fs-schedule-strip { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 160px; overflow-y: auto; }
+.fs-sched-step {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border-radius: 15px; font-family: ui-monospace, monospace; font-weight: 700; font-size: 0.85rem;
+  border: 2px solid #999; background: #e8e8e8;
+}
+.fs-sched-step.p { background: #ffe3b3; border-color: #e08a00; }
+.fs-sched-step.c { background: #daf3fc; border-color: #1f8fb7; }
+</style>
+
+<div class="fs-lab" id="nb26-w1">
+  <div class="fs-controls">
+    <button class="fs-btn" id="nb26-producer">Run Producer</button>
+    <button class="fs-btn" id="nb26-consumer">Run Consumer</button>
+    <button class="fs-btn warn" id="nb26-producer10">Run Producer &times;10</button>
+    <button class="fs-btn secondary" id="nb26-reset">Reset</button>
+  </div>
+
+  <div class="fs-workspace">
+    <div class="fs-panel">
+      <h4>Buffer</h4>
+      <div class="fs-buffer" id="nb26-buffer"></div>
+      <div class="fs-badges" id="nb26-badges"></div>
+      <div id="nb26-warning"></div>
+    </div>
+    <div class="fs-panel">
+      <h4>Schedule so far</h4>
+      <div class="fs-schedule-strip" id="nb26-schedule"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let buffer = ['empty', 'empty'];
+  let schedule = [];
+  let objCounter = 0;
+  let sinceLastFree = 0; // consecutive steps the buffer has been full, right after the step
+  const STARVE_THRESHOLD = 5;
+
+  function nextLabel() {
+    objCounter = (objCounter % 3) + 1;
+    return 'o' + objCounter;
+  }
+
+  function producerEnabled(buf) { return buf.includes('empty'); }
+  function consumerEnabled(buf) { return buf.some(c => c !== 'empty'); }
+  function isFull(buf) { return buf[0] !== 'empty' && buf[1] !== 'empty'; }
+
+  function producerStep(buf) {
+    const b0 = buf[0], b1 = buf[1];
+    const label = nextLabel();
+    const n0 = b0 === 'empty' ? label : b0;
+    const n1 = (b0 !== 'empty' && b1 === 'empty') ? label : b1;
+    return [n0, n1];
+  }
+
+  function consumerStep(buf) {
+    const b0 = buf[0];
+    const n0 = 'empty';
+    const n1 = b0 !== 'empty' ? buf[1] : 'empty';
+    return [n0, n1];
+  }
+
+  function runOne(kind) {
+    buffer = kind === 'P' ? producerStep(buffer) : consumerStep(buffer);
+    schedule.push(kind);
+    sinceLastFree = isFull(buffer) ? sinceLastFree + 1 : 0;
+    render();
+  }
+
+  function runProducerTen() {
+    for (let i = 0; i < 10; i++) runOne('P');
+  }
+
+  function reset() {
+    buffer = ['empty', 'empty'];
+    schedule = [];
+    objCounter = 0;
+    sinceLastFree = 0;
+    render();
+  }
+
+  function render() {
+    const bufEl = document.getElementById('nb26-buffer');
+    bufEl.innerHTML = '';
+    buffer.forEach((c, i) => {
+      const div = document.createElement('div');
+      div.className = 'fs-cell' + (c !== 'empty' ? ' filled' : '');
+      div.textContent = c === 'empty' ? '—' : c;
+      bufEl.appendChild(div);
+    });
+
+    const pEn = producerEnabled(buffer), cEn = consumerEnabled(buffer);
+    document.getElementById('nb26-badges').innerHTML = `
+      <span class="fs-badge ${pEn ? 'enabled' : 'disabled'}">producer enabled: ${pEn}</span>
+      <span class="fs-badge ${cEn ? 'enabled' : 'disabled'}">consumer enabled: ${cEn}</span>
+    `;
+
+    const warnEl = document.getElementById('nb26-warning');
+    if (sinceLastFree >= STARVE_THRESHOLD) {
+      warnEl.innerHTML = `<div class="fs-warning-box fs-warning-bad">Buffer has stayed full for ${sinceLastFree} consecutive steps. Keep running only the Producer and this is exactly the unfair run from Example (fairness in the producer&ndash;consumer): the scheduler always picks Producer, <code>consumer.running</code> is enabled at every step but never taken&mdash;this violates justice, and if it continued forever, G(full &rarr; F(empty_cell)) would be false.</div>`;
+    } else {
+      warnEl.innerHTML = `<div class="fs-warning-box fs-warning-ok">No sustained starvation yet. (This notebook can only show a growing <em>finite</em> prefix&mdash;fairness itself is a property of the infinite continuation, exactly the caveat in the chapter.)</div>`;
+    }
+
+    const schedEl = document.getElementById('nb26-schedule');
+    schedEl.innerHTML = '';
+    schedule.forEach(k => {
+      const span = document.createElement('span');
+      span.className = 'fs-sched-step ' + k.toLowerCase();
+      span.textContent = k;
+      schedEl.appendChild(span);
+    });
+    schedEl.scrollTop = schedEl.scrollHeight;
+  }
+
+  document.getElementById('nb26-producer').addEventListener('click', () => runOne('P'));
+  document.getElementById('nb26-consumer').addEventListener('click', () => runOne('C'));
+  document.getElementById('nb26-producer10').addEventListener('click', runProducerTen);
+  document.getElementById('nb26-reset').addEventListener('click', reset);
+
+  render();
+})();
+</script>
+```
+
+## What to try
+
+1. **Fill the buffer, then click "Run Producer ×10".** The buffer is already full, so every extra producer step changes nothing&mdash;but the warning box still fires, because `consumer.running` stays enabled (the buffer has a non-empty cell) and is never taken. That is exactly the justice violation from the chapter's fairness example: continued forever, this schedule refutes $\mathbf{G}(\mathit{full} \to \mathbf{F}(\mathit{empty\_cell}))$.
+2. **Alternate Producer/Consumer by hand.** The buffer should never sit full for long, and the warning box should stay green.
+3. **Notice what the badges track.** "Producer enabled" and "consumer enabled" are exactly the formal `Enabled` predicate from the chapter's fairness definitions (`def:enabled`)&mdash;a process being enabled is a fact about the *current* state, independent of whether the scheduler actually picks it.
+
+> [!TIP]
+> **Read the full chapter in the PDF**
+>
+> For the formal definitions of enabled/taken states, justice, and compassion that this sandbox visualizes, see Chapter 7, §"Fairness Constraints".
+> <br><br>
+> [**Download the Full Lecture Notes (PDF)**](../main.pdf)

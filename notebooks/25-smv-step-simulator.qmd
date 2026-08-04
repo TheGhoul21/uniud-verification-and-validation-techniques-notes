@@ -1,0 +1,265 @@
+---
+title: "Notebook 25: SMV Step Simulator"
+pagetitle: "SMV Step Simulator — Flip-Flop, Modulo-4 Counter, Mechanical Counter | VVT UniUD"
+description: "Step through three SMV models from the lecture notes one transition at a time: the flip-flop, the modulo-4 counter, and the five-digit mechanical counter with carry and reset."
+format:
+  html:
+    toc: true
+    toc-depth: 2
+---
+
+```{=html}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 25: SMV Step Simulator",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+```
+
+# SMV Step Simulator
+
+Chapter 7 introduces SMV by simulating small models one `next()` step at a time. This notebook is a hands-on version of that same simulation loop for the three running examples of the chapter: the **flip-flop**, the **modulo-4 counter**, and the **five-digit mechanical counter** with carry propagation and a reset input.
+
+Each click computes `next(v)` from the current valuation of every variable, exactly as the `ASSIGN` block specifies&mdash;there is no lookahead and no hidden state beyond what's shown.
+
+```{=html}
+<style>
+:root {
+  --sm-primary: #30bced;
+  --sm-primary-dark: #1f8fb7;
+  --sm-bg: #fffaff;
+  --sm-border: #d7d7dc;
+  --sm-text: #050401;
+  --sm-label: #303036;
+}
+.sm-lab {
+  background: var(--sm-bg);
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.sm-toggle {
+  display: inline-flex;
+  border: 1px solid var(--sm-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.sm-toggle button {
+  border: none;
+  background: var(--sm-bg);
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: var(--sm-label);
+}
+.sm-toggle button.active { background: var(--sm-primary); color: var(--sm-text); }
+.sm-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.sm-btn {
+  border: 1px solid var(--sm-primary);
+  background: var(--sm-primary);
+  color: var(--sm-text);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+.sm-btn.secondary { background: var(--sm-bg); color: var(--sm-primary-dark); }
+.sm-check-label {
+  display: flex; align-items: center; gap: 6px;
+  font-family: ui-monospace, monospace; font-size: 0.9rem; color: var(--sm-label);
+}
+.sm-panel {
+  background: var(--sm-bg);
+  border: 1px solid var(--sm-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.sm-digits { display: flex; gap: 6px; margin: 10px 0; flex-wrap: wrap; }
+.sm-digit {
+  width: 44px; height: 54px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  font-family: ui-monospace, monospace;
+  font-size: 1.4rem; font-weight: 700;
+  background: #daf3fc; border: 2px solid #1f8fb7; color: var(--sm-text);
+}
+.sm-digit.carried { background: #ffe3b3; border-color: #e08a00; }
+.sm-carry-label { font-size: 0.7rem; text-align: center; color: var(--sm-label); margin-bottom: 2px; }
+.sm-trace-strip { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-height: 140px; overflow-y: auto; }
+.sm-trace-step {
+  padding: 4px 8px; border-radius: 14px;
+  font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700;
+  border: 2px solid #999; background: #e8e8e8; white-space: nowrap;
+}
+.sm-code {
+  background: #f4f4f6; border: 1px solid var(--sm-border); border-radius: 8px;
+  padding: 10px 12px; font-family: ui-monospace, monospace; font-size: 0.82rem;
+  white-space: pre; overflow-x: auto; margin-bottom: 10px;
+}
+</style>
+
+<div class="sm-lab" id="nb25-w1">
+  <div class="sm-toggle" id="nb25-model-toggle">
+    <button data-model="flipflop" class="active">Flip-flop</button>
+    <button data-model="mod4">Modulo-4 counter</button>
+    <button data-model="mechcounter">Mechanical counter (5 digits)</button>
+  </div>
+
+  <div class="sm-code" id="nb25-code"></div>
+
+  <div class="sm-controls">
+    <button class="sm-btn" id="nb25-step">Step</button>
+    <button class="sm-btn secondary" id="nb25-reset">Reset</button>
+    <label class="sm-check-label" id="nb25-reset-ivar-wrap" style="display:none;">
+      <input type="checkbox" id="nb25-reset-ivar"> push <code>reset</code> on next step
+    </label>
+  </div>
+
+  <div class="sm-panel">
+    <h4 style="margin:0 0 10px;font-size:0.85rem;color:var(--sm-label);text-transform:uppercase;letter-spacing:.04em;">Current state</h4>
+    <div id="nb25-state-display"></div>
+    <h4 style="margin:14px 0 6px;font-size:0.85rem;color:var(--sm-label);text-transform:uppercase;letter-spacing:.04em;">Trace</h4>
+    <div class="sm-trace-strip" id="nb25-trace"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const CODE = {
+    flipflop: `MODULE main
+VAR   x : boolean;
+ASSIGN
+  init(x) := FALSE;
+  next(x) := !x;`,
+    mod4: `MODULE main
+VAR   x : 0..3;
+ASSIGN
+  init(x) := 0;
+  next(x) := (x + 1) mod 4;`,
+    mechcounter: `MODULE cell(carry_in, reset)
+VAR   value : 0..9;
+DEFINE carry_out := (value = 9) & carry_in;
+ASSIGN
+  init(value) := 0;
+  next(value) := case
+    reset    : 0;
+    carry_in : (value + 1) mod 10;
+    TRUE     : value;
+  esac;
+-- d0.carry_in is always TRUE; d(i).carry_in := d(i-1).carry_out`,
+  };
+
+  let model = 'flipflop';
+  let flip = false;
+  let mod4 = 0;
+  let digits = [0, 0, 0, 0, 0];
+  let trace = [];
+
+  function initialLabel() {
+    if (model === 'flipflop') return 'x = FALSE';
+    if (model === 'mod4') return 'x = 0';
+    return '00000';
+  }
+
+  function reset() {
+    flip = false;
+    mod4 = 0;
+    digits = [0, 0, 0, 0, 0];
+    trace = [initialLabel()];
+    document.getElementById('nb25-reset-ivar').checked = false;
+    render();
+  }
+
+  function step() {
+    if (model === 'flipflop') {
+      flip = !flip;
+      trace.push('x = ' + (flip ? 'TRUE' : 'FALSE'));
+    } else if (model === 'mod4') {
+      mod4 = (mod4 + 1) % 4;
+      trace.push('x = ' + mod4);
+    } else {
+      const pushReset = document.getElementById('nb25-reset-ivar').checked;
+      if (pushReset) {
+        digits = [0, 0, 0, 0, 0];
+      } else {
+        let carry = true; // d0.carry_in is always TRUE
+        for (let i = 0; i < digits.length; i++) {
+          const carryIn = carry;
+          carry = (digits[i] === 9) && carryIn; // carry_out, computed before update
+          digits[i] = carryIn ? (digits[i] + 1) % 10 : digits[i];
+        }
+      }
+      document.getElementById('nb25-reset-ivar').checked = false;
+      trace.push((pushReset ? '[reset] ' : '') + digits.slice().reverse().join(''));
+    }
+    render();
+  }
+
+  function renderStateDisplay() {
+    const el = document.getElementById('nb25-state-display');
+    if (model === 'flipflop') {
+      el.innerHTML = `<div class="sm-digits"><div class="sm-digit">${flip ? 'T' : 'F'}</div></div>`;
+    } else if (model === 'mod4') {
+      el.innerHTML = `<div class="sm-digits"><div class="sm-digit">${mod4}</div></div>`;
+    } else {
+      let html = '<div class="sm-digits">';
+      for (let i = digits.length - 1; i >= 0; i--) {
+        html += `<div class="sm-digit">${digits[i]}</div>`;
+      }
+      html += '</div>';
+      html += '<div style="font-size:0.8rem;color:var(--sm-label);">Read left to right as d&#8324;d&#8323;d&#8322;d&#8321;d&#8320; (most-significant digit first); d&#8320; is the least-significant digit and carries ripple left as digits wrap from 9 to 0.</div>';
+      el.innerHTML = html;
+    }
+  }
+
+  function render() {
+    document.getElementById('nb25-code').textContent = CODE[model];
+    document.getElementById('nb25-reset-ivar-wrap').style.display = model === 'mechcounter' ? 'flex' : 'none';
+    renderStateDisplay();
+    const traceEl = document.getElementById('nb25-trace');
+    traceEl.innerHTML = '';
+    trace.forEach(s => {
+      const span = document.createElement('span');
+      span.className = 'sm-trace-step';
+      span.textContent = s;
+      traceEl.appendChild(span);
+    });
+    traceEl.scrollTop = traceEl.scrollHeight;
+  }
+
+  document.querySelectorAll('#nb25-model-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      model = b.dataset.model;
+      document.querySelectorAll('#nb25-model-toggle button').forEach(x => x.classList.toggle('active', x === b));
+      reset();
+    });
+  });
+  document.getElementById('nb25-step').addEventListener('click', step);
+  document.getElementById('nb25-reset').addEventListener('click', reset);
+
+  reset();
+})();
+</script>
+```
+
+## What to try
+
+1. **Flip-flop and modulo-4 counter** are both fully deterministic&mdash;every click has exactly one possible outcome, matching `ex:flipflop` and `sec:smv-mod4` in the chapter.
+2. **Mechanical counter, no reset.** Click `Step` nine times and watch `d0` climb from `0` to `9`; on the tenth click, `d0` wraps to `0` and `carry_out` becomes true for one step, which is exactly what pushes `d1` from `0` to `1`. This is the carry-propagation logic from `sec:mech-counter` made visible one digit at a time.
+3. **Push reset mid-count.** Tick "push `reset` on next step" after a few increments, then click `Step`&mdash;every digit snaps back to `0` in a single transition, exactly as `IVAR reset` is modelled: an environment input, unconstrained until the moment you choose its value.
+
+> [!TIP]
+> **Read the full chapter in the PDF**
+>
+> For the `ASSIGN`/`case` semantics behind every step here, see Chapter 7, §"The SMV Modelling Language" and §"Modules: Hierarchical Modelling".
+> <br><br>
+> [**Download the Full Lecture Notes (PDF)**](../main.pdf)
