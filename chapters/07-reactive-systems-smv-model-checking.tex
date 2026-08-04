@@ -99,10 +99,17 @@ While real-world reactive systems are almost always open, we often analyze them 
 \subsection{The cost of failure}
 
 Reactive systems are frequently deployed in safety-critical domains where
-defects can be fatal or exceptionally costly.  We return to the historical
-record in \cref{sec:mc-problem}, where the failures of the Therac-25,
-Ariane~5, and the Pentium FDIV bug motivate the model-checking
-workflow directly.
+defects can be fatal or exceptionally costly.
+
+\begin{quote}
+``It is fair to state that, in this digital era, correct systems for
+information processing are more valuable than gold.''\\
+\mbox{}\hfill---Henk Barendregt, 50th-anniversary address, CWI Amsterdam.
+\end{quote}
+
+We return to the historical record in \cref{sec:mc-problem}, where the
+failures of the Therac-25, Ariane~5, and the Pentium FDIV bug motivate the
+model-checking workflow directly.
 
 % -----------------------------------------------------------------------
 \section{The Model Checking Problem}
@@ -133,6 +140,24 @@ finiteness of $M$.  Crucially, the answer is not a probabilistic
 guarantee but a mathematical theorem that holds for every possible
 execution, including those driven by an adversarial environment.
 
+\begin{remark}[Formal statement, for a temporal logic $\varphi$]
+Fix a Kripke structure $M = (AP, Q, Q_0, R, L)$ and a state $s \in Q$.
+Writing $A$ for the universal (``for all paths'') quantifier of
+\cref{sec:ltl-ctl-overview}, we say
+\[
+  M, s \models A\varphi
+\]
+iff \emph{every} path of $M$ starting at $s$ is a model of $\varphi$.  The
+\emph{model checking problem for $\varphi$} (e.g., LTL-MC for LTL
+formulas) is then the problem of deciding $M, s \models A\varphi$ for a
+given initial state $s \in Q_0$; we abbreviate this to $M, s \models
+\varphi$ throughout the chapter, since here the universal reading is the
+only one we use unless stated otherwise.  LTL-MC is
+\textbf{PSPACE-complete} (Sistla and Clarke, 1985); we return to this
+result, and to its CTL and CTL* counterparts, in
+\cref{sec:ltl-ctl-overview}.
+\end{remark}
+
 Three features distinguish model checking from other verification approaches.
 
 \begin{enumerate}
@@ -144,7 +169,10 @@ Three features distinguish model checking from other verification approaches.
   \item \textbf{Exhaustive.}  Unlike testing, which covers a finite sample of
         behaviours, model checking verifies \emph{all} possible behaviours.
         If the tool says ``satisfied'', the property holds in every execution,
-        for every possible environment input, with 100\% coverage.
+        for every possible environment input, with 100\% coverage.  As
+        Dijkstra observed, ``program testing can be used to show the presence
+        of bugs, but never to show their absence''---model checking is
+        designed to remove precisely this limitation.
   \item \textbf{Counter-example generation.}  When the property is violated,
         the model checker produces a concrete execution trace starting from an
         initial state and ending at the faulty behaviour.  This trace can be
@@ -309,6 +337,11 @@ software failures whose costs---in human lives and money---were enormous.
     \node[above right, font=\tiny\sffamily, text=tomato!85!black]
           at (5.1,3.8) {cost to fix};
 
+    % Relative cost-to-fix multipliers along the curve (after Capers Jones)
+    \foreach \x/\m in {1.4/1, 2.1/4, 3/10, 4/40, 5/640}
+      \node[right, xshift=4pt, font=\tiny\sffamily, text=tomato!80!black]
+            at (\x, {0.05*exp(0.9*(\x-0.4))}) {$\m\times$};
+
     % Synthesis annotation: eliminate defects at the design phase
     \draw[synth] (0.7,4.05) -- (0.7,1.55);
     \node[above, font=\tiny\sffamily, text=vvviolet!88!black, align=center]
@@ -317,15 +350,96 @@ software failures whose costs---in human lives and money---were enormous.
   \caption{The cost to fix a defect grows exponentially with the development
            phase in which it is discovered.  The majority of defects are
            injected during coding, but the cost of fixing them after release
-           is orders of magnitude higher.  Synthesis aims to eliminate bugs
-           at the design phase entirely.}
+           is orders of magnitude higher.  The relative multipliers ($1\times$
+           during coding up to $640\times$ after release) are the classic
+           figures reported by Capers Jones, \emph{Applied Software
+           Measurement}.  Synthesis aims to eliminate bugs at the design phase
+           entirely.}
   \label{fig:cost-curve}
 \end{figure}
 
-The theoretical groundwork for model checking was laid by Pnueli (1977), who
-introduced temporal logic for reactive programs, and by Clarke and Emerson
-(1980), who proved that the model-checking problem for CTL is decidable and
-gave the first algorithm.  All three received the ACM Turing Award in 2007.
+The theoretical groundwork spans four decades of milestones:
+
+\begin{description}
+  \item[1949 (Turing).] \emph{Mathematical program correctness.}  Turing's
+        unpublished note (rediscovered and annotated by Morris and Jones,
+        1984) is the earliest known program-correctness proof, arguing by
+        hand that a small program computes the intended result.
+  \item[1969 (Hoare).] \emph{A syntax-based technique for sequential
+        programs.}  Hoare logic asks, for a given input, whether a program
+        produces the correct output, via compositional proof rules
+        expressed in predicate logic (\cref{fig:hoare-rules}).  This is the
+        deductive-methods tradition referenced in
+        \cref{sec:formal-methods-context}.
+  \item[1977 (Pnueli).] \emph{A syntax-based technique for concurrent
+        programs.}  Temporal logic extends the proof-rule approach to
+        properties that refer to states \emph{during} an infinite
+        computation, not just to input/output pairs---exactly the
+        reactive-system viewpoint of \cref{sec:reactive-why}.
+  \item[1980 (Clarke, Emerson, et al.).] \emph{Automated verification of
+        concurrent programs.}  Model-based, rather than proof-rule-based:
+        does the concurrent program satisfy a given logical property,
+        decided automatically?  This is the origin of model checking.
+\end{description}
+
+Pnueli received the ACM Turing Award in 1996 for bringing temporal logic
+into program verification; Clarke, Emerson, and Sifakis shared the 2007
+Turing Award for developing model checking into a verification technology
+now widely adopted across the hardware and software industries.
+
+\begin{figure}[ht]
+  \centering
+  \[
+    \begin{array}{c}
+      \{p\}\ \texttt{skip}\ \{p\}
+      \qquad\qquad
+      \{p[x \mapsto t]\}\ x := t\ \{p\}
+      \\[2ex]
+      \dfrac{\{p\}\ S_1\ \{r\} \qquad \{r\}\ S_2\ \{q\}}
+            {\{p\}\ S_1; S_2\ \{q\}}
+      \\[2ex]
+      \dfrac{\{p \wedge b\}\ S_1\ \{q\} \qquad \{p \wedge \neg b\}\ S_2\ \{q\}}
+            {\{p\}\ \texttt{if } b \texttt{ then } S_1 \texttt{ else } S_2\ \{q\}}
+      \\[2ex]
+      \dfrac{\{p \wedge b\}\ S\ \{p\}}
+            {\{p\}\ \texttt{while } b \texttt{ do } S\ \{p \wedge \neg b\}}
+      \qquad\qquad
+      \dfrac{\{p_1\}\ S\ \{q_1\}}{\{p\}\ S\ \{q\}} \ \ (p \Rightarrow p_1,\ q_1 \Rightarrow q)
+    \end{array}
+  \]
+  \caption{Hoare logic proof rules for partial correctness: skip,
+           assignment, sequential composition, conditional, loop, and the
+           rule of consequence.  Each rule concludes a Hoare triple
+           $\{p\}\,S\,\{q\}$ (``if $p$ holds before $S$ runs and $S$
+           terminates, then $q$ holds after'') from triples for its
+           sub-statements.  Unlike model checking, applying these rules to
+           a real program is a manual, creative act: the engineer must
+           supply the loop invariant $p$.}
+  \label{fig:hoare-rules}
+\end{figure}
+
+\subsection{Model checking in practice}
+
+The incidents above motivated the field; the following successes show what it
+now delivers.
+\begin{itemize}
+  \item \textbf{Security protocols.}  A flaw in the Needham--Schroeder
+        public-key authentication protocol went unnoticed for \emph{seventeen
+        years} until Lowe (1996) exposed a man-in-the-middle attack with a
+        model checker---a bug no amount of manual inspection had caught.
+  \item \textbf{Transportation.}  Railway interlocking systems have been
+        verified against models with more than $10^{476}$ states, a scale that
+        only symbolic techniques make tractable and a stark reminder of the
+        state-explosion problem.
+  \item \textbf{Systems software.}  Model checkers for C, Java, and C++ are
+        used and developed at Microsoft, NASA, and FBK; device
+        drivers---a notorious source of operating-system crashes---are a
+        particularly successful application area.
+  \item \textbf{Spacecraft.}  Model checking has been applied to the flight
+        software of NASA's Mars Pathfinder and Deep Space-1 and by the JPL
+        LARS group, where a single latent bug can mean the loss of the
+        mission.
+\end{itemize}
 
 \subsection{Verification vs.\ validation}
 
@@ -341,6 +455,7 @@ Two terms that appear together but mean different things:
 \end{itemize}
 
 \subsection{The state-explosion problem}
+\label{sec:state-explosion}
 
 Consider a system with $n$ Boolean state variables.  Each assignment of those
 variables is a distinct state, so the state space has size $2^n$.
@@ -382,6 +497,13 @@ The most abstract model we use is the \emph{Kripke structure}, the formal
 counterpart of the ``state machine'' idea.  All the concrete modelling
 languages we will see---SMV, NuSMV, and others---ultimately produce Kripke
 structures as their semantic objects.
+
+\medskip\noindent
+\textbf{Expressivity.}  The reach of this one abstraction is what makes
+model checking widely applicable: sequential programs, multi-threaded
+programs, communicating processes, and hardware circuits are all, at
+bottom, transition systems---so the same Kripke-structure semantics and the
+same model-checking algorithms apply uniformly to all of them.
 
 \begin{definition}[Kripke structure / transition system]
 \label{def:kripke}
@@ -1723,7 +1845,44 @@ chapters turn these names into full syntax, semantics, and algorithms.
 single \emph{infinite path} (a linear sequence of states).  Operators include
 $\mathbf{X}$ (next), $\mathbf{U}$ (until), and their derived forms
 $\mathbf{F}$ (eventually) and $\mathbf{G}$ (always).  Model checking LTL is
-\textbf{PSPACE-complete}.
+\textbf{PSPACE-complete} (Sistla and Clarke, 1985).  Practically important
+variants extend LTL beyond discrete Boolean traces: \emph{real-time LTL} adds
+metric timing constraints, \emph{Signal Temporal Logic} (STL) reasons over
+continuous real-valued signals, and \emph{LTL modulo theories} embeds
+first-order constraints drawn from an SMT theory.
+
+\begin{example}[LTL model checking, worked by hand]
+\label{ex:ltl-worked}
+Let $M$ have four states $q_0, q_1, q_2, q_3$ with
+$L(q_i) = \{p_i\}$, initial state $q_0$, and transitions
+$q_0 \to q_1 \to q_2$, a self-loop $q_2 \to q_2$, and $q_2 \to q_3 \to q_0$
+(so $q_2$ has \emph{two} successors: itself, or $q_3$).  We check three
+formulas along the same initial path, growing in temporal depth.
+\begin{itemize}
+  \item $\mathbf{G}\bigl(\bigwedge_{i=0}^{3}(p_i \to
+        \mathbf{X}\bigvee_{j \neq i} p_j)\bigr)$---``the state always
+        changes at the next step''---is \textbf{false}: the finite path
+        $\langle q_0, q_1, q_2, q_2\rangle$ already witnesses a violation
+        (a safety property, by \cref{def:safety}: the self-loop at $q_2$ is
+        a finite bad prefix).
+  \item $\mathbf{F}(p_3)$---``$p_3$ eventually holds''---is \textbf{false}:
+        the lasso $\langle q_0, q_1\rangle \cdot (q_2)^\omega$ loops forever
+        on the self-loop and never reaches $q_3$ (a liveness property, by
+        \cref{def:liveness}: only an infinite witness refutes it, matching
+        \cref{sec:counterexamples}).
+  \item $\mathbf{FG}(p_2)$---``eventually $p_2$ holds forever''---is
+        \textbf{also false}, but needs a \emph{different} lasso:
+        $(\langle q_0, q_1, q_2, q_3\rangle)^\omega$ keeps returning to
+        $q_2$ but never stays there, since it always continues on to
+        $q_3$.  The first counterexample above does not refute
+        $\mathbf{FG}(p_2)$ (it \emph{does} eventually stay in $p_2$
+        forever), which is why a different path is required here.
+\end{itemize}
+The exercise generalises: every LTL counterexample on a finite Kripke
+structure is ultimately periodic (\cref{sec:counterexamples}), and
+different formulas over the \emph{same} structure can demand structurally
+different lassos.
+\end{example}
 
 \paragraph{Computation Tree Logic (CTL).}  Formulas are evaluated on the
 \emph{computation tree}---the tree of all paths branching from each state.
@@ -1784,6 +1943,37 @@ specific question ``does this finite model satisfy this formal property?''
 
 \subsection{Three categories of formal methods}
 
+Each category is best characterised by its \emph{method}, the \emph{tool}
+that automates it (if any), and the condition under which it is
+\emph{applicable} to a given system:
+
+\begin{center}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabular}{p{2.6cm} p{4.6cm} p{4.6cm}}
+    \toprule
+    & \textbf{Deductive methods} & \textbf{Model checking} \\
+    \midrule
+    \emph{method} & provide a formal proof that $P$ holds &
+      systematically check $P$ on all states \\
+    \emph{tool} & theorem prover / proof assistant / proof checker &
+      model checker (Spin, NuSMV, UppAal, \ldots) \\
+    \emph{applicable if} & the system has the form of a mathematical
+      theory & the system generates a (finite) behavioural model \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  \begin{tabular}{p{2.6cm} p{9.6cm}}
+    \toprule
+    & \textbf{Model-based simulation or testing} \\
+    \midrule
+    \emph{method} & test for $P$ by exploring possible behaviours \\
+    \emph{tool} & simulator / test harness (application-specific) \\
+    \emph{applicable if} & the system defines an executable model \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
 \begin{enumerate}
   \item \textbf{Deductive methods} (e.g., Hoare logic, dating back to
         Turing and Floyd): provide a formal proof that a property holds by
@@ -1792,12 +1982,42 @@ specific question ``does this finite model satisfy this formal property?''
         automated for large systems.
   \item \textbf{Simulation and testing}: unit testing, integration testing,
         functional testing.  Fast and widely used but \emph{incomplete}: a
-        bug can hide in any unexplored behaviour.
+        bug can hide in any unexplored behaviour.  Concretely, the
+        procedure is: take a model (simulation) or a real realisation
+        (testing); stimulate it with certain inputs, i.e., the test cases;
+        observe the reaction and check whether it is the ``desired'' one.
+        The important drawbacks mirror the state-explosion problem in
+        reverse: the number of possible behaviours is very large (or even
+        infinite), an unexplored behaviour may contain the fatal bug, and
+        so testing or simulation can only show the \emph{presence} of
+        errors, never their \emph{absence}.
   \item \textbf{Model checking}: systematic, automatic, exhaustive.
         Combines the rigour of deductive methods with the automation of
         testing.  Used daily at NASA, ESA, Intel, Boeing, and major software
         companies.
 \end{enumerate}
+
+\subsection{Reviews, inspections, and testing in practice}
+
+Before reaching for model checking, engineers routinely apply lighter-weight
+techniques, each targeting a different stage of the development pipeline
+(recall \cref{fig:cost-curve}):
+\begin{itemize}
+  \item \textbf{Reviews and inspections}: a group of people examine
+        software documentation, code, or design to identify defects,
+        inconsistencies, or areas for improvement---e.g., code reviews,
+        design reviews, and walkthroughs.  Purely manual, but cheap and
+        effective early in the pipeline.
+  \item \textbf{Unit testing}: individual components or units of code are
+        tested in isolation to ensure they behave as expected; developers
+        write test cases that exercise specific functions or modules
+        (e.g., with \texttt{JUnit} or \texttt{pytest}).
+  \item \textbf{Integration testing}: verifies the interaction between
+        different modules or components of a software system, ensuring
+        that the integrated units work together seamlessly as intended.
+\end{itemize}
+None of these reasons about the infinite behaviours of a reactive system;
+that is precisely the gap model checking fills.
 
 \subsection{Static analysis and abstract interpretation}
 
@@ -1811,6 +2031,59 @@ Two additional techniques deserve mention:
         analysis based on approximating the program semantics.  Closely
         related to the notion of over-approximation used in symbolic model
         checking.
+\end{itemize}
+
+\subsection{The three-phase model checking process}
+\label{sec:mc-process}
+
+In practice, applying \cref{fig:mc-flow} to a real system unfolds in three
+phases:
+\begin{enumerate}
+  \item \textbf{Modelling phase.}  Model the system under consideration; as
+        a first sanity check, run some simulations on it before ever
+        invoking the model checker.  Formalise the property to be checked,
+        and sanity-check \emph{it} too (\cref{sec:mc-problem} already
+        warned about vacuously true specifications).
+  \item \textbf{Running phase.}  Run the model checker to decide whether the
+        property holds of the model.
+  \item \textbf{Analysis phase.}  Three outcomes, matching the three exits
+        of \cref{fig:mc-flow}: if satisfied, move on to the next property
+        (if any); if violated, analyse the generated counterexample by
+        simulation, then refine the model, the design, or the property and
+        repeat the whole procedure; if the tool runs out of memory, try to
+        reduce the model (\cref{sec:state-explosion}) and try again.
+\end{enumerate}
+
+\subsection{Pros and cons of model checking}
+
+\textbf{Advantages.}
+\begin{itemize}[nosep]
+  \item Widely applicable: hardware, software, protocol systems, and more.
+  \item Allows for \emph{partial} verification: only the most relevant
+        properties need to be checked, not the entire system at once.
+  \item A potential ``push-button'' technology once the model and the
+        specification are in place.
+  \item Rapidly increasing industrial interest and tool support.
+  \item In case of a property violation, a counterexample is provided.
+  \item Sound and interesting mathematical foundations.
+  \item Not biased towards the most probable scenarios, unlike testing,
+        which tends to exercise common paths more than rare ones.
+\end{itemize}
+
+\textbf{Limitations.}
+\begin{itemize}[nosep]
+  \item Focuses mainly on \emph{control-intensive} applications
+        (reactive systems); less suited to data-oriented computation.
+  \item Model checking is only as ``good'' as the system model: an
+        unfaithful model of the system's interaction with its environment
+        (signals from sensors in, signals to actuators out) yields
+        guarantees about the model, not about the real system.
+  \item No guarantee about the \emph{completeness} of the results relative
+        to the informal requirements---this is exactly the
+        verification/validation distinction of \cref{sec:mc-problem}.
+  \item Impossible, in general, to check \emph{generalisations} (e.g., ``the
+        protocol is correct for any number $N$ of participants''): a model
+        checker verifies one fixed, finite instance at a time.
 \end{itemize}
 
 \subsection{The verification--synthesis spectrum}
