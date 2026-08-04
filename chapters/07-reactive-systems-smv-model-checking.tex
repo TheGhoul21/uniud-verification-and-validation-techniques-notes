@@ -1145,6 +1145,38 @@ on $s_0$.
   \end{tabular}
 \end{center}
 
+\begin{example}[Bounded counter as a disjunction of guards]
+\label{ex:bounded-counter-trans}
+A shared counter $x \in \{0, \ldots, 200\}$ is acted on by three
+informally-stated behaviours: increment while below the ceiling, decrement
+while above zero, and reset to zero once the ceiling is reached.
+Rather than writing three separate processes, the \texttt{TRANS} paradigm
+lets us state the combined next-state relation directly, as a disjunction
+of three mutually exclusive guarded updates:
+\begin{verbatim}
+MODULE main
+VAR
+  x : 0..200;
+INIT
+  x = 199;
+TRANS
+  (x < 200 & next(x) = x + 1)  |
+  (x > 0   & next(x) = x + (-1)) |
+  (x = 200 & next(x) = 0);
+\end{verbatim}
+Each disjunct is guarded, and the three guards are non-overlapping except
+at the boundary $x=200$ (where both the decrement and the reset guards
+hold, so \texttt{next(x)} may non-deterministically be $199$ or $0$).
+Because every disjunct's guard already restricts \texttt{next(x)} to
+$\{0,\ldots,200\}$, the invariant $\mathbf{AG}(x \geq 0 \wedge x \leq 200)$
+holds by construction: the guarded, atomic-per-step semantics of
+\texttt{TRANS} leaves no room for $x$ to escape its declared range.  This
+is a first, small instance of the encoding
+\cref{sec:state-explosion} will scale up symbolically: a single Boolean
+formula over $x$ and $\texttt{next}(x)$, rather than an explicit list of
+201 states and their transitions.
+\end{example}
+
 \subsection{Integer-range example: modulo-4 counter}
 \label{sec:smv-mod4}
 
