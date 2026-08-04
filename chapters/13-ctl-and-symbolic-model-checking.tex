@@ -389,6 +389,10 @@ explosion problem in its cleanest form: the model is compact, the graph is not.
 
 \subsection{Symbolic transition systems}
 
+Symbolic model checking was proposed by McMillan (1993), whose thesis work
+replaced explicit state enumeration with the Boolean-formula manipulation
+developed in this section.
+
 An SMV module is best viewed as a symbolic transition system.  The current
 state is not stored as a node in a graph; it is stored as a valuation of
 Boolean variables.  If the model uses $n$ Boolean variables, then one concrete
@@ -530,14 +534,46 @@ view we keep a Boolean formula for the current set, compute its predecessor by
 one formula transformation, and repeat until the set stops growing.
 \end{example}
 
+\begin{example}[$EF(\mathit{target})$ computed as a fixpoint]
+\label{ex:symbolic-ef-fixpoint}
+Let $S = \{0,1\}^3$ with variables $x_0,x_1,x_2$, and let
+\[
+  T(x,x') = \Bigl(\bigwedge_{i=0}^{2} (x_i \to x_i')\Bigr)
+             \land \bigl(x_0 \leftrightarrow x_0' \lor x_1 \leftrightarrow x_1'\bigr).
+\]
+Let $\mathit{target} := x_0 \land x_1 \land \neg x_2$, so
+$[\mathit{target}] = x_0 \land x_1 \land \neg x_2$.  We compute
+$[EF(\mathit{target})]$ by repeatedly applying $Pre_E$ and taking the union
+with what we already have, exactly as \cref{sec:ctl-fixed-points} will
+justify formally:
+\[
+  [\mathit{target}] \ \cup\ [EX(\mathit{target})]
+  = (x_0 \land x_1 \land \neg x_2) \lor (\neg x_0 \land x_1 \land \neg x_2)
+    \lor (x_0 \land \neg x_1 \land \neg x_2),
+\]
+\[
+  [\mathit{target}] \cup [EX(\mathit{target})] \cup [EX(EX(\mathit{target}))]
+  = (x_0 \land x_1 \land \neg x_2) \lor (\neg x_0 \land x_1 \land \neg x_2)
+    \lor (x_0 \land \neg x_1 \land \neg x_2) \lor (\neg x_0 \land \neg x_1 \land \neg x_2)
+  \ \equiv\ \neg x_2.
+\]
+A third application of $Pre_E$ adds nothing new (every state with $\neg x_2$ is
+already included), so the iteration has reached a fixpoint:
+$[EF(\mathit{target})] = \neg x_2$.  Two Boolean-formula simplifications
+computed the same information that an explicit search would have obtained by
+walking backward from $\mathit{target}$ one state at a time.
+\end{example}
+
 % =======================================================================
 \section{Bounded Model Checking and OBDDs}
 \label{sec:bmc-obdd}
 
 \subsection{Bounded model checking}
 
-Symbolic checking is still exhaustive.  Bounded model checking is not, at
-least not by itself.  It is a different use of the same symbolic machinery:
+Symbolic checking is still exhaustive.  Bounded model checking, introduced
+by Biere, Cimatti, Clarke, and Zhu (1999) as an alternative to BDD-based
+symbolic checking, is not, at least not by itself.  It is a different use of
+the same symbolic machinery:
 instead of computing a whole fixed point, we ask whether there exists a short
 counterexample of length at most $k$.
 
@@ -557,6 +593,40 @@ encoded as a propositional satisfiability problem.
 
 These shapes dictate conservative bounded semantics. Consider an LTL property on a loop-free prefix. 
 An eventuality like $\mathbf{F}\,p$ can evaluate to True if $p$ occurs anywhere in the finite prefix. However, a global property like $\mathbf{G}\,p$ \emph{cannot} evaluate to True on a loop-free path—even if $p$ is true at every state up to $k$, we do not know what happens at $k+1$. $\mathbf{G}\,p$ can only be proven true if the prefix forms a k-loop (proving $p$ will hold forever). This is why BMC is naturally an asymmetric bug-finding tool: a finite loop-free prefix is often enough to decisively falsify a safety property, but not to prove it.
+
+\begin{definition}[$(k,l)$-loop]
+A path $\pi$ of length $k+1$ is a \emph{$(k,l)$-loop}, with $l \leq k$, if
+$T(\pi(k), \pi(l))$ holds; writing $u = \pi(0)\cdots\pi(l-1)$ and
+$v = \pi(l)\cdots\pi(k)$, the finite prefix represents the infinite path
+$u \cdot v^\omega$.  We call $\pi$ a \emph{$k$-loop} if it is a
+$(k,l)$-loop for some $l \leq k$.
+\end{definition}
+
+\begin{definition}[Bounded semantics for LTL]
+Let $k \geq 0$ and let $\pi$ be a path of length $k+1$ that is \emph{not} a
+$k$-loop.  Formula $\varphi$ is valid along $\pi$ at position $i$ with
+bound $k$, written $\pi \models_k^i \varphi$, iff:
+\begin{align*}
+  \pi \models_k^i p              &\iff p \in L(\pi(i)) \\
+  \pi \models_k^i \neg p         &\iff p \notin L(\pi(i)) \\
+  \pi \models_k^i \varphi_1 \lor \varphi_2 &\iff
+    \pi \models_k^i \varphi_1 \text{ or } \pi \models_k^i \varphi_2 \\
+  \pi \models_k^i \varphi_1 \land \varphi_2 &\iff
+    \pi \models_k^i \varphi_1 \text{ and } \pi \models_k^i \varphi_2 \\
+  \pi \models_k^i \mathbf{X}\varphi_1 &\iff
+    i < k \text{ and } \pi \models_k^{i+1} \varphi_1 \\
+  \pi \models_k^i \varphi_1 \mathbf{U} \varphi_2 &\iff
+    \exists\, i \leq j \leq k.\ \pi \models_k^j \varphi_2
+    \text{ and } \forall\, i \leq n < j.\ \pi \models_k^n \varphi_1
+\end{align*}
+\end{definition}
+The $\mathbf{X}$ clause is where the asymmetry above becomes formal: at the
+last position $i = k$, the side condition $i < k$ fails, so
+$\mathbf{X}\varphi_1$---and therefore anything built on it, including
+$\mathbf{G}p$---can never be witnessed true purely by a loop-free prefix.
+On a genuine $k$-loop, by contrast, ordinary (unbounded) LTL semantics apply
+directly to the infinite path $u \cdot v^\omega$, since the loop-back makes
+the represented behaviour fully determined.
 
 The unrolling is direct, but it helps to see one concrete instance all the way
 through.  Consider a tiny two-bit transition system with state variables
@@ -630,10 +700,37 @@ short bad behaviours.  That is why BMC is often used as a bug-finding mode:
 fast for shallow errors, incomplete unless a completeness threshold is
 reached.
 
+\medskip\noindent
+\textbf{Beyond plain BMC.}  Several techniques push the same SAT-based idea
+further:
+\begin{itemize}
+  \item \textbf{Partial order reduction} exploits the observation that
+        computations differing only in the interleaving order of
+        independent, concurrent events are indistinguishable by the
+        specification; it suffices to check one representative computation
+        per equivalence class, shrinking the explored state space.
+  \item \textbf{SMT (Satisfiability Modulo Theories) solvers} decide
+        satisfiability of formulas that mix propositional logic with a
+        background theory (integers, reals, arrays, \ldots), letting BMC-style
+        encodings reason natively about data instead of only bits.
+  \item \textbf{$k$-liveness} reduces liveness checking to a sequence of
+        safety checks: it tries to prove that bad states are visited at most
+        $k$ times, for increasing $k$, thereby ruling out lasso-shaped
+        counterexamples without ever building one.
+  \item \textbf{IC3} is a SAT-based induction algorithm that computes
+        increasingly strong inductive invariants frame by frame, and is
+        today one of the most successful complete techniques built on top of
+        SAT solving.
+\end{itemize}
+The same bounded-satisfiability idea underlies \textsc{BLACK} (Bounded LTL
+sAtisfiability ChecKer), a fast, flexible, and reliable LTL satisfiability
+checker developed by Geatti, Gigante, and Montanari (2021).
+
 \subsection{From binary decision trees to OBDDs}
 
 The other symbolic workhorse is the ordered binary decision diagram, usually
-called an OBDD.  It is a compressed representation of a Boolean function.
+called an OBDD, based on work by Akers (1978) and Bryant (1986).  It is a
+compressed representation of a Boolean function.
 
 \begin{definition}[OBDD]
 An \emph{ordered binary decision diagram} is a reduced binary decision graph
