@@ -255,6 +255,37 @@ running the model checker itself.  Techniques include:
         (e.g., the initial state is reachable) before moving to complex ones.
 \end{itemize}
 
+\begin{example}[The three techniques on the arbiter]
+\label{ex:spec-quality-arbiter}
+Take the arbiter's property from \cref{ex:arbiter-smv},
+$\varphi = \mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state} =
+\textsc{Busy}))$.
+\begin{itemize}
+  \item \textbf{Vacuity detection.}  The antecedent \texttt{request} must
+        actually be reachable for $\varphi$ to say anything: if the model
+        (by a modelling mistake) never let \texttt{request} become true,
+        $\varphi$ would hold \emph{vacuously}---true only because its
+        premise is never triggered.  The check is
+        $\mathbf{EF}(\texttt{request})$: it must be \textbf{true} before
+        $\varphi$'s satisfaction is trusted.
+  \item \textbf{Mutation testing.}  Mutate the consequent's path
+        quantifier: $\varphi' = \mathbf{AG}(\texttt{request} \to
+        \mathbf{EX}(\texttt{state} = \textsc{Busy}))$ (``\emph{some}
+        successor is busy'' instead of ``\emph{every} successor is
+        busy'').  On the unfixed arbiter of \cref{fig:arbiter-kripke},
+        $\varphi$ is false but $\varphi'$ is true---the mutant changes
+        the verdict, which is exactly the signal that the original
+        $\mathbf{AX}$ was doing real work in $\varphi$ (had both versions
+        agreed, that would suggest $\varphi$ does not actually depend on
+        the distinction it appears to make).
+  \item \textbf{Sanity checks.}  Before trusting any result on $\varphi$,
+        check that the initial states are reachable at all
+        ($\mathbf{EF}(\mathit{ready})$, trivially true here) and that the
+        model is not over-constrained into a single frozen state.  Only
+        after these pass is $\varphi$'s answer meaningful.
+\end{itemize}
+\end{example}
+
 \subsection{Universal and existential model checking}
 
 The model checking we study is primarily \emph{universal}: we ask whether
@@ -269,6 +300,23 @@ reachable dangerous state.  The celebrated
 collaborators in the early 2000s---is essentially an efficient existential
 model checker based on SAT solving.  We will return to SAT-based and
 symbolic variants later in the model-checking part.
+
+\begin{example}[An existential query on the arbiter]
+On the unfixed arbiter of \cref{ex:arbiter-smv}, a universal check like
+$\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state} =
+\textsc{Busy}))$ asks about \emph{every} behaviour.  An existential query
+instead asks whether \emph{one} bad behaviour exists---the natural shape
+for a design flaw such as ``can the arbiter enter \textsc{Busy} without
+ever having seen a request?''  Formally: $\mathbf{EF}(\texttt{state} =
+\textsc{Busy} \land \neg\texttt{request})$.  On
+\cref{fig:arbiter-kripke} this is \textbf{true}: the buggy
+\texttt{TRUE} branch of the \texttt{case} lets the model transition from
+$\textsf{RF}$ (ready, no request) directly to $\textsf{BF}$ (busy, still
+no request) in a single step.  Finding this witness is exactly what an
+existential model checker (or BMC, unrolling from the initial states) is
+built to do efficiently: it only has to find \emph{one} such path, not
+enumerate all of them.
+\end{example}
 
 \subsection{A brief historical note}
 
@@ -734,6 +782,29 @@ forward reachability and liveness with cycle detection, so knowing
 which part of a specification we are dealing with determines the
 algorithm we run.
 \end{remark}
+
+\begin{example}[A decomposition, made concrete]
+The two halves of \cref{ex:arbiter-safety-liveness} are not just two
+separate illustrations---conjoined, they \emph{are} an instance of the
+decomposition.  Let
+\[
+  \varphi = \underbrace{\text{``whenever \textsc{Busy}, was \textsc{Ready}
+  in the previous step''}}_{\varphi_{\mathit{safe}}}
+  \ \land\
+  \underbrace{\mathbf{AG}(r \to \mathbf{AF}\,\mathit{busy})}_{\varphi_{\mathit{live}}}.
+\]
+A run violates $\varphi$ for exactly one of two reasons, and the reason
+determines the shape of the counterexample: if $\varphi_{\mathit{safe}}$
+fails, the witness is the finite bad transition already identified
+in \cref{ex:arbiter-safety-ce}; if $\varphi_{\mathit{live}}$ fails
+instead (a request is pending forever), the witness is the infinite
+lasso of \cref{sec:counterexamples}.  A model checker for $\varphi$ can
+therefore split the work: run reachability for $\varphi_{\mathit{safe}}$
+and cycle detection for $\varphi_{\mathit{live}}$, and $\varphi$ holds
+iff both succeed.  The Alpern--Schneider theorem says this split is
+always available, even for properties that are not handed to us
+pre-conjoined like this one.
+\end{example}
 
 The editor traces of \cref{ch:omega-automata} give us a familiar
 vocabulary for the two families: ``every \texttt{edit} is followed by
@@ -1426,6 +1497,40 @@ inlined, renaming variables with the instance path (e.g.,
 \texttt{inst.x}).  This does not add expressive power but improves
 readability.
 
+\begin{example}[Flattening \texttt{my\_module}, before and after]
+\label{ex:flattening}
+Instantiate the module above with the caller's own variable \texttt{w} as
+the actual parameter:
+\begin{verbatim}
+MODULE main
+VAR
+  w    : boolean;
+  inst : my_module(w);
+\end{verbatim}
+Flattening substitutes \texttt{z} by \texttt{w} everywhere inside
+\texttt{my\_module}, and prefixes every local variable with the instance
+path \texttt{inst.}:
+\begin{verbatim}
+MODULE main
+VAR
+  w     : boolean;
+  inst.x : boolean;
+DEFINE
+  inst.y := w;
+ASSIGN
+  init(inst.x) := w;
+  next(w)      := TRUE;   -- was next(z):=TRUE; z was an alias for w
+\end{verbatim}
+The single flattened module is an ordinary Kripke structure over
+$\{w, \texttt{inst.x}\}$---no new modelling primitive was needed.  Note
+where \texttt{next(w)} ends up: it is a constraint on the \emph{caller's}
+variable, sitting in \texttt{MODULE main} even though it was written
+inside \texttt{my\_module}.  This is the flattened, mechanical form of
+the ``modifies the caller's variable'' claim above: pass-by-reference is
+not a special runtime effect, it is just where the substituted constraint
+lands after inlining.
+\end{example}
+
 \subsection{The mechanical decimal counter}
 \label{sec:mech-counter}
 
@@ -1935,6 +2040,33 @@ paths) or $E$ (exists a path).  For example, $\mathbf{AF}\varphi$ means
 exists a path on which eventually $\varphi$''.  Model checking CTL is
 \textbf{polynomial} in the size of the state space and the formula.
 
+\begin{example}[The same structure, evaluated as a tree]
+\label{ex:ctl-worked}
+Reuse the Kripke structure of \cref{ex:ltl-worked}: states
+$q_0,q_1,q_2,q_3$, transitions $q_0 \to q_1 \to q_2$, a self-loop
+$q_2 \to q_2$, and $q_2 \to q_3 \to q_0$.  CTL asks about \emph{branches}
+from a state, not about one fixed path, and the contrast with the earlier
+LTL verdicts is the whole point.
+\begin{itemize}
+  \item $\mathbf{EF}(p_3)$ is \textbf{true} at $q_0$---even though
+        $\mathbf{F}(p_3)$ was \textbf{false} along the specific lasso
+        path $\langle q_0,q_1\rangle\cdot(q_2)^\omega$
+        (\cref{ex:ltl-worked}).  The two disagree because $\mathbf{F}$
+        asks about \emph{one fixed} execution, while $\mathbf{E}\ldots$
+        asks whether \emph{some} execution does the job---and one does:
+        $q_0 \to q_1 \to q_2 \to q_3$.
+  \item $\mathbf{AF}(p_3)$ is still \textbf{false} at $q_0$: ``for all
+        paths'' includes the self-looping one, which is exactly the
+        witness that already refuted $\mathbf{F}(p_3)$.
+  \item $\mathbf{AG}(\mathbf{EF}(p_0))$ is \textbf{true} at $q_0$: from
+        every reachable state there is \emph{some} path back to $q_0$
+        ($q_1$ and $q_2$ both reach $q_3 \to q_0$; the self-loop at
+        $q_2$ does not block this, since $\mathbf{EF}$ only needs one
+        witnessing path, and $q_2 \to q_3 \to q_0$ is available
+        alongside the self-loop).
+\end{itemize}
+\end{example}
+
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
@@ -1971,9 +2103,15 @@ why LTL and CTL are used in practice instead.
 \paragraph{Expressive power.}  LTL and CTL are \emph{incomparable}: some
 properties expressible in LTL are not expressible in CTL, and vice versa.
 For example, ``every state is eventually followed by $p$ infinitely often''
-is an LTL property that has no CTL equivalent.  This is why both logics are
-studied and why no single sub-logic of CTL* suffices for all practical
-verification tasks.
+is an LTL property that has no CTL equivalent.  The witness in the other
+direction is exactly the formula just computed in \cref{ex:ctl-worked}:
+$\mathbf{AG}(\mathbf{EF}(p_0))$---``from every reachable state, it is
+always \emph{possible} to get back to $p_0$''---has no LTL equivalent,
+because LTL formulas are evaluated on a single fixed path and cannot
+express ``there exists a path'' from every state they pass through; only
+a branching-time logic can quantify over the choice of path at each point.
+This is why both logics are studied and why no single sub-logic of CTL*
+suffices for all practical verification tasks.
 
 % -----------------------------------------------------------------------
 \section{Formal Methods in Context}

@@ -63,7 +63,7 @@ format:
         <i class="bi bi-file-earmark-pdf-fill hero-cta-icon"></i>
         <span class="hero-cta-copy">
           <span class="hero-cta-title">Open the Full Lecture Notes</span>
-          <span class="hero-cta-meta">301 pages · Complete appunti · PDF</span>
+          <span class="hero-cta-meta">303 pages · Complete appunti · PDF</span>
         </span>
         <i class="bi bi-arrow-right hero-cta-arrow"></i>
       </a>
