@@ -1275,6 +1275,14 @@ LTLSPEC
   G (request -> X (state = busy))
 \end{verbatim}
 
+\begin{remark}[Naming specifications]
+A specification can be given a name with the \texttt{NAME} keyword, e.g.\
+\texttt{LTLSPEC NAME pr1 := G(request -> X(state = busy));}.  This is
+purely for readability: NuXMV reports results and counterexamples by name
+(\texttt{pr1}), which matters once a model accumulates more than a
+handful of properties.
+\end{remark}
+
 Input variables \emph{cannot} be constrained by \texttt{init} or
 \texttt{next}---attempting to do so is a syntax error.  They behave like
 \emph{labels on transitions} in the Kripke structure: the state space
@@ -1846,7 +1854,10 @@ above.  It implements weak fairness for a scheduler only when $P$ names the
 process that should be selected and that process is continuously enabled.
 For exam purposes, keep the semantic definition
 (Definitions~\ref{def:justice} and~\ref{def:compassion}) separate from the
-NuSMV keyword syntax.
+NuSMV keyword syntax.  Older NuSMV versions spell the same justice
+constraint with the keyword \texttt{FAIRNESS} instead of \texttt{JUSTICE};
+the two are synonyms, and \texttt{JUSTICE} is the name to prefer going
+forward.
 \end{remark}
 
 \subsection{Fair paths and model checking under fairness}
