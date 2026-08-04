@@ -517,9 +517,10 @@ the estimated number of atoms in the observable universe.
 \end{example}
 
 The explosion becomes worse with concurrent systems: if we have $N$ processes
-each with 2 states, the combined state space (their Cartesian product) has
-$2^N$ states.  With 100 processes, that is $2^{100}$, which is infeasible to
-store or enumerate.
+each with 2 states, the combined state space---their Cartesian product,
+recalled concretely in \cref{subsec:sync-async}---has $2^N$ states.  With
+100 processes, that is $2^{100}$, which is infeasible to store or
+enumerate.
 
 The state-explosion problem is the central obstacle in model checking.  Two
 responses:
@@ -1672,11 +1673,48 @@ source of behaviour, namely the scheduler's choice of which process runs
 next.
 
 \subsection{Synchronous vs.\ asynchronous}
+\label{subsec:sync-async}
 
 In a \emph{synchronous} composition, a single step of the combined system
 is a step taken \emph{simultaneously} by all sub-processes.  In an
 \emph{asynchronous} composition, a step is taken by \emph{at most one}
 process; the others remain idle (their variables do not change).
+
+\begin{intermezzo}{The Cartesian Product of Two Automata}
+Recall the basic recipe for combining two automata, already used in
+\cref{def:product-automaton}: given $A_1$ with states $Q_1$ and $A_2$ with
+states $Q_2$, form one state per \emph{pair}, $Q_1\times Q_2$, and let both
+components move together---a run of the product is nothing but a run of
+$A_1$ and a run of $A_2$, paired up step by step.
+
+Concretely, take two independent two-state switches $P_1,P_2$, each with
+$Q_1=Q_2=\{\mathsf{off},\mathsf{on}\}$---the $N=2$ case of
+\cref{sec:state-explosion}.  Their product has $2\times 2=4$ states,
+\[
+  Q_1\times Q_2=\bigl\{(\mathsf{off},\mathsf{off}),\,(\mathsf{off},\mathsf{on}),\,
+                  (\mathsf{on},\mathsf{off}),\,(\mathsf{on},\mathsf{on})\bigr\},
+\]
+one row per state of $P_1$ and one column per state of $P_2$: exactly the
+grid picture of \cref{fig:product-grid}, just relabelled.  Nothing in this
+recipe depends on an alphabet or an accepting set---it is a statement about
+pairing up \emph{states}---so it applies unchanged to any two machines with
+a notion of state and a notion of ``next state,'' automata or otherwise.
+\end{intermezzo}
+
+Synchronous composition is exactly this recipe with the alphabet dropped.
+Kripke structures do not read input symbols, so there is nothing to
+synchronize \emph{on}; the only requirement is that every coordinate takes a
+step at the same time.  Given transition relations $R_1\subseteq
+Q_1\times Q_1$ and $R_2\subseteq Q_2\times Q_2$, the synchronous product
+moves both coordinates on every step:
+\[
+  \bigl((q_1,q_2),(q_1',q_2')\bigr)\in R
+  \quad\text{iff}\quad
+  (q_1,q_1')\in R_1 \ \text{and}\ (q_2,q_2')\in R_2 .
+\]
+This is exactly what flattening computed in \cref{sec:smv-modules}: the
+flattened module is one Kripke structure over $Q_1\times Q_2$, moving in
+lockstep---no new primitive was needed there either.
 
 Asynchronous composition models concurrent processes that operate
 independently, such as those communicating over a network.  Protocols are
