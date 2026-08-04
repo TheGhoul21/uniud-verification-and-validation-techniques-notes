@@ -140,24 +140,6 @@ finiteness of $M$.  Crucially, the answer is not a probabilistic
 guarantee but a mathematical theorem that holds for every possible
 execution, including those driven by an adversarial environment.
 
-\begin{remark}[Formal statement, for a temporal logic $\varphi$]
-Fix a Kripke structure $M = (AP, Q, Q_0, R, L)$ and a state $s \in Q$.
-Writing $A$ for the universal (``for all paths'') quantifier of
-\cref{sec:ltl-ctl-overview}, we say
-\[
-  M, s \models A\varphi
-\]
-iff \emph{every} path of $M$ starting at $s$ is a model of $\varphi$.  The
-\emph{model checking problem for $\varphi$} (e.g., LTL-MC for LTL
-formulas) is then the problem of deciding $M, s \models A\varphi$ for a
-given initial state $s \in Q_0$; we abbreviate this to $M, s \models
-\varphi$ throughout the chapter, since here the universal reading is the
-only one we use unless stated otherwise.  LTL-MC is
-\textbf{PSPACE-complete} (Sistla and Clarke, 1985); we return to this
-result, and to its CTL and CTL* counterparts, in
-\cref{sec:ltl-ctl-overview}.
-\end{remark}
-
 Three features distinguish model checking from other verification approaches.
 
 \begin{enumerate}
@@ -1883,39 +1865,6 @@ metric timing constraints, \emph{Signal Temporal Logic} (STL) reasons over
 continuous real-valued signals, and \emph{LTL modulo theories} embeds
 first-order constraints drawn from an SMT theory.
 
-\begin{example}[LTL model checking, worked by hand]
-\label{ex:ltl-worked}
-Let $M$ have four states $q_0, q_1, q_2, q_3$ with
-$L(q_i) = \{p_i\}$, initial state $q_0$, and transitions
-$q_0 \to q_1 \to q_2$, a self-loop $q_2 \to q_2$, and $q_2 \to q_3 \to q_0$
-(so $q_2$ has \emph{two} successors: itself, or $q_3$).  We check three
-formulas along the same initial path, growing in temporal depth.
-\begin{itemize}
-  \item $\mathbf{G}\bigl(\bigwedge_{i=0}^{3}(p_i \to
-        \mathbf{X}\bigvee_{j \neq i} p_j)\bigr)$---``the state always
-        changes at the next step''---is \textbf{false}: the finite path
-        $\langle q_0, q_1, q_2, q_2\rangle$ already witnesses a violation
-        (a safety property, by \cref{def:safety}: the self-loop at $q_2$ is
-        a finite bad prefix).
-  \item $\mathbf{F}(p_3)$---``$p_3$ eventually holds''---is \textbf{false}:
-        the lasso $\langle q_0, q_1\rangle \cdot (q_2)^\omega$ loops forever
-        on the self-loop and never reaches $q_3$ (a liveness property, by
-        \cref{def:liveness}: only an infinite witness refutes it, matching
-        \cref{sec:counterexamples}).
-  \item $\mathbf{FG}(p_2)$---``eventually $p_2$ holds forever''---is
-        \textbf{also false}, but needs a \emph{different} lasso:
-        $(\langle q_0, q_1, q_2, q_3\rangle)^\omega$ keeps returning to
-        $q_2$ but never stays there, since it always continues on to
-        $q_3$.  The first counterexample above does not refute
-        $\mathbf{FG}(p_2)$ (it \emph{does} eventually stay in $p_2$
-        forever), which is why a different path is required here.
-\end{itemize}
-The exercise generalises: every LTL counterexample on a finite Kripke
-structure is ultimately periodic (\cref{sec:counterexamples}), and
-different formulas over the \emph{same} structure can demand structurally
-different lassos.
-\end{example}
-
 \paragraph{Computation Tree Logic (CTL).}  Formulas are evaluated on the
 \emph{computation tree}---the tree of all paths branching from each state.
 Each temporal operator is paired with a \emph{path quantifier}: $A$ (all
@@ -2063,59 +2012,6 @@ Two additional techniques deserve mention:
         analysis based on approximating the program semantics.  Closely
         related to the notion of over-approximation used in symbolic model
         checking.
-\end{itemize}
-
-\subsection{The three-phase model checking process}
-\label{sec:mc-process}
-
-In practice, applying \cref{fig:mc-flow} to a real system unfolds in three
-phases:
-\begin{enumerate}
-  \item \textbf{Modelling phase.}  Model the system under consideration; as
-        a first sanity check, run some simulations on it before ever
-        invoking the model checker.  Formalise the property to be checked,
-        and sanity-check \emph{it} too (\cref{sec:mc-problem} already
-        warned about vacuously true specifications).
-  \item \textbf{Running phase.}  Run the model checker to decide whether the
-        property holds of the model.
-  \item \textbf{Analysis phase.}  Three outcomes, matching the three exits
-        of \cref{fig:mc-flow}: if satisfied, move on to the next property
-        (if any); if violated, analyse the generated counterexample by
-        simulation, then refine the model, the design, or the property and
-        repeat the whole procedure; if the tool runs out of memory, try to
-        reduce the model (\cref{sec:state-explosion}) and try again.
-\end{enumerate}
-
-\subsection{Pros and cons of model checking}
-
-\textbf{Advantages.}
-\begin{itemize}[nosep]
-  \item Widely applicable: hardware, software, protocol systems, and more.
-  \item Allows for \emph{partial} verification: only the most relevant
-        properties need to be checked, not the entire system at once.
-  \item A potential ``push-button'' technology once the model and the
-        specification are in place.
-  \item Rapidly increasing industrial interest and tool support.
-  \item In case of a property violation, a counterexample is provided.
-  \item Sound and interesting mathematical foundations.
-  \item Not biased towards the most probable scenarios, unlike testing,
-        which tends to exercise common paths more than rare ones.
-\end{itemize}
-
-\textbf{Limitations.}
-\begin{itemize}[nosep]
-  \item Focuses mainly on \emph{control-intensive} applications
-        (reactive systems); less suited to data-oriented computation.
-  \item Model checking is only as ``good'' as the system model: an
-        unfaithful model of the system's interaction with its environment
-        (signals from sensors in, signals to actuators out) yields
-        guarantees about the model, not about the real system.
-  \item No guarantee about the \emph{completeness} of the results relative
-        to the informal requirements---this is exactly the
-        verification/validation distinction of \cref{sec:mc-problem}.
-  \item Impossible, in general, to check \emph{generalisations} (e.g., ``the
-        protocol is correct for any number $N$ of participants''): a model
-        checker verifies one fixed, finite instance at a time.
 \end{itemize}
 
 \subsection{The verification--synthesis spectrum}
