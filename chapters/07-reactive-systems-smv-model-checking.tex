@@ -162,27 +162,37 @@ The standard definition of model checking (as described above) is \emph{universa
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
-      box/.style={draw, rounded corners, minimum width=2.8cm,
-                  minimum height=1.1cm, align=center, font=\small},
-      arr/.style={->, thick}
+      >=Stealth,
+      box/.style={draw, rounded corners, align=center,
+                  minimum width=2.7cm, minimum height=1.15cm,
+                  font=\small\sffamily, draw=graphite!55, fill=gray!6},
+      input/.style={box, fill=accent!12, draw=accent!60!black},
+      tool/.style={box, fill=graphite!10, draw=graphite!75, line width=1pt},
+      sat/.style={box, fill=vvteal!14, draw=vvteal!80!black},
+      viol/.style={box, fill=vvorange!16, draw=vvorange!85!black},
+      mem/.style={box, fill=vvgray!16, draw=vvgray!80!black},
+      edge/.style={-Stealth, thick, draw=graphite},
+      refine/.style={-Stealth, thick, dashed, draw=vvviolet,
+                     rounded corners=10pt}
     ]
-    \node[box, fill=teal!15]   (sys)  at (0,0)    {System\\Model $M$};
-    \node[box, fill=teal!15]   (spec) at (4,0)    {Specification\\$\varphi$};
-    \node[box, fill=gray!20]   (mc)   at (2,-2)   {Model\\Checker};
-    \node[box, fill=green!15]  (ok)   at (-1.2,-4){Satisfied\\(\textbf{true})};
-    \node[box, fill=orange!20] (bug)  at (2,-4)   {Violated\\+ counter-example};
-    \node[box, fill=gray!10]   (oom)  at (5.4,-4) {Insufficient\\memory};
+    \node[input] (sys)  at (0.4, 0)    {System\\model $M$};
+    \node[input] (spec) at (4.2, 0)    {Specification\\$\varphi$};
+    \node[tool]  (mc)   at (2.3,-2.1)  {Model\\checker};
+    \node[sat]   (ok)   at (-0.9,-4.4) {Satisfied\\(\textbf{true})};
+    \node[viol]  (bug)  at (2.3,-4.4)  {Violated\\+ counter-example};
+    \node[mem]   (oom)  at (5.5,-4.4)  {Insufficient\\memory};
 
-    \draw[arr] (sys)  -- (mc);
-    \draw[arr] (spec) -- (mc);
-    \draw[arr] (mc)   -- (ok);
-    \draw[arr] (mc)   -- (bug);
-    \draw[arr] (mc)   -- (oom);
+    \draw[edge] (sys)  -- (mc);
+    \draw[edge] (spec) -- (mc);
+    \draw[edge] (mc)   -- (ok);
+    \draw[edge] (mc)   -- (bug);
+    \draw[edge] (mc)   -- (oom);
 
-    % Refinement loop
-    \draw[->, dashed, violet, thick]
-          (bug.west) .. controls (-3,-4) and (-3,-0.5) .. (sys.west)
-          node[midway, left, font=\small, violet] {refine};
+    % Refinement loop, routed clear of every box
+    \draw[refine]
+          (bug.south) -- (2.3,-5.9) -- (-3.2,-5.9) -- (-3.2,0) -- (sys.west);
+    \node[left, font=\scriptsize\sffamily, text=vvviolet!88!black,
+          align=center] at (-3.2,-2.95) {refine\\model};
   \end{tikzpicture}
   \caption{The model-checking workflow.  The tool takes a system model and a
            specification as input.  It outputs either a correctness
@@ -268,34 +278,41 @@ software failures whose costs---in human lives and money---were enormous.
 
 \begin{figure}[ht]
   \centering
-  \begin{tikzpicture}[x=1.8cm, y=0.9cm]
-    % Cost curve
-    \draw[->, thick] (0,0) -- (6,0) node[right, font=\small]
-          {Development phase};
-    \draw[->, thick] (0,0) -- (0,5) node[above, font=\small]
-          {Relative cost to fix};
+  \begin{tikzpicture}[x=1.8cm, y=0.9cm, >=Stealth,
+      axis/.style={-Stealth, thick, draw=graphite},
+      bar/.style={draw=accent!80, line width=5pt},
+      costcurve/.style={very thick, draw=tomato},
+      synth/.style={-Stealth, dashed, thick, draw=vvviolet}
+    ]
+    % Axes
+    \draw[axis] (0,0) -- (6,0)
+          node[right, font=\small\sffamily, text=graphite] {Development phase};
+    \draw[axis] (0,0) -- (0,5)
+          node[above, font=\small\sffamily, text=graphite] {Relative cost to fix};
 
     % Phase labels
     \foreach \x/\lab in {
-        0.7/Design, 1.4/Coding, 2.1/{Unit test},
+        0.7/Design, 1.4/Coding, 2.1/{Unit\\test},
         3/{Functional\\test}, 4/{System\\test}, 5/Release}
-      \node[font=\tiny, align=center] at (\x, -0.5) {\lab};
+      \node[font=\tiny\sffamily, text=graphite!85, align=center]
+            at (\x,-0.55) {\lab};
 
-    % Exponential cost curve (red)
-    \draw[thick, orange!80!red, domain=0.4:5.2, samples=60]
-          plot (\x, {0.05 * exp(0.9*(\x-0.4))});
-    \node[right, font=\tiny, orange!80!red] at (5.2, 4.4)
-          {cost to fix};
+    % Defect-injection bars (behind the curve)
+    \foreach \x/\h in {0.7/1.2, 1.4/3.8, 2.1/0.5, 3/0.3, 4/0.2}
+      \draw[bar] (\x,0) -- (\x,\h);
+    \node[right, font=\tiny\sffamily, text=accent!70!black, align=left]
+          at (1.58,4.1) {defects\\injected};
 
-    % Defect injection (blue bars)
-    \foreach \x/\h in {1.4/3.8, 0.7/1.2, 2.1/0.5, 3/0.3, 4/0.2}
-      \draw[teal!70, line width=4pt] (\x, 0) -- (\x, \h);
-    \node[right, font=\tiny, teal!70, align=left] at (1.6, 3.8) {defects\\injected};
+    % Exponential cost-to-fix curve
+    \draw[costcurve, domain=0.4:5.2, samples=60]
+          plot (\x, {0.05*exp(0.9*(\x-0.4))});
+    \node[above right, font=\tiny\sffamily, text=tomato!85!black]
+          at (5.1,3.8) {cost to fix};
 
-    % Vertical annotation: synthesis
-    \draw[dashed, violet] (0.7, 0) -- (0.7, 5);
-    \node[above, font=\tiny, violet, align=center] at (0.7, 5)
-          {$\leftarrow$ synthesis\\goal};
+    % Synthesis annotation: eliminate defects at the design phase
+    \draw[synth] (0.7,4.05) -- (0.7,1.55);
+    \node[above, font=\tiny\sffamily, text=vvviolet!88!black, align=center]
+          at (0.7,4.05) {synthesis\\goal};
   \end{tikzpicture}
   \caption{The cost to fix a defect grows exponentially with the development
            phase in which it is discovered.  The majority of defects are
