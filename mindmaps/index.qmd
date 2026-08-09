@@ -52,7 +52,7 @@ format:
     <a class="mindmap-index-card" href="07-reactive-systems-smv-model-checking.html" style="--card-color: #7e57c2">
       <span class="chapter-number">Chapter 7</span>
       <strong>Reactive Systems, SMV, and Explicit Model Checking</strong>
-      <small>12 sections · 36 topics</small>
+      <small>11 sections · 38 topics</small>
     </a>
     <a class="mindmap-index-card" href="08-s1s-buchi-theorem.html" style="--card-color: #7e57c2">
       <span class="chapter-number">Chapter 8</span>

@@ -40,6 +40,10 @@ function receives some input, computes a result, and terminates.  Proving
 it correct amounts to showing that the output satisfies a postcondition given
 the input.  We are \emph{not} primarily interested in that setting here.
 
+Consider an operating system waiting for user events or the flight-control
+software of an aircraft reacting to sensors.  Neither returns one final value
+and terminates; both must remain ready for the next interaction.
+
 \begin{definition}[Reactive system]
 A \emph{reactive system} is a program or device that maintains a
 \emph{continuous, potentially infinite interaction} with its environment.
@@ -57,11 +61,15 @@ Fourier transforms---where correctness is a relation between one input
 and one output and the program is allowed to halt as soon as the answer
 is produced.
 
-Examples are everywhere: an operating system responding to user events, the
-flight-control software of an airplane, a communication protocol exchanging
-messages between two parties.  The interaction never truly ends---even if the
-device is eventually switched off, correctness must hold for every prefix of
-that infinite dialogue.
+Communication protocols exchanging messages between two parties have the same
+shape.  Their interaction never truly ends---even if a device is eventually
+switched off, correctness must hold for every prefix of that infinite
+dialogue.
+
+Operationally, we recognise a reactive system by asking whether correctness
+must still constrain the next environment interaction after every finite
+execution prefix.  If there is instead one final returned result, the
+functional input/output view is the more appropriate one.
 
 \medskip\noindent
 \textbf{The infinite-execution viewpoint.}  Think of a reactive system's
@@ -88,30 +96,178 @@ for asserting facts about infinite sequences of states.  The plural is
 intentional---there are many temporal logics, each with its own expressive
 power and algorithmic properties.
 
-\subsection{Closed vs. Open Systems}
-When we model and verify reactive systems, we must distinguish between two fundamental configurations of their environment:
-\begin{itemize}
-    \item \textbf{Closed Systems}: A closed system is completely self-contained. Its transitions and state changes are determined entirely by its own internal logic and non-deterministic choices. There are no external inputs from the environment. In verification, closed systems are modeled directly as Kripke structures (where all choices are internal to the model).
-    \item \textbf{Open Systems}: An open system maintains a continuous interaction with an environment that it does not control. Its transitions depend not only on its internal state, but also on external inputs supplied by the environment. To verify an open system, we must ensure that it satisfies its specification under \emph{all} possible sequences of environment inputs. In synthesis, open systems are modeled as games between the system and the environment.
-\end{itemize}
-While real-world reactive systems are almost always open, we often analyze them as closed systems during model checking by incorporating a model of the environment directly into the state space.
+\paragraph{Where does the environment go?}
+Real reactive systems receive inputs that the designer does not control.  A
+model checker nevertheless needs one self-contained model, so we represent
+those inputs by non-deterministic choices and check every possible input
+sequence.  In SMV, unconstrained variables and the more precise
+\texttt{IVAR} construct will provide exactly this interface
+(\cref{sec:smv-nondeterminism,sec:smv-ivar}).
 
 \subsection{The cost of failure}
 
 Reactive systems are frequently deployed in safety-critical domains where
 defects can be fatal or exceptionally costly.
 
-\begin{quote}
-``It is fair to state that, in this digital era, correct systems for
-information processing are more valuable than gold.''\\
-\mbox{}\hfill---Henk Barendregt, 50th-anniversary address, CWI Amsterdam.
-\end{quote}
-
 We return to the historical record in \cref{sec:mc-problem}, where the
 failures of the Therac-25, Ariane~5, and the Pentium FDIV bug motivate the
 model-checking workflow directly.
 
 % -----------------------------------------------------------------------
+\section{Formal Methods in Context}
+\label{sec:formal-methods-context}
+
+Before formalising model checking, we locate it among the other techniques
+that an engineer might use.  This context matters because model checking is
+not a replacement for all validation activity: it is a precise answer to the
+specific question ``does this finite model satisfy this formal property?''
+
+\subsection{Three categories of formal methods}
+
+Each category is best characterised by its \emph{method}, the \emph{tool}
+that automates it (if any), and the condition under which it is
+\emph{applicable} to a given system.  In the comparison, $P$ denotes the
+property under investigation:
+
+\begin{center}
+  \renewcommand{\arraystretch}{1.3}
+  \begin{tabular}{p{2.5cm} p{4.55cm} p{4.55cm}}
+    \toprule
+    & \textbf{Deductive methods} & \textbf{Model checking} \\
+    \midrule
+    \emph{method} & provide a formal proof that $P$ holds &
+      systematically check $P$ on all states \\
+    \emph{tool} & theorem prover / proof assistant / proof checker &
+      model checker (Spin, NuSMV, UPPAAL, \ldots) \\
+    \emph{applicable if} & the system has the form of a mathematical
+      theory & the system generates a (finite) behavioural model \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  \begin{tabular}{p{2.6cm} p{9.5cm}}
+    \toprule
+    & \textbf{Model-based simulation or testing} \\
+    \midrule
+    \emph{method} & test for $P$ by exploring possible behaviours \\
+    \emph{tool} & simulator / test harness (application-specific) \\
+    \emph{applicable if} & the system defines an executable model \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{enumerate}
+  \item \textbf{Deductive methods} (e.g., Hoare logic, dating back to
+        Turing and Floyd): provide a formal proof that a property holds by
+        annotating code with pre/post-conditions and loop invariants.  Very
+        expressive but require substantial manual effort; not easily
+        automated for large systems.
+  \item \textbf{Simulation and testing}: unit testing, integration testing,
+        functional testing.  Fast and widely used but \emph{incomplete}: a
+        bug can hide in any unexplored behaviour.  Concretely, the
+        procedure is: take a model (simulation) or a real implementation
+        (testing); stimulate it with certain inputs, i.e., the test cases;
+        observe the reaction and check whether it is the ``desired'' one.
+        The important drawbacks mirror the state-explosion problem in
+        reverse: the number of possible behaviours is very large (or even
+        infinite), an unexplored behaviour may contain the fatal bug, and
+        so testing or simulation can only show the \emph{presence} of
+        errors, never their \emph{absence}.
+  \item \textbf{Model checking}: systematic, automatic, exhaustive.
+        Combines the rigour of deductive methods with the automation of
+        testing.  Used daily at NASA, ESA, Intel, Boeing, and major software
+        companies.
+\end{enumerate}
+
+\subsection{Reviews, inspections, and testing in practice}
+
+Before reaching for model checking, engineers routinely apply lighter-weight
+techniques, each targeting a different stage of the development pipeline
+(the cost curve in \cref{fig:cost-curve} will make this progression visible):
+\begin{itemize}
+  \item \textbf{Reviews and inspections}: a group of people examine
+        software documentation, code, or design to identify defects,
+        inconsistencies, or areas for improvement---e.g., code reviews,
+        design reviews, and walkthroughs.  Purely manual, but cheap and
+        effective early in the pipeline.
+  \item \textbf{Unit testing}: individual components or units of code are
+        tested in isolation to ensure they behave as expected; developers
+        write test cases that exercise specific functions or modules
+        (e.g., with \texttt{JUnit} or \texttt{pytest}).
+  \item \textbf{Integration testing}: verifies the interaction between
+        different modules or components of a software system, ensuring
+        that the integrated units work together seamlessly as intended.
+\end{itemize}
+None of these reasons about the infinite behaviours of a reactive system;
+that is precisely the gap model checking fills.
+
+\subsection{Static analysis and abstract interpretation}
+
+Two additional techniques deserve mention:
+\begin{itemize}
+  \item \textbf{Static analysis}: analyses source code without executing it,
+        often looking for security vulnerabilities (buffer overflows, null
+        dereferences, race conditions).  Unlike model checking, it usually
+        does not reason about infinite executions.
+  \item \textbf{Abstract interpretation}: a theoretical framework for static
+        analysis based on approximating the program semantics.  Closely
+        related to the notion of over-approximation used in symbolic model
+        checking.
+\end{itemize}
+
+\subsection{The three-phase model checking process}
+\label{sec:mc-process}
+
+In practice, the workflow later summarised in \cref{fig:mc-flow} unfolds in
+three phases:
+\begin{enumerate}
+  \item \textbf{Modelling phase.}  Model the system under consideration; as
+        a first sanity check, run some simulations on it before ever
+        invoking the model checker.  Formalise the property to be checked,
+        and sanity-check \emph{it} too (\cref{sec:counterexamples} explains
+        why a trivially true specification is not useful evidence).
+  \item \textbf{Running phase.}  Run the model checker to decide whether the
+        property holds of the model.
+  \item \textbf{Analysis phase.}  Three outcomes, matching the three exits
+        of \cref{fig:mc-flow}: if satisfied, move on to the next property
+        (if any); if violated, analyse the generated counterexample by
+        simulation, then refine the model, the design, or the property and
+        repeat the whole procedure; if the tool runs out of memory, try to
+        reduce the model (\cref{sec:state-explosion}) and try again.
+\end{enumerate}
+
+\subsection{Pros and cons of model checking}
+
+\textbf{Advantages.}
+\begin{itemize}[nosep]
+  \item Widely applicable: hardware, software, protocol systems, and more.
+  \item Allows for \emph{partial} verification: only the most relevant
+        properties need to be checked, not the entire system at once.
+  \item A potential ``push-button'' technology once the model and the
+        specification are in place.
+  \item Rapidly increasing industrial interest and tool support.
+  \item In case of a property violation, a counterexample is provided.
+  \item Sound and interesting mathematical foundations.
+  \item Not biased towards the most probable scenarios, unlike testing,
+        which tends to exercise common paths more than rare ones.
+\end{itemize}
+
+\textbf{Limitations.}
+\begin{itemize}[nosep]
+  \item Focuses mainly on \emph{control-intensive} applications
+        (reactive systems); less suited to data-oriented computation.
+  \item Model checking is only as ``good'' as the system model: an
+        unfaithful model of the system's interaction with its environment
+        (signals from sensors in, signals to actuators out) yields
+        guarantees about the model, not about the real system.
+  \item No guarantee about the \emph{completeness} of the results relative
+        to the informal requirements---this is exactly the
+        verification/validation distinction of \cref{sec:mc-problem}.
+  \item Impossible, in general, to check \emph{generalisations} (e.g., ``the
+        protocol is correct for any number $N$ of participants''): a model
+        checker verifies one fixed, finite instance at a time.
+\end{itemize}
+
 \section{The Model Checking Problem}
 \label{sec:mc-problem}
 
@@ -122,13 +278,23 @@ decide whether the property always holds?
 
 \subsection{What model checking is}
 
+Keep the arbiter in view as a running example.  Its model describes all
+possible combinations of requests and control states; its requirement says
+that a pending request must make the next control state busy.  Model checking
+asks whether that requirement survives every choice represented by the model.
+
 \begin{definition}[Model checking]
 \label{def:model-checking}
 \emph{Model checking} is an automatic, exhaustive verification technique
 that takes two inputs---a \emph{system model} $M$ and a \emph{specification}
-$\varphi$---and decides whether every behaviour of $M$ satisfies $\varphi$.
-When the answer is negative, it produces a concrete \emph{counter-example}
-trace.
+$\varphi$---and decides whether $M\models\varphi$, meaning that $\varphi$
+holds at every initial state under the semantics of the chosen logic.  For a
+linear-time specification this requires every initialized execution of $M$ to
+satisfy $\varphi$; a branching-time specification can instead quantify over
+the branches from each state.  When the answer is negative, the tool should
+provide a diagnostic
+\emph{counterexample} or witness whenever the logic and algorithm support
+one.
 \end{definition}
 
 \medskip\noindent
@@ -138,25 +304,16 @@ formula describing the behaviours we accept as correct.  Model checking
 is the decision problem $M \models \varphi$, made effective by the
 finiteness of $M$.  Crucially, the answer is not a probabilistic
 guarantee but a mathematical theorem that holds for every possible
-execution, including those driven by an adversarial environment.
+execution, including those driven by an adversarial environment.  We write
+$M \models \varphi$ for this judgement.  The precise meaning of
+``satisfies'' depends on the temporal logic and is intentionally deferred to
+the later LTL and CTL chapters; here the notation records only the input and
+the desired verdict.
 
-\begin{remark}[Formal statement, for a temporal logic $\varphi$]
-Fix a Kripke structure $M = (AP, Q, Q_0, R, L)$ and a state $s \in Q$.
-Writing $A$ for the universal (``for all paths'') quantifier of
-\cref{sec:ltl-ctl-overview}, we say
-\[
-  M, s \models A\varphi
-\]
-iff \emph{every} path of $M$ starting at $s$ is a model of $\varphi$.  The
-\emph{model checking problem for $\varphi$} (e.g., LTL-MC for LTL
-formulas) is then the problem of deciding $M, s \models A\varphi$ for a
-given initial state $s \in Q_0$; we abbreviate this to $M, s \models
-\varphi$ throughout the chapter, since here the universal reading is the
-only one we use unless stated otherwise.  LTL-MC is
-\textbf{PSPACE-complete} (Sistla and Clarke, 1985); we return to this
-result, and to its CTL and CTL* counterparts, in
-\cref{sec:ltl-ctl-overview}.
-\end{remark}
+For the arbiter, the model is the four-state transition system developed
+below and $\varphi$ is the request/next-busy requirement.  A negative verdict
+is useful because its witness identifies the default branch that leaves the
+next control state unconstrained.
 
 Three features distinguish model checking from other verification approaches.
 
@@ -173,16 +330,23 @@ Three features distinguish model checking from other verification approaches.
         Dijkstra observed, ``program testing can be used to show the presence
         of bugs, but never to show their absence''---model checking is
         designed to remove precisely this limitation.
-  \item \textbf{Counter-example generation.}  When the property is violated,
-        the model checker produces a concrete execution trace starting from an
-        initial state and ending at the faulty behaviour.  This trace can be
-        \emph{replayed} on the model to locate and fix the defect, enabling
-        an iterative \emph{refinement loop}: model $\to$ check $\to$
-        counter-example $\to$ fix model $\to$ re-check.
+  \item \textbf{Counterexample generation.}  When the property is violated,
+        the model checker provides diagnostic evidence.  For the arbiter and
+        for LTL this evidence is an execution trace that can be \emph{replayed}
+        to locate the defect.  Branching-time properties may require a
+        branching witness rather than one linear trace; we return to this
+        distinction after the first examples.  In either case the evidence
+        supports an iterative \emph{refinement loop}: model $\to$ check
+        $\to$ diagnose $\to$ fix model $\to$ re-check.
 \end{enumerate}
 
-\begin{remark}[Universal vs. Existential Model Checking]
-The standard definition of model checking (as described above) is \emph{universal}: it proves that a property holds in \emph{all} possible executions of the system. However, model checking can also be used existentially. In \emph{existential model checking}, we ask if there exists \emph{at least one} execution satisfying a property---for example, finding if a security vulnerability or an information leak is reachable. This is particularly efficient using \emph{Bounded Model Checking} (introduced in the early 2000s), which searches for paths up to a fixed length $k$.
+\begin{remark}[Universal vs. existential model checking]
+The standard question in this chapter is \emph{universal}: does the property
+hold in every execution?  An \emph{existential} query instead asks whether at
+least one execution has a specified behaviour, for example whether an
+information leak is reachable.  Bounded model checking searches
+existentially for such a path up to a fixed length~$k$; its SAT-based
+algorithm is a later topic and is only being named here.
 \end{remark}
 
 \cref{fig:mc-flow} sketches the overall workflow.
@@ -207,7 +371,7 @@ The standard definition of model checking (as described above) is \emph{universa
     \node[input] (spec) at (4.2, 0)    {Specification\\$\varphi$};
     \node[tool]  (mc)   at (2.3,-2.1)  {Model\\checker};
     \node[sat]   (ok)   at (-0.9,-4.4) {Satisfied\\(\textbf{true})};
-    \node[viol]  (bug)  at (2.3,-4.4)  {Violated\\+ counter-example};
+    \node[viol]  (bug)  at (2.3,-4.4)  {Violated\\+ counterexample};
     \node[mem]   (oom)  at (5.5,-4.4)  {Insufficient\\memory};
 
     \draw[edge] (sys)  -- (mc);
@@ -223,100 +387,12 @@ The standard definition of model checking (as described above) is \emph{universa
           align=center] at (-3.2,-2.95) {refine\\model};
   \end{tikzpicture}
   \caption{The model-checking workflow.  The tool takes a system model and a
-           specification as input.  It outputs either a correctness
-           certificate, a counter-example trace (enabling model refinement),
+           specification as input.  It outputs either a positive verdict,
+           a diagnostic counterexample (enabling model refinement),
            or a memory-exhaustion signal.  The dashed arrow shows the
            refinement loop.}
   \label{fig:mc-flow}
 \end{figure}
-
-\subsection{The quality of model and specification}
-
-Model checking gives guarantees that are exactly as strong as the quality of
-its two inputs.  A vivid failure mode:
-
-\begin{example}[Vacuously true specification]
-Suppose the engineer writes a complex temporal formula $\varphi$ that, due
-to a typo or logical error, contains the sub-formula $p \lor \neg p$.  The
-whole formula is then a tautology.  The model checker will always report
-``satisfied''---even if the system is completely broken---because $\varphi$
-is trivially true in every state.  The result is \emph{garbage out} for
-\emph{garbage in}.
-\end{example}
-
-In practice, verifying the quality of specifications is as important as
-running the model checker itself.  Techniques include:
-\begin{itemize}
-  \item \textbf{Vacuity detection}: check whether $\varphi$ is satisfied
-        because some sub-formula is unreachable.
-  \item \textbf{Mutation testing on specifications}: slightly mutate
-        $\varphi$ and check that the answer changes.
-  \item \textbf{Sanity checks}: verify simple expected properties first
-        (e.g., the initial state is reachable) before moving to complex ones.
-\end{itemize}
-
-\begin{example}[The three techniques on the arbiter]
-\label{ex:spec-quality-arbiter}
-Take the arbiter's property from \cref{ex:arbiter-smv},
-$\varphi = \mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state} =
-\textsc{Busy}))$.
-\begin{itemize}
-  \item \textbf{Vacuity detection.}  The antecedent \texttt{request} must
-        actually be reachable for $\varphi$ to say anything: if the model
-        (by a modelling mistake) never let \texttt{request} become true,
-        $\varphi$ would hold \emph{vacuously}---true only because its
-        premise is never triggered.  The check is
-        $\mathbf{EF}(\texttt{request})$: it must be \textbf{true} before
-        $\varphi$'s satisfaction is trusted.
-  \item \textbf{Mutation testing.}  Mutate the consequent's path
-        quantifier: $\varphi' = \mathbf{AG}(\texttt{request} \to
-        \mathbf{EX}(\texttt{state} = \textsc{Busy}))$ (``\emph{some}
-        successor is busy'' instead of ``\emph{every} successor is
-        busy'').  On the unfixed arbiter of \cref{fig:arbiter-kripke},
-        $\varphi$ is false but $\varphi'$ is true---the mutant changes
-        the verdict, which is exactly the signal that the original
-        $\mathbf{AX}$ was doing real work in $\varphi$ (had both versions
-        agreed, that would suggest $\varphi$ does not actually depend on
-        the distinction it appears to make).
-  \item \textbf{Sanity checks.}  Before trusting any result on $\varphi$,
-        check that the initial states are reachable at all
-        ($\mathbf{EF}(\mathit{ready})$, trivially true here) and that the
-        model is not over-constrained into a single frozen state.  Only
-        after these pass is $\varphi$'s answer meaningful.
-\end{itemize}
-\end{example}
-
-\subsection{Universal and existential model checking}
-
-The model checking we study is primarily \emph{universal}: we ask whether
-\emph{all} behaviours of the system satisfy $\varphi$.  There is a dual
-variant, \emph{existential model checking}, that asks whether \emph{there
-exists} at least one behaviour satisfying $\varphi$.
-
-Existential model checking is useful for security analysis: the property
-$\varphi$ can express the \emph{existence of an information leak} or a
-reachable dangerous state.  The celebrated
-\emph{Bounded Model Checking} (BMC) algorithm---introduced by Cimatti and
-collaborators in the early 2000s---is essentially an efficient existential
-model checker based on SAT solving.  We will return to SAT-based and
-symbolic variants later in the model-checking part.
-
-\begin{example}[An existential query on the arbiter]
-On the unfixed arbiter of \cref{ex:arbiter-smv}, a universal check like
-$\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state} =
-\textsc{Busy}))$ asks about \emph{every} behaviour.  An existential query
-instead asks whether \emph{one} bad behaviour exists---the natural shape
-for a design flaw such as ``can the arbiter enter \textsc{Busy} without
-ever having seen a request?''  Formally: $\mathbf{EF}(\texttt{state} =
-\textsc{Busy} \land \neg\texttt{request})$.  On
-\cref{fig:arbiter-kripke} this is \textbf{true}: the buggy
-\texttt{TRUE} branch of the \texttt{case} lets the model transition from
-$\textsf{RF}$ (ready, no request) directly to $\textsf{BF}$ (busy, still
-no request) in a single step.  Finding this witness is exactly what an
-existential model checker (or BMC, unrolling from the initial states) is
-built to do efficiently: it only has to find \emph{one} such path, not
-enumerate all of them.
-\end{example}
 
 \subsection{A brief historical note}
 
@@ -352,9 +428,13 @@ software failures whose costs---in human lives and money---were enormous.
         rightmost point of the cost-of-repair curve.
 \end{itemize}
 
+\cref{fig:cost-curve} connects these incidents to the development process:
+defects are concentrated early, but postponing their discovery makes repair
+progressively more expensive.
+
 \begin{figure}[ht]
   \centering
-  \begin{tikzpicture}[x=1.8cm, y=0.9cm, >=Stealth,
+  \begin{tikzpicture}[x=1.4cm, y=0.9cm, >=Stealth,
       axis/.style={-Stealth, thick, draw=graphite},
       bar/.style={draw=accent!80, line width=5pt},
       costcurve/.style={very thick, draw=tomato},
@@ -385,7 +465,7 @@ software failures whose costs---in human lives and money---were enormous.
     \node[above right, font=\tiny\sffamily, text=tomato!85!black]
           at (5.1,3.8) {cost to fix};
 
-    % Relative cost-to-fix multipliers along the curve (after Capers Jones)
+    % Relative cost-to-fix multipliers used in the lecture plot
     \foreach \x/\m in {1.4/1, 2.1/4, 3/10, 4/40, 5/640}
       \node[right, xshift=4pt, font=\tiny\sffamily, text=tomato!80!black]
             at (\x, {0.05*exp(0.9*(\x-0.4))}) {$\m\times$};
@@ -395,14 +475,10 @@ software failures whose costs---in human lives and money---were enormous.
     \node[above, font=\tiny\sffamily, text=vvviolet!88!black, align=center]
           at (0.7,4.05) {synthesis\\goal};
   \end{tikzpicture}
-  \caption{The cost to fix a defect grows exponentially with the development
-           phase in which it is discovered.  The majority of defects are
-           injected during coding, but the cost of fixing them after release
-           is orders of magnitude higher.  The relative multipliers ($1\times$
-           during coding up to $640\times$ after release) are the classic
-           figures reported by Capers Jones, \emph{Applied Software
-           Measurement}.  Synthesis aims to eliminate bugs at the design phase
-           entirely.}
+  \caption{The lecture's qualitative cost curve: defects are concentrated
+           early, while the relative cost of repair rises sharply in later
+           phases.  The synthesis arrow marks the goal of preventing defects
+           at design time.}
   \label{fig:cost-curve}
 \end{figure}
 
@@ -416,8 +492,8 @@ The theoretical groundwork spans four decades of milestones:
   \item[1969 (Hoare).] \emph{A syntax-based technique for sequential
         programs.}  Hoare logic asks, for a given input, whether a program
         produces the correct output, via compositional proof rules
-        expressed in predicate logic (\cref{fig:hoare-rules}).  This is the
-        deductive-methods tradition referenced in
+        expressed in predicate logic.  This is the deductive-methods
+        tradition referenced in
         \cref{sec:formal-methods-context}.
   \item[1977 (Pnueli).] \emph{A syntax-based technique for concurrent
         programs.}  Temporal logic extends the proof-rule approach to
@@ -435,36 +511,11 @@ into program verification; Clarke, Emerson, and Sifakis shared the 2007
 Turing Award for developing model checking into a verification technology
 now widely adopted across the hardware and software industries.
 
-\begin{figure}[ht]
-  \centering
-  \[
-    \begin{array}{c}
-      \{p\}\ \texttt{skip}\ \{p\}
-      \qquad\qquad
-      \{p[x \mapsto t]\}\ x := t\ \{p\}
-      \\[2ex]
-      \dfrac{\{p\}\ S_1\ \{r\} \qquad \{r\}\ S_2\ \{q\}}
-            {\{p\}\ S_1; S_2\ \{q\}}
-      \\[2ex]
-      \dfrac{\{p \wedge b\}\ S_1\ \{q\} \qquad \{p \wedge \neg b\}\ S_2\ \{q\}}
-            {\{p\}\ \texttt{if } b \texttt{ then } S_1 \texttt{ else } S_2\ \{q\}}
-      \\[2ex]
-      \dfrac{\{p \wedge b\}\ S\ \{p\}}
-            {\{p\}\ \texttt{while } b \texttt{ do } S\ \{p \wedge \neg b\}}
-      \qquad\qquad
-      \dfrac{\{p_1\}\ S\ \{q_1\}}{\{p\}\ S\ \{q\}} \ \ (p \Rightarrow p_1,\ q_1 \Rightarrow q)
-    \end{array}
-  \]
-  \caption{Hoare logic proof rules for partial correctness: skip,
-           assignment, sequential composition, conditional, loop, and the
-           rule of consequence.  Each rule concludes a Hoare triple
-           $\{p\}\,S\,\{q\}$ (``if $p$ holds before $S$ runs and $S$
-           terminates, then $q$ holds after'') from triples for its
-           sub-statements.  Unlike model checking, applying these rules to
-           a real program is a manual, creative act: the engineer must
-           supply the loop invariant $p$.}
-  \label{fig:hoare-rules}
-\end{figure}
+Hoare logic is mentioned here only as the representative deductive method:
+its proof rules propagate pre- and postconditions through a program, while
+the engineer supplies key assertions such as loop invariants.  The lectures
+use it as a contrast with automatic model checking, not as a topic to develop
+in this chapter.
 
 \subsection{Model checking in practice}
 
@@ -512,13 +563,13 @@ variables is a distinct state, so the state space has size $2^n$.
 A program records the daily rainfall in millimetres for each of the seven
 days of the week.  Suppose the maximum daily rainfall is 1000\,mm (one
 metre), so each of the seven locations stores a value in $\{0, 1, \ldots,
-999\}$.  The total number of states is $1000^7 = 10^{21}$---comparable to
-the estimated number of atoms in the observable universe.
+999\}$.  The total number of assignments, and hence possible states, is
+$1000^7 = 10^{21}$.
 \end{example}
 
 The explosion becomes worse with concurrent systems: if we have $N$ processes
 each with 2 states, the combined state space---their Cartesian product,
-recalled concretely in \cref{subsec:sync-async}---has $2^N$ states.  With
+illustrated concretely in \cref{subsec:sync-async}---has $2^N$ states.  With
 100 processes, that is $2^{100}$, which is infeasible to store or
 enumerate.
 
@@ -553,6 +604,11 @@ model checking widely applicable: sequential programs, multi-threaded
 programs, communicating processes, and hardware circuits are all, at
 bottom, transition systems---so the same Kripke-structure semantics and the
 same model-checking algorithms apply uniformly to all of them.
+
+For the arbiter, the required graph has one node for each valuation of
+\texttt{request} and \texttt{state}, arrows for possible next valuations, and
+labels recording which facts hold.  The following definition packages those
+three ingredients for an arbitrary system.
 
 \begin{definition}[Kripke structure / transition system]
 \label{def:kripke}
@@ -605,6 +661,13 @@ states (one per assignment).  The initial condition fixes
 $\texttt{state} = \textsc{Ready}$, with \texttt{request} unconstrained,
 giving \emph{two} initial states.
 
+The figure below also previews the CTL notation used by the lecture:
+\(A\) means ``for all paths'', \(G\) means ``always'', and \(X\) means
+``in the next state''.  Thus
+\(\mathbf{AG}(\texttt{request}\to
+\mathbf{AX}(\texttt{state}=\textsc{Busy}))\) requires every requested state
+to have only busy successors.  The full logic is intentionally postponed.
+
 To see how this corresponds precisely to \cref{def:kripke}, we can specify the components of the Kripke structure $M = (AP, Q, Q_0, R, L)$:
 \begin{itemize}
   \item $AP = \{ r, \mathit{ready}, \mathit{busy} \}$, where $r$ represents $\texttt{request} = \mathit{true}$, $\mathit{ready}$ represents $\texttt{state} = \textsc{Ready}$, and $\mathit{busy}$ represents $\texttt{state} = \textsc{Busy}$;
@@ -629,293 +692,48 @@ To see how this corresponds precisely to \cref{def:kripke}, we can specify the c
   \begin{tikzpicture}[
       every node/.style={font=\small},
       st/.style={draw, circle, minimum size=1.3cm, align=center, inner sep=1pt},
-      init/.style={st, fill=teal!20, draw=teal!60, thick},
-      arr/.style={->, thick}
+      init/.style={st, fill=accent!15, draw=accent!75, thick},
+      arr/.style={->, thick},
+      both/.style={<->, thick}
     ]
-    \node[init] (RF) at (0, 0)   {\textsc{Rdy}\\$r{=}0$};
-    \node[init] (RT) at (4, 0)   {\textsc{Rdy}\\$r{=}1$};
-    \node[st]   (BF) at (0,-3)   {\textsc{Bsy}\\$r{=}0$};
-    \node[st]   (BT) at (4,-3)   {\textsc{Bsy}\\$r{=}1$};
+    % Planar layout: three outer vertices and one central vertex.  RT is the
+    % only valuation whose outgoing control state is constrained to Busy.
+    \node[init] (RF) at (-2.3, 1.7) {\textsc{Rdy}\\$r{=}0$};
+    \node[init] (RT) at ( 2.3, 1.7) {\textsc{Rdy}\\$r{=}1$};
+    \node[st]   (BF) at ( 0,  -2.0) {\textsc{Bsy}\\$r{=}0$};
+    \node[st]   (BT) at ( 0,   0.1) {\textsc{Bsy}\\$r{=}1$};
 
     % Initial markers
-    \draw[->, gray, thick] (-1.5, 0) -- (RF);
-    \draw[->, gray, thick]  (5.5, 0) -- (RT);
+    \draw[->, gray, thick] (-3.7, 1.7) -- (RF);
+    \draw[->, gray, thick]  (3.7, 1.7) -- (RT);
 
-    % Self loops
+    % RF may move to RT, but RT cannot move back to RF: with a request in
+    % Ready, the first case branch forces the next control state to Busy.
+    \draw[arr]  (RF) -- (RT);
+    \draw[both] (RF) -- (BF);
+    \draw[both] (RT) -- (BF);
+    \draw[both] (RF) -- (BT);
+    \draw[both] (BF) -- (BT);
+    \draw[arr]  (RT) -- (BT);
+    \draw[arr, orange!80!red, very thick]
+          (BT) to[bend right=28]
+          node[midway, right=2pt, font=\tiny, text=orange!80!red]{bug} (RT);
+
+    % The case branch is deterministic only at RT, so RT has no self-loop.
     \draw[arr] (RF) edge[loop above] (RF);
-    \draw[arr] (RT) edge[loop above] (RT);
     \draw[arr] (BF) edge[loop below] (BF);
-    \draw[arr] (BT) edge[loop below] (BT);
-
-    % Cross transitions (request can flip freely)
-    \draw[arr] (RF) to[bend left=10]  (RT);
-    \draw[arr] (RT) to[bend left=10]  (RF);
-    \draw[arr] (BF) to[bend left=10]  (BT);
-    \draw[arr] (BT) to[bend left=10]  (BF);
-
-    % Buggy transitions: Ready+req -> can go to Busy or anywhere
-    \draw[arr] (RF) to (BF);
-    \draw[arr] (RF) to (BT);
-    \draw[arr] (RT) to (BF);
-    \draw[arr] (RT) to (BT);
-
-    % Busy can return to Ready (unconstrained) --- the real bug is BT -> Ready
-    \draw[arr] (BF) to[bend right=30] (RF);
-    \draw[arr, orange!80!red, very thick] (BT) to[bend left=30]
-          node[right, font=\tiny, orange!80!red]{bug} (RT);
-    \draw[arr] (BF) to[bend right=50] (RT);
-    \draw[arr] (BT) to[bend left=50]  (RF);
+    \draw[arr] (BT) edge[loop left]  (BT);
   \end{tikzpicture}
   \caption{Kripke structure of the unconstrained arbiter
-           (Example~\ref{ex:arbiter-kripke}).  Initial states (teal) have
+           (Example~\ref{ex:arbiter-kripke}).  Initial states (blue) have
            $\texttt{state} = \textsc{Ready}$.  The orange transition
            $(\textsc{Busy}, r{=}1) \to (\textsc{Ready}, r{=}1)$ witnesses
-           the bug: with a request pending, the unconstrained
+           one instance of the bug: with a request pending, the unconstrained
            \texttt{TRUE} branch of the \texttt{case} lets the next state
            be \textsc{Ready} rather than \textsc{Busy}, violating
            $\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))$.}
   \label{fig:arbiter-kripke}
 \end{figure}
-
-% -----------------------------------------------------------------------
-\section{Specifications: Safety and Liveness}
-\label{sec:safety-liveness}
-
-A Kripke structure packages \emph{all} behaviours of a system; a
-specification selects which of those behaviours we accept as correct.
-Choosing the specification is therefore as important as choosing the
-model: an overly weak property is satisfied vacuously, an overly strong
-property is never satisfied, and a property in the wrong shape may not
-even be expressible in the temporal logic we plan to use.  In this
-section we introduce the classical Lamport taxonomy that splits
-temporal specifications into two families.  The split is not just
-pedagogical: as the LTL material in \cref{ch:ltl} will make algorithmic,
-safety and liveness properties are checked by qualitatively different
-searches.
-
-\subsection{Two kinds of ``always good''}
-
-Before giving the formal definitions, let us build intuition on the
-arbiter of \cref{ex:arbiter-kripke}.  Two natural requirements are:
-
-\begin{itemize}
-  \item \emph{``Two processes are never granted the resource at the same
-        time.''}  A violation is observed \emph{at a single instant}:
-        as soon as we see the bad configuration, no future behaviour of
-        the system can deny that it happened.
-  \item \emph{``Every request is eventually followed by a grant.''}
-        A violation can never be observed at any finite instant: no
-        matter how long the request has been pending, there is always a
-        future in which the grant arrives.  The only way to refute the
-        property is to exhibit an \emph{infinite} run in which the
-        grant never comes.
-\end{itemize}
-
-The first property is a \emph{safety} property; the second is a
-\emph{liveness} property.  The distinction is captured formally by
-asking what kind of finite prefix witnesses a violation.
-
-\begin{definition}[Safety property]
-\label{def:safety}
-A property $P \subseteq (2^{AP})^\omega$ is a \emph{safety property}
-if every behaviour that violates $P$ has a \emph{finite bad prefix}:
-for every $\sigma \notin P$ there exists $i \geq 0$ such that no
-extension of the prefix $\sigma[0,i]$ belongs to $P$.
-\end{definition}
-
-\medskip\noindent
-\textbf{Intuition.}  A safety violation is witnessed at a concrete
-instant.  Once the bad thing has happened, no future behaviour of the
-system can ``undo'' it.  Typical safety properties are mutual exclusion
-(two processes are never simultaneously in their critical sections),
-partial correctness of an arbiter (a grant is never asserted without a
-pending request), type correctness (a pointer is never dereferenced
-after being freed), and absence of deadlock.  Mechanically, a safety
-property is checked by a \emph{reachability} search: does any
-reachable state satisfy the bad condition?
-
-\begin{definition}[Liveness property]
-\label{def:liveness}
-A property $P \subseteq (2^{AP})^\omega$ is a \emph{liveness property}
-if every finite prefix can be extended to a behaviour in $P$: for
-every finite word $u \in (2^{AP})^*$ there exists an infinite word
-$\sigma \in P$ with prefix $u$.
-\end{definition}
-
-\medskip\noindent
-\textbf{Intuition.}  A liveness property can never be refuted by a
-finite prefix: no matter how long we observe the system, there is
-always a future in which the property could still hold.  Violations
-therefore require an \emph{infinite} witness.  Typical liveness
-properties are starvation freedom (every pending request is eventually
-granted), eventual delivery (every sent packet eventually arrives),
-and the absence of indefinite waiting.  Mechanically, a liveness
-property is checked by a \emph{repeated reachability} or
-\emph{fair-cycle} search.
-
-\begin{example}[Safety vs.\ liveness in the arbiter]
-\label{ex:arbiter-safety-liveness}
-Reconsider the arbiter of \cref{ex:arbiter-kripke} with atomic
-propositions $AP = \{r, \mathit{ready}, \mathit{busy}\}$.
-\begin{itemize}
-  \item ``Whenever the arbiter is \textsc{Busy}, it was \textsc{Ready}
-        in the previous step'' is a \emph{safety} property: the
-        violation is a single transition in which the invariant fails,
-        and no extension of that prefix repairs it.
-  \item ``Every request is eventually followed by a busy state,''
-        formally $\mathbf{AG}(r \to \mathbf{AF}\,\mathit{busy})$, is a
-        \emph{liveness} property: a finite trace with a pending request
-        can always be extended with a later busy state, so no finite
-        prefix alone witnesses a violation.
-\end{itemize}
-The CTL property we wrote in the SMV model
-(\texttt{AG (request -> AX (state = busy))}) is a hybrid: a
-\emph{bounded} liveness property, itself a safety property in disguise,
-because the deadline ``next state'' turns every violation into a
-finite witness of length two.
-\end{example}
-
-\begin{remark}[The decomposition theorem]
-Every temporal property decomposes, in a precise sense, into a safety
-and a liveness component (the Alpern--Schneider decomposition).  This
-is more than a theoretical curiosity: in practice we check safety with
-forward reachability and liveness with cycle detection, so knowing
-which part of a specification we are dealing with determines the
-algorithm we run.
-\end{remark}
-
-\begin{example}[A decomposition, made concrete]
-The two halves of \cref{ex:arbiter-safety-liveness} are not just two
-separate illustrations---conjoined, they \emph{are} an instance of the
-decomposition.  Let
-\[
-  \varphi = \underbrace{\text{``whenever \textsc{Busy}, was \textsc{Ready}
-  in the previous step''}}_{\varphi_{\mathit{safe}}}
-  \ \land\
-  \underbrace{\mathbf{AG}(r \to \mathbf{AF}\,\mathit{busy})}_{\varphi_{\mathit{live}}}.
-\]
-A run violates $\varphi$ for exactly one of two reasons, and the reason
-determines the shape of the counterexample: if $\varphi_{\mathit{safe}}$
-fails, the witness is the finite bad transition already identified
-in \cref{ex:arbiter-safety-ce}; if $\varphi_{\mathit{live}}$ fails
-instead (a request is pending forever), the witness is the infinite
-lasso of \cref{sec:counterexamples}.  A model checker for $\varphi$ can
-therefore split the work: run reachability for $\varphi_{\mathit{safe}}$
-and cycle detection for $\varphi_{\mathit{live}}$, and $\varphi$ holds
-iff both succeed.  The Alpern--Schneider theorem says this split is
-always available, even for properties that are not handed to us
-pre-conjoined like this one.
-\end{example}
-
-The editor traces of \cref{ch:omega-automata} give us a familiar
-vocabulary for the two families: ``every \texttt{edit} is followed by
-\texttt{save} within two steps'' is a safety property, while
-``\texttt{save} occurs infinitely often''---the very property recognised
-by the B\"uchi automaton of \cref{fig:infinitely-many-save}---is a
-liveness property.  The temporal logics LTL and CTL of
-\cref{ch:ltl} and the later CTL material will give us the syntax to
-write both kinds compactly; for now the informal vocabulary is enough.
-
-% -----------------------------------------------------------------------
-\section{Counterexamples: From Bugs to Witnesses}
-\label{sec:counterexamples}
-
-When the model checker reports \texttt{false}, the third desideratum of
-model checking kicks in: it must produce a \emph{counterexample}, a
-concrete behaviour of $M$ that starts in an initial state and violates
-$\varphi$.  Counterexamples are what makes model checking an iterative
-engineering activity rather than a one-shot oracle: a readable witness
-points the engineer at the exact sequence of choices that produces the
-bug, supports an interactive \emph{model $\to$ check $\to$ fix} loop,
-and survives as a regression test once the bug is fixed.
-
-The \emph{shape} of a counterexample depends on the kind of property
-that was violated.
-
-\subsection{Finite prefixes for safety violations}
-
-If $\varphi$ is a safety property, then by \cref{def:safety} a
-violation has a finite witness.  Concretely, the model checker returns
-a finite path
-\[
-  q_0 \to q_1 \to \cdots \to q_k
-\]
-with $q_0 \in Q_0$ and such that the bad event is observed at position
-$k$.  No infinite extension of the prefix can repair the violation, so
-the prefix alone is the certificate.
-
-\begin{example}[A safety counterexample in the arbiter]
-\label{ex:arbiter-safety-ce}
-In the unconstrained arbiter of \cref{fig:arbiter-kripke} the bounded
-property $\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))$
-fails.  Reading the figure, a finite counterexample is the three-state
-trace
-\[
-  \textsf{RF} \to \textsf{RT} \to \textsf{BT} \to \textsf{RT},
-\]
-i.e., start with no request; the environment raises a request (now at
-\textsf{RT}); the arbiter correctly moves to \textsc{Busy} (now at
-\textsf{BT}); but \texttt{request} is still true at \textsf{BT}, and
-the unconstrained \texttt{TRUE} branch of the \texttt{case} lets the
-arbiter return to \textsc{Ready}---violating the property at the last
-step.  This is exactly the orange ``bug'' edge of
-\cref{fig:arbiter-kripke}.
-\end{example}
-
-\subsection{Lassos for liveness violations}
-
-If $\varphi$ is a liveness property, no finite prefix can witness its
-violation: we need an \emph{infinite} behaviour in which the good
-event simply never occurs.  By the pigeonhole principle on the finite
-state space, every infinite path in a finite Kripke structure
-eventually enters a cycle.  Hence a liveness counterexample is always
-an \emph{ultimately periodic} path of the form
-\[
-  q_0 \to \cdots \to q_i \tto{\,\text{cycle}\,} q_i \to \cdots
-\]
-where the cycle is repeated forever.  This is precisely the
-\emph{lasso} shape of \cref{def:ultimately-periodic} and
-\cref{fig:buchi-lasso}: a finite prefix $u$ followed by an infinitely
-repeated non-empty suffix $v$.
-
-\begin{example}[A liveness counterexample is a lasso]
-\label{ex:lasso-counterexample}
-In the producer--consumer model of \cref{sec:prod-cons}, consider the
-liveness property ``whenever the buffer is full, eventually a cell is
-freed.''  Without fairness the property fails, and the counterexample
-is the infinite path on which the producer runs at every step:
-\[
-  \underbrace{(\textsf{empty},\textsf{empty})}_{\text{prefix}}
-  \to
-  \underbrace{(\textsf{full}_1,\textsf{empty}) \to
-              (\textsf{full}_1,\textsf{full}_2)}_{\text{prefix}}
-  \to
-  \underbrace{(\textsf{full}_1,\textsf{full}_2) \to
-              (\textsf{full}_1,\textsf{full}_2) \to \cdots}_{\text{lasso cycle}}.
-\]
-The cycle is a single self-loop on the state with a full buffer; the
-consumer never runs.  Reading the witness, the engineer identifies the
-unfair scheduling choice and adds a fairness constraint
-(\cref{sec:fairness}) to rule it out.
-\end{example}
-
-\begin{remark}[Why the model checker emits a lasso]
-The algorithmic reason is the same as the B\"uchi emptiness check of
-\cref{thm:buchi-emptiness} in Part~I: a finite graph contains an
-infinite path avoiding some set of states iff there is a reachable
-cycle that avoids that set.  Searching for such a cycle is exactly
-what an LTL model checker does, and the lasso it returns is the finite
-encoding of an infinite counterexample.  The LTL chapter will make this
-automata-theoretic search precise.
-\end{remark}
-
-The practical takeaway is that every counterexample is ultimately
-periodic, regardless of whether the property was safety or liveness.
-For safety the cycle has length zero (a single state suffices); for
-liveness the cycle is the heart of the witness.  In
-\cref{sec:smv-lang} we will write the models that produce such
-counterexamples, and in \cref{sec:nuxmv-simulation} we will replay
-them with NuXMV.
 
 % -----------------------------------------------------------------------
 \section{The SMV Modelling Language}
@@ -926,9 +744,8 @@ writing real examples by hand.  Drawing the four-state graph of the
 arbiter already tried our patience; a 100-state model would be
 untenable.  SMV is the bridge between the engineering and the
 mathematics: the modeller writes variables, initial conditions, and
-next-state constraints in a small, typed language; the tool turns
-them into the Kripke structure of \cref{sec:kripke} on which the
-algorithms of \cref{sec:counterexamples} operate.  Specifications are
+next-state constraints in a small, typed language; their semantics is the
+Kripke structure of \cref{sec:kripke}.  Specifications are
 written in the same notation, so that the model, the property, and the
 counterexample all live in one file.
 
@@ -948,6 +765,17 @@ SMV supports:
   \item \textbf{Multiple specification languages}: LTL, CTL, and others.
 \end{itemize}
 
+The language can describe infinite-state systems, but this chapter deliberately
+uses only finite domains.  That restriction is what makes the explicit Kripke
+structures drawn below finite; symbolic treatment of larger or infinite
+domains belongs to later chapters.
+
+The explicit graphs in this chapter are a reasoning aid, not a description of
+NuXMV's implementation.  As stressed in the lecture, a modern symbolic model
+checker manipulates formulas representing states and transitions instead of
+materialising the whole Kripke graph.  The symbolic algorithms themselves are
+introduced later.
+
 Every SMV model has an entry-point module named \texttt{main}.
 
 \subsection{State variables and types}
@@ -966,26 +794,30 @@ A \emph{state} is an assignment of a value to every state variable.  With
 $n$ Boolean variables we get $2^n$ states; with integer-range or enumeration
 variables the count grows accordingly.
 
-\subsection{The \texttt{ASSIGN} block}
+\subsection{The \texttt{ASSIGN} block and invariants}
 \label{sec:smv-assign}
 
-The \texttt{ASSIGN} block specifies how each variable evolves.  It contains
-three kinds of statement:
+The \texttt{ASSIGN} block specifies initial values, evolution, and invariant
+assignments.  It admits three forms:
 
 \begin{description}
-  \item[\texttt{init(v) := expr}] The \emph{initial value} of variable $v$
-        must satisfy \texttt{expr}.
-  \item[\texttt{next(v) := expr}] The \emph{next value} of $v$ in any
-        successor state must satisfy \texttt{expr}.
-  \item[\texttt{INVAR expr}] An \emph{invariant}: \texttt{expr} must hold in
-        \emph{every} state (those that violate it are pruned from the state
-        space).
+  \item[\texttt{init(v) := expr}] In an initial state, the value of $v$
+        equals the value of \texttt{expr}.
+  \item[\texttt{next(v) := expr}] In a transition, the successor value of
+        $v$ equals the value of \texttt{expr}.
+  \item[\texttt{v := expr}] In every admissible state, the value of $v$
+        equals the value of \texttt{expr}.  This is an invariant assignment.
 \end{description}
+
+The separate top-level declaration \texttt{INVAR expr} imposes a state
+constraint: \texttt{expr} must hold in every admissible state.  Valuations
+that violate it are removed from the state space.
 
 \paragraph{Rules.}
 \begin{itemize}
-  \item Every variable may appear in at most one \texttt{init} and at most
-        one \texttt{next} statement.
+  \item Each of \texttt{init(v)} and \texttt{next(v)} may be assigned at
+        most once.  A direct invariant assignment \texttt{v := expr} cannot
+        be combined with either form for the same variable.
   \item There must be no \emph{dependency cycles}: it is illegal to write
         \texttt{next(x) := next(y)} and \texttt{next(y) := next(x)}
         simultaneously.
@@ -997,8 +829,8 @@ three kinds of statement:
 \subsection{Expression syntax}
 \label{sec:smv-exprs}
 
-\emph{Simple expressions} (used in \texttt{init} and \texttt{INVAR}) may
-contain:
+\emph{Simple expressions} (used in \texttt{init}, direct invariant
+assignments, \texttt{INIT}, and \texttt{INVAR}) may contain:
 \begin{itemize}
   \item Constants: integers, \texttt{TRUE}, \texttt{FALSE}, enumeration
         literals.
@@ -1029,8 +861,9 @@ case
 esac
 \end{verbatim}
 It evaluates to the value corresponding to the \emph{first} condition that
-is true.  The final \texttt{TRUE} branch (the ``otherwise'' clause) ensures
-that at least one condition always holds; omitting it is a syntax error.
+is true.  If every condition is false, evaluating the expression is an
+error.  A final \texttt{TRUE} branch is therefore the usual way to make the
+cases exhaustive.
 
 \begin{example}[Arbiter in SMV]
 \label{ex:arbiter-smv}
@@ -1056,7 +889,11 @@ that \texttt{request} has no \texttt{init} or \texttt{next}: it is
 \emph{unconstrained}, so the model checker considers every possible value at
 every step.
 
-The specification \texttt{AG (request -> AX (state = busy))} reads (in CTL):
+The CTL specification
+\begin{center}
+\texttt{AG (request -> AX (state = busy))}
+\end{center}
+reads:
 ``in all reachable states, if a request is present, then in \emph{all next
 states} the arbiter is in state \texttt{busy}.''
 \end{example}
@@ -1070,20 +907,27 @@ constraint either creates states, removes impossible states, or restricts the
 transition relation.
 
 \paragraph{State space.}  Each state is an assignment of values to all
-state variables.  States that violate any \texttt{INVAR} condition are removed.
+state variables.  States that violate a direct invariant assignment or any
+\texttt{INVAR} condition are removed.
 
-\paragraph{Initial states.}  A valuation $s$ is an initial state if and
-only if it satisfies the conjunction of all \texttt{init} constraints:
+\paragraph{Initial states.}  A valuation $s$ is initial if and only if each
+declared initial assignment has the specified value.  In a declaration
+\texttt{init(v) := e}, $v$ is the assigned variable, $e$ is its right-hand
+expression, and $\llbracket e\rrbracket_s$ denotes the value of $e$ in state
+$s$:
 \[
-  s \text{ is initial} \iff s \models \bigwedge_{v} \varphi_v^{\mathit{init}}
+  s \text{ is initial} \iff
+  \bigwedge_{\texttt{init}(v):=e} s(v)=\llbracket e\rrbracket_s .
 \]
-where $\varphi_v^{\mathit{init}}$ is the formula on the right-hand side of
-\texttt{init(v) :=}.  Variables with no \texttt{init} constraint contribute
-the trivially true condition $\top$, so they are unconstrained in the initial
-state.
+Variables with no \texttt{init} assignment are unconstrained initially.
+All initial valuations must also satisfy the top-level \texttt{INIT} and
+\texttt{INVAR} constraints, when present.
 
 \begin{example}[Arbiter initial states]
-Only \texttt{state} has an \texttt{init}: $\texttt{init(state) := ready}$.
+Only \texttt{state} has an initial assignment:
+\begin{center}
+\texttt{init(state) := ready}
+\end{center}
 Since \texttt{request} is unconstrained, the initial states are the two
 valuations:
 \[
@@ -1093,17 +937,20 @@ valuations:
 \end{example}
 
 \paragraph{Transitions.}  There is a transition from state $s$ to state
-$s'$ if and only if the pair $(s, s')$ satisfies the formula obtained by
-replacing each \texttt{next(v) := expr} with the constraint
-$v' \leftrightarrow \mathit{expr}$, where $v'$ denotes the value of $v$ in
-$s'$:
+$s'$ if and only if each next-state assignment is respected.  Replacing
+\texttt{next(v)} by a primed variable $v'$ gives the following operational
+test; here $\llbracket e\rrbracket_{s,s'}$ evaluates the right-hand expression
+$e$ using current values from $s$ and primed values from $s'$:
 \[
-  (s, s') \in R \iff (s \cup s') \models
-    \bigwedge_v \bigl(v' \leftrightarrow \mathit{next\_expr}_v\bigr).
+  (s, s') \in R \iff
+  \bigwedge_{\texttt{next}(v):=e}
+    s'(v)=\llbracket e\rrbracket_{s,s'} .
 \]
-Here, unprimed variables are interpreted under $s$ and primed under $s'$.
-Variables with no \texttt{next} constraint are unconstrained in the
-successor: they can take any value from their type.
+Here, unprimed variables are interpreted under $s$ and primed variables under
+$s'$.  For Boolean variables, equality can equivalently be written as the
+logical biconditional $v'\leftrightarrow e$.  Variables with no
+\texttt{next} assignment are unconstrained in the successor.  Finally,
+top-level \texttt{TRANS} constraints and state invariants must also hold.
 
 \begin{example}[Flip-flop semantics]
 \label{ex:flipflop}
@@ -1135,7 +982,7 @@ with \emph{no self-loops}.  \cref{fig:flipflop} shows this.
   \begin{tikzpicture}[
     st/.style={draw, circle, minimum size=1cm, font=\small},
     arr/.style={->, thick}]
-    \node[st, fill=teal!20, draw=teal!60, thick] (s0) at (0,0) {$x{=}0$};
+    \node[st, fill=accent!15, draw=accent!75, thick] (s0) at (0,0) {$x{=}0$};
     \node[st] (s1) at (3,0) {$x{=}1$};
     \draw[->, gray, thick] (-1.2,0) -- (s0);
     \draw[arr] (s0) to[bend left=25] node[above] {$\neg x$} (s1);
@@ -1158,9 +1005,8 @@ next(x) := case
   TRUE: {TRUE, FALSE};
 esac;
 \end{verbatim}
-But this also adds a self-loop on $s_0$, which we may not want.  The
-cleaner alternative is the \emph{implicit modelling} style using the
-\texttt{TRANS} keyword:
+This works, but the same relation is shorter in the \emph{implicit
+modelling} style using the \texttt{TRANS} keyword:
 
 \begin{verbatim}
 MODULE main
@@ -1178,12 +1024,15 @@ free to choose either $\texttt{next}(x) = \mathit{true}$ or
 $\texttt{next}(x) = \mathit{false}$, giving a self-loop on $s_1$ but not
 on $s_0$.
 
+\cref{fig:flipflop-selfloop} makes the added behaviour visible: the original
+two alternating transitions remain, and only $s_1$ gains a self-loop.
+
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
     st/.style={draw, circle, minimum size=1cm, font=\small},
     arr/.style={->, thick}]
-    \node[st, fill=teal!20, draw=teal!60, thick] (s0) at (0,0) {$x{=}0$};
+    \node[st, fill=accent!15, draw=accent!75, thick] (s0) at (0,0) {$x{=}0$};
     \node[st] (s1) at (3,0) {$x{=}1$};
     \draw[->, gray, thick] (-1.2,0) -- (s0);
     \draw[arr] (s0) to[bend left=25] (s1);
@@ -1217,38 +1066,6 @@ on $s_0$.
   \end{tabular}
 \end{center}
 
-\begin{example}[Bounded counter as a disjunction of guards]
-\label{ex:bounded-counter-trans}
-A shared counter $x \in \{0, \ldots, 200\}$ is acted on by three
-informally-stated behaviours: increment while below the ceiling, decrement
-while above zero, and reset to zero once the ceiling is reached.
-Rather than writing three separate processes, the \texttt{TRANS} paradigm
-lets us state the combined next-state relation directly, as a disjunction
-of three mutually exclusive guarded updates:
-\begin{verbatim}
-MODULE main
-VAR
-  x : 0..200;
-INIT
-  x = 199;
-TRANS
-  (x < 200 & next(x) = x + 1)  |
-  (x > 0   & next(x) = x + (-1)) |
-  (x = 200 & next(x) = 0);
-\end{verbatim}
-Each disjunct is guarded, and the three guards are non-overlapping except
-at the boundary $x=200$ (where both the decrement and the reset guards
-hold, so \texttt{next(x)} may non-deterministically be $199$ or $0$).
-Because every disjunct's guard already restricts \texttt{next(x)} to
-$\{0,\ldots,200\}$, the invariant $\mathbf{AG}(x \geq 0 \wedge x \leq 200)$
-holds by construction: the guarded, atomic-per-step semantics of
-\texttt{TRANS} leaves no room for $x$ to escape its declared range.  This
-is a first, small instance of the encoding
-\cref{sec:state-explosion} will scale up symbolically: a single Boolean
-formula over $x$ and $\texttt{next}(x)$, rather than an explicit list of
-201 states and their transitions.
-\end{example}
-
 \subsection{Integer-range example: modulo-4 counter}
 \label{sec:smv-mod4}
 
@@ -1262,13 +1079,14 @@ ASSIGN
 
 The state space is $\{0, 1, 2, 3\}$ with the unique deterministic cycle
 $0 \to 1 \to 2 \to 3 \to 0$.  There are no self-loops and no branching.
+The cycle is shown explicitly in \cref{fig:mod4}.
 
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
     st/.style={draw, circle, minimum size=0.9cm, font=\small},
     arr/.style={->, thick}]
-    \node[st, fill=teal!20, draw=teal!60, thick] (s0) at ( 0,  0) {$0$};
+    \node[st, fill=accent!15, draw=accent!75, thick] (s0) at ( 0,  0) {$0$};
     \node[st] (s1) at ( 2,  0) {$1$};
     \node[st] (s2) at ( 2, -2) {$2$};
     \node[st] (s3) at ( 0, -2) {$3$};
@@ -1339,9 +1157,8 @@ VAR
 ASSIGN
   init(state)  := ready;
   next(state)  := case
-    state = ready & request : busy;
-    state = busy  & request : busy;
-    TRUE                    : ready;
+    request : busy;
+    TRUE    : {ready, busy};
   esac;
 LTLSPEC
   G (request -> X (state = busy))
@@ -1361,24 +1178,31 @@ Input variables \emph{cannot} be constrained by \texttt{init} or
 contains only the state variables, reducing from four to two states in this
 example.
 
+\cref{fig:arbiter-ivar} shows the resulting two-state graph.  The violet input
+labels are choices of the environment, not additional components of a state.
+
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
     st/.style={draw, circle, minimum size=1.1cm, font=\small},
     arr/.style={->, thick}]
-    \node[st, fill=teal!20, draw=teal!60, thick] (R) at (0,0) {\textsc{Rdy}};
+    \node[st, fill=accent!15, draw=accent!75, thick] (R) at (0,0) {\textsc{Rdy}};
     \node[st] (B) at (3.5,0) {\textsc{Bsy}};
     \draw[->, gray, thick] (-1.3,0) -- (R);
-    \draw[arr] (R) to[bend left=25] node[above]{\texttt{req}} (B);
-    \draw[arr] (B) to[bend left=25] node[below]{\texttt{!req}} (R);
-    \draw[arr] (R) edge[loop above] node{\texttt{!req}} (R);
-    \draw[arr] (B) edge[loop above] node{\texttt{req}} (B);
+    \draw[arr] (R) to[bend left=25]
+      node[above, text=vvviolet]{\texttt{req}, \texttt{!req}} (B);
+    \draw[arr] (B) to[bend left=25]
+      node[below, text=vvviolet]{\texttt{!req}} (R);
+    \draw[arr] (R) edge[loop above]
+      node[text=vvviolet]{\texttt{!req}} (R);
+    \draw[arr] (B) edge[loop above]
+      node[text=vvviolet]{\texttt{req}, \texttt{!req}} (B);
   \end{tikzpicture}
-  \caption{Kripke structure of the \emph{fixed} arbiter with \texttt{request}
-           as an input variable.  There are only two states; input values
-           label transitions.  This is the correct model: from any state,
-           whenever \texttt{request} is true, the next state is always
-           \textsc{Busy}.}
+  \caption{Kripke structure of the fixed arbiter from the lecture, with
+           \texttt{request} as an input variable.  There are only two states;
+           input values label transitions.  A request forces \textsc{Busy},
+           while absence of a request leaves the next control state
+           non-deterministic.}
   \label{fig:arbiter-ivar}
 \end{figure}
 
@@ -1388,10 +1212,9 @@ Because input variables effectively act as labels on the transitions, they provi
 
 \begin{remark}
 Input variables cannot appear in CTL specifications under NuSMV, but can
-appear in LTL specifications.  This is a tool-level restriction, not a
-fundamental one: it arises because CTL quantifies over paths using the
-$A$ and $E$ path quantifiers, which in NuSMV's implementation are not
-compatible with the ``label on edge'' semantics of input variables.
+appear in LTL specifications.  This is the tool-level restriction needed to
+run the examples; its logical treatment is postponed with the temporal
+logics themselves.
 \end{remark}
 
 \subsection{The \texttt{define} macro}
@@ -1404,7 +1227,10 @@ DEFINE z := x xor y;
 \texttt{DEFINE} introduces a \emph{macro}: $z$ is syntactic sugar for
 $x \oplus y$ and is \emph{not} a state variable.  The model checker performs
 \emph{flattening} by substituting the definition at every use site before
-building the state space.  Macros are useful for:
+reasoning about the state space.  It must not be confused with
+\texttt{ASSIGN z := x xor y}: the latter is an invariant assignment to a
+declared state variable, whereas the macro creates no variable.  Macros are
+useful for:
 \begin{itemize}
   \item Naming complex sub-expressions reused in multiple specifications.
   \item Defining carry-out signals or other derived signals in hardware
@@ -1424,10 +1250,13 @@ mode:
 \begin{verbatim}
 $ NuXMV -int model.smv
 NuXMV > go
-NuXMV > pick_state -v -i      -- choose initial state interactively
-NuXMV > simulate -k 7 -v -i   -- simulate 7 steps, choose at each step
-NuXMV > show_traces -v         -- display the generated trace
+NuXMV > pick_state -v -i
+NuXMV > simulate -k 7 -v -i
+NuXMV > show_traces -v
 \end{verbatim}
+The first command chooses an initial state interactively; the second simulates
+seven transitions while exposing the available choices; the third prints the
+trace generated so far.
 
 \begin{example}[Simulating the flip-flop]
 \label{ex:nuxmv-flipflop}
@@ -1463,11 +1292,87 @@ NuXMV > simulate -k 23 -v -i
 
 After simulation, model checking is invoked with:
 \begin{verbatim}
-NuXMV > check_spec         -- for CTL/LTL specs in the SPEC/LTLSPEC block
+NuXMV > check_spec
 NuXMV > check_ctlspec -p "AG (request -> AX (state = busy))"
 \end{verbatim}
 
+Now that we can build and simulate models mechanically, we turn to the formal properties we want to check against them.
+
 % -----------------------------------------------------------------------
+\section{Specifications and Diagnostic Counterexamples}
+\label{sec:counterexamples}
+
+A model alone only says what the system \emph{can} do.  A specification says
+which of those behaviours are acceptable.  At this point in the course we
+need only enough vocabulary to read the examples and the tool output; the
+formal syntax and semantics of temporal logics come later.
+
+\subsection{A first safety/liveness vocabulary}
+
+A \emph{safety} requirement says, informally, that a bad event must never
+happen.  Its violations are exposed by a finite prefix: once the bad state or
+transition has occurred, extending the execution cannot erase it.  The
+arbiter property
+\[
+  \mathbf{AG}\bigl(\texttt{request}\to
+  \mathbf{AX}(\texttt{state}=\textsc{Busy})\bigr)
+\]
+is safety-like because one transition to a non-busy successor suffices to
+refute it.
+
+A \emph{liveness} requirement says that some desired event must eventually
+happen, or keep happening.  The producer--consumer requirement ``whenever
+the buffer is full, eventually a cell is freed'' is the running example:
+waiting for any fixed finite number of steps does not yet prove that the
+consumer will never run.  These notions are only introduced here and will be
+defined and analysed in the later temporal-logic and model-checking chapters.
+
+\subsection{The arbiter witness}
+
+\begin{example}[A diagnostic trace for the arbiter]
+\label{ex:arbiter-safety-ce}
+For the unfixed arbiter of \cref{ex:arbiter-smv}, NuXMV can return the
+three-state trace
+\[
+  \textsf{RF}\to\textsf{BT}\to\textsf{RF}.
+\]
+The first transition is allowed because no request is present in
+\textsf{RF}, so the default branch may choose \textsc{Busy} while the
+unconstrained environment raises \texttt{request}.  In \textsf{BT} the
+request is true, yet the same default branch allows the successor
+\textsf{RF}, whose control state is \textsc{Ready}.  The final transition
+therefore violates the displayed property.  Replaying this short path points
+directly to the missing \texttt{busy \& request} branch.
+\end{example}
+
+\subsection{What shape can diagnostic evidence have?}
+
+For this safety-style property, a finite path is a complete explanation.
+For an LTL liveness violation, a tool generally represents the required
+infinite execution by a finite prefix followed by a cycle, or \emph{lasso}.
+The existence and construction of such witnesses will be justified later
+from the automata-theoretic model-checking algorithm.
+
+The word ``trace'' must not be over-generalised.  CTL is a branching-time
+logic, so a counterexample or witness may itself need branches rather than
+one execution.  In the mechanical-counter demonstration from L03, the
+lecturer explicitly notes that the state printed for one CTL failure is only
+part of the explanation, whereas an LTL counterexample is presented as a
+trace.  The exact diagnostic format therefore depends on both the logic and
+the tool.
+
+\subsection{The quality of the two inputs}
+
+Model checking proves a statement about the model and formula it receives;
+it cannot repair a poor abstraction or an incorrectly formalised
+requirement.  The lecture gives a deliberately simple failure mode: if a
+large specification accidentally reduces to a tautology such as
+$p\lor\neg p$, where $p$ is an atomic proposition, the tool correctly
+reports it as satisfied even when the
+intended requirement was different.  Simulation before verification
+(\cref{sec:nuxmv-simulation}) and careful review of both inputs are therefore
+part of the modelling workflow.
+
 \section{Modules: Hierarchical Modelling}
 \label{sec:smv-modules}
 
@@ -1482,69 +1387,57 @@ times.  Every module instantiation has its own copies of internal variables.
 Parameters are passed \emph{by reference}: modifying a formal parameter
 inside a module modifies the actual parameter of the caller.
 
-\begin{verbatim}
-MODULE my_module(z)   -- formal parameter z
-VAR
-  x : boolean;
-DEFINE
-  y := z;             -- y is an alias for the caller's variable
-ASSIGN
-  init(x) := z;
-  next(z) := TRUE;    -- this modifies the CALLER's variable!
-\end{verbatim}
-
 The model checker performs \emph{flattening}: each module instantiation is
 inlined, renaming variables with the instance path (e.g.,
-\texttt{inst.x}).  This does not add expressive power but improves
+\texttt{y.x}).  This does not add expressive power but improves
 readability.
 
 \begin{example}[Flattening \texttt{my\_module}, before and after]
 \label{ex:flattening}
-Instantiate the module above with the caller's own variable \texttt{w} as
-the actual parameter:
+The lecture's pass-by-reference example is:
 \begin{verbatim}
 MODULE main
 VAR
-  w    : boolean;
-  inst : my_module(w);
-\end{verbatim}
-Flattening substitutes \texttt{z} by \texttt{w} everywhere inside
-\texttt{my\_module}, and prefixes every local variable with the instance
-path \texttt{inst.}:
-\begin{verbatim}
-MODULE main
+  x : boolean;
+  y : my_module(x);
+
+MODULE my_module(z)
 VAR
-  w     : boolean;
-  inst.x : boolean;
-DEFINE
-  inst.y := w;
+  x : boolean;
 ASSIGN
-  init(inst.x) := w;
-  next(w)      := TRUE;   -- was next(z):=TRUE; z was an alias for w
+  x := FALSE;
+  z := TRUE;
 \end{verbatim}
-The single flattened module is an ordinary Kripke structure over
-$\{w, \texttt{inst.x}\}$---no new modelling primitive was needed.  Note
-where \texttt{next(w)} ends up: it is a constraint on the \emph{caller's}
-variable, sitting in \texttt{MODULE main} even though it was written
-inside \texttt{my\_module}.  This is the flattened, mechanical form of
-the ``modifies the caller's variable'' claim above: pass-by-reference is
-not a special runtime effect, it is just where the substituted constraint
-lands after inlining.
+Flattening substitutes the actual parameter \texttt{x} for \texttt{z} and
+prefixes the module's local variable with the instance path:
+\begin{verbatim}
+MODULE main
+VAR
+  x   : boolean;
+  y.x : boolean;
+ASSIGN
+  x   := TRUE;
+  y.x := FALSE;
+\end{verbatim}
+The constraint written as \texttt{z := TRUE} therefore acts on the caller's
+\texttt{x}; the local variable remains distinct as \texttt{y.x}.  This is the
+mechanical meaning of pass-by-reference after flattening.
 \end{example}
 
 \subsection{The mechanical decimal counter}
 \label{sec:mech-counter}
 
-We model a 5-digit decimal counter (a mechanical device found at the end
-of industrial production lines).  Pushing a button increments the count;
-a reset button returns all digits to zero.
+We model a 5-digit decimal counter, a mechanical device found at the end
+of industrial production lines.  We first model the ordinary incrementing
+mechanism and then add the reset button as an environmental input, following
+the progression of L03.
 
 Each digit is modelled by a \texttt{cell} module.  The key idea is the
 \emph{carry}: digit $d_i$ must increment whenever digit $d_{i-1}$ wraps
 from 9 back to 0 and there is a carry from its predecessor.
 
 \begin{verbatim}
-MODULE cell(carry_in, reset)
+MODULE cell(carry_in)
 VAR
   value : 0..9;
 DEFINE
@@ -1552,7 +1445,6 @@ DEFINE
 ASSIGN
   init(value) := 0;
   next(value) := case
-    reset     : 0;
     carry_in  : (value + 1) mod 10;
     TRUE      : value;
   esac;
@@ -1567,19 +1459,33 @@ when the counter is stepped).
 \begin{verbatim}
 MODULE main
 VAR
-  d0 : cell(TRUE,          reset);
-  d1 : cell(d0.carry_out,  reset);
-  d2 : cell(d1.carry_out,  reset);
-  d3 : cell(d2.carry_out,  reset);
-  d4 : cell(d3.carry_out,  reset);
-IVAR
-  reset : boolean;
+  d0 : cell(TRUE);
+  d1 : cell(d0.carry_out);
+  d2 : cell(d1.carry_out);
+  d3 : cell(d2.carry_out);
+  d4 : cell(d3.carry_out);
 \end{verbatim}
 
 \paragraph{State-space size.}  $10^5 = 100{,}000$ states (5 digits, each
-ranging $0$--$9$).  Without reset the graph is deterministic: a single cycle
-of length $100{,}000$.  With reset, the environment may push the reset button
-at any step, creating non-deterministic transitions back to state $00000$.
+ranging $0$--$9$).  The base graph is deterministic: one cycle of length
+$100{,}000$.
+
+\paragraph{Adding reset.}  The button is controlled by the environment.  The
+extended model therefore declares
+\begin{verbatim}
+IVAR reset : boolean;
+\end{verbatim}
+and each instance becomes \texttt{cell(carry\_in, reset)}.  The first branch
+of the cell's \texttt{case} expression is
+\begin{verbatim}
+reset : 0;
+\end{verbatim}
+before the \texttt{carry\_in} branch.  Thus a reset step sends every digit to
+zero simultaneously; when reset is false, the counter behaves as before.
+
+\Cref{fig:mech-counter-graph} isolates the two effects: ordinary increments
+follow the long deterministic cycle, whereas an environmental reset can
+return any state to \(00000\).
 
 \begin{figure}[ht]
   \centering
@@ -1604,14 +1510,16 @@ at any step, creating non-deterministic transitions back to state $00000$.
     \draw[arr] (rdots) -- (sN);
     \draw[arr] (sN) to[bend left=20] (s0);
 
-    % Reset arrow
+    % One representative reset arrow; the caption states that every state has one.
     \draw[->, dashed, violet, thick] (s9.north)
       .. controls (7.5, 1.5) and (0, 1.5) .. (s0.north)
       node[midway, above, font=\small, violet] {reset};
   \end{tikzpicture}
   \caption{Simplified topology of the mechanical counter.  Without reset,
-           a single deterministic cycle of length $100{,}000$.  With reset
-           (dashed), the environment can return to $00000$ at any point.}
+           there is one deterministic cycle of length $100{,}000$.  The
+           dashed arrow represents the reset transition that exists from
+           every state in the extended model; the teal node is both the
+           initial state and the reset target.}
   \label{fig:mech-counter-graph}
 \end{figure}
 
@@ -1629,12 +1537,17 @@ DEFINE
                & d3.value=1 & d4.value=8;
 \end{verbatim}
 
-The four CTL properties below illustrate how the same model gives different
-answers depending on whether the reset input is included:
+The first three CTL formulas and the final LTL formula illustrate how the same
+model gives different answers depending on whether reset is included.  Their
+full syntax and semantics are intentionally postponed; here they are read as
+queries submitted to NuXMV.  For this preview, \(A\) and \(E\) quantify over
+all paths and some path, while \(X\), \(F\), and \(G\) mean next, eventually,
+and always, respectively.
 
 \begin{center}
+  \footnotesize
   \renewcommand{\arraystretch}{1.4}
-  \begin{tabular}{lp{6cm}cc}
+  \begin{tabular}{@{}p{4cm}p{4.4cm}p{1.5cm}p{1.8cm}@{}}
     \toprule
     Property & Reading & No reset & With reset \\
     \midrule
@@ -1644,10 +1557,11 @@ answers depending on whether the reset input is included:
     $\mathbf{AF}(\texttt{last\_state})$
       & \emph{All runs eventually reach $99999$.}
       & \textbf{T} & \textbf{F} \\
-    $\mathbf{AG}(\texttt{state\_81100} \to \mathbf{EX}(\texttt{first\_state}))$
-      & \emph{There is a 1-step path from $81100$ to $00000$.}
+    $\mathbf{EF}(\texttt{state\_81100}$\newline
+    $\quad\wedge \mathbf{EX}(\texttt{first\_state}))$
+      & \emph{Some reachable $81100$ state has a 1-step path to $00000$.}
       & \textbf{F} & \textbf{T} (via reset) \\
-    $\mathbf{AG}\,\mathbf{AF}(\texttt{first\_state})$
+    $\mathbf{G}\,\mathbf{F}(\texttt{first\_state})$
       & \emph{All runs visit $00000$ infinitely often.}
       & \textbf{T} & \textbf{T} \\
     \bottomrule
@@ -1658,10 +1572,21 @@ For $\mathbf{AF}(\texttt{last\_state})$ with reset: the environment can
 always push reset before reaching $99999$, so there exist runs that never
 arrive at $99999$.  Hence the property is false.
 
-For $\mathbf{AG}\,\mathbf{AF}(\texttt{first\_state})$ with reset: even if
+For the third property, $81100$ has only successor $81101$ in the base
+counter, so the existential query is false.  In the extended model, choosing
+\texttt{reset} at $81100$ creates a successor $00000$, making it true.
+
+For $\mathbf{G}\,\mathbf{F}(\texttt{first\_state})$ with reset: even if
 the user never pushes reset in some runs, the counter still cycles back
 through $00000$ every $100{,}000$ steps.  In runs where reset is pushed,
 $00000$ is visited even more often.  So the property is true in all runs.
+
+The lecture also used this last query to reconnect semantics with resource
+limits.  On the full five-digit model, NuXMV did not complete the LTL check
+during the demonstration; reducing the counter to three digits made the
+experiment manageable.  This is not a negative verdict for the formula: it is
+the ``insufficient resources'' outcome of \cref{fig:mc-flow}, caused by the
+state space rather than by a counterexample.
 
 % -----------------------------------------------------------------------
 \section{Asynchronous Composition}
@@ -1680,7 +1605,51 @@ is a step taken \emph{simultaneously} by all sub-processes.  In an
 \emph{asynchronous} composition, a step is taken by \emph{at most one}
 process; the others remain idle (their variables do not change).
 
-\begin{intermezzo}{The Cartesian Product of Two Automata}
+The contrast is easiest to see from one global state.  In
+\cref{fig:sync-vs-async}, both coordinates change along the synchronous
+arrow, whereas the asynchronous scheduler offers two separate successors:
+one for running $P_1$, one for running $P_2$.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[
+      >=Stealth,
+      state/.style={draw, rounded corners=3pt, minimum width=1.55cm,
+                    minimum height=0.8cm, font=\small\sffamily,
+                    fill=gray!5, draw=graphite!60},
+      current/.style={state, fill=accent!15, draw=accent!75, line width=1pt},
+      sync/.style={-Stealth, thick, draw=graphite!85},
+      sched/.style={-Stealth, very thick, draw=vvviolet},
+      note/.style={font=\scriptsize\sffamily, text=graphite!85, align=center}
+    ]
+    \node[font=\small\sffamily\bfseries, text=graphite] at (-3.3,1.45)
+      {Synchronous step};
+    \node[current] (s00) at (-4.8,0) {$(0,0)$};
+    \node[state]   (s11) at (-1.8,0) {$(1,1)$};
+    \draw[sync] (s00) -- node[midway, above=5pt, note] {run $P_1,P_2$} (s11);
+    \node[note] at (-3.3,-1.0) {both coordinates move};
+
+    \draw[gray!35] (0,-1.35) -- (0,1.7);
+
+    \node[font=\small\sffamily\bfseries, text=graphite] at (3.15,1.45)
+      {Asynchronous step};
+    \node[current] (a00) at (1.15,0) {$(0,0)$};
+    \node[state]   (a10) at (4.9,0.72) {$(1,0)$};
+    \node[state]   (a01) at (4.9,-0.72) {$(0,1)$};
+    \draw[sched] (a00) -- node[above, note, text=vvviolet!90!black]
+      {run $P_1$} (a10);
+    \draw[sched] (a00) -- node[below, note, text=vvviolet!90!black]
+      {run $P_2$} (a01);
+    \node[note] at (3.15,-1.45) {scheduler chooses one coordinate};
+  \end{tikzpicture}
+  \caption{One global step under synchronous and asynchronous composition.
+           A state is a pair of local states.  Synchrony updates both
+           coordinates together; asynchrony exposes the scheduler choice in
+           violet and leaves the idle coordinate unchanged.}
+  \label{fig:sync-vs-async}
+\end{figure}
+
+\paragraph{Recall: the Cartesian product of two automata.}
 Recall the basic recipe for combining two automata, already used in
 \cref{def:product-automaton}: given $A_1$ with states $Q_1$ and $A_2$ with
 states $Q_2$, form one state per \emph{pair}, $Q_1\times Q_2$, and let both
@@ -1699,7 +1668,6 @@ grid picture of \cref{fig:product-grid}, just relabelled.  Nothing in this
 recipe depends on an alphabet or an accepting set---it is a statement about
 pairing up \emph{states}---so it applies unchanged to any two machines with
 a notion of state and a notion of ``next state,'' automata or otherwise.
-\end{intermezzo}
 
 Synchronous composition is exactly this recipe with the alphabet dropped.
 Kripke structures do not read input symbols, so there is nothing to
@@ -1728,15 +1696,17 @@ VAR
   cons : process consumer(buf);
 \end{verbatim}
 
-NuSMV inserts a hidden variable \texttt{process\_selector} that is
-non-deterministically assigned to one of the process names (or to
-\texttt{main}, meaning no process runs).  The selected process has its
-\texttt{running} flag set to \texttt{TRUE}; the others have
-\texttt{running = FALSE} and their variables remain unchanged.
+NuSMV inserts a hidden scheduler selector named
+\begin{center}
+\texttt{process\_selector}.
+\end{center}
+At every step it chooses one of the process names, or \texttt{main} when no
+process runs.  The chosen process has \texttt{running = TRUE}; every other
+process has \texttt{running = FALSE} and keeps its variables unchanged.
 
 \begin{remark}
-The \texttt{process} keyword is deprecated in recent versions of NuSMV/NuXMV
-but still supported.  A warning is emitted during the \texttt{go} step.
+The tool version used in the lecture still accepts the \texttt{process}
+keyword but reports it as deprecated during the \texttt{go} step.
 \end{remark}
 
 \subsection{Producer--consumer example}
@@ -1765,8 +1735,9 @@ ASSIGN
     TRUE              : buffer[0];
   esac;
   next(buffer[1]) := case
-    buffer[0] != empty & buffer[1] = empty : {o1, o2, o3};
-    TRUE                                   : buffer[1];
+    buffer[0] = empty : buffer[1];
+    buffer[1] = empty : {o1, o2, o3};
+    TRUE              : buffer[1];
   esac;
 
 MODULE consumer(buffer)
@@ -1778,19 +1749,75 @@ ASSIGN
   esac;
 \end{verbatim}
 
+The producer's second \texttt{case} relies on priority.  When the first cell
+is empty, its value is written there and \texttt{buffer[1]} is preserved.  The
+second branch can therefore fill \texttt{buffer[1]} only after the first cell
+is already occupied.
+
 The consumer always empties \texttt{buf[0]}.  If \texttt{buf[0]} was
 non-empty, \texttt{buf[1]} is retained for the next consumption.  If
 \texttt{buf[0]} was already empty, then \texttt{buf[1]} is also cleared
 (it was the leftmost non-empty cell and is now consumed).
 \end{example}
 
+\Cref{fig:producer-consumer-buffer} turns the two prioritized
+\texttt{case} expressions into four visible buffer updates.  The upper
+producer arrows explain why the first guard of
+\texttt{next(buffer[1])} must preserve the second cell: while cell~0 is
+empty, the new object belongs there.  Cell~1 is filled only on the following
+producer step, when cell~0 is already occupied.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[
+      >=Stealth,
+      buf/.style={draw, rounded corners=3pt, minimum width=2.45cm,
+                  minimum height=0.9cm, font=\small\sffamily,
+                  fill=gray!5, draw=graphite!65},
+      initial/.style={buf, fill=accent!14, draw=accent!75, line width=1pt},
+      prod/.style={-Stealth, very thick, draw=vvorange},
+      cons/.style={-Stealth, very thick, draw=vvviolet},
+      lab/.style={font=\scriptsize\sffamily, align=center, fill=white,
+                  inner sep=1.5pt}
+    ]
+    \node[initial] (empty) at (0,1.45)
+      {$[\,\varnothing\mid\varnothing\,]$};
+    \node[buf] (left) at (5.2,1.45)
+      {$[\,o\mid\varnothing\,]$};
+    \node[buf] (full) at (5.2,-1.25)
+      {$[\,o\mid o\,]$};
+    \node[buf] (right) at (0,-1.25)
+      {$[\,\varnothing\mid o\,]$};
+
+    \draw[prod] (empty) -- node[above, lab, text=vvorange!90!black]
+      {producer: fill cell 0} (left);
+    \draw[prod] (left) -- node[right, lab, text=vvorange!90!black]
+      {producer:\\fill cell 1} (full);
+    \draw[cons] (full) -- node[below, lab, text=vvviolet!90!black]
+      {consumer: empty cell 0} (right);
+    \draw[cons] (right) -- node[left, lab, text=vvviolet!90!black]
+      {consumer:\\empty cell 1} (empty);
+
+    \draw[->, gray, thick] (-1.75,1.45) -- (empty);
+    \node[font=\scriptsize\sffamily, text=graphite!80] at (2.6,2.25)
+      {orange = producer \qquad violet = consumer};
+  \end{tikzpicture}
+  \caption{The two-cell buffer viewed operationally.  The producer fills the
+           leftmost empty cell; the consumer empties the leftmost non-empty
+           cell.  The symbol (o) stands for any of
+           \texttt{o1}, \texttt{o2}, or \texttt{o3}.  The diagram shows
+           representative updates, not the scheduler's possible idle steps.}
+  \label{fig:producer-consumer-buffer}
+\end{figure}
+
 \paragraph{Property without fairness.}
 \[
-  \mathbf{G}\bigl(\texttt{buf[0]}\neq\texttt{empty}
-              \wedge\texttt{buf[1]}\neq\texttt{empty}
-              \to
-              \mathbf{F}(\texttt{buf[0]}=\texttt{empty}
-                  \vee\texttt{buf[1]}=\texttt{empty})\bigr)
+  \begin{aligned}
+    \mathbf{G}\bigl(&\texttt{buf[0]}\neq\texttt{empty}
+                \wedge\texttt{buf[1]}\neq\texttt{empty} \\
+              &\to \mathbf{F}(\texttt{buf[0]}=\texttt{empty}
+                    \vee\texttt{buf[1]}=\texttt{empty})\bigr)
+  \end{aligned}
 \]
 ``Whenever the buffer is full, eventually at least one cell is freed.''
 This property is \textbf{false} without fairness: the scheduler can run
@@ -1801,9 +1828,9 @@ buffer full forever.
 \section{Fairness Constraints}
 \label{sec:fairness}
 
-The counter-example above is unrealistic: in any real system, a scheduler
-ensures that every process eventually gets CPU time.  \emph{Fairness
-constraints} formalise this assumption.
+The counterexample above may be unrealistic for a platform whose scheduler
+guarantees that no process starves.  \emph{Fairness constraints} let the model
+state this scheduling assumption explicitly.
 They do not change the transition graph itself; instead, they say which
 infinite paths of the graph should count as admissible executions.
 
@@ -1818,7 +1845,9 @@ explain how these ``infinitely often'' side conditions are checked.
 
 Before defining justice and compassion, we must firmly understand four
 distinct temporal notions.  Their confusion is one of the most common
-sources of errors in exams.
+sources of errors in exams.  Let \(P\) denote the property observed at each
+position of a path.  \Cref{fig:temporal-hierarchy} compares four possible
+patterns of positions at which \(P\) holds.
 
 \begin{figure}[ht]
   \centering
@@ -1830,32 +1859,26 @@ sources of errors in exams.
 
     % always P
     \foreach \i in {0,...,11} \fill[teal]     (\i, 3.7) circle (3pt);
-    \node[right, font=\small] at (12.2, 3.7) {always $P$};
+    \node[right, font=\small] at (12.5, 3.7) {always $P$};
 
     % infinitely often P (every other step)
     \foreach \i in {0,2,4,6,8,10} \fill[teal]   (\i, 2.6) circle (3pt);
     \foreach \i in {1,3,5,7,9,11} \fill[gray!25] (\i, 2.6) circle (3pt);
-    \node[right, font=\small] at (12.2, 2.6) {inf.\ often $P$};
+    \node[right, font=\small] at (12.5, 2.6) {inf.\ often $P$};
 
     % finitely often P (only first 3 steps)
     \foreach \i in {0,1,2}  \fill[teal]    (\i, 1.5) circle (3pt);
     \foreach \i in {3,...,11}\fill[gray!25] (\i, 1.5) circle (3pt);
-    \node[right, font=\small] at (12.2, 1.5) {finitely often $P$};
+    \node[right, font=\small] at (12.5, 1.5) {finitely often $P$};
 
     % never P
     \foreach \i in {0,...,11} \fill[gray!25] (\i, 0.4) circle (3pt);
-    \node[right, font=\small] at (12.2, 0.4) {eventually never $P$};
-
-    % Implications
-    \draw[->, thick, teal!60] (12.2+3.5, 3.7)
-      -- node[right, font=\tiny]{$\Rightarrow$} (12.2+3.5, 2.6);
-    \draw[->, thick, gray!50] (12.2+3.5, 1.5)
-      -- node[right, font=\tiny]{$\Rightarrow$} (12.2+3.5, 0.4);
+    \node[right, font=\small] at (12.5, 0.4) {never $P$};
   \end{tikzpicture}
   \caption{Four temporal behaviours of a property $P$ along an infinite path.
-           ``Always $P$'' implies ``infinitely often $P$''; ``finitely often
-           $P$'' means that, from some point on, $P$ never holds again.  The
-           converse implications do not hold.}
+           ``Always $P$'' is a special case of ``infinitely often $P$'', and
+           ``never $P$'' is a special case of ``finitely often $P$''.  The
+           converses do not hold.}
   \label{fig:temporal-hierarchy}
 \end{figure}
 
@@ -1863,6 +1886,7 @@ sources of errors in exams.
 
 Fix a model $M$ with state machine $M' = (AP, Q, Q_0, R, L)$.
 
+\Needspace{8\baselineskip}
 \begin{definition}[Initialized path]
 \label{def:init-path}
 An \emph{initialized path} $\pi$ of $M$ is an infinite sequence
@@ -1871,17 +1895,28 @@ $(q_i, q_{i+1}) \in R$ for all $i \geq 0$.  We write $\pi(i)$ for the
 $i$-th state.
 \end{definition}
 
+In other words, \(\pi\) is one complete execution history: it starts in an
+allowed initial state, follows the transition relation forever, and
+\(\pi(i)\) names the state reached after \(i\) steps.
+
 \begin{definition}[Enabled at position $i$]
 \label{def:enabled}
 A state $s \in Q$ is \emph{enabled at position $i$ of $\pi$} if there
 exists a transition from $\pi(i)$ to $s$, i.e., $(\pi(i), s) \in R$.
 \end{definition}
 
+For the producer--consumer scheduler, the consumer is enabled at a position
+when choosing it is one of the legal next scheduling moves, whether or not
+the scheduler actually makes that choice.
+
 \begin{definition}[Taken at position $i$]
 \label{def:taken}
 A state $s$ is \emph{taken at position $i$ of $\pi$} if
 $\pi(i+1) = s$, i.e., $s$ is the \emph{actual} successor chosen at step $i$.
 \end{definition}
+
+Thus the consumer is taken at position \(i\) precisely when the execution
+actually moves to a state in which that process is selected at step \(i+1\).
 
 Being \emph{enabled} means the option exists; being \emph{taken} means the
 option was actually exercised.  In a deterministic system these coincide,
@@ -1908,6 +1943,12 @@ on, then states in $J$ must be \emph{taken infinitely often}.
 \end{quote}
 \end{definition}
 
+To read this condition operationally, inspect every suffix of the execution.
+If choices in \(J\) eventually remain available without interruption, there
+can be no last step at which one of them is selected.  On the producer-only
+execution, the consumer remains available but is never selected, so that path
+fails the justice test.
+
 \begin{definition}[Compassion / Strong fairness]
 \label{def:compassion}
 A set $C \subseteq Q$ satisfies \emph{compassion} (strong fairness) on
@@ -1919,9 +1960,16 @@ path $\pi$ if:
 \]
 \end{definition}
 
+Here continuous availability is not required.  Even if choices in \(C\)
+keep disappearing and reappearing, infinitely many opportunities require
+infinitely many actual selections.  The same producer-only execution also
+fails this test: the consumer has infinitely many opportunities and zero
+selections.
+
 \begin{center}
+  \footnotesize
   \renewcommand{\arraystretch}{1.4}
-  \begin{tabular}{lll}
+  \begin{tabular}{@{}p{3cm}p{4.5cm}p{4.5cm}@{}}
     \toprule
     Concept & Condition & Required conclusion \\
     \midrule
@@ -1939,6 +1987,67 @@ infinitely often, so strong fairness forces it to be taken infinitely often.
 The converse does not hold.  A choice can be enabled infinitely often but
 with gaps; justice is silent in that situation, while compassion still
 requires infinitely many selections.
+
+The effect on executions is shown in
+\cref{fig:fairness-schedules}.  Every circle records the process actually
+taken at one scheduler step.  The first row is rejected because the consumer
+is continuously enabled but never selected.  The other two rows are fair,
+yet only one empties the buffer: fairness guarantees recurring opportunities
+are eventually exercised, not a particular alternation pattern.
+
+\begin{figure}[ht]
+  \centering
+  \begin{tikzpicture}[
+      x=0.82cm, y=1.15cm,
+      slot/.style={circle, minimum size=5.6mm, inner sep=0pt,
+                   font=\scriptsize\sffamily\bfseries},
+      pslot/.style={slot, fill=vvorange!22, draw=vvorange!90!black,
+                    text=vvorange!60!black},
+      cslot/.style={slot, fill=vvviolet!20, draw=vvviolet!90!black,
+                    text=vvviolet!75!black},
+      rowlabel/.style={font=\scriptsize\sffamily\bfseries, align=right,
+                       anchor=east},
+      status/.style={font=\scriptsize\sffamily, align=left}
+    ]
+    \node[rowlabel] at (-0.48,2.2) {unfair};
+    \foreach \x in {0,...,8}
+      \node[pslot] at (\x,2.2) {P};
+    \node[status, text=vvgray!85!black] at (10.0,2.2)
+      {consumer enabled,\\never taken: discarded};
+
+    \node[rowlabel] at (-0.48,0.8) {fair, drains};
+    \foreach \x/\sty/\who in {0/cslot/C,1/cslot/C,2/pslot/P,3/pslot/P,
+                                4/cslot/C,5/cslot/C,6/pslot/P,7/pslot/P,
+                                8/cslot/C}
+      \node[\sty] at (\x,0.8) {\who};
+    \foreach \x/\occ in {0/1,1/0,2/1,3/2,4/1,5/0,6/1,7/2,8/1}
+      \node[font=\tiny\sffamily, text=graphite!75] at (\x,0.34) {\occ};
+    \node[status, text=vvteal!80!black] at (10.0,0.8)
+      {both recur; buffer\\reaches 0 cells};
+
+    \node[rowlabel] at (-0.48,-0.8) {fair, non-draining};
+    \foreach \x/\sty/\who in {0/pslot/P,1/pslot/P,2/cslot/C,3/pslot/P,
+                                4/pslot/P,5/cslot/C,6/pslot/P,7/pslot/P,
+                                8/cslot/C}
+      \node[\sty] at (\x,-0.8) {\who};
+    \foreach \x/\occ in {0/2,1/2,2/1,3/2,4/2,5/1,6/2,7/2,8/1}
+      \node[font=\tiny\sffamily, text=graphite!75] at (\x,-1.26) {\occ};
+    \node[status, text=vvteal!80!black] at (10.0,-0.8)
+      {both recur; buffer\\never reaches 0};
+
+    \node[font=\tiny\sffamily, text=graphite!70] at (4,-1.72)
+      {numbers below the fair rows = occupied buffer cells after the step};
+    \node[pslot] at (1.6,3.05) {P};
+    \node[font=\scriptsize\sffamily, anchor=west] at (2.05,3.05) {producer};
+    \node[cslot] at (4.25,3.05) {C};
+    \node[font=\scriptsize\sffamily, anchor=west] at (4.7,3.05) {consumer};
+  \end{tikzpicture}
+  \caption{Three scheduler prefixes, understood as repeating patterns.  The
+           top path violates justice.  Both lower paths are fair because
+           producer and consumer are taken infinitely often, but fairness
+           alone does not force the buffer to become completely empty.}
+  \label{fig:fairness-schedules}
+\end{figure}
 
 \begin{example}[Fairness in the producer--consumer]
 \label{ex:prod-cons-fairness}
@@ -1958,8 +2067,8 @@ infinitely often (always, in fact) but taken zero times (finitely often).
 
 Adding the fairness constraints:
 \begin{verbatim}
-JUSTICE  producer.running
-JUSTICE  consumer.running
+FAIRNESS producer.running
+FAIRNESS consumer.running
 \end{verbatim}
 discards all paths that violate these constraints.  The property
 ``whenever the buffer is full, eventually a cell is freed'' is now
@@ -1968,13 +2077,16 @@ and this repeats.
 \end{example}
 
 \begin{example}[A property that remains false even with fairness]
-Consider the stronger LTL property:
+Let
+\(\texttt{full} := \texttt{buf[0]}\neq\texttt{empty}\wedge
+\texttt{buf[1]}\neq\texttt{empty}\) and
+\(\texttt{empty\_buffer} := \texttt{buf[0]}=\texttt{empty}\wedge
+\texttt{buf[1]}=\texttt{empty}\).  Consider the stronger LTL property:
 \[
   \mathbf{G}\bigl(\texttt{full} \to \mathbf{F}\,\texttt{empty\_buffer}\bigr)
 \]
-where $\texttt{empty\_buffer} := \texttt{buf[0]}=\texttt{empty} \wedge
-\texttt{buf[1]}=\texttt{empty}$.  This is \textbf{false} even under
-fairness: the producer can fill the buffer twice, then the consumer
+This is \textbf{false} even under fairness: the producer can fill the buffer
+twice, then the consumer
 executes once (freeing one cell, satisfying justice), then the producer
 fills again, etc., keeping the buffer non-empty forever.  Fairness requires
 that both processes run infinitely often---not that they alternate strictly.
@@ -1982,25 +2094,27 @@ that both processes run infinitely often---not that they alternate strictly.
 
 \subsection{Encoding fairness in NuSMV}
 
-\begin{verbatim}
--- Justice (weak fairness): P holds infinitely often
-JUSTICE P
+Let \(P\) and \(Q\) be Boolean state formulas.  NuSMV uses them in the
+following two forms:
 
--- Compassion (strong fairness): if P infinitely often, then Q infinitely often
+\begin{verbatim}
+FAIRNESS P       -- synonym: JUSTICE P
+
 COMPASSION (P, Q)
 \end{verbatim}
+In NuSMV syntax, \texttt{FAIRNESS P} (equivalently, \texttt{JUSTICE P})
+requires $P$ infinitely often, whereas \texttt{COMPASSION (P,Q)} requires
+that infinitely many occurrences of $P$ imply infinitely many occurrences
+of $Q$.
 
 \begin{remark}[NuSMV terminology mismatch]
-In NuSMV, \texttt{JUSTICE~P} means ``$P$ holds infinitely often on every
-fair path''.  This is a path constraint, not the enabled/taken definition
-above.  It implements weak fairness for a scheduler only when $P$ names the
-process that should be selected and that process is continuously enabled.
-For exam purposes, keep the semantic definition
-(Definitions~\ref{def:justice} and~\ref{def:compassion}) separate from the
-NuSMV keyword syntax.  Older NuSMV versions spell the same justice
-constraint with the keyword \texttt{FAIRNESS} instead of \texttt{JUSTICE};
-the two are synonyms, and \texttt{JUSTICE} is the name to prefer going
-forward.
+In NuSMV, \texttt{FAIRNESS P} (equivalently, \texttt{JUSTICE P}) means ``$P$ holds
+infinitely often on every fair path''.  This is a formula-level path
+constraint, not the enabled/taken definition above.  It implements weak
+fairness for a scheduler only when $P$ names the process that should be
+selected and that process is continuously enabled.  Keep the semantic
+definitions (Definitions~\ref{def:justice} and~\ref{def:compassion}) separate
+from this keyword syntax.
 \end{remark}
 
 \subsection{Fair paths and model checking under fairness}
@@ -2012,7 +2126,7 @@ satisfies all constraints in $\mathcal{J}$ and $\mathcal{C}$.
 Under fairness, model checking restricts attention to fair paths only:
 paths that violate any fairness constraint are excluded from consideration.
 As a consequence, a property that was false (because there existed an
-unfair counter-example) may become true (if every fair path satisfies it).
+unfair counterexample) may become true (if every fair path satisfies it).
 This is the semantic preview needed for SMV: fairness filters the paths
 first, and the specification is evaluated only on the remaining paths.
 
@@ -2020,97 +2134,36 @@ first, and the specification is evaluated only on the remaining paths.
 \section{LTL, CTL, and CTL*: an Overview}
 \label{sec:ltl-ctl-overview}
 
-Throughout the chapter we have referred informally to LTL and CTL.  We
-preview their relationship here, to be developed formally in
-\cref{ch:ltl} and in the later CTL material.
-This section is only a map: Chapter~\ref{ch:s1s-buchi} first explains the
-automata-theoretic foundation behind temporal specifications, and later
-chapters turn these names into full syntax, semantics, and algorithms.
+The SMV examples have already used temporal formulas, but their full syntax
+and semantics belong to later chapters.  The goal here is only to provide a
+map of the three names that occur in model-checker input and output.
 
-\paragraph{Linear Temporal Logic (LTL).}  Formulas are evaluated on a
-single \emph{infinite path} (a linear sequence of states).  Operators include
-$\mathbf{X}$ (next), $\mathbf{U}$ (until), and their derived forms
-$\mathbf{F}$ (eventually) and $\mathbf{G}$ (always).  Model checking LTL is
-\textbf{PSPACE-complete} (Sistla and Clarke, 1985).  Practically important
-variants extend LTL beyond discrete Boolean traces: \emph{real-time LTL} adds
-metric timing constraints, \emph{Signal Temporal Logic} (STL) reasons over
-continuous real-valued signals, and \emph{LTL modulo theories} embeds
-first-order constraints drawn from an SMT theory.
+\paragraph{Linear Temporal Logic (LTL).}
+An LTL formula describes one infinite execution at a time.  Its basic
+temporal operators include \(\mathbf{X}\) (next) and \(\mathbf{U}\) (until);
+\(\mathbf{F}\) (eventually) and \(\mathbf{G}\) (always) are standard derived
+operators.  When an LTL property is checked on a model, it is normally
+required to hold on every initialized execution.
 
-\begin{example}[LTL model checking, worked by hand]
-\label{ex:ltl-worked}
-Let $M$ have four states $q_0, q_1, q_2, q_3$ with
-$L(q_i) = \{p_i\}$, initial state $q_0$, and transitions
-$q_0 \to q_1 \to q_2$, a self-loop $q_2 \to q_2$, and $q_2 \to q_3 \to q_0$
-(so $q_2$ has \emph{two} successors: itself, or $q_3$).  We check three
-formulas along the same initial path, growing in temporal depth.
-\begin{itemize}
-  \item $\mathbf{G}\bigl(\bigwedge_{i=0}^{3}(p_i \to
-        \mathbf{X}\bigvee_{j \neq i} p_j)\bigr)$---``the state always
-        changes at the next step''---is \textbf{false}: the finite path
-        $\langle q_0, q_1, q_2, q_2\rangle$ already witnesses a violation
-        (a safety property, by \cref{def:safety}: the self-loop at $q_2$ is
-        a finite bad prefix).
-  \item $\mathbf{F}(p_3)$---``$p_3$ eventually holds''---is \textbf{false}:
-        the lasso $\langle q_0, q_1\rangle \cdot (q_2)^\omega$ loops forever
-        on the self-loop and never reaches $q_3$ (a liveness property, by
-        \cref{def:liveness}: only an infinite witness refutes it, matching
-        \cref{sec:counterexamples}).
-  \item $\mathbf{FG}(p_2)$---``eventually $p_2$ holds forever''---is
-        \textbf{also false}, but needs a \emph{different} lasso:
-        $(\langle q_0, q_1, q_2, q_3\rangle)^\omega$ keeps returning to
-        $q_2$ but never stays there, since it always continues on to
-        $q_3$.  The first counterexample above does not refute
-        $\mathbf{FG}(p_2)$ (it \emph{does} eventually stay in $p_2$
-        forever), which is why a different path is required here.
-\end{itemize}
-The exercise generalises: every LTL counterexample on a finite Kripke
-structure is ultimately periodic (\cref{sec:counterexamples}), and
-different formulas over the \emph{same} structure can demand structurally
-different lassos.
-\end{example}
+\paragraph{Computation Tree Logic (CTL).}
+CTL makes branching explicit: every temporal operator is paired with
+\(A\), for all paths, or \(E\), for some path.  Thus
+\(\mathbf{AF}\varphi\) means that every path eventually reaches a state
+satisfying \(\varphi\), whereas \(\mathbf{EF}\varphi\) asks only for one
+such path.  The distinction already appeared in the counter:
+\(\mathbf{EF}(\texttt{last\_state})\) asks whether \(99999\) is reachable,
+while \(\mathbf{AF}(\texttt{last\_state})\) asks whether it is unavoidable.
 
-\paragraph{Computation Tree Logic (CTL).}  Formulas are evaluated on the
-\emph{computation tree}---the tree of all paths branching from each state.
-Each temporal operator is paired with a \emph{path quantifier}: $A$ (all
-paths) or $E$ (exists a path).  For example, $\mathbf{AF}\varphi$ means
-``on all paths, eventually $\varphi$''; $\mathbf{EF}\varphi$ means ``there
-exists a path on which eventually $\varphi$''.  Model checking CTL is
-\textbf{polynomial} in the size of the state space and the formula.
-
-\begin{example}[The same structure, evaluated as a tree]
-\label{ex:ctl-worked}
-Reuse the Kripke structure of \cref{ex:ltl-worked}: states
-$q_0,q_1,q_2,q_3$, transitions $q_0 \to q_1 \to q_2$, a self-loop
-$q_2 \to q_2$, and $q_2 \to q_3 \to q_0$.  CTL asks about \emph{branches}
-from a state, not about one fixed path, and the contrast with the earlier
-LTL verdicts is the whole point.
-\begin{itemize}
-  \item $\mathbf{EF}(p_3)$ is \textbf{true} at $q_0$---even though
-        $\mathbf{F}(p_3)$ was \textbf{false} along the specific lasso
-        path $\langle q_0,q_1\rangle\cdot(q_2)^\omega$
-        (\cref{ex:ltl-worked}).  The two disagree because $\mathbf{F}$
-        asks about \emph{one fixed} execution, while $\mathbf{E}\ldots$
-        asks whether \emph{some} execution does the job---and one does:
-        $q_0 \to q_1 \to q_2 \to q_3$.
-  \item $\mathbf{AF}(p_3)$ is still \textbf{false} at $q_0$: ``for all
-        paths'' includes the self-looping one, which is exactly the
-        witness that already refuted $\mathbf{F}(p_3)$.
-  \item $\mathbf{AG}(\mathbf{EF}(p_0))$ is \textbf{true} at $q_0$: from
-        every reachable state there is \emph{some} path back to $q_0$
-        ($q_1$ and $q_2$ both reach $q_3 \to q_0$; the self-loop at
-        $q_2$ does not block this, since $\mathbf{EF}$ only needs one
-        witnessing path, and $q_2 \to q_3 \to q_0$ is available
-        alongside the self-loop).
-\end{itemize}
-\end{example}
+The unfolding in \cref{fig:computation-tree} makes the distinction visible:
+CTL can quantify over the branches leaving a state, whereas LTL reads one
+complete branch at a time.
 
 \begin{figure}[ht]
   \centering
   \begin{tikzpicture}[
     st/.style={draw, circle, minimum size=0.8cm, font=\small},
     arr/.style={->, gray, thin}]
-    \node[st, fill=teal!20] (s0) at (0,0) {$s_0$};
+    \node[st, fill=accent!15] (s0) at (0,0) {$s_0$};
     \node[st] (s1) at (-1.5,-1.5) {$s_1$};
     \node[st] (s2) at ( 1.5,-1.5) {$s_2$};
     \node[st] (s11) at (-2.5,-3) {$s_1$};
@@ -2123,218 +2176,82 @@ LTL verdicts is the whole point.
     \foreach \t in {s1, s2} \draw[arr] (s0) -- (\t);
     \foreach \t in {s11, s12} \draw[arr] (s1) -- (\t);
     \foreach \t in {s21, s22} \draw[arr] (s2) -- (\t);
-    \node[right, font=\small] at (3.2, -1) {computation};
-    \node[right, font=\small] at (3.2, -1.4) {tree};
+    \node[right, font=\small, align=left] at (3.2,-1.2)
+          {computation\\tree};
   \end{tikzpicture}
-  \caption{The computation tree rooted at $s_0$.  CTL quantifies over
-           branches of this tree ($A$/$E$).  LTL refers to a single
-           branch (a single execution).}
+  \caption{Unfolding a transition system into a computation tree.
+           CTL quantifies over its branches; LTL describes a branch.}
   \label{fig:computation-tree}
 \end{figure}
 
-\paragraph{CTL* (pronounced ``CTL star'').}  A unifying formalism that
-subsumes both LTL and CTL.  In CTL*, path quantifiers ($A$, $E$) and
-temporal operators ($\mathbf{X}$, $\mathbf{U}$, etc.) can be freely mixed.
-Model checking CTL* is \textbf{EXPSPACE-hard} and impractical, which is
-why LTL and CTL are used in practice instead.
+\paragraph{CTL* (CTL star).}
+CTL* is a common umbrella in which path quantifiers and temporal operators
+can be combined more freely; it contains both LTL and CTL.  This is only an
+orientation point: syntax, semantics, algorithms, and complexity are
+deliberately postponed.
 
-\paragraph{Expressive power.}  LTL and CTL are \emph{incomparable}: some
-properties expressible in LTL are not expressible in CTL, and vice versa.
-For example, ``every state is eventually followed by $p$ infinitely often''
-is an LTL property that has no CTL equivalent.  The witness in the other
-direction is exactly the formula just computed in \cref{ex:ctl-worked}:
-$\mathbf{AG}(\mathbf{EF}(p_0))$---``from every reachable state, it is
-always \emph{possible} to get back to $p_0$''---has no LTL equivalent,
-because LTL formulas are evaluated on a single fixed path and cannot
-express ``there exists a path'' from every state they pass through; only
-a branching-time logic can quantify over the choice of path at each point.
-This is why both logics are studied and why no single sub-logic of CTL*
-suffices for all practical verification tasks.
-
-% -----------------------------------------------------------------------
-\section{Formal Methods in Context}
-\label{sec:formal-methods-context}
-
-We close the chapter by locating model checking among the other techniques
-that an engineer might use.  This context matters because model checking is
-not a replacement for all validation activity: it is a precise answer to the
-specific question ``does this finite model satisfy this formal property?''
-
-\subsection{Three categories of formal methods}
-
-Each category is best characterised by its \emph{method}, the \emph{tool}
-that automates it (if any), and the condition under which it is
-\emph{applicable} to a given system:
-
-\begin{center}
-  \renewcommand{\arraystretch}{1.3}
-  \begin{tabular}{p{2.6cm} p{4.6cm} p{4.6cm}}
-    \toprule
-    & \textbf{Deductive methods} & \textbf{Model checking} \\
-    \midrule
-    \emph{method} & provide a formal proof that $P$ holds &
-      systematically check $P$ on all states \\
-    \emph{tool} & theorem prover / proof assistant / proof checker &
-      model checker (Spin, NuSMV, UppAal, \ldots) \\
-    \emph{applicable if} & the system has the form of a mathematical
-      theory & the system generates a (finite) behavioural model \\
-    \bottomrule
-  \end{tabular}
-
-  \medskip
-  \begin{tabular}{p{2.6cm} p{9.6cm}}
-    \toprule
-    & \textbf{Model-based simulation or testing} \\
-    \midrule
-    \emph{method} & test for $P$ by exploring possible behaviours \\
-    \emph{tool} & simulator / test harness (application-specific) \\
-    \emph{applicable if} & the system defines an executable model \\
-    \bottomrule
-  \end{tabular}
-\end{center}
-
-\begin{enumerate}
-  \item \textbf{Deductive methods} (e.g., Hoare logic, dating back to
-        Turing and Floyd): provide a formal proof that a property holds by
-        annotating code with pre/post-conditions and loop invariants.  Very
-        expressive but require substantial manual effort; not easily
-        automated for large systems.
-  \item \textbf{Simulation and testing}: unit testing, integration testing,
-        functional testing.  Fast and widely used but \emph{incomplete}: a
-        bug can hide in any unexplored behaviour.  Concretely, the
-        procedure is: take a model (simulation) or a real realisation
-        (testing); stimulate it with certain inputs, i.e., the test cases;
-        observe the reaction and check whether it is the ``desired'' one.
-        The important drawbacks mirror the state-explosion problem in
-        reverse: the number of possible behaviours is very large (or even
-        infinite), an unexplored behaviour may contain the fatal bug, and
-        so testing or simulation can only show the \emph{presence} of
-        errors, never their \emph{absence}.
-  \item \textbf{Model checking}: systematic, automatic, exhaustive.
-        Combines the rigour of deductive methods with the automation of
-        testing.  Used daily at NASA, ESA, Intel, Boeing, and major software
-        companies.
-\end{enumerate}
-
-\subsection{Reviews, inspections, and testing in practice}
-
-Before reaching for model checking, engineers routinely apply lighter-weight
-techniques, each targeting a different stage of the development pipeline
-(recall \cref{fig:cost-curve}):
-\begin{itemize}
-  \item \textbf{Reviews and inspections}: a group of people examine
-        software documentation, code, or design to identify defects,
-        inconsistencies, or areas for improvement---e.g., code reviews,
-        design reviews, and walkthroughs.  Purely manual, but cheap and
-        effective early in the pipeline.
-  \item \textbf{Unit testing}: individual components or units of code are
-        tested in isolation to ensure they behave as expected; developers
-        write test cases that exercise specific functions or modules
-        (e.g., with \texttt{JUnit} or \texttt{pytest}).
-  \item \textbf{Integration testing}: verifies the interaction between
-        different modules or components of a software system, ensuring
-        that the integrated units work together seamlessly as intended.
-\end{itemize}
-None of these reasons about the infinite behaviours of a reactive system;
-that is precisely the gap model checking fills.
-
-\subsection{Static analysis and abstract interpretation}
-
-Two additional techniques deserve mention:
-\begin{itemize}
-  \item \textbf{Static analysis}: analyses source code without executing it,
-        often looking for security vulnerabilities (buffer overflows, null
-        dereferences, race conditions).  Unlike model checking, it usually
-        does not reason about infinite executions.
-  \item \textbf{Abstract interpretation}: a theoretical framework for static
-        analysis based on approximating the program semantics.  Closely
-        related to the notion of over-approximation used in symbolic model
-        checking.
-\end{itemize}
-
-\subsection{The three-phase model checking process}
-\label{sec:mc-process}
-
-In practice, applying \cref{fig:mc-flow} to a real system unfolds in three
-phases:
-\begin{enumerate}
-  \item \textbf{Modelling phase.}  Model the system under consideration; as
-        a first sanity check, run some simulations on it before ever
-        invoking the model checker.  Formalise the property to be checked,
-        and sanity-check \emph{it} too (\cref{sec:mc-problem} already
-        warned about vacuously true specifications).
-  \item \textbf{Running phase.}  Run the model checker to decide whether the
-        property holds of the model.
-  \item \textbf{Analysis phase.}  Three outcomes, matching the three exits
-        of \cref{fig:mc-flow}: if satisfied, move on to the next property
-        (if any); if violated, analyse the generated counterexample by
-        simulation, then refine the model, the design, or the property and
-        repeat the whole procedure; if the tool runs out of memory, try to
-        reduce the model (\cref{sec:state-explosion}) and try again.
-\end{enumerate}
-
-\subsection{Pros and cons of model checking}
-
-\textbf{Advantages.}
-\begin{itemize}[nosep]
-  \item Widely applicable: hardware, software, protocol systems, and more.
-  \item Allows for \emph{partial} verification: only the most relevant
-        properties need to be checked, not the entire system at once.
-  \item A potential ``push-button'' technology once the model and the
-        specification are in place.
-  \item Rapidly increasing industrial interest and tool support.
-  \item In case of a property violation, a counterexample is provided.
-  \item Sound and interesting mathematical foundations.
-  \item Not biased towards the most probable scenarios, unlike testing,
-        which tends to exercise common paths more than rare ones.
-\end{itemize}
-
-\textbf{Limitations.}
-\begin{itemize}[nosep]
-  \item Focuses mainly on \emph{control-intensive} applications
-        (reactive systems); less suited to data-oriented computation.
-  \item Model checking is only as ``good'' as the system model: an
-        unfaithful model of the system's interaction with its environment
-        (signals from sensors in, signals to actuators out) yields
-        guarantees about the model, not about the real system.
-  \item No guarantee about the \emph{completeness} of the results relative
-        to the informal requirements---this is exactly the
-        verification/validation distinction of \cref{sec:mc-problem}.
-  \item Impossible, in general, to check \emph{generalisations} (e.g., ``the
-        protocol is correct for any number $N$ of participants''): a model
-        checker verifies one fixed, finite instance at a time.
-\end{itemize}
+\paragraph{Expressive power.}
+LTL and CTL are not interchangeable.  For orientation, let \(p\) be an
+atomic proposition.  Then
+\(\mathbf{AG}\mathbf{EF}\,p\) expresses a genuinely branching possibility
+that LTL cannot state.  In the other direction, the universal LTL property
+\(\mathbf{F}\mathbf{G}\,p\) has no CTL equivalent.  By contrast,
+\(\mathbf{G}\mathbf{F}\,p\) is \emph{not} a separation example here: under
+the usual universal interpretation it corresponds to
+\(\mathbf{AG}\mathbf{AF}\,p\).  The later temporal-logic chapters justify
+these distinctions formally.
 
 \subsection{The verification--synthesis spectrum}
 
-At one end: \emph{testing} (a posteriori, incomplete).  At the other:
-\emph{synthesis} (a priori, complete by construction).  Model checking
-occupies the middle: it is a posteriori (applied to an existing model) but
-exhaustive.
+Testing is a posteriori and samples behaviours; model checking is still
+applied to an existing model, but explores it exhaustively.  Synthesis moves
+the guarantee earlier: it aims to construct a system from a specification so
+that correctness holds by construction.  This last step is mentioned here
+only to locate model checking in the broader course and will be developed
+later.
 
-The overarching goal of the field is to move verification as early as
-possible into the design lifecycle.  Synthesis---producing a system that is
-\emph{correct by construction} from a declarative specification---is the
-culmination of this programme and will be studied in the final part of the
-course.
+\section*{Notation Recap}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{4.2cm}p{8.35cm}@{}}
+  \toprule
+  \textbf{Notation} & \textbf{Meaning in this chapter} \\
+  \midrule
+  \(M=(AP,Q,Q_0,R,L)\) & finite Kripke structure \\
+  \(s,s'\) & current state and successor state \\
+  \(\pi,\pi(i)\) & initialized path and its state at position \(i\) \\
+  \(M\models\varphi\) & \(\varphi\) holds at every initial state of \(M\)
+                         under the semantics of its temporal logic \\
+  \texttt{init(v)}, \texttt{next(v)} & initial and next-state assignment of
+                                        the SMV variable \(v\) \\
+  \(\mathbf{F},\mathbf{G}\) & eventually and always (LTL preview) \\
+  \(\mathbf{A},\mathbf{E}\) & all paths and some path (CTL preview) \\
+  \(\mathrm{Enabled}_J(i),\mathrm{Taken}_J(i)\) & whether some state in
+                              \(J\subseteq Q\) is available or selected at
+                              position \(i\) \\
+  \bottomrule
+\end{tabular}
+\end{center}
 
 \begin{summarybox}
 \begin{itemize}[nosep]
   \item A \emph{reactive system} interacts continuously with its
     environment; its executions are infinite sequences of states.
-  \item \emph{Model checking} takes a finite model $M$ and a temporal
-    specification $\varphi$ and decides $M\models\varphi$
-    automatically, exhaustively, and with counterexample generation.
-  \item A \emph{Kripke structure} encodes all behaviours of a system as
-    a finite labelled graph; each infinite path is one execution.
-  \item \emph{Safety} properties are violated by a finite bad prefix;
-    \emph{liveness} properties require an infinite witness (a lasso).
-  \item \emph{SMV} is the modelling language compiled to Kripke
-    structures; \textsc{NuXMV} is the tool that checks them.
-  \item \emph{Fairness} constraints (justice and compassion) filter out
-    unrealistic scheduler behaviours before checking a property.
-  \item The \emph{state-explosion problem} is the central obstacle:
-    symbolic methods address it by representing state sets as formulas.
+  \item \emph{Model checking} takes a finite model \(M\) and a temporal
+    specification \(\varphi\), then decides \(M\models\varphi\)
+    automatically and exhaustively, producing diagnostic evidence when the
+    property fails.
+  \item A finite \emph{Kripke structure} encodes the behaviours of the model
+    as labelled paths through a graph.
+  \item Safety violations have finite bad prefixes; on a finite model an LTL
+    liveness counterexample can be represented by a lasso.
+  \item \emph{SMV} describes the model compiled to a Kripke structure;
+    NuXMV simulates it and checks its specifications.
+  \item Justice and compassion constraints filter out unfair infinite paths
+    before a property is evaluated.
+  \item The \emph{state-explosion problem} is the central obstacle; symbolic
+    representations address it in later chapters.
 \end{itemize}
 \end{summarybox}
 
@@ -2373,31 +2290,36 @@ property $\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}
 In the unfixed arbiter, NuSMV produces the counterexample:
 \[
   (\texttt{req}=0, s=\textsc{Rdy}) \to
-  (\texttt{req}=1, s=\textsc{Rdy}) \to
+  (\texttt{req}=1, s=\textsc{Bsy}) \to
   (\texttt{req}=0, s=\textsc{Rdy}).
 \]
 Explain step by step why this trace violates the CTL property.
-Which of the three desiderata of model checking is illustrated here?
+Which of the three defining features of model checking is illustrated here?
 \end{chapex}
 
 \begin{chapex}[Implicit modelling]
 The following \texttt{TRANS} formula is given:
-\texttt{TRANS (x \& !next(x)) | (!x \& next(x)) | (x \& next(x))}.
+\begin{verbatim}
+TRANS (x & !next(x)) | (!x & next(x)) | (x & next(x))
+\end{verbatim}
 Draw the Kripke structure over $\{x=0, x=1\}$.  Which transitions
 are allowed?  Is there a self-loop on $x=0$?
 \end{chapex}
 
 \begin{chapex}[Ring oscillator]
 Model a ring inverter with $N$ Boolean inverter cells using SMV
-\texttt{module}.  For $N=3$: (a)~draw the Kripke structure; (b)~identify
-two non-trivial LTL properties that hold; (c)~state whether
-the property ``every inverter changes its value infinitely often''
-is expressible in CTL.
+\texttt{MODULE}.  For $N=3$, flatten the model, draw the reachable part of
+its Kripke structure, and simulate until a global state repeats.  Use the
+resulting cycle to decide whether the values oscillate.
+
+\emph{Conceptual extension.}  State in ordinary language two requirements
+that a later temporal-logic chapter could formalise; no LTL or CTL syntax is
+required here.
 \end{chapex}
 
 \begin{chapex}[Fairness]
-In \cref{ex:prod-cons}, add both \texttt{JUSTICE producer.running}
-and \texttt{JUSTICE consumer.running}.  Determine the truth value of
+In \cref{ex:prod-cons}, add both \texttt{FAIRNESS producer.running}
+and \texttt{FAIRNESS consumer.running}.  Determine the truth value of
 each of the following properties under fairness:
 \begin{enumerate}[nosep,label=(\alph*)]
   \item ``Whenever the buffer is full, eventually a cell is freed.''
@@ -2412,10 +2334,11 @@ For any false property, give a fair path that violates it.
 Construct a small example (a 3- or 4-state Kripke structure with
 two non-deterministic choices at some state) where:
 \begin{enumerate}[nosep,label=(\alph*)]
-  \item A path violates justice for a given set $J$ but does not
-        violate compassion for any set.
-  \item A path satisfies justice but violates compassion.
+  \item explain why a path that violates justice for a set $J$ also
+        violates compassion for the same set;
+  \item a path satisfies justice for a set $C$ but violates compassion
+        for that same set.
 \end{enumerate}
-\emph{Hint for~(b):} the set $C$ must be enabled infinitely often but
-only finitely often taken.
+\emph{Hint for~(b):} make $C$ enabled infinitely often, but with gaps, and
+take it only finitely often.
 \end{chapex}

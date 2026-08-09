@@ -63,11 +63,16 @@ strategy memory for Muller games, and weak/strong/strong-cyclic planning.
 Status: complete for the current plan, 28 lectures with one text/markdown
 attachment each.
 
+Chapter 7 is derived from L01--L03.  Its pedagogical order is editorially
+reorganised: L01 supplies the problem and model-checking framework, L02 the
+core SMV language and operational examples, and L03 hierarchical and
+asynchronous modelling together with the introductory fairness material.
+
 | Lecture | DB lecture id | Attachment status | Notes |
 | --- | ---: | --- | --- |
-| L01 | 663 | present | second module intro, reactive systems, model checking |
-| L02 | 664 | present | model checking recap, properties, counterexamples |
-| L03 | 665 | present | SMV modules, variables, transition relation, environment inputs |
+| L01 | 663 | present | reactive systems; formal-methods comparison; model-checking inputs, workflow, verification/validation and state explosion; Kripke structures; arbiter; SMV introduction |
+| L02 | 664 | present | SMV `ASSIGN`/`case` semantics, simulation, `TRANS`, modulo-4 counter, non-determinism, `IVAR`, `DEFINE`; modules preview |
+| L03 | 665 | present | modules, flattening and pass-by-reference; mechanical counter and reset; specifications and diagnostics; ring oscillator; asynchronous processes; producer--consumer; justice, compassion and NuSMV fairness syntax |
 | L04 | 666 | present | S1S introduction and connection to automata |
 | L05 | 667 | present | Büchi theorem: S1S and omega-regular languages |
 | L06 | 668 | present | S1S decidability and extensions |

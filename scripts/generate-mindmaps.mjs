@@ -483,7 +483,7 @@ ${cards}
 `;
 }
 
-function latexEscape(text) {
+function latexEscape(text, allowPunctuationBreaks = false) {
   const normalized = text.replaceAll("≈𝒜", "\uFFF2");
   const mathSymbols = new Map([
     ["\uFFF2", "\\ensuremath{\\approx_{\\mathcal A}}"],
@@ -527,9 +527,18 @@ function latexEscape(text) {
     ["–", "--"],
   ]);
 
-  return [...normalized].map((character) => (
+  const escaped = [...normalized].map((character) => (
     mathSymbols.get(character) || special.get(character) || character
   )).join("");
+
+  if (!allowPunctuationBreaks) return escaped;
+
+  // Dense maps need extra wrapping opportunities inside circular PDF nodes.
+  // TeX does not always choose a break at punctuation in this context.
+  return escaped
+    .replaceAll("--", "--\\allowbreak{}")
+    .replace(/(?<!-)-(?!-)/g, "-\\allowbreak{}")
+    .replaceAll("/", "/\\allowbreak{}");
 }
 
 function flattenTopics(section) {
@@ -550,13 +559,14 @@ function generateTikz(chapter) {
   const sections = chapter.children;
   const sectionTopics = sections.map(flattenTopics);
   const totalSlots = sectionTopics.reduce((sum, topics) => sum + Math.max(1, topics.length), 0);
+  const denseMap = totalSlots > 32;
   const step = 360 / Math.max(1, totalSlots);
   const topicRadius = Math.max(9.8, Math.min(14.5, totalSlots * 0.36));
   const sectionRadius = topicRadius * 0.52;
   const topicSize = totalSlots > 32 ? 1.55 : totalSlots > 25 ? 1.72 : 1.92;
-  const topicTextWidth = totalSlots > 32 ? 1.08 : totalSlots > 25 ? 1.24 : 1.46;
-  const sectionSize = sections.length > 10 ? 2.15 : 2.42;
-  const sectionTextWidth = sections.length > 10 ? 1.68 : 1.92;
+  const topicTextWidth = totalSlots > 32 ? 1.12 : totalSlots > 25 ? 1.24 : 1.46;
+  const sectionSize = sections.length > 10 && !denseMap ? 2.15 : 2.42;
+  const sectionTextWidth = sections.length > 10 && !denseMap ? 1.68 : 1.92;
 
   const nodes = [];
   const connections = [];
@@ -572,13 +582,13 @@ function generateTikz(chapter) {
     const sectionId = `s${sectionIndex + 1}`;
     const latexColor = section.latexColor;
 
-    nodes.push(`  \\node[mm section, concept color=${latexColor}] (${sectionId}) at (${formatNumber(sectionAngle)}:${formatNumber(sectionRadius)}cm) {${latexEscape(section.name)}};`);
+    nodes.push(`  \\node[mm section, concept color=${latexColor}] (${sectionId}) at (${formatNumber(sectionAngle)}:${formatNumber(sectionRadius)}cm) {${latexEscape(section.name, denseMap)}};`);
     connections.push(`    \\draw[${latexColor}, line width=11pt] (root) -- (${sectionId});`);
 
     topics.forEach((topic, topicIndex) => {
       const topicId = `t${sectionIndex + 1}_${topicIndex + 1}`;
       const angle = topicAngles[topicIndex];
-      nodes.push(`  \\node[mm topic, concept color=${latexColor}!44!white] (${topicId}) at (${formatNumber(angle)}:${formatNumber(topicRadius)}cm) {${latexEscape(topic.name)}};`);
+      nodes.push(`  \\node[mm topic, concept color=${latexColor}!44!white] (${topicId}) at (${formatNumber(angle)}:${formatNumber(topicRadius)}cm) {${latexEscape(topic.name, denseMap)}};`);
       connections.push(`    \\draw[${latexColor}!60!white, line width=5.5pt] (${sectionId}) -- (${topicId});`);
     });
 

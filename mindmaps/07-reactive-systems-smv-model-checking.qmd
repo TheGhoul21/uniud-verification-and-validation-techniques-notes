@@ -18,7 +18,7 @@ format:
       <h1>Chapter 7 · Reactive Systems, SMV, and Explicit Model Checking</h1>
       <p>Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.</p>
     </div>
-    <span class="mm-count" id="mindmap-count">12 sections · 36 topics</span>
+    <span class="mm-count" id="mindmap-count">11 sections · 38 topics</span>
   </div>
 
   <div class="mm-toolbar">
@@ -91,17 +91,55 @@ format:
       "latexColor": "brightsky",
       "children": [
         {
-          "name": "Closed vs. Open Systems",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 91,
-          "children": []
-        },
-        {
           "name": "The cost of failure",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 99,
+          "line": 107,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "Formal Methods in Context",
+      "kind": "Section",
+      "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+      "line": 117,
+      "color": "#00897b",
+      "latexColor": "vvteal",
+      "children": [
+        {
+          "name": "Three categories of formal methods",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 125,
+          "children": []
+        },
+        {
+          "name": "Reviews, inspections, and testing in practice",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 182,
+          "children": []
+        },
+        {
+          "name": "Static analysis and abstract interpretation",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 204,
+          "children": []
+        },
+        {
+          "name": "The three-phase model checking process",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 218,
+          "children": []
+        },
+        {
+          "name": "Pros and cons of model checking",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 239,
           "children": []
         }
       ]
@@ -110,50 +148,43 @@ format:
       "name": "The Model Checking Problem",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 108,
-      "color": "#00897b",
-      "latexColor": "vvteal",
+      "line": 271,
+      "color": "#7e57c2",
+      "latexColor": "vvviolet",
       "children": [
         {
           "name": "What model checking is",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 116,
-          "children": []
-        },
-        {
-          "name": "The quality of model and specification",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 195,
-          "children": []
-        },
-        {
-          "name": "Universal and existential model checking",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 220,
+          "line": 279,
           "children": []
         },
         {
           "name": "A brief historical note",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 235,
+          "line": 397,
+          "children": []
+        },
+        {
+          "name": "Model checking in practice",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 520,
           "children": []
         },
         {
           "name": "Verification vs. validation",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 313,
+          "line": 543,
           "children": []
         },
         {
           "name": "The state-explosion problem",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 326,
+          "line": 556,
           "children": []
         }
       ]
@@ -162,62 +193,21 @@ format:
       "name": "Kripke Structures",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 358,
-      "color": "#7e57c2",
-      "latexColor": "vvviolet",
+      "line": 590,
+      "color": "#f28e2c",
+      "latexColor": "vvorange",
       "children": [
         {
           "name": "Kripke structure / transition system",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 369
+          "line": 613
         },
         {
           "name": "Arbiter Kripke structure",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 411
-        }
-      ]
-    },
-    {
-      "name": "Specifications: Safety and Liveness",
-      "kind": "Section",
-      "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 493,
-      "color": "#f28e2c",
-      "latexColor": "vvorange",
-      "children": [
-        {
-          "name": "Two kinds of ``always good''",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 508,
-          "children": []
-        }
-      ]
-    },
-    {
-      "name": "Counterexamples: From Bugs to Witnesses",
-      "kind": "Section",
-      "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 609,
-      "color": "#fc5130",
-      "latexColor": "tomato",
-      "children": [
-        {
-          "name": "Finite prefixes for safety violations",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 624,
-          "children": []
-        },
-        {
-          "name": "Lassos for liveness violations",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 654,
-          "children": []
+          "line": 655
         }
       ]
     },
@@ -225,78 +215,78 @@ format:
       "name": "The SMV Modelling Language",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 710,
-      "color": "#167b9e",
-      "latexColor": "brightsky",
+      "line": 739,
+      "color": "#fc5130",
+      "latexColor": "tomato",
       "children": [
         {
           "name": "State variables and types",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 742,
+          "line": 781,
           "children": []
         },
         {
-          "name": "The ASSIGN block",
+          "name": "The ASSIGN block and invariants",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 758,
+          "line": 797,
           "children": []
         },
         {
           "name": "Expression syntax",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 786,
+          "line": 829,
           "children": []
         },
         {
           "name": "The case expression",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 808,
+          "line": 851,
           "children": []
         },
         {
           "name": "Formal semantics of SMV",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 853,
+          "line": 901,
           "children": []
         },
         {
           "name": "Adding a self-loop: implicit modelling with TRANS",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 939,
+          "line": 997,
           "children": []
         },
         {
           "name": "Integer-range example: modulo-4 counter",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1009,
+          "line": 1069,
           "children": []
         },
         {
           "name": "Non-determinism in SMV",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1048,
+          "line": 1109,
           "children": []
         },
         {
           "name": "Input variables",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1085,
+          "line": 1146,
           "children": []
         },
         {
           "name": "The define macro",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1146,
+          "line": 1220,
           "children": []
         }
       ]
@@ -305,21 +295,59 @@ format:
       "name": "Simulation with NuXMV",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1164,
-      "color": "#6f7782",
-      "latexColor": "vvgray",
+      "line": 1241,
+      "color": "#167b9e",
+      "latexColor": "brightsky",
       "children": [
         {
           "name": "Simulating the flip-flop",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1181
+          "line": 1261
         },
         {
           "name": "Simulating the modulo-4 counter",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1196
+          "line": 1276
+        }
+      ]
+    },
+    {
+      "name": "Specifications and Diagnostic Counterexamples",
+      "kind": "Section",
+      "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+      "line": 1302,
+      "color": "#6f7782",
+      "latexColor": "vvgray",
+      "children": [
+        {
+          "name": "A first safety/liveness vocabulary",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 1310,
+          "children": []
+        },
+        {
+          "name": "The arbiter witness",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 1330,
+          "children": []
+        },
+        {
+          "name": "What shape can diagnostic evidence have?",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 1348,
+          "children": []
+        },
+        {
+          "name": "The quality of the two inputs",
+          "kind": "Topic",
+          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
+          "line": 1364,
+          "children": []
         }
       ]
     },
@@ -327,7 +355,7 @@ format:
       "name": "Modules: Hierarchical Modelling",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1220,
+      "line": 1376,
       "color": "#30bced",
       "latexColor": "brightsky",
       "children": [
@@ -335,14 +363,14 @@ format:
           "name": "The mechanical decimal counter",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1250,
+          "line": 1427,
           "children": []
         },
         {
           "name": "Properties of the mechanical counter",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1333,
+          "line": 1526,
           "children": []
         }
       ]
@@ -351,7 +379,7 @@ format:
       "name": "Asynchronous Composition",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1382,
+      "line": 1592,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -359,14 +387,14 @@ format:
           "name": "Synchronous vs. asynchronous",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1390,
+          "line": 1600,
           "children": []
         },
         {
           "name": "Producer–consumer example",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1420,
+          "line": 1712,
           "children": []
         }
       ]
@@ -375,7 +403,7 @@ format:
       "name": "Fairness Constraints",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1479,
+      "line": 1828,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -383,28 +411,28 @@ format:
           "name": "Temporal hierarchy: four key concepts",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1495,
+          "line": 1844,
           "children": []
         },
         {
           "name": "Formal definitions",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1540,
+          "line": 1885,
           "children": []
         },
         {
           "name": "Encoding fairness in NuSMV",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1661,
+          "line": 2095,
           "children": []
         },
         {
           "name": "Fair paths and model checking under fairness",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1681,
+          "line": 2120,
           "children": []
         }
       ]
@@ -413,38 +441,15 @@ format:
       "name": "LTL, CTL, and CTL*: an Overview",
       "kind": "Section",
       "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1695,
+      "line": 2134,
       "color": "#f28e2c",
       "latexColor": "vvorange",
-      "children": []
-    },
-    {
-      "name": "Formal Methods in Context",
-      "kind": "Section",
-      "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-      "line": 1760,
-      "color": "#fc5130",
-      "latexColor": "tomato",
       "children": [
-        {
-          "name": "Three categories of formal methods",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1768,
-          "children": []
-        },
-        {
-          "name": "Static analysis and abstract interpretation",
-          "kind": "Topic",
-          "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1785,
-          "children": []
-        },
         {
           "name": "The verification–synthesis spectrum",
           "kind": "Topic",
           "source": "chapters/07-reactive-systems-smv-model-checking.tex",
-          "line": 1799,
+          "line": 2204,
           "children": []
         }
       ]
