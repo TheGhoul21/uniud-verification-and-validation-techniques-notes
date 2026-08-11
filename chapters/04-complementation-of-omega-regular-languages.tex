@@ -1298,7 +1298,9 @@ change during the proof.
     (\cref{lem:eventual-merge-finite-index}), and it partitions the
     infinitely many positions of $\alpha$ into finitely many classes.
     Hence one class contains an infinite increasing sequence
-    $k_0<k_1<k_2<\cdots$, all pairwise eventually merging.
+    $k_0<k_1<k_2<\cdots$, all pairwise eventually merging.  The picture
+    below sorts the positions into that finite partition and marks the
+    one infinite cell holding this sequence.
 
     \begin{center}
     \begin{tikzpicture}[
@@ -1352,6 +1354,9 @@ change during the proof.
       \qquad\text{hence}\qquad
       \alpha\in U\overrightarrow{V}.
     \]
+    The picture below traces four candidate cumulative segments out of
+    $k_0$, discarding the ones that land outside $V$ and keeping the
+    rest.
 
     \begin{center}
     \begin{tikzpicture}[
@@ -1423,7 +1428,10 @@ change during the proof.
     Discard every still-unselected position up to $M$ and retain the
     next one as the new $k_{i+1}$.  The tail is still infinite, and
     persistence (\cref{prop:merge-persistence}) now makes this retained
-    endpoint a simultaneous merge point for $k_0,\ldots,k_i$.
+    endpoint a simultaneous merge point for $k_0,\ldots,k_i$.  The
+    picture below places this witness $M$ and the retained cut on the
+    line, with persistence carrying $V$-membership down from the top
+    segment to the bottom one.
 
     \begin{center}
     \begin{tikzpicture}[
@@ -1484,7 +1492,9 @@ change during the proof.
     and so does their concatenation $ab=\alpha(k_0,k_2)$.  For
     arbitrary $x,y\in V$, congruence gives $xy\equiv ab$, hence
     $xy\in V$.  Therefore $V\cdot V\subseteq V$, exactly as required by
-    the statement of \cref{lem:ramsey-decomposition}.
+    the statement of \cref{lem:ramsey-decomposition}.  The picture
+    below runs both arguments side by side: the concrete pair $a,b$ on
+    top, an arbitrary pair $x,y$ below, tied together by congruence.
 
     \begin{center}
     \begin{tikzpicture}[
