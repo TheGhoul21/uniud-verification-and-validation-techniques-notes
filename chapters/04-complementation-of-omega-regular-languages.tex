@@ -1239,59 +1239,51 @@ idempotent class $V$.
 The walkthrough below traces the same decomposition through the
 general machinery --- the pigeonhole arguments that would have found
 it even without \cref{ex:ramsey-running}'s shortcut of inspecting the
-automaton directly.  Its ``Thinning to real blocks'' step hinges on one
-sub-step worth picturing on its own: the common witness $M$ for
-$k_0,\ldots,k_i$ need not itself be a member of the sequence, so it may
-fall strictly between two of its later positions.
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  keep/.style={circle, fill=vvteal!70!black, inner sep=2pt},
-  drop/.style={circle, fill=gray!50, inner sep=1.6pt},
-]
-  \draw[thick] (0,0) -- (10.5,0);
-  \foreach \x/\lab/\nm in {0/k_0/labk0, 1.2/k_1/labk1, 2.4/k_i/labki} {
-    \node[keep] at (\x,0) {};
-    \node[below=2mm, font=\small] (\nm) at (\x,0) {$\lab$};
-  }
-  \node[font=\small] at (1.8,0.35) {$\cdots$};
-  \foreach \x in {3.6,4.8,6.0} {
-    \node[drop] at (\x,0) {};
-  }
-  \node[below=2mm, font=\small, gray!70] at (3.6,0) {$k_{i+1}$};
-  \node[below=2mm, font=\small, gray!70] at (6.0,0) {$k_j$};
-  \node[above=1pt, font=\scriptsize, gray!70] at (4.8,0.15) {discarded};
-  \draw[gray!60, thick] (7.2,-0.15) -- (7.2,0.15);
-  \node[above=1pt, font=\small] at (7.2,0.3) {$M$};
-  \node[keep] at (8.4,0) {};
-  \node[below=2mm, font=\small] at (8.4,-0.05) {$k_{j+1}$};
-  \node[below=8mm, font=\small, vvteal!70!black] at (8.4,-0.05)
-    {\textbf{new } $k_{i+1}$};
-
-  \draw [decorate,decoration={brace,amplitude=6pt,mirror}, thick, orange!80!black]
-    (0,-1.5) -- (7.2,-1.5) node [midway, yshift=-0.55cm, font=\small, black]
-    {$k_0,\ldots,k_i$ all merge at $M$};
-  \draw[dashed, gray!60, thin] (labk0.south) -- (0,-1.5);
-  \draw[dashed, gray!60, thin] (7.2,0) -- (7.2,-1.5);
-\end{tikzpicture}
-\caption{Thinning the sequence.  The common merge witness $M$ for
-$k_0,\ldots,k_i$ lands between two positions of the original list,
-$k_j$ and $k_{j+1}$.  Discarding the finitely many positions
-$k_{i+1},\ldots,k_j$ still leaves an infinite tail, and by persistence
-$k_{j+1}$ --- renamed the new $k_{i+1}$ --- merges with every one of
-$k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
-\label{fig:ramsey-thinning}
-\end{figure}
+automaton directly.  Each step carries its own diagram, so the cuts,
+cumulative segments, and eventual $V$-blocks can be followed as they
+change during the proof.
 
 \begin{walkthrough}{Ramsey decomposition for $\omega$-words}
   \wtstep{Setup}{
     We already have one finite-index equivalence, $\equiv$ itself, on
     finite words.  \Cref{lem:eventual-merge-finite-index} manufactures
     a second one, $\posmerge{\alpha}$, this time on positions.  The proof
-    pigeonholes through each of them once, in a specific order, and
-    ties the two together using persistence
-    (\cref{prop:merge-persistence}).
+    first pigeonholes positions, then segments, and ties the two
+    outputs together using persistence
+    (\cref{prop:merge-persistence}).  The diagram shows the interface:
+    once $i$ and $j$ eventually merge, every sufficiently late common
+    endpoint $n$ makes their two outgoing segments equivalent.
+
+    \begin{center}
+    \begin{tikzpicture}[
+      x=1cm,
+      y=0.72cm,
+      pointmark/.style={circle, fill=vvteal!75!black, inner sep=2pt},
+      seg/.style={-Stealth, thick, draw=vvlogic},
+    ]
+      \draw[line width=5pt, vvteal!13] (4.4,0) -- (8.7,0);
+      \draw[thick, draw=graphite!70] (0.2,0) -- (8.8,0);
+      \node[pointmark] (si) at (0.7,0) {};
+      \node[pointmark] (sj) at (2.4,0) {};
+      \draw[draw=vvorange, thick] (4.4,-0.18) -- (4.4,0.18);
+      \node[pointmark] (sn) at (7.8,0) {};
+      \node[below=2mm, font=\scriptsize] at (si) {$i$};
+      \node[below=2mm, font=\scriptsize] at (sj) {$j$};
+      \node[below=2mm, font=\scriptsize, text=vvorange!80!black]
+        at (4.4,0) {$M$};
+      \node[below=2mm, font=\scriptsize] at (sn) {$n\geq M$};
+      \draw[seg] (si.north) to[bend left=25]
+        node[above, font=\scriptsize] {$\alpha(i,n)$} (sn.north);
+      \draw[seg, dashed] (sj.north) to[bend left=18]
+        node[below=1pt, font=\scriptsize] {$\alpha(j,n)$} (sn.north);
+      \node[font=\scriptsize\sffamily, text=vvlogic!85!black]
+        at (5.75,1.9) {$\alpha(i,n)\equiv\alpha(j,n)$};
+      \draw[decorate, decoration={brace,amplitude=4pt,mirror},
+            draw=vvteal!75!black]
+        (0.7,-0.65) -- (2.4,-0.65)
+        node[midway, below=5pt, font=\scriptsize] {$i\posmerge{\alpha}j$};
+    \end{tikzpicture}
+    \end{center}
   }{
     Recall the non-ultimately-periodic word
     $\alpha=v_1v_2v_3\cdots=abc\cdot abcc\cdot abccc\cdots$ of
@@ -1307,6 +1299,35 @@ $k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
     infinitely many positions of $\alpha$ into finitely many classes.
     Hence one class contains an infinite increasing sequence
     $k_0<k_1<k_2<\cdots$, all pairwise eventually merging.
+
+    \begin{center}
+    \begin{tikzpicture}[
+      x=1cm,
+      y=0.78cm,
+      cell/.style={draw=graphite!25, rounded corners=2pt,
+                   minimum height=1.05cm, align=center,
+                   font=\scriptsize\sffamily},
+      arr/.style={-Stealth, thick, draw=graphite!55},
+    ]
+      \node[font=\small] (positions) at (4.35,1.85)
+        {$0,1,2,3,\ldots$};
+      \node[font=\scriptsize\sffamily, text=graphite!65] (partition)
+        at (4.35,0.95) {finite $\posmerge{\alpha}$-partition};
+      \node[cell, fill=graphite!4, minimum width=2.1cm] (c1) at (1.3,-0.65)
+        {$C_1$\\[-1pt] $\bullet\ \bullet\ \cdots$};
+      \node[cell, fill=vvteal!9, draw=vvteal!45, minimum width=3.5cm]
+        (cs) at (4.45,-0.65)
+        {$C_\star$\\[-1pt] $k_0<k_1<k_2<\cdots$};
+      \node[cell, fill=graphite!4, minimum width=2.1cm] (cr) at (7.65,-0.65)
+        {$C_r$\\[-1pt] $\bullet\ \cdots$};
+      \draw[arr] (positions.south) -- (partition.north);
+      \draw[arr] (partition.south) to[out=245,in=90] (c1.north);
+      \draw[arr, draw=vvteal!70!black] (partition.south) -- (cs.north);
+      \draw[arr] (partition.south) to[out=295,in=90] (cr.north);
+      \node[font=\scriptsize\sffamily, text=vvteal!75!black]
+        at (4.45,-1.65) {one cell is infinite};
+    \end{tikzpicture}
+    \end{center}
   }{
     Take $\equiv\,=\,\approx_{\mathcal A}$.  The block boundaries
     $k_0=0,k_1=3,k_2=7,k_3=12,\ldots$ (the cumulative lengths of
@@ -1318,11 +1339,11 @@ $k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
 
   \wtstep{Pigeonhole on segments: vectorial closure}{
     The segments $\alpha(k_0,k_i)$ for $i\geq1$ belong to only finitely
-    many $\equiv$-classes.  Passing to an infinite subsequence, assume
-    they all lie in one class $V$; if necessary, discard $k_0$ when it
-    equals position $0$ and repeat the selection, so that the
-    remaining analysis has a genuine prefix to name.  Writing $U$ for
-    the class of the prefix $\alpha(0,k_0)$, the suffix
+    many $\equiv$-classes.  Keep $k_0$ fixed and pass to an infinite
+    subsequence of $k_1,k_2,\ldots$ whose corresponding segments all
+    lie in one class $V$; rename that subsequence again as
+    $k_1,k_2,\ldots$.  Writing $U$ for the class of the prefix
+    $\alpha(0,k_0)$ --- possibly the empty word --- the suffix
     $\alpha(k_0,\omega)$ has infinitely many prefixes in $V$, so by
     \cref{def:vectorial-closure} (applied to the word
     $\alpha(k_0,\omega)$ in place of $\alpha$),
@@ -1331,6 +1352,53 @@ $k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
       \qquad\text{hence}\qquad
       \alpha\in U\overrightarrow{V}.
     \]
+
+    \begin{center}
+    \begin{tikzpicture}[
+      x=1cm,
+      y=0.72cm,
+      endpoint/.style={circle, inner sep=1.7pt},
+      keep/.style={-Stealth, very thick, draw=vvlogic},
+      reject/.style={-Stealth, thin, draw=graphite!45},
+    ]
+      \node[font=\scriptsize\sffamily, text=graphite!65, rotate=90]
+        at (0.05,0.15) {same start $k_0$};
+      \draw[decorate, decoration={brace,amplitude=4pt}]
+        (0.45,-1.35) -- (0.45,1.65);
+
+      \node[endpoint, fill=graphite!55] (p1s) at (0.8,1.35) {};
+      \node[endpoint, fill=graphite!55] (p1e) at (3.0,1.35) {};
+      \draw[reject] (p1s) -- node[above, font=\scriptsize]
+        {$\alpha(k_0,k_1)$} (p1e);
+      \node[right=1mm, font=\scriptsize\sffamily, text=graphite!65]
+        at (p1e) {$\in W$ \quad discard};
+
+      \node[endpoint, fill=vvlogic] (p2s) at (0.8,0.55) {};
+      \node[endpoint, fill=vvlogic] (p2e) at (4.15,0.55) {};
+      \draw[keep] (p2s) -- node[above, font=\scriptsize]
+        {$\alpha(k_0,k_2)$} (p2e);
+      \node[right=1mm, font=\scriptsize\sffamily, text=vvlogic!85!black]
+        at (p2e) {$\in V$ \quad keep};
+
+      \node[endpoint, fill=graphite!55] (p3s) at (0.8,-0.25) {};
+      \node[endpoint, fill=graphite!55] (p3e) at (5.3,-0.25) {};
+      \draw[reject] (p3s) -- node[above, font=\scriptsize]
+        {$\alpha(k_0,k_3)$} (p3e);
+      \node[right=1mm, font=\scriptsize\sffamily, text=graphite!65]
+        at (p3e) {$\in X$ \quad discard};
+
+      \node[endpoint, fill=vvlogic] (p4s) at (0.8,-1.05) {};
+      \node[endpoint, fill=vvlogic] (p4e) at (6.45,-1.05) {};
+      \draw[keep] (p4s) -- node[above, font=\scriptsize]
+        {$\alpha(k_0,k_4)$} (p4e);
+      \node[right=1mm, font=\scriptsize\sffamily, text=vvlogic!85!black]
+        at (p4e) {$\in V$ \quad keep};
+
+      \node[font=\scriptsize\sffamily, text=vvlogic!85!black]
+        at (4.75,-1.8) {retain infinitely many cumulative segments in $V$};
+    \end{tikzpicture}
+    \end{center}
+
     This is real progress, but not yet the lemma's statement: knowing
     that infinitely many \emph{cumulative} prefixes lie in $V$ says
     nothing yet, on its own, about the individual pieces between
@@ -1341,32 +1409,68 @@ $k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
     $\alpha(k_0,k_i)=v_1v_2\cdots v_i$ is a concatenation of
     $V$-blocks, and one checks directly (as in
     \cref{ex:ramsey-running}) that it lands back in $V$ itself.  Here
-    $U=[\varepsilon]$, since $k_0=0$ was not discarded: $\alpha$
+    $U=[\varepsilon]$, because $k_0=0$: $\alpha$
     happens to start with a $V$-block right away.
   }
 
+  \newpage
   \wtstep{Thinning to real blocks}{
     Thin the sequence once more, this time using persistence to link
     the two pigeonhole arguments together.  Having chosen
     $k_0,\ldots,k_i$, the finitely many pairs among them all merge by
     some common witness $M$ (extend each pairwise witness to their
-    maximum).  This $M$ need not itself belong to the sequence: as
-    \cref{fig:ramsey-thinning} pictures, it may fall strictly between
-    two later positions $k_j$ and $k_{j+1}$ of the original list.
-    Discard the finitely many positions $k_{i+1},\ldots,k_j$ in
-    between --- an infinite tail still remains --- and rename $k_{j+1}$
-    as the new $k_{i+1}$.  Since $k_{j+1}$ lies to the right of $M$,
-    persistence (\cref{prop:merge-persistence}) guarantees that
-    $k_0,\ldots,k_i$ all merge with each other \emph{at} this new
-    $k_{i+1}$ as well.  Repeating this for every $i$ builds, step by
-    step, one infinite subsequence along which consecutive positions
-    always merge with everything before them.  In particular $k_0$
-    merges with $k_i$ at $k_{i+1}$, so
+    maximum).  The witness need not itself belong to the sequence.
+    Discard every still-unselected position up to $M$ and retain the
+    next one as the new $k_{i+1}$.  The tail is still infinite, and
+    persistence (\cref{prop:merge-persistence}) now makes this retained
+    endpoint a simultaneous merge point for $k_0,\ldots,k_i$.
+
+    \begin{center}
+    \begin{tikzpicture}[
+      x=1cm,
+      y=0.72cm,
+      kept/.style={circle, fill=vvteal!75!black, inner sep=2pt},
+      dropped/.style={circle, fill=graphite!38, inner sep=1.6pt},
+      seg/.style={-Stealth, thick},
+    ]
+      \draw[thick, draw=graphite!70] (0.2,0) -- (8.8,0);
+      \node[kept] (q0) at (0.6,0) {};
+      \node[kept] (qi) at (2.25,0) {};
+      \node[below=2mm, font=\scriptsize] at (q0) {$k_0$};
+      \node[below=2mm, font=\scriptsize] at (qi) {$k_i$};
+      \foreach \x in {3.25,4.15,5.05} {
+        \node[dropped] at (\x,0) {};
+      }
+      \node[below=2mm, font=\scriptsize, text=graphite!60]
+        at (4.15,0) {discard};
+      \draw[draw=vvorange, thick] (5.75,-0.2) -- (5.75,0.2);
+      \node[below=2mm, font=\scriptsize, text=vvorange!80!black]
+        at (5.75,0) {$M$};
+      \node[kept] (qn) at (8.15,0) {};
+      \node[below=2mm, font=\scriptsize, align=center] at (qn)
+        {new $k_{i+1}$\\[-1pt] $(>M)$};
+
+      \draw[seg, draw=vvlogic] (q0.north) to[bend left=22]
+        node[above, font=\scriptsize, fill=white, inner sep=1pt]
+          {$\alpha(k_0,k_{i+1})\in V$} (qn.north);
+      \draw[seg, draw=vvorange] (qi.south) to[bend right=22]
+        node[below, font=\scriptsize, align=center, fill=white, inner sep=1pt]
+          {persistence: equivalent to the top segment\\
+           $\alpha(k_i,k_{i+1})\in V$} (qn.south);
+      \draw[-Stealth, draw=vvteal!70!black, thick]
+        (5.95,0.55) -- node[above, font=\scriptsize\sffamily]
+          {next retained cut} (7.9,0.55);
+    \end{tikzpicture}
+    \end{center}
+
+    Repeating this move builds an infinite subsequence along which
+    every new cut is a merge point for all earlier retained cuts.  In
+    particular, $k_0$ merges with $k_i$ at $k_{i+1}$, so the cumulative
+    class found in the previous step transfers to the next gap:
     \[
       \alpha(k_i,k_{i+1}) \equiv \alpha(k_0,k_{i+1}) \in V,
     \]
-    the second membership coming from the previous step.  Every
-    consecutive block $\alpha(k_i,k_{i+1})$ therefore lies in $V$, the
+    Every consecutive block $\alpha(k_i,k_{i+1})$ therefore lies in $V$, the
     prefix $\alpha(0,k_0)$ lies in $U$, and $\alpha\in UV^\omega$.
   }{
     Here every consecutive block already coincides with some $v_j$,
@@ -1381,6 +1485,42 @@ $k_0,\ldots,k_i$ as well, since it lies to the right of $M$.}
     arbitrary $x,y\in V$, congruence gives $xy\equiv ab$, hence
     $xy\in V$.  Therefore $V\cdot V\subseteq V$, exactly as required by
     the statement of \cref{lem:ramsey-decomposition}.
+
+    \begin{center}
+    \begin{tikzpicture}[
+      x=1cm,
+      y=0.85cm,
+      block/.style={draw=vvlogic!45, rounded corners=2pt,
+                    fill=vvlogic!8, minimum width=1.35cm,
+                    minimum height=0.68cm, align=center,
+                    font=\scriptsize},
+      result/.style={block, fill=vvteal!9, draw=vvteal!50,
+                     minimum width=1.7cm},
+      flow/.style={-Stealth, thick, draw=graphite!60},
+      equiv/.style={dashed, thick, draw=vvorange!75!black},
+    ]
+      \node[block] (a) at (0.8,1.15) {$a\in V$};
+      \node[font=\small] at (1.75,1.15) {$\cdot$};
+      \node[block] (b) at (2.7,1.15) {$b\in V$};
+      \node[block] (ab) at (5.05,1.15) {$ab\in V$};
+      \draw[flow] (b.east) -- node[above, font=\scriptsize\sffamily]
+        {adjacent gaps} (ab.west);
+
+      \node[block] (x) at (0.8,-0.45) {$x\in V$};
+      \node[font=\small] at (1.75,-0.45) {$\cdot$};
+      \node[block] (y) at (2.7,-0.45) {$y\in V$};
+      \node[block] (xy) at (5.05,-0.45) {$xy\in V$};
+      \node[result] (closed) at (7.85,-0.45) {$V\cdot V\subseteq V$};
+      \draw[flow] (y.east) -- node[below, font=\scriptsize\sffamily]
+        {congruence} (xy.west);
+      \draw[flow, draw=vvteal!70!black] (xy.east) -- (closed.west);
+
+      \draw[equiv] (x.north) -- node[left, font=\scriptsize] {$\equiv$} (a.south);
+      \draw[equiv] (y.north) -- node[right, font=\scriptsize] {$\equiv$} (b.south);
+      \draw[equiv] (xy.north) -- node[right, font=\scriptsize]
+        {$xy\equiv ab$} (ab.south);
+    \end{tikzpicture}
+    \end{center}
   }{
     Concatenating any two blocks $v_i,v_j$ again lands in $V$
     (\cref{ex:ramsey-running}), matching the abstract argument: $V$ is
