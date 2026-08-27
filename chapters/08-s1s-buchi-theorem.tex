@@ -108,6 +108,38 @@ fragment of arithmetic---a logic about $\mathbb{N}$---is \emph{decidable}.
 The resulting theory has since become the theoretical foundation of
 virtually every temporal logic used in model checking.
 
+\begin{example}[From a run to a word of positions]
+\label{ex:s1s-run-to-word}
+Consider a tiny mutual-exclusion protocol with two atomic propositions,
+$\mathit{req}$ (a request is pending) and $\mathit{grant}$ (the resource
+has just been granted).  A run might look like:
+\[
+  s_0\, s_1\, s_2\, s_3\, s_4\, s_5 \cdots \;=\;
+  \{\mathit{req}\}\;\varnothing\;\{\mathit{req}\}\;\{\mathit{grant}\}\;
+  \varnothing\;\{\mathit{req}\} \cdots
+\]
+Forget, for a moment, what the states \emph{are}---all that matters for
+S1S is \emph{where} things happen.  $\mathit{req}$ holds at positions
+$0, 2, 5, \ldots$; $\mathit{grant}$ holds at position $3$.  A question
+like ``is every request eventually granted?'' becomes a question about
+these two \emph{sets of positions}, not about the states themselves.
+This is exactly what S1S lets us write down.
+\end{example}
+
+\begin{center}
+  \begin{tikzpicture}[x=0.9cm, y=0.6cm]
+    \foreach \i/\lab in {0/req, 1/{}, 2/req, 3/grant, 4/{}, 5/req}
+      \node[draw, minimum width=0.85cm, minimum height=0.7cm, font=\tiny]
+            at (\i, 0) {\lab};
+    \foreach \i in {0,...,5}
+      \node[font=\tiny, below=2pt] at (\i, -0.5) {$\i$};
+    \node[right, font=\tiny] at (6.3, 0) {$\cdots$};
+  \end{tikzpicture}\par
+  {\small\itshape A run reduced to positions: $\mathit{req}$ holds at
+  $\{0,2,5,\ldots\}$, $\mathit{grant}$ at $\{3,\ldots\}$.  S1S talks
+  about these sets, exactly as it will later talk about $Q_a$.}
+\end{center}
+
 \medskip\noindent
 \textbf{Preview.}  The two logics we will study in the next chapters---LTL
 and CTL---are \emph{not} S1S.  They are strictly less expressive, on
@@ -145,6 +177,40 @@ universal quantifier over positions $\forall x$ corresponds to ``for
 every time point'', the predicate $Q_a$ says ``the symbol at that
 position is $a$'', and $\exists y.\; x < y$ means ``there is a future
 time point $y$''.
+
+\begin{example}[Checking $L_1$ on concrete words]
+\label{ex:s1s-l1-words}
+It helps to test the formula against actual words before trusting it in
+the abstract.
+\begin{itemize}
+  \item $\alpha = (ab)^\omega$: every $a$ is immediately followed by a
+        $b$, hence certainly ``eventually'' followed by one.
+        $\alpha \in L_1$.
+  \item $\alpha = a^\omega$: infinitely many $a$'s and \emph{no} $b$
+        ever.  No $a$ has a future $b$-witness.  $\alpha \notin L_1$.
+  \item $\alpha = b^\omega$: there is no $a$ at all, so the universal
+        quantifier $\forall x.\;(x \in Q_a) \to \cdots$ has nothing to
+        check---the implication is \emph{vacuously} true for every $x$.
+        $\alpha \in L_1$, even though the word says nothing about a $b$
+        ``following'' anything.  Keep this vacuous-truth pattern in
+        mind: it is exactly the trap discussed in
+        Example~\ref{ex:s1s-infmany}.
+\end{itemize}
+\end{example}
+
+\begin{center}
+  \begin{tikzpicture}[x=0.7cm, y=0.6cm]
+    \foreach \i/\sym in {0/a, 1/b, 2/a, 3/b, 4/a, 5/b}
+      \node[draw, minimum width=0.6cm, minimum height=0.6cm, font=\small]
+            (s\i) at (\i, 0) {$\sym$};
+    \node at (6.6, 0) {$\cdots$};
+    \foreach \x/\y in {0/1, 2/3, 4/5}
+      \draw[->, teal!70!black, thick]
+            (s\x.north) .. controls +(0,0.6) and +(0,0.6) .. (s\y.north);
+  \end{tikzpicture}\par
+  {\small\itshape $\alpha = (ab)^\omega \in L_1$: every $a$ has an
+  immediate $b$-witness (arrows).}
+\end{center}
 
 The time-flow perspective gives us the intended structure:
 $0,1,2,\ldots$ with a successor operation.  S1S is the formal language for
@@ -426,17 +492,55 @@ $x < y$, and there is no $z$ with $x < z < y$ and $z \in Q_a$:
   \;\land\; \neg\exists z.\;(x < z \land z < y \land z \in Q_a).
 \]
 
-\textbf{Part 2: ``$x$ and $y$ have the same parity.''} Using an alternating
-set $X$ starting at $x$ (analogous to the parity example, but rooted at $x$):
+\textbf{Part 2: ``there is an even number of symbols strictly between
+$x$ and $y$.''} Using an alternating set $X$, analogous to the parity
+example but rooted one step \emph{after} $x$---the base case is
+$x+1 \in X$, not $x \in X$:
 \[
   \mathrm{sameParity}(x, y) \;\equiv\;
-  \exists X.\;\bigl[x \in X \;\land\;
+  \exists X.\;\bigl[(x+1) \in X \;\land\;
     \forall z.\;(z \in X \leftrightarrow (z+1) \notin X)\bigr]
   \;\land\; y \in X.
 \]
-If $y = x + 2k$ (even gap), they have the same parity; if $y = x + 2k+1$
-(odd gap), different parity.  So ``even number of symbols in $(x, y)$''
-means $y - x$ is even, which is exactly $\mathrm{sameParity}(x, y)$.
+Unwinding the alternation from the base case $x+1 \in X$ gives
+$x+2 \notin X$, $x+3 \in X$, $x+4 \notin X, \ldots$: position $x+k$
+is in $X$ exactly when $k$ is odd.  So $y \in X$ iff $y - x$ is odd,
+i.e.\ iff $y = x + 2k+1$ for some $k \geq 0$.  The number of symbols
+strictly between $x$ and $y$ is $y - x - 1 = 2k$, which is
+\emph{even}.  So ``an even number of symbols lie in $(x,y)$'' is
+exactly $\mathrm{sameParity}(x,y)$, despite the name: the predicate
+tracks an \emph{odd} distance $y - x$ precisely because the base case
+starts counting one position after $x$, not at $x$ itself.  (Rooting
+the alternation at $x$ instead of $x+1$, as in
+Example~\ref{ex:s1s-parity}, would count the wrong parity here---an
+easy off-by-one to fall into.)
+
+\begin{center}
+  \begin{tikzpicture}[x=0.85cm, y=0.6cm]
+    \node[font=\small] at (-0.6, 1.3) {$\alpha$:};
+    \foreach \i/\sym in {0/a, 1/b, 2/c, 3/b, 4/c, 5/a}
+      \node[draw, minimum width=0.7cm, font=\small] at (\i, 1.3) {$\sym$};
+    \node[font=\tiny, above] at (0, 1.75) {$x$};
+    \node[font=\tiny, above] at (5, 1.75) {$y$};
+    \node[font=\small] at (-0.6, 0.2) {$X$:};
+    \node[circle, inner sep=3pt, draw=gray!50]  at (0, 0.2) {};
+    \node[circle, inner sep=3pt, fill=teal!60]  at (1, 0.2) {};
+    \node[circle, inner sep=3pt, draw=gray!50]  at (2, 0.2) {};
+    \node[circle, inner sep=3pt, fill=teal!60]  at (3, 0.2) {};
+    \node[circle, inner sep=3pt, draw=gray!50]  at (4, 0.2) {};
+    \node[circle, inner sep=3pt, fill=teal!60]  at (5, 0.2) {};
+    \node[font=\tiny, below=6pt] at (0, 0.2) {$x$};
+    \node[font=\tiny, below=6pt] at (1, 0.2) {$x{+}1$};
+    \node[font=\tiny, below=6pt] at (3, 0.2) {$x{+}3$};
+    \node[font=\tiny, below=6pt] at (5, 0.2) {$y$};
+  \end{tikzpicture}\par
+  {\small\itshape $x=0$, $y=5$: four symbols $b,c,b,c$ lie strictly
+  between them (even).  Walking $X$ from the base case $x{+}1$:
+  $x{+}1\in X$, $x{+}2\notin X$, $x{+}3\in X$, $x{+}4\notin X$, and
+  finally $y=x{+}5 \in X$---confirming $\mathrm{sameParity}(x,y)$.  Move
+  $y$ one position earlier (three symbols between, odd) and the same
+  walk lands on $y \notin X$, correctly ruling that word out of $L_3$.}
+\end{center}
 
 The full S1S sentence:
 \[
