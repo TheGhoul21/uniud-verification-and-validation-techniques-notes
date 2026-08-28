@@ -67,22 +67,23 @@ sets up the deterministic acceptance conditions of the next chapter.
   \resizebox{\textwidth}{!}{%
   \begin{tikzpicture}[
       box/.style={draw=graphite!60, rounded corners, align=center,
-        minimum width=2.75cm, minimum height=0.9cm, font=\small\sffamily,
+        text width=2.15cm, minimum height=0.9cm, font=\small\sffamily,
         fill=gray!6},
       logic/.style={box, vv logic},
-      aut/.style={box, vv accepting},
-      arr/.style={vv edge}
+      aut/.style={box, draw=vvaccept!80!black, fill=vvaccept!12, thick},
+      arr/.style={vv edge},
+      lbl/.style={above, font=\tiny\sffamily, text=graphite, align=center}
     ]
     \node[logic] (formula) at (0,0) {S1S formula\\$\varphi(X_1,\dots,X_k)$};
-    \node[box] (word) at (3.6,0) {bit-vector\\word encoding};
-    \node[aut] (base) at (7.2,0) {atomic-formula\\automata};
-    \node[aut] (ops) at (10.8,0) {closure operations\\$\cap,\cup,\neg$};
-    \node[aut] (proj) at (14.4,0) {projection for\\$\exists X$};
+    \node[box] (word) at (3.5,0) {bit-vector\\word encoding};
+    \node[aut] (base) at (7.0,0) {atomic-formula\\automata};
+    \node[aut] (ops) at (10.5,0) {closure\\operations\\$\cap,\cup,\neg$};
+    \node[aut] (proj) at (14.0,0) {projection\\for $\exists X$};
 
-    \draw[arr] (formula) -- node[above, font=\scriptsize] {free variables} (word);
-    \draw[arr] (word) -- node[above, font=\scriptsize] {local tests} (base);
-    \draw[arr] (base) -- node[above, font=\scriptsize] {Boolean structure} (ops);
-    \draw[arr] (ops) -- node[above, font=\scriptsize] {quantifiers} (proj);
+    \draw[arr] (formula) -- node[lbl] {free\\variables} (word);
+    \draw[arr] (word) -- node[lbl] {local\\tests} (base);
+    \draw[arr] (base) -- node[lbl] {Boolean\\structure} (ops);
+    \draw[arr] (ops) -- node[lbl] {quanti-\\fiers} (proj);
   \end{tikzpicture}%
   }
   \caption{The automata-theoretic reading of S1S.  Formulas are interpreted as
