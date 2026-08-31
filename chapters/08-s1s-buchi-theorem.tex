@@ -277,10 +277,10 @@ as a mathematical \emph{structure}.
 
 \begin{definition}[Word structure]
 \label{def:word-structure}
-Let $\alpha \in A^\omega$.  The \emph{word structure} $\overline{\alpha}$
+Let $\alpha \in A^\omega$.  The \emph{word structure} $\underline{\alpha}$
 is the tuple
 \[
-  \overline{\alpha} = \bigl(\mathbb{N},\; 0,\; {+1},\; {<},\;
+  \underline{\alpha} = \bigl(\mathbb{N},\; 0,\; {+1},\; {<},\;
                              \{Q_a\}_{a \in A}\bigr)
 \]
 where:
@@ -302,7 +302,7 @@ Let $A = \{a, b\}$ and $\alpha = (ab)^\omega = ababab\cdots$.  Then:
 
 \begin{definition}[Language of a formula]
 The \emph{language} of an S1S$_A$ sentence $\Phi$, written $L(\Phi)$,
-is the set of all $\omega$-words $\alpha$ such that $\overline{\alpha}
+is the set of all $\omega$-words $\alpha$ such that $\underline{\alpha}
 \models \Phi$.
 \end{definition}
 
@@ -324,7 +324,7 @@ that later becomes an automata construction.
 \subsection{Defining \texorpdfstring{$x < y$}{x < y} using only \texorpdfstring{$+1$}{+1}}
 \label{sec:s1s-ordering}
 
-The structure $\overline{\alpha}$ includes the ordering $<$, but it is
+The structure $\underline{\alpha}$ includes the ordering $<$, but it is
 instructive to see that $<$ can actually be \emph{defined} using only
 the successor function $+1$ and second-order variables---which shows
 the power of the monadic quantification.
@@ -366,16 +366,21 @@ This prevents the choice of $X = \mathbb{N}$ and forces $X$ to be exactly $\{x+1
           node[right, font=\small] {$\mathbb{N}$};
     \foreach \i in {0,...,11}
       \node[font=\tiny, below=2pt] at (\i, 0) {$\i$};
-    \fill[teal!70] (7,0) circle (4pt) node[above, font=\small]{$x$};
-    \fill[orange!80!red] (3,0) circle (4pt) node[above, font=\small]{$y < x$};
-    \draw[blue!60, very thick] (0, -0.8) -- (11.5, -0.8);
-    \node[font=\tiny, blue!60, below] at (6, -0.8) {$X = \mathbb{N}$ (bad choice)};
-    \draw[teal, very thick] (8, -1.5) -- (11.5, -1.5);
-    \node[font=\tiny, teal, below] at (9.5, -1.5) {good $X$ (from $x{+}1$)};
-    \node[font=\tiny, red] at (3, -2.5) {$y \in X_{\text{bad}}$ but $y < x$!};
-  \end{tikzpicture}\par
-  {\small\itshape With $\exists X$, one can always choose $X = \mathbb{N}$
-  (blue), which contains both $x+1$ and $y$ even when $y < x$.}
+    \fill[blue!70!black] (7,0) circle (4pt) node[above, font=\small]{$x$};
+    \fill[orange!80!black] (3,0) circle (4pt) node[above, font=\small]{$y < x$};
+    \draw[red!70!black, very thick] (0, -0.9) -- (11.5, -0.9);
+    \node[font=\tiny, red!70!black, below] at (5.5, -0.9) {$X = \mathbb{N}$ (bad choice)};
+    \draw[green!50!black, very thick] (8, -1.8) -- (11.5, -1.8);
+    \node[font=\tiny, green!50!black, below] at (9.75, -1.8) {good $X = \{x{+}1, x{+}2, \ldots\}$};
+    \node[font=\tiny, red!70!black] at (3, -2.9) {$y \in X_{\text{bad}}$ but $y < x$!};
+  \end{tikzpicture}
+  \captionof{figure}{With $\exists X$, one can always choose $X = \mathbb{N}$
+    (red bar), which contains both $x+1$ and $y$ even when $y < x$---the
+    existential formula is wrongly satisfied.  The minimal, ``honest''
+    candidate $\{x+1, x+2, \ldots\}$ (green bar) does \emph{not} contain
+    $y$, which is exactly the gap the universally quantified formula
+    exploits.}
+  \label{fig:s1s-order-counterexample}
 \end{center}
 
 \medskip\noindent
@@ -431,22 +436,25 @@ for every $z$ that is in $X$, its successor is \emph{not} in $X$, and vice
 versa.  This produces exactly the set $\{0, 2, 4, 6, \ldots\}$.
 
 \begin{center}
-  \begin{tikzpicture}[x=0.8cm, y=0.7cm]
+  \begin{tikzpicture}[x=1cm, y=0.7cm]
     \foreach \i in {0,...,9}
-      \node[font=\small] at (\i, 1.3) {\i};
+      \node[font=\small] at (\i, 1.5) {$\i$};
+    \foreach \i in {0,...,8}
+      \draw[->, gray!60, thin] (\i+0.2, 0.5) -- (\i+0.8, 0.5);
     \foreach \i in {0,2,4,6,8}
-      \fill[teal!70] (\i, 0) circle (5pt) node[below, font=\tiny]{in $X$};
+      \fill[green!50!black] (\i, 0) circle (5pt);
     \foreach \i in {1,3,5,7,9}
-      \draw[gray!50] (\i, 0) circle (5pt) node[below, font=\tiny]{$\notin X$};
-    \foreach \i in {0,2,4,6,8} {
-      \draw[->, gray!60, thin] (\i+0.15, 0.1) -- (\i+0.85, 0.1);
-      \draw[->, gray!60, thin] (\i+0.85+0.15, 0.1) -- (\i+0.85+0.85, 0.1);
-    }
-    \node[font=\tiny, above, teal] at (4.5, 0.7)
-          {$0 \in X$; $z \in X \leftrightarrow z{+}1 \notin X$};
-  \end{tikzpicture}\par
-  {\small\itshape Alternating definition of parity: starting from
-  $0 \in X$, every even position is inside and every odd one outside.}
+      \draw[gray!50] (\i, 0) circle (5pt);
+    \foreach \i in {0,2,4,6,8}
+      \node[font=\tiny, green!50!black, below=6pt] at (\i, 0) {in $X$};
+    \foreach \i in {1,3,5,7,9}
+      \node[font=\tiny, gray!60, below=6pt] at (\i, 0) {$\notin X$};
+  \end{tikzpicture}
+  \captionof{figure}{Alternating definition of parity: starting from
+    $0 \in X$ (green) and applying $z \in X \leftrightarrow z{+}1 \notin X$
+    at every step, the construction lands exactly on the even positions;
+    odd positions (gray) are excluded.}
+  \label{fig:s1s-parity-alternation}
 \end{center}
 
 Because the set is uniquely determined by these constraints, existential and
@@ -618,7 +626,7 @@ free variables must itself be presented as a word.
 
 \subsection{Why free variables complicate things}
 
-A sentence $\Phi$ is true or false over $\overline{\alpha}$---there are
+A sentence $\Phi$ is true or false over $\underline{\alpha}$---there are
 no parameters.  But a formula $\Psi(X_1, X_2)$ with two free SO variables
 needs an \emph{interpretation} of $X_1$ and $X_2$ (as sets of naturals)
 before it can be evaluated.  A single $\omega$-word does not carry this
@@ -847,11 +855,11 @@ $\forall x\,\exists y$ pattern from Example~\ref{ex:s1s-infmany}):
 \end{figure}
 
 \begin{theorem}[Correctness]
-$\overline{\alpha} \models \Phi_{\mathcal{A}}$ if and only if
+$\underline{\alpha} \models \Phi_{\mathcal{A}}$ if and only if
 $\alpha \in L(\mathcal{A})$.
 \end{theorem}
 \begin{proof}[Proof sketch]
-($\Rightarrow$) If $\overline{\alpha} \models \Phi_{\mathcal{A}}$, then
+($\Rightarrow$) If $\underline{\alpha} \models \Phi_{\mathcal{A}}$, then
 the existential witnesses $Y_0, \ldots, Y_m$ define a run of $\mathcal{A}$
 over $\alpha$ ($\varphi_1$ gives initiality, $\varphi_2$ gives valid
 transitions, $\varphi_3$ gives acceptance).  Hence $\alpha \in
