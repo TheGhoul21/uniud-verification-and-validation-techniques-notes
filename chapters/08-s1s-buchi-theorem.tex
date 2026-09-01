@@ -415,6 +415,114 @@ However, the converse is true: we \emph{can} define the successor $+1$ from the 
 \]
 \end{remark}
 
+\subsection{Refresher: \texorpdfstring{$\text{FO}[+1]$}{FO[+1]} versus \texorpdfstring{$\text{FO}[<]$}{FO[<]}}
+\label{subsec:fo-plus1-vs-fo-order}
+
+\begin{intermezzo}{Why the community split into two first-order fragments}
+\Cref{ex:s1s-order} just defined $x < y$ starting only from $+1$---but
+the construction was thoroughly \emph{second-order}: it quantified over
+the set $\{x+1, x+2, x+3, \ldots\}$ and asked, for \emph{every} set
+closed under $+1$ starting at $x+1$, that $y$ belong to it. That ``for
+every set'' is exactly the ingredient that first-order logic does not
+have.
+
+Drop second-order quantification, and the two directions of
+inter-definability come apart: $+1$ is still definable from $<$ (the
+formula $x < y \land \neg\exists z\,(x < z \land z < y)$ above uses only
+individual variables), but $<$ is no longer definable from $+1$ alone.
+Historically, this asymmetry is exactly what pushed researchers to study
+\emph{two} distinct first-order fragments of S1S rather than one:
+$\text{FO}[+1]$, with only the successor relation in its signature, and
+$\text{FO}[<]$, with the full ordering relation. They are not the same
+logic, and---as the examples below show---they do not express the same
+properties. We will meet $\text{FO}[<]$ again, formally, when we study
+star-free languages in \cref{ch:deterministic-automata-star-free}.
+\end{intermezzo}
+
+The gap between the two fragments is not a technicality; it is exactly
+the gap between ``local'' properties (inspect a fixed neighbourhood of
+positions) and ``unbounded eventuality'' properties (inspect an
+arbitrarily distant future), which is the same gap LTL's temporal
+operators are built to cross.
+
+\begin{example}[{A property $\text{FO}[+1]$ \emph{can} express}]
+\label{ex:fo-plus1-can}
+Let $A = \{a, b, c\}$ and consider the language
+\[
+  L_4 = \{\alpha \in A^\omega \mid \alpha(0) = a \text{ and } \alpha(2) = b\},
+\]
+i.e., the word starts with $a$, and the symbol two steps later is $b$.
+This is captured with only the successor relation, using $0$ as a
+shorthand for the unique position with no predecessor:
+\[
+  \Phi_4 \;\equiv\; 0 \in Q_a \;\land\; \bigl(0+1+1\bigr) \in Q_b.
+\]
+No $<$ is needed: the formula names a fixed, bounded chain of
+successors---position $0$, then $0+1$, then $0+1+1$---and checks a
+predicate at each named position. Any property that only ever inspects
+a bounded window around named positions can be written this way.
+\end{example}
+
+\begin{example}[{A property $\text{FO}[+1]$ \emph{cannot} express}]
+\label{ex:fo-plus1-cannot}
+Consider instead ``eventually $a$'':
+\[
+  L_5 = \{\alpha \in A^\omega \mid \exists i.\ \alpha(i) = a\}.
+\]
+With $<$ available, this is one line, the very pattern used repeatedly
+in \cref{sec:s1s-expressive}:
+\[
+  \Phi_5 \;\equiv\; \exists y.\; y \in Q_a.
+\]
+Here the free-standing $\exists y$ ranges over \emph{all} of
+$\mathbb{N}$ without needing $<$ at all in this particular case---but
+compare it to a slightly less trivial variant, ``$a$ eventually holds
+\emph{after} $x$'':
+\[
+  \Phi_5'(x) \;\equiv\; \exists y.\; x < y \land y \in Q_a.
+\]
+Without $<$, there is no way to say ``some position after $x$,
+whichever it may be.'' A first-order formula only has finitely many
+variables and a fixed quantifier depth, so with only $+1$ available it
+can name at most a \emph{bounded} chain of positions
+$x, x+1, x+1+1, \ldots$ of length fixed by the formula itself. It can
+never say ``some $y$, no matter how far away''---that requires
+quantifying over an unbounded, a priori unknown distance, exactly the
+job that $<$ does in one relation symbol (or that induction over a
+second-order set did in \cref{ex:s1s-order}). This is why, when we
+later study the first-order fragment of S1S in its own right
+(\cref{ch:deterministic-automata-star-free}), the signature keeps $<$
+as primitive rather than trying to make do with $+1$.
+\end{example}
+
+\begin{remark}[Why this matters for LTL]
+The property $\Phi_5'$ above---``$a$ holds at some point strictly
+after $x$''---is exactly the meaning of the temporal operator
+$\Diamond a$ (``eventually $a$'') that we meet in \cref{ch:ltl}. LTL is
+built entirely on $\text{FO}[<]$, never on $\text{FO}[+1]$: every
+temporal operator ($\mathbf{X}$, $\Diamond$, $\Box$, $\mathbf{U}$)
+compiles to a first-order formula over $<$, and Kamp's theorem states
+that the two logics have exactly the same expressive power. Had
+temporal logic been designed around $+1$ instead of $<$, it could not
+even express ``eventually'' in the unbounded sense we rely on for
+liveness properties---only bounded lookahead, as in
+\cref{ex:fo-plus1-can}. This is precisely why $\text{FO}[<]$, not
+$\text{FO}[+1]$, is the fragment that matters for verification.
+\end{remark}
+
+\begin{center}
+\begin{tabular}{@{}p{3.2cm}p{4.6cm}p{4.6cm}@{}}
+\toprule
+ & $\text{FO}[+1]$ & $\text{FO}[<]$ \\
+\midrule
+Signature & $0$, $+1$, $Q_a$ & $0$, $<$, $Q_a$ (and $+1$, definable) \\
+Can express & bounded-distance / local patterns & unbounded eventualities, ``some/every future position'' \\
+Cannot express & unbounded reachability (no $<$) & --- (strictly more expressive) \\
+Matches & finite windows, fixed lookahead & star-free languages, LTL (Kamp's theorem) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \subsection{Parity: positions of A in even locations}
 \label{sec:s1s-parity}
 
@@ -467,6 +575,53 @@ The formula for $L_2$:
                  \forall z.\; (z \in X \leftrightarrow (z+1) \notin X)\bigr]
                \;\land\; y \in X.
 \end{align*}
+\end{example}
+
+\begin{example}[An alternative construction: universal quantification with step $+2$]
+\label{ex:s1s-parity-alt}
+The $\exists X$-with-$\leftrightarrow$ formula above is not the only way
+to define $\mathrm{Even}(y)$. Instead of building the set of evens by
+alternation, we can mimic the trick used for the ordering relation in
+\cref{ex:s1s-order}: build a set by \emph{induction with step $+2$},
+and quantify over it \emph{universally} rather than existentially:
+\[
+  \mathrm{Even}'(y) \;\equiv\; \forall X.\;
+  \bigl[0 \in X \;\land\; \forall x.\;(x \in X \to (x+2) \in X)\bigr]
+  \;\to\; y \in X.
+\]
+Here $X$ is built forward from $0$ in steps of $2$, exactly as $X$ was
+built forward from $x+1$ in steps of $1$ in \cref{ex:s1s-order}, and the
+outer $\forall X$ plays the same role: it forces $y$ to belong to
+\emph{every} set satisfying the hypothesis, in particular to the
+smallest one.
+
+\medskip\noindent
+\textbf{Is it correct?} Let us check both directions, the way we did
+for the ordering relation.
+\begin{itemize}
+  \item \emph{Every valid $X$ contains all even numbers.} Any $X$
+        satisfying the hypothesis contains $0$, hence (by the step rule
+        applied to $x=0$) contains $2$, hence (applied to $x=2$)
+        contains $4$, and so on. So every valid $X$ is a
+        \emph{superset} of $\{0, 2, 4, 6, \ldots\}$---in particular, for
+        even $y$, every valid $X$ contains $y$, and the implication
+        holds no matter which $X$ we picked.
+  \item \emph{No valid $X$ is forced to contain an odd number.} For odd
+        $y$, take $X = \{0, 2, 4, 6, \ldots\}$ itself as the witness: it
+        satisfies the hypothesis ($0 \in X$, and it is closed under
+        $x \mapsto x+2$), but $y \notin X$. Since $\forall X$ must hold
+        for \emph{this} $X$ too, the implication is false for this $X$,
+        so $\forall X.\;(\ldots \to y \in X)$ is false---exactly what we
+        want for odd $y$.
+\end{itemize}
+Both directions check out, so $\mathrm{Even}'(y)$ is a correct, and
+in fact simpler, alternative to the alternation-based
+$\mathrm{Even}(y)$. Note that no side condition like ``$0+1 \notin X$''
+is needed: the minimal set reachable from $0$ by steps of $2$ is already
+exactly the evens, and the universal quantifier over $X$ automatically
+picks it as a witness whenever we need to rule an odd $y$ out---the same
+mechanism that made the $\forall X$ formula for $x < y$ work in
+\cref{ex:s1s-order}.
 \end{example}
 
 \begin{remark}[Parity is not first-order]
