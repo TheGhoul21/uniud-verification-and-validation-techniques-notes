@@ -552,6 +552,112 @@ No! If we only have $+1$, defining $x < y$ means saying $y = x+1 \lor y = x+1+1 
 
 Thus, if we restrict ourselves to first-order variables and only provide $+1$, the logic becomes too weak to even express $<$. To study the correct first-order fragment of S1S, we must explicitly include the ordering relation in the signature, yielding the logic $\text{FO-S1S}[<]$.
 
+\subsection{Refresher: \texorpdfstring{$\text{FO}[+1]$}{FO[+1]} versus \texorpdfstring{$\text{FO}[<]$}{FO[<]}}
+\label{subsec:fo-plus1-vs-fo-order}
+
+\begin{intermezzo}{Why the community split into two first-order fragments}
+Back in \cref{ex:s1s-order} of \cref{ch:s1s-buchi}, we defined $x < y$
+starting only from $+1$---but the construction was thoroughly
+\emph{second-order}: it quantified over the set
+$\{x+1, x+2, x+3, \ldots\}$ and asked, for \emph{every} set closed under
+$+1$ starting at $x+1$, that $y$ belong to it. That ``for every set''
+is exactly the ingredient that first-order logic does not have.
+
+Drop second-order quantification, and \cref{subsec:signature-fo} showed
+the two directions of inter-definability come apart:
+$+1$ is still definable from $<$ (the formula
+$x < y \land \neg\exists z\,(x < z \land z < y)$ uses only individual
+variables), but $<$ is no longer definable from $+1$ alone. Historically,
+this asymmetry is exactly what pushed researchers to study \emph{two}
+distinct first-order fragments of S1S rather than one: $\text{FO}[+1]$,
+with only the successor relation in its signature, and $\text{FO}[<]$,
+with the full ordering relation. They are not the same logic, and---as
+the examples below show---they do not express the same properties.
+\end{intermezzo}
+
+The gap between the two fragments is not a technicality; it is exactly
+the gap between ``local'' properties (inspect a fixed neighbourhood of
+positions) and ``unbounded eventuality'' properties (inspect an
+arbitrarily distant future), which is the same gap LTL's temporal
+operators are built to cross.
+
+\begin{example}[{A property $\text{FO}[+1]$ \emph{can} express}]
+\label{ex:fo-plus1-can}
+Let $A = \{a, b, c\}$ and consider the language
+\[
+  L_4 = \{\alpha \in A^\omega \mid \alpha(0) = a \text{ and } \alpha(2) = b\},
+\]
+i.e., the word starts with $a$, and the symbol two steps later is $b$.
+This is captured with only the successor relation, using $0$ as a
+shorthand for the unique position with no predecessor:
+\[
+  \Phi_4 \;\equiv\; 0 \in Q_a \;\land\; \bigl(0+1+1\bigr) \in Q_b.
+\]
+No $<$ is needed: the formula names a fixed, bounded chain of
+successors---position $0$, then $0+1$, then $0+1+1$---and checks a
+predicate at each named position. Any property that only ever inspects
+a bounded window around named positions can be written this way.
+\end{example}
+
+\begin{example}[{A property $\text{FO}[+1]$ \emph{cannot} express}]
+\label{ex:fo-plus1-cannot}
+Consider instead ``eventually $a$'':
+\[
+  L_5 = \{\alpha \in A^\omega \mid \exists i.\ \alpha(i) = a\}.
+\]
+With $<$ available, this is one line, the very pattern used repeatedly
+in \cref{sec:s1s-expressive}:
+\[
+  \Phi_5 \;\equiv\; \exists y.\; y \in Q_a.
+\]
+Here the free-standing $\exists y$ ranges over \emph{all} of
+$\mathbb{N}$ without needing $<$ at all in this particular case---but
+compare it to a slightly less trivial variant, ``$a$ eventually holds
+\emph{after} $x$'':
+\[
+  \Phi_5'(x) \;\equiv\; \exists y.\; x < y \land y \in Q_a.
+\]
+Without $<$, there is no way to say ``some position after $x$,
+whichever it may be.'' A first-order formula only has finitely many
+variables and a fixed quantifier depth, so with only $+1$ available it
+can name at most a \emph{bounded} chain of positions
+$x, x+1, x+1+1, \ldots$ of length fixed by the formula itself. It can
+never say ``some $y$, no matter how far away''---that requires
+quantifying over an unbounded, a priori unknown distance, exactly the
+job that $<$ does in one relation symbol (or that induction over a
+second-order set did in \cref{ex:s1s-order}). This is why the signature
+of the first-order fragment we actually study, $\text{FO-S1S}[<]$, keeps
+$<$ as primitive rather than trying to make do with $+1$.
+\end{example}
+
+\begin{remark}[Why this matters for LTL]
+The property $\Phi_5'$ above---``$a$ holds at some point strictly
+after $x$''---is exactly the meaning of the temporal operator
+$\Diamond a$ (``eventually $a$'') that we meet in \cref{ch:ltl}. LTL is
+built entirely on $\text{FO}[<]$, never on $\text{FO}[+1]$: every
+temporal operator ($\mathbf{X}$, $\Diamond$, $\Box$, $\mathbf{U}$)
+compiles to a first-order formula over $<$, and Kamp's theorem states
+that the two logics have exactly the same expressive power. Had
+temporal logic been designed around $+1$ instead of $<$, it could not
+even express ``eventually'' in the unbounded sense we rely on for
+liveness properties---only bounded lookahead, as in
+\cref{ex:fo-plus1-can}. This is precisely why $\text{FO}[<]$, not
+$\text{FO}[+1]$, is the fragment that matters for verification.
+\end{remark}
+
+\begin{center}
+\begin{tabular}{@{}p{3.2cm}p{4.6cm}p{4.6cm}@{}}
+\toprule
+ & $\text{FO}[+1]$ & $\text{FO}[<]$ \\
+\midrule
+Signature & $0$, $+1$, $Q_a$ & $0$, $<$, $Q_a$ (and $+1$, definable) \\
+Can express & bounded-distance / local patterns & unbounded eventualities, ``some/every future position'' \\
+Cannot express & unbounded reachability (no $<$) & --- (strictly more expressive) \\
+Matches & finite windows, fixed lookahead & star-free languages, LTL (Kamp's theorem) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
 \subsection{Star-Free Languages}
 \label{subsec:star-free-def}
 
