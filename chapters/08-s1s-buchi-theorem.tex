@@ -772,9 +772,40 @@ constraints, the same infinitely-often pattern appears in NuSMV
 \section{Free Variables and the Encoding \texorpdfstring{$\{0,1\}^n$}{0-1-n}}
 \label{sec:s1s-encoding}
 
-So far we have treated S1S$_A$ for sentences (no free variables).  For the
-Büchi theorem proof, we need to handle \emph{open formulas} with $n$ free
-\emph{second-order} variables $X_1, \ldots, X_n$.
+\begin{intermezzo}{Zooming out: why bother with any of this?}
+It is easy to lose the thread here, so let us restate the goal in plain
+terms. We ultimately only care about \emph{sentences}: closed S1S
+formulas, with no free variables, that state a property of an entire
+execution---``every request is eventually granted'', ``$a$ occurs
+infinitely often''. These are exactly the kind of specifications
+\cref{ch:reactive-smv} taught us to write down. What we want is an
+\emph{algorithm} that takes such a sentence and tells us, mechanically,
+whether it is true of every run of our system. The Büchi theorem gets us
+there by giving a recipe to compile any S1S sentence into an equivalent
+Büchi automaton, on which truth becomes a graph question (emptiness,
+solvable in NLOGSPACE, as we saw in \cref{ch:omega-automata}).
+
+The catch is \emph{how} that compilation recipe has to work. Büchi's
+construction proceeds \emph{recursively} on the syntax tree of the
+formula: build automata for the atomic pieces, then combine them
+following $\land$, $\lor$, $\neg$, $\exists X$. But look at what
+$\exists X\,\Psi(X)$ requires: before we can quantify $X$ away, we need
+an automaton for the \emph{subformula} $\Psi(X)$---and $\Psi(X)$ has $X$
+\emph{free}. So even though the sentence we started with had no free
+variables, the recursion forces us to build automata for formulas that
+do. This section solves exactly that sub-problem: how do we even talk
+about a Büchi automaton for a formula whose truth depends on values we
+have not yet fixed? Once this is settled, the rest of the proof is
+bookkeeping: Boolean connectives become the automata closure properties
+we already have (\cref{ch:omega-automata}), and $\exists X$ becomes the
+projection lemma we prove right after this section. This is not an
+academic exercise, either---tools such as MONA implement exactly this
+compilation pipeline, turning a monadic second-order formula into a
+working automaton you can inspect.
+\end{intermezzo}
+
+For the Büchi theorem proof, we need to handle \emph{open formulas} with
+$n$ free \emph{second-order} variables $X_1, \ldots, X_n$.
 This is not just a technical detail: it is the mechanism that lets logic
 and automata communicate.  An automaton reads a word, so a valuation for the
 free variables must itself be presented as a word.
@@ -851,6 +882,28 @@ This encoding is key: a formula with $n$ free SO variables becomes a
 \emph{language} over $\{0,1\}^n$.  Every closure property (union,
 intersection, complementation, projection) for Büchi automata over
 $\{0,1\}^n$ then translates directly to a logical operation on formulas.
+
+\begin{remark}[You have already seen this trick]
+This bit-vector encoding is not a new idea invented for this proof---it
+is the same thing as the labelling function
+$L : Q \to 2^{AP}$ of a Kripke structure (\cref{def:kripke}).  There,
+each state is tagged with the subset of atomic propositions that hold
+there; here, each \emph{position} of an $\omega$-word is tagged with the
+subset of free variables it belongs to. Fix an ordering of the free
+variables $X_1, \ldots, X_n$ exactly as one fixes an ordering of $AP$,
+and a position's tag $\{0,1\}^n$ is nothing but a state's label
+$L(q) \subseteq AP$ written as a bit-vector. The only difference is what
+the tags mean: for a Kripke structure they say which facts hold now, for
+an S1S formula they say which set variables this position belongs to.
+Concretely, if $X_1$ were the set of positions where a \texttt{request}
+holds and $X_2$ the set of positions where \texttt{grant} holds---the
+same kind of atomic propositions we used for the arbiter in
+\cref{ch:reactive-smv}---the bit-vector word of \cref{fig:s1s-encoding}
+would be exactly the trace $L(q_0), L(q_1), \ldots$ that a model checker
+already manipulates when it walks a Kripke structure. Nothing alien is
+happening; we are only reusing, at the level of logic, a representation
+model checking already needs at the level of automata.
+\end{remark}
 
 \paragraph{S1S$_A \equiv$ S1S.}
 S1S$_A$ (with alphabet predicates $Q_a$) can be converted to S1S (pure
