@@ -808,15 +808,12 @@ For the Büchi theorem proof, we need to handle \emph{open formulas} with
 $n$ free \emph{second-order} variables $X_1, \ldots, X_n$.
 This is not just a technical detail: it is the mechanism that lets logic
 and automata communicate.  An automaton reads a word, so a valuation for the
-free variables must itself be presented as a word.
-
-\subsection{Why free variables complicate things}
-
-A sentence $\Phi$ is true or false over $\underline{\alpha}$---there are
-no parameters.  But a formula $\Psi(X_1, X_2)$ with two free SO variables
-needs an \emph{interpretation} of $X_1$ and $X_2$ (as sets of naturals)
-before it can be evaluated.  A single $\omega$-word does not carry this
-information.
+free variables must itself be presented as a word: a sentence $\Phi$ is
+true or false over $\underline{\alpha}$ with no parameters to fix, but a
+formula $\Psi(X_1, X_2)$ with two free SO variables needs an
+\emph{interpretation} of $X_1$ and $X_2$ (as sets of naturals) before it
+can be evaluated, and a single $\omega$-word over the original alphabet
+does not carry that information.
 
 \subsection{Words as value assignments}
 
@@ -1421,9 +1418,10 @@ automata (which correspond to WS1S), the reference operation is the
 \cdots$, each belonging to some set $V$.  This structural difference
 reflects the finite-set restriction.
 
-\subsection{Decidable extensions}
+\subsection{Decidable and undecidable extensions}
 
-Both of the following extensions add a new predicate to S1S:
+Both of the following extensions add a new predicate to S1S, and both
+stay decidable:
 
 \begin{description}
   \item[$\mathbf{S1S + P_k}$ (powers of $k$):]
@@ -1435,7 +1433,7 @@ Both of the following extensions add a new predicate to S1S:
         ($n!$ for $n \geq 0$).  Still decidable.
 \end{description}
 
-\subsection{Undecidable extensions}
+By contrast, the following extensions destroy decidability:
 
 \begin{description}
   \item[$\mathbf{S1S + \times 2}$ (doubling function):]
@@ -1471,7 +1469,7 @@ small language of words with finitely many $a$'s.  This witness prepares
 the more systematic deterministic theory of
 Chapter~\ref{ch:deterministic-automata-star-free}.
 
-\subsection{Definition}
+\subsection{Definition and basic closure properties}
 
 \begin{definition}[Deterministic Büchi Automaton (DBA)]
 A \emph{DBA} is a tuple $\mathcal{A} = (Q, A, \delta, q_0, F)$ where
@@ -1489,8 +1487,6 @@ $q_{i+1} = \delta(q_i, \alpha(i))$.  Acceptance: the unique run is
 successful iff $\mathrm{Inf}(\sigma) \cap F \neq \emptyset$.
 This uniqueness removes the automaton's ability to ``guess'' a future
 event.  That is exactly what will fail in the witness language below.
-
-\subsection{What DBAs can and cannot do}
 
 \begin{proposition}
 DBAs are closed under \emph{union} and \emph{intersection}.

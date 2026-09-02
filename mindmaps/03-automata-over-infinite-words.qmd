@@ -240,7 +240,7 @@ format:
       "name": "Emptiness and Lassos",
       "kind": "Section",
       "source": "chapters/03-automata-over-infinite-words.tex",
-      "line": 995,
+      "line": 1010,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": [
@@ -248,25 +248,25 @@ format:
           "name": "Decidability of Büchi emptiness",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 1008
+          "line": 1023
         },
         {
           "name": "Ultimately periodic word",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 1071
+          "line": 1086
         },
         {
           "name": "Ultimately periodic witnesses",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 1097
+          "line": 1112
         },
         {
           "name": "Languages without periodic words",
           "kind": "Topic",
           "source": "chapters/03-automata-over-infinite-words.tex",
-          "line": 1224
+          "line": 1239
         }
       ]
     }

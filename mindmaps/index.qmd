@@ -57,7 +57,7 @@ format:
     <a class="mindmap-index-card" href="08-s1s-buchi-theorem.html" style="--card-color: #7e57c2">
       <span class="chapter-number">Chapter 8</span>
       <strong>S1S, the Büchi Theorem, and Deterministic Büchi Automata</strong>
-      <small>12 sections · 26 topics</small>
+      <small>12 sections · 25 topics</small>
     </a>
     <a class="mindmap-index-card" href="09-deterministic-automata-star-free-languages.html" style="--card-color: #7e57c2">
       <span class="chapter-number">Chapter 9</span>

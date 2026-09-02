@@ -102,7 +102,7 @@ format:
       "name": "Congruences and Saturation",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 152,
+      "line": 174,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -110,37 +110,37 @@ format:
           "name": "Congruence",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 167
+          "line": 190
         },
         {
           "name": "Parity of length, a finite-index congruence",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 183
+          "line": 206
         },
         {
           "name": "Saturation",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 207
+          "line": 230
         },
         {
           "name": "Saturation and complement",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 327
+          "line": 350
         },
         {
           "name": "Saturated languages are finite unions of class products",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 341
+          "line": 364
         },
         {
           "name": "Complement of a saturated language",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 374
+          "line": 397
         }
       ]
     },
@@ -148,7 +148,7 @@ format:
       "name": "The Relation ≈𝒜",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 399,
+      "line": 422,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -156,49 +156,49 @@ format:
           "name": "Path notation",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 418
+          "line": 441
         },
         {
           "name": "Regular path languages",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 452
+          "line": 475
         },
         {
           "name": "The relation ≈𝒜",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 477
+          "line": 500
         },
         {
           "name": "Properties of ≈𝒜",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 502
+          "line": 525
         },
         {
           "name": "What ≈𝒜 remembers",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 623
+          "line": 646
         },
         {
           "name": "Two ≈𝒜-classes on a small automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 667
+          "line": 690
         },
         {
           "name": "Replacement principle",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 713
+          "line": 736
         },
         {
           "name": "Beyond this course: canonical, automaton-free congruences",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 727
+          "line": 750
         }
       ]
     },
@@ -206,7 +206,7 @@ format:
       "name": "Ramsey Decomposition",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 767,
+      "line": 790,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
@@ -214,49 +214,49 @@ format:
           "name": "Merging positions under the parity congruence",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 810
+          "line": 862
         },
         {
           "name": "Merging positions",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 879
+          "line": 931
         },
         {
           "name": "Persistence: merging cannot be broken",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 936
+          "line": 988
         },
         {
           "name": "Eventual merge",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 964
+          "line": 1016
         },
         {
           "name": "the merge relation is a finite-index equivalence",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 970
+          "line": 1022
         },
         {
           "name": "The merge-classes on the running automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1006
+          "line": 1059
         },
         {
           "name": "Ramsey decomposition for ω-words",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1143
+          "line": 1196
         },
         {
           "name": "Ramsey decomposition on the running automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1157
+          "line": 1210
         }
       ]
     },
@@ -264,7 +264,7 @@ format:
       "name": "Closure under Complement",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 1373,
+      "line": 1565,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": [
@@ -272,25 +272,25 @@ format:
           "name": "Saturation on the running automaton",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1386
+          "line": 1582
         },
         {
           "name": "Complementation of Büchi-recognizable languages",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1399
+          "line": 1595
         },
         {
           "name": "The complement automaton by saturation",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1445
+          "line": 1641
         },
         {
           "name": "Ultimately periodic fingerprint",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1499
+          "line": 1695
         }
       ]
     },
@@ -298,7 +298,7 @@ format:
       "name": "Model Checking Consequence",
       "kind": "Section",
       "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-      "line": 1517,
+      "line": 1713,
       "color": "#167b9e",
       "latexColor": "brightsky",
       "children": [
@@ -306,7 +306,7 @@ format:
           "name": "Büchi inclusion",
           "kind": "Topic",
           "source": "chapters/04-complementation-of-omega-regular-languages.tex",
-          "line": 1523
+          "line": 1719
         }
       ]
     }
