@@ -745,12 +745,14 @@ is wrong.  The correct $\Phi_\infty$ has no conditional: it asserts that
     % a's at positions 2,5,9,12
     \foreach \i in {2,5,9,12}
       \fill[teal!70] (\i,0) circle (4pt) node[above=2pt, font=\tiny]{$a$};
-    % "for all x" arrows
-    \foreach \x/\y in {0/2, 1/2, 3/5, 4/5, 6/9, 7/9, 8/9, 10/12, 11/12} {
-      \draw[->, gray!50, thin]
-            (\x, -0.5) .. controls (\x, -1.2) and (\y, -1.2) .. (\y, -0.5);
+    % "for all x" arrows: dip scales with span so short and long arcs keep
+    % the same round shape instead of colliding at a fixed depth
+    \foreach \x/\y/\d in {0/2/1.2, 1/2/0.85, 3/5/1.2, 4/5/0.85,
+                          6/9/1.55, 7/9/1.2, 8/9/0.85, 10/12/1.2, 11/12/0.85} {
+      \draw[->, gray!55, thin]
+            (\x, -0.4) .. controls (\x, -\d) and (\y, -\d) .. (\y, -0.4);
     }
-    \node[font=\tiny, gray] at (6.5,-1.6)
+    \node[font=\tiny, gray] at (6.5,-2.0)
           {each position has a future $a$};
   \end{tikzpicture}
   \caption{The $\forall x\,\exists y$ pattern for ``infinitely many $a$'s''.
