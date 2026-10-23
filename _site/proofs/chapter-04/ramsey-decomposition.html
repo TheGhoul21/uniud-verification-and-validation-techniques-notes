@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-6e65effbec86fe2504d4da743356ef3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8f6aa1e0b07f26f71f91262a39254c0f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -100,7 +100,7 @@ cookieconsent.run({
   
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../proofs/proof-lab.css">
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" defer=""></script>
 <script src="../../proofs/proof-lab-content.js" defer=""></script>
@@ -147,69 +147,14 @@ cookieconsent.run({
     <a class="nav-link" href="../../mindmaps/index.html"> 
 <span class="menu-text">Mind Maps</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Notebooks</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
-        <li>
-    <a class="dropdown-item" href="../../notebooks/01-intro.html">
- <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/02-nfa-reachable-states.html">
- <span class="dropdown-text">2. NFA Reachable States</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/03-subset-construction.html">
- <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/04-epsilon-closure-removal.html">
- <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/05-product-automaton.html">
- <span class="dropdown-text">5. Product Automaton</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/06-reachability-fixpoint.html">
- <span class="dropdown-text">6. Reachability Fixpoint</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/07-kleene-state-elimination.html">
- <span class="dropdown-text">7. Kleene State Elimination</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/08-regex-to-automata-kleene.html">
- <span class="dropdown-text">8. Regex to Automaton (Kleene)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/09-ltl.html">
- <span class="dropdown-text">9. Linear Temporal Logic (LTL)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/10-model-checking.html">
- <span class="dropdown-text">10. Model Checking Basics</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/11-omega-words.html">
- <span class="dropdown-text">11. Infinite Words &amp; In(α)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/12-buchi-runner.html">
- <span class="dropdown-text">12. Büchi Automaton Runner</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/13-vectorial-closure.html">
- <span class="dropdown-text">13. Vectorial Closure</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../notebooks/14-buchi-emptiness-lasso.html">
- <span class="dropdown-text">14. Büchi Emptiness (Lasso)</span></a>
-  </li>  
-    </ul>
-  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -234,7 +179,51 @@ cookieconsent.run({
 <div class="proof-lab" data-proof-lab="ramsey-decomposition"></div>
 <noscript>
   <h1>Ramsey decomposition</h1>
-  <p>Every omega-word alpha belongs to U times V-omega for some classes U, V of a finite-index congruence, with V times V contained in V. Two nested pigeonhole arguments -- one on positions of alpha, one on segment classes -- linked by a persistence property, produce the decomposition even when alpha is not ultimately periodic.</p>
+  <p><strong>Theorem.</strong> Every omega-word alpha belongs to U·V-omega for
+  some classes U, V of a finite-index congruence (=), with V·V contained in V.</p>
+
+  <p><strong>Running example.</strong> The automaton has states s0, s1, s2 with
+  F = {s1} and transitions s0-a-&gt;s1, s1-b-&gt;s2, s2-c-&gt;s2 (self-loop),
+  s2-a-&gt;s1. The word alpha = abc·abcc·abccc··· has
+  ever-growing gaps of c's and is not ultimately periodic, yet every block abc^n
+  produces the same behaviour, so alpha decomposes as [epsilon]·V-omega for a
+  single class V.</p>
+
+  <p><strong>Strategy.</strong> Build a second finite-index equivalence on the
+  positions of alpha by colouring each pair of positions with the (=)-class of the
+  segment between them. Pigeonhole gives an infinite pairwise-merging set of
+  positions; persistence (congruence applied to a shared future suffix) makes that
+  merge survive forever. A separate pigeonhole on cumulative-prefix classes gives
+  infinitely many prefixes in one class V; persistence then transfers V's class onto
+  each gap, turning them into genuine consecutive V-blocks. One witnessed
+  concatenation transports, via congruence, to V·V contained in V.</p>
+
+  <p><strong>Proof outline.</strong></p>
+  <ol>
+    <li><em>Setup.</em> The congruence (=) compares the finite segments between
+    positions, not positions themselves; so build a relation on positions, colouring
+    a pair (k, k') by the (=)-class of the shared-future segments alpha(k, m) and
+    alpha(k', m).</li>
+    <li><em>Pigeonhole on positions.</em> That relation inherits finite index from
+    (=), so among any r+1 positions two must merge; run over all of N to get an
+    infinite pairwise-merging sequence k0 &lt; k1 &lt; k2 &lt; ...</li>
+    <li><em>Persistence.</em> (=) is right-invariant, so appending the shared suffix
+    to both sides shows: once two positions merge at some checkpoint m, they merge at
+    every later checkpoint m' &gt;= m.</li>
+    <li><em>Pigeonhole on segments.</em> Independently, pigeonhole the cumulative
+    prefixes alpha(k0, ki): infinitely many share one class V. This gives alpha in
+    U·(infinitely many V-prefixes), but not yet consecutive blocks.</li>
+    <li><em>Thinning.</em> Thin the sequence so that k0, ..., ki all merge at k(i+1);
+    persistence transfers alpha(k0, k(i+1)) in V onto the gap, giving alpha(ki, k(i+1))
+    in V. Every consecutive block lies in V, so alpha in U·V-omega.</li>
+    <li><em>Idempotence.</em> For one witnessed pair a = alpha(k0, k1), b =
+    alpha(k1, k2) with ab in V, congruence gives xy = ab in V for all x = a, y = b in
+    V; hence V·V contained in V.</li>
+  </ol>
+
+  <p><strong>Conclusion.</strong> alpha in U·V-omega with V·V contained
+  in V — the Ramsey decomposition, holding even when alpha is not ultimately
+  periodic.</p>
 </noscript>
 
 

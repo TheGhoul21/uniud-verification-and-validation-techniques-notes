@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<meta name="description" content="Click through the four-state arbiter Kripke structure from the lecture notes, watch AG(request → AX busy) hold or break in real time, and replay the exact counterexample from the chapter.">
 
-<title>Model Checking Algorithms and Basics — Formal Verification | VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<title>Model Checking Basics — Interactive Arbiter Explorer | VVT UniUD – Verification and Validation Techniques — UniUD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-dc30bba74ce507876c1a7030e92a5d7e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-76ba6da3b23429282fd50448dceca657.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -100,16 +100,45 @@ cookieconsent.run({
   
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<meta property="og:title" content="Model Checking Algorithms and Basics — Formal Verification | VVT UniUD">
-<meta property="og:description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="Model Checking Basics — Interactive Arbiter Explorer | VVT UniUD">
+<meta property="og:description" content="Click through the four-state arbiter Kripke structure from the lecture notes, watch AG(request → AX busy) hold or break in real time, and replay the exact counterexample from the chapter.">
 <meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
 <meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
 <meta property="og:locale" content="en_US">
-<meta name="twitter:title" content="Model Checking Algorithms and Basics — Formal Verification | VVT UniUD">
-<meta name="twitter:description" content="Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.">
+<meta name="twitter:title" content="Model Checking Basics — Interactive Arbiter Explorer | VVT UniUD">
+<meta name="twitter:description" content="Click through the four-state arbiter Kripke structure from the lecture notes, watch AG(request → AX busy) hold or break in real time, and replay the exact counterexample from the chapter.">
 <meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -143,69 +172,14 @@ cookieconsent.run({
     <a class="nav-link" href="../mindmaps/index.html"> 
 <span class="menu-text">Mind Maps</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Notebooks</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
-        <li>
-    <a class="dropdown-item" href="../notebooks/01-intro.html">
- <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/02-nfa-reachable-states.html">
- <span class="dropdown-text">2. NFA Reachable States</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/03-subset-construction.html">
- <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/04-epsilon-closure-removal.html">
- <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/05-product-automaton.html">
- <span class="dropdown-text">5. Product Automaton</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/06-reachability-fixpoint.html">
- <span class="dropdown-text">6. Reachability Fixpoint</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/07-kleene-state-elimination.html">
- <span class="dropdown-text">7. Kleene State Elimination</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/08-regex-to-automata-kleene.html">
- <span class="dropdown-text">8. Regex to Automaton (Kleene)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/09-ltl.html">
- <span class="dropdown-text">9. Linear Temporal Logic (LTL)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/10-model-checking.html">
- <span class="dropdown-text">10. Model Checking Basics</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/11-omega-words.html">
- <span class="dropdown-text">11. Infinite Words &amp; In(α)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/12-buchi-runner.html">
- <span class="dropdown-text">12. Büchi Automaton Runner</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/13-vectorial-closure.html">
- <span class="dropdown-text">13. Vectorial Closure</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/14-buchi-emptiness-lasso.html">
- <span class="dropdown-text">14. Büchi Emptiness (Lasso)</span></a>
-  </li>  
-    </ul>
-  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -222,9 +196,10 @@ cookieconsent.run({
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#model-checking-basics" id="toc-model-checking-basics" class="nav-link active" data-scroll-target="#model-checking-basics">Model Checking Basics</a>
+  <li><a href="#the-arbiter-kripke-structure" id="toc-the-arbiter-kripke-structure" class="nav-link active" data-scroll-target="#the-arbiter-kripke-structure">The Arbiter Kripke Structure</a>
   <ul class="collapse">
-  <li><a href="#course-materials-for-model-checking" id="toc-course-materials-for-model-checking" class="nav-link" data-scroll-target="#course-materials-for-model-checking">Course Materials for Model Checking</a></li>
+  <li><a href="#widget-click-through-the-states" id="toc-widget-click-through-the-states" class="nav-link" data-scroll-target="#widget-click-through-the-states">Widget: click through the states</a></li>
+  <li><a href="#what-to-try" id="toc-what-to-try" class="nav-link" data-scroll-target="#what-to-try">What to try</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -234,12 +209,12 @@ cookieconsent.run({
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Notebook 9: Model Checking Basics</h1>
+<h1 class="title">Notebook 10: The Arbiter Kripke Structure</h1>
 </div>
 
 <div>
   <div class="description">
-    Introduction to Model Checking algorithms in formal verification. Understand how systems are verified against temporal logic specifications automatically.
+    Click through the four-state arbiter Kripke structure from the lecture notes, watch AG(request → AX busy) hold or break in real time, and replay the exact counterexample from the chapter.
   </div>
 </div>
 
@@ -260,31 +235,402 @@ cookieconsent.run({
 {
   "@context": "https://schema.org",
   "@type": "LearningResource",
-  "name": "Model Checking Basics",
-  "learningResourceType": "Lecture Notes"
+  "name": "Notebook 10: The Arbiter Kripke Structure",
+  "learningResourceType": "Interactive Notebook"
 }
 </script>
-<section id="model-checking-basics" class="level1">
-<h1>Model Checking Basics</h1>
-<p><strong>Model Checking</strong> is the core automated technique studied in Verification and Validation. It is the algorithmic process of determining whether a given finite-state model of a system meets a given formal specification (typically expressed in temporal logic like LTL or CTL).</p>
-<section id="course-materials-for-model-checking" class="level2">
-<h2 class="anchored" data-anchor-id="course-materials-for-model-checking">Course Materials for Model Checking</h2>
-<p>The theoretical foundations of model checking algorithms, state-space explosion problems, and practical approaches are detailed in the course notes.</p>
-<section id="key-concepts-covered" class="level3">
-<h3 class="anchored" data-anchor-id="key-concepts-covered">Key concepts covered:</h3>
+<section id="the-arbiter-kripke-structure" class="level1">
+<h1>The Arbiter Kripke Structure</h1>
+<p>This notebook is the interactive twin of the arbiter running example from Chapter 7 (Reactive Systems, SMV, and Explicit Model Checking). The arbiter has two state variables, <code>request</code> and <code>state ∈ {Ready, Busy}</code>, giving four states:</p>
 <ul>
-<li><strong>Kripke Structures &amp; Transition Systems</strong>: Modeling hardware and software systems.</li>
-<li><strong>Automata-Theoretic Approach</strong>: Intersecting the system model with the negation of the specification automaton.</li>
-<li><strong>On-the-fly Verification</strong>: Checking properties without building the entire state space upfront.</li>
-<li><strong>Complexity</strong>: Why model checking is computationally hard (PSPACE-complete for LTL) and how abstractions help.</li>
+<li><strong>RF</strong> — Ready, no request</li>
+<li><strong>RT</strong> — Ready, request pending</li>
+<li><strong>BF</strong> — Busy, no request</li>
+<li><strong>BT</strong> — Busy, request (still) pending</li>
 </ul>
+<p>We check the property <span class="math inline">\(\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))\)</span>: <em>whenever a request is present, the very next state must be Busy.</em></p>
+<p>The <strong>buggy</strong> model is the one from the lecture notes: the SMV <code>case</code> statement’s catch-all <code>TRUE</code> branch leaves the arbiter free to go anywhere, so it can silently drop a pending request. The <strong>fixed</strong> model adds one clause — <em>if already Busy with a request pending, stay Busy</em> — which is exactly the fix from the chapter’s exercises.</p>
+<section id="widget-click-through-the-states" class="level2">
+<h2 class="anchored" data-anchor-id="widget-click-through-the-states">Widget: click through the states</h2>
+<p>Click any highlighted (reachable) state to take that transition. The property monitor tracks whether <span class="math inline">\(\mathbf{AG}(\texttt{request} \to \mathbf{AX}(\texttt{state}=\textsc{Busy}))\)</span> has been violated <em>so far</em> along your run — once violated, it stays violated (violations are safety bugs: no future step can undo them, exactly <code>def:safety</code> from the chapter).</p>
+<style>
+:root {
+  --ar-primary: #30bced;
+  --ar-primary-dark: #1f8fb7;
+  --ar-bg: #fffaff;
+  --ar-border: #d7d7dc;
+  --ar-text: #050401;
+  --ar-label: #303036;
+  --ar-ready: #daf3fc;
+  --ar-ready-border: #1f8fb7;
+  --ar-busy: #ffe3b3;
+  --ar-busy-border: #e08a00;
+  --ar-current: #30bced;
+  --ar-pass: #d4f7ef;
+  --ar-pass-border: #2ec4b6;
+  --ar-fail: #fee8e3;
+  --ar-fail-border: #fc5130;
+}
+.ar-lab {
+  background: var(--ar-bg);
+  border: 1px solid var(--ar-border);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 1.2rem 0 2rem;
+  font-family: system-ui, sans-serif;
+}
+.ar-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ar-btn {
+  border: 1px solid var(--ar-primary);
+  background: var(--ar-primary);
+  color: var(--ar-text);
+  border-radius: 8px;
+  padding: 9px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+.ar-btn.secondary {
+  background: var(--ar-bg);
+  color: var(--ar-primary-dark);
+}
+.ar-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ar-toggle {
+  display: inline-flex;
+  border: 1px solid var(--ar-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.ar-toggle button {
+  border: none;
+  background: var(--ar-bg);
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: var(--ar-label);
+}
+.ar-toggle button.active {
+  background: var(--ar-primary);
+  color: var(--ar-text);
+}
+.ar-workspace {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.1fr) minmax(260px, 1fr);
+  gap: 16px;
+}
+@media (max-width: 820px) { .ar-workspace { grid-template-columns: 1fr; } }
+.ar-panel {
+  background: var(--ar-bg);
+  border: 1px solid var(--ar-border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.ar-panel h4 {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: var(--ar-label);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.ar-node {
+  cursor: default;
+}
+.ar-node.clickable { cursor: pointer; }
+.ar-node.clickable circle { transition: transform 0.1s ease; }
+.ar-node.clickable:hover circle { stroke-width: 3.5; }
+.ar-verdict-box {
+  margin-top: 12px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.95rem;
+}
+.ar-verdict-pass { background: var(--ar-pass); border: 2px dashed var(--ar-pass-border); color: var(--ar-text); }
+.ar-verdict-fail { background: var(--ar-fail); border: 2px dashed var(--ar-fail-border); color: var(--ar-text); }
+.ar-trace-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.ar-trace-step {
+  padding: 4px 8px;
+  border-radius: 14px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 2px solid #999;
+  background: #e8e8e8;
+}
+.ar-trace-step.ready { background: var(--ar-ready); border-color: var(--ar-ready-border); }
+.ar-trace-step.busy { background: var(--ar-busy); border-color: var(--ar-busy-border); }
+.ar-current-info {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  color: var(--ar-label);
+}
+</style>
+
+<div class="ar-lab" id="nb10-w1">
+  <div class="ar-controls">
+    <div class="ar-toggle" id="nb10-mode-toggle">
+      <button data-mode="buggy" class="active">Buggy model</button>
+      <button data-mode="fixed">Fixed model</button>
+    </div>
+    <button class="ar-btn secondary" id="nb10-reset">Reset</button>
+    <button class="ar-btn" id="nb10-showbug">Replay the chapter's counterexample</button>
+  </div>
+
+  <div class="ar-workspace">
+    <div class="ar-panel">
+      <h4 class="anchored">Kripke structure</h4>
+      <svg viewbox="0 0 320 260" style="width:100%;height:auto;display:block;" role="img" id="nb10-svg">
+        <defs>
+          <marker id="nb10-arrow" markerwidth="9" markerheight="9" refx="8" refy="3" orient="auto" markerunits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#303036"></path>
+          </marker>
+          <marker id="nb10-arrow-bug" markerwidth="9" markerheight="9" refx="8" refy="3" orient="auto" markerunits="strokeWidth">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fc5130"></path>
+          </marker>
+        </defs>
+        <g id="nb10-edges"></g>
+        <g id="nb10-init-markers"></g>
+        <g id="nb10-nodes"></g>
+      </svg>
+      <div class="ar-current-info" id="nb10-info"></div>
+    </div>
+
+    <div class="ar-panel">
+      <h4 class="anchored">Property monitor: AG(request → AX busy)</h4>
+      <div id="nb10-verdict"></div>
+      <h4 style="margin-top:14px;" class="anchored">Trace so far</h4>
+      <div class="ar-trace-strip" id="nb10-trace"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const NODES = {
+    RF: { x: 80,  y: 70,  label: 'RF', ready: true,  request: false },
+    RT: { x: 240, y: 70,  label: 'RT', ready: true,  request: true  },
+    BF: { x: 80,  y: 200, label: 'BF', ready: false, request: false },
+    BT: { x: 240, y: 200, label: 'BT', ready: false, request: true  },
+  };
+
+  const BUGGY = {
+    RF: ['RF', 'RT', 'BF', 'BT'],
+    RT: ['RT', 'RF', 'BF', 'BT'],
+    BF: ['BF', 'BT', 'RF', 'RT'],
+    BT: ['BT', 'BF', 'RT', 'RF'],
+  };
+  const FIXED = {
+    RF: ['RF', 'RT', 'BF', 'BT'],
+    RT: ['RT', 'RF', 'BF', 'BT'],
+    BF: ['BF', 'BT', 'RF', 'RT'],
+    BT: ['BT', 'BF'],
+  };
+
+  let mode = 'buggy';
+  let current = 'RF';
+  let trace = ['RF'];
+  let violated = false;
+  let violationStep = -1;
+
+  function transitions() { return mode === 'buggy' ? BUGGY : FIXED; }
+
+  function isViolation(from, to) {
+    return NODES[from].request === true && NODES[to].ready === true;
+  }
+
+  function step(to) {
+    const legal = transitions()[current];
+    if (!legal.includes(to)) return;
+    if (!violated && isViolation(current, to)) {
+      violated = true;
+      violationStep = trace.length; // index of the violating state, 1-based step count
+    }
+    current = to;
+    trace.push(to);
+    render();
+  }
+
+  function reset() {
+    current = 'RF';
+    trace = ['RF'];
+    violated = false;
+    violationStep = -1;
+    render();
+  }
+
+  async function replayBug() {
+    reset();
+    mode = 'buggy';
+    updateModeButtons();
+    const script = ['RT', 'BT', 'RT'];
+    disableInteraction(true);
+    for (const s of script) {
+      await new Promise(r => setTimeout(r, 700));
+      step(s);
+    }
+    disableInteraction(false);
+  }
+
+  function disableInteraction(disabled) {
+    document.querySelectorAll('#nb10-w1 .ar-btn, #nb10-mode-toggle button').forEach(b => b.disabled = disabled);
+  }
+
+  function updateModeButtons() {
+    document.querySelectorAll('#nb10-mode-toggle button').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+  }
+
+  function edgePath(a, b, curveOut) {
+    const dx = NODES[b].x - NODES[a].x, dy = NODES[b].y - NODES[a].y;
+    const mx = (NODES[a].x + NODES[b].x) / 2, my = (NODES[a].y + NODES[b].y) / 2;
+    const nx = -dy, ny = dx;
+    const len = Math.hypot(nx, ny) || 1;
+    const off = curveOut * 18;
+    const cx = mx + (nx / len) * off, cy = my + (ny / len) * off;
+    return `M ${NODES[a].x} ${NODES[a].y} Q ${cx} ${cy} ${NODES[b].x} ${NODES[b].y}`;
+  }
+
+  function render() {
+    const legal = transitions()[current];
+    const edgesG = document.getElementById('nb10-edges');
+    const nodesG = document.getElementById('nb10-nodes');
+    const initG = document.getElementById('nb10-init-markers');
+    edgesG.innerHTML = '';
+    nodesG.innerHTML = '';
+    initG.innerHTML = '';
+
+    // initial-state markers on RF and RT
+    ['RF', 'RT'].forEach(id => {
+      const n = NODES[id];
+      const ns = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      ns.setAttribute('x1', n.x - 40); ns.setAttribute('y1', n.y);
+      ns.setAttribute('x2', n.x - 24); ns.setAttribute('y2', n.y);
+      ns.setAttribute('stroke', '#999'); ns.setAttribute('stroke-width', '2');
+      initG.appendChild(ns);
+    });
+
+    // edges from current state to each legal successor
+    legal.forEach((to, i) => {
+      const isBug = mode === 'buggy' && current === 'BT' && to === 'RT';
+      const curve = to === current ? 0 : (i % 2 === 0 ? 1 : -1) * (0.6 + i * 0.15);
+      if (to === current) {
+        // self-loop: small arc above/right of node
+        const n = NODES[current];
+        const loop = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        loop.setAttribute('d', `M ${n.x-10} ${n.y-22} C ${n.x-28} ${n.y-46}, ${n.x+28} ${n.y-46}, ${n.x+10} ${n.y-22}`);
+        loop.setAttribute('fill', 'none');
+        loop.setAttribute('stroke', '#303036');
+        loop.setAttribute('stroke-width', '1.6');
+        loop.setAttribute('marker-end', 'url(#nb10-arrow)');
+        edgesG.appendChild(loop);
+        return;
+      }
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', edgePath(current, to, curve));
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', isBug ? '#fc5130' : '#303036');
+      p.setAttribute('stroke-width', isBug ? '2.4' : '1.6');
+      p.setAttribute('marker-end', isBug ? 'url(#nb10-arrow-bug)' : 'url(#nb10-arrow)');
+      edgesG.appendChild(p);
+    });
+
+    // nodes
+    Object.keys(NODES).forEach(id => {
+      const n = NODES[id];
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('transform', `translate(${n.x},${n.y})`);
+      const clickable = legal.includes(id);
+      g.setAttribute('class', 'ar-node' + (clickable ? ' clickable' : ''));
+      if (clickable) g.addEventListener('click', () => step(id));
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('r', '26');
+      const isCurrent = id === current;
+      circle.setAttribute('fill', isCurrent ? '#30bced' : (n.ready ? '#daf3fc' : '#ffe3b3'));
+      circle.setAttribute('stroke', n.ready ? '#1f8fb7' : '#e08a00');
+      circle.setAttribute('stroke-width', isCurrent ? '3.5' : (clickable ? '2' : '1.2'));
+      circle.setAttribute('opacity', clickable || isCurrent ? '1' : '0.35');
+      g.appendChild(circle);
+
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dy', '5');
+      text.setAttribute('font-weight', '700');
+      text.setAttribute('font-family', 'ui-monospace, monospace');
+      text.setAttribute('opacity', clickable || isCurrent ? '1' : '0.5');
+      text.textContent = n.label;
+      g.appendChild(text);
+
+      nodesG.appendChild(g);
+    });
+
+    // info line
+    const n = NODES[current];
+    document.getElementById('nb10-info').innerHTML =
+      `Current state: <strong>${current}</strong> &mdash; state = ${n.ready ? 'Ready' : 'Busy'}, request = ${n.request ? 'TRUE' : 'FALSE'}`;
+
+    // verdict
+    const verdictEl = document.getElementById('nb10-verdict');
+    if (violated) {
+      verdictEl.innerHTML = `<div class="ar-verdict-box ar-verdict-fail"><strong>Violated</strong> at step ${violationStep}: a request was pending but the next state was not Busy. This is a finite bad prefix &mdash; no future step can repair it.</div>`;
+    } else {
+      verdictEl.innerHTML = `<div class="ar-verdict-box ar-verdict-pass">Holds so far. Keep clicking&mdash;in the buggy model, every Busy state with a pending request is one click away from breaking it.</div>`;
+    }
+
+    // trace strip
+    const traceEl = document.getElementById('nb10-trace');
+    traceEl.innerHTML = '';
+    trace.forEach(id => {
+      const span = document.createElement('span');
+      span.className = 'ar-trace-step ' + (NODES[id].ready ? 'ready' : 'busy');
+      span.textContent = id;
+      traceEl.appendChild(span);
+    });
+  }
+
+  document.querySelectorAll('#nb10-mode-toggle button').forEach(b => {
+    b.addEventListener('click', () => {
+      mode = b.dataset.mode;
+      updateModeButtons();
+      reset();
+    });
+  });
+  document.getElementById('nb10-reset').addEventListener('click', reset);
+  document.getElementById('nb10-showbug').addEventListener('click', replayBug);
+
+  render();
+})();
+</script>
+</section>
+<section id="what-to-try" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-try">What to try</h2>
+<ol type="1">
+<li><strong>Reproduce the bug manually.</strong> Starting from <code>RF</code>, click <code>RT</code> (a request arrives), then <code>BT</code> (the arbiter correctly goes Busy), then <code>RT</code> again. The monitor should flag a violation on that last click—this is exactly the counterexample <span class="math inline">\(\textsf{RF} \to \textsf{RT} \to \textsf{BT} \to \textsf{RT}\)</span> from the chapter (<code>ex:arbiter-safety-ce</code>).</li>
+<li><strong>Switch to the fixed model</strong> and try to reproduce the same violation from <code>BT</code>. You can’t—<code>BT</code>’s only legal successors are <code>BF</code> and <code>BT</code> itself, so a pending request can never be silently dropped.</li>
+<li><strong>Try an existential query by hand.</strong> Can you reach <code>BF</code> from <code>RF</code> without ever passing through a state with <code>request = TRUE</code>? (Yes—<code>RF → BF</code> directly, in one click, in <em>either</em> model.) That is the same shape of question as <span class="math inline">\(\mathbf{EF}(\texttt{state}=\textsc{Busy} \land \neg\texttt{request})\)</span> from the chapter’s existential-model-checking example, and here you can find the witness yourself.</li>
+</ol>
 <blockquote class="blockquote">
 <p>[!TIP] <strong>Read the full chapter in the PDF</strong></p>
-<p>For a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes. <br><br> <a href="../main.pdf"><strong>Download the Full Lecture Notes (PDF)</strong></a></p>
+<p>For the formal definitions (Kripke structures, safety vs.&nbsp;liveness, counterexamples, SMV syntax) that this notebook operationalizes, see Chapter 7 of the lecture notes. <br><br> <a href="../main.pdf"><strong>Download the Full Lecture Notes (PDF)</strong></a></p>
 </blockquote>
 
 
-</section>
 </section>
 </section>
 

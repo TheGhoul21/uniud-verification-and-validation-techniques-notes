@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-6e65effbec86fe2504d4da743356ef3b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-8f6aa1e0b07f26f71f91262a39254c0f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -100,7 +100,7 @@ cookieconsent.run({
   
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
 
 
 <link rel="stylesheet" href="mindmap.css">
@@ -144,69 +144,14 @@ cookieconsent.run({
     <a class="nav-link" href="../mindmaps/index.html"> 
 <span class="menu-text">Mind Maps</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-notebooks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Notebooks</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-notebooks">    
-        <li>
-    <a class="dropdown-item" href="../notebooks/01-intro.html">
- <span class="dropdown-text">1. Intro to Finite-State Automata</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/02-nfa-reachable-states.html">
- <span class="dropdown-text">2. NFA Reachable States</span></a>
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
   </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/03-subset-construction.html">
- <span class="dropdown-text">3. Subset Construction (NFA to DFA)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/04-epsilon-closure-removal.html">
- <span class="dropdown-text">4. ε-Closure &amp; ε-Removal</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/05-product-automaton.html">
- <span class="dropdown-text">5. Product Automaton</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/06-reachability-fixpoint.html">
- <span class="dropdown-text">6. Reachability Fixpoint</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/07-kleene-state-elimination.html">
- <span class="dropdown-text">7. Kleene State Elimination</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/08-regex-to-automata-kleene.html">
- <span class="dropdown-text">8. Regex to Automaton (Kleene)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/09-ltl.html">
- <span class="dropdown-text">9. Linear Temporal Logic (LTL)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/10-model-checking.html">
- <span class="dropdown-text">10. Model Checking Basics</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/11-omega-words.html">
- <span class="dropdown-text">11. Infinite Words &amp; In(α)</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/12-buchi-runner.html">
- <span class="dropdown-text">12. Büchi Automaton Runner</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/13-vectorial-closure.html">
- <span class="dropdown-text">13. Vectorial Closure</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../notebooks/14-buchi-emptiness-lasso.html">
- <span class="dropdown-text">14. Büchi Emptiness (Lasso)</span></a>
-  </li>  
-    </ul>
-  </li>
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -235,7 +180,7 @@ cookieconsent.run({
       <h1>Chapter 8 · S1S, the Büchi Theorem, and Deterministic Büchi Automata</h1>
       <p>Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.</p>
     </div>
-    <span class="mm-count" id="mindmap-count">12 sections · 26 topics</span>
+    <span class="mm-count" id="mindmap-count">12 sections · 25 topics</span>
   </div>
 
   <div class="mm-toolbar">
@@ -301,16 +246,23 @@ cookieconsent.run({
       "name": "The Time-Flow Perspective",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 96,
+      "line": 97,
       "color": "#30bced",
       "latexColor": "brightsky",
-      "children": []
+      "children": [
+        {
+          "name": "From a run to a word of positions",
+          "kind": "Topic",
+          "source": "chapters/08-s1s-buchi-theorem.tex",
+          "line": 112
+        }
+      ]
     },
     {
       "name": "The Logic S1S",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 123,
+      "line": 156,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -318,21 +270,21 @@ cookieconsent.run({
           "name": "Simple example: every a is followed by a b",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 126,
+          "line": 159,
           "children": []
         },
         {
           "name": "S1S_A: S1S over an alphabet",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 155,
+          "line": 222,
           "children": []
         },
         {
           "name": "Semantics: words as structures",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 206,
+          "line": 273,
           "children": []
         }
       ]
@@ -341,7 +293,7 @@ cookieconsent.run({
       "name": "What S1S Can Express",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 246,
+      "line": 313,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -349,28 +301,35 @@ cookieconsent.run({
           "name": "Defining x \u003c y using only +1",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 257,
+          "line": 324,
+          "children": []
+        },
+        {
+          "name": "Refresher: FO[+1] versus FO[\u003c]",
+          "kind": "Topic",
+          "source": "chapters/08-s1s-buchi-theorem.tex",
+          "line": 418,
           "children": []
         },
         {
           "name": "Parity: positions of A in even locations",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 346,
+          "line": 526,
           "children": []
         },
         {
           "name": "Counting between consecutive occurrences",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 406,
+          "line": 636,
           "children": []
         },
         {
           "name": "The key pattern: infinitely many occurrences",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 448,
+          "line": 716,
           "children": []
         }
       ]
@@ -379,22 +338,15 @@ cookieconsent.run({
       "name": "Free Variables and the Encoding 0-1-n",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 504,
+      "line": 772,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
         {
-          "name": "Why free variables complicate things",
-          "kind": "Topic",
-          "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 514,
-          "children": []
-        },
-        {
           "name": "Words as value assignments",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 522,
+          "line": 818,
           "children": []
         }
       ]
@@ -403,7 +355,7 @@ cookieconsent.run({
       "name": "The Büchi Theorem",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 594,
+      "line": 912,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": [
@@ -411,7 +363,7 @@ cookieconsent.run({
           "name": "Büchi, 1960",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 604
+          "line": 922
         }
       ]
     },
@@ -419,7 +371,7 @@ cookieconsent.run({
       "name": "Proof: omega-regular implies S1S-definable",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 630,
+      "line": 948,
       "color": "#167b9e",
       "latexColor": "brightsky",
       "children": [
@@ -427,14 +379,14 @@ cookieconsent.run({
           "name": "The main idea: encode a run as a family of sets",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 644,
+          "line": 962,
           "children": []
         },
         {
           "name": "The three conditions",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 661,
+          "line": 979,
           "children": []
         }
       ]
@@ -443,7 +395,7 @@ cookieconsent.run({
       "name": "Closure under Projection",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 759,
+      "line": 1077,
       "color": "#6f7782",
       "latexColor": "vvgray",
       "children": [
@@ -451,13 +403,13 @@ cookieconsent.run({
           "name": "Closure under projection",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 769
+          "line": 1087
         },
         {
           "name": "Projection reduces the alphabet",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 791
+          "line": 1109
         }
       ]
     },
@@ -465,7 +417,7 @@ cookieconsent.run({
       "name": "Proof: S1S-definable => omega-regular",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 812,
+      "line": 1130,
       "color": "#30bced",
       "latexColor": "brightsky",
       "children": [
@@ -473,14 +425,14 @@ cookieconsent.run({
           "name": "Step 1: S1S → S1S_0 (syntactic simplification)",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 821,
+          "line": 1139,
           "children": []
         },
         {
           "name": "Step 2: S1S_0 → NBA (base cases and closure)",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 887,
+          "line": 1205,
           "children": []
         }
       ]
@@ -489,7 +441,7 @@ cookieconsent.run({
       "name": "Decidability of S1S",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 955,
+      "line": 1273,
       "color": "#00897b",
       "latexColor": "vvteal",
       "children": [
@@ -497,7 +449,7 @@ cookieconsent.run({
           "name": "Complexity: the non-elementary lower bound",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 988,
+          "line": 1306,
           "children": []
         }
       ]
@@ -506,7 +458,7 @@ cookieconsent.run({
       "name": "Extensions of S1S",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 1048,
+      "line": 1366,
       "color": "#7e57c2",
       "latexColor": "vvviolet",
       "children": [
@@ -514,28 +466,21 @@ cookieconsent.run({
           "name": "S1S over finite words",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1057,
+          "line": 1375,
           "children": []
         },
         {
           "name": "WS1S: Weak Monadic Second-Order Theory",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1074,
+          "line": 1392,
           "children": []
         },
         {
-          "name": "Decidable extensions",
+          "name": "Decidable and undecidable extensions",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1103,
-          "children": []
-        },
-        {
-          "name": "Undecidable extensions",
-          "kind": "Topic",
-          "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1117,
+          "line": 1421,
           "children": []
         }
       ]
@@ -544,43 +489,36 @@ cookieconsent.run({
       "name": "Deterministic Büchi Automata: Limitations",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 1142,
+      "line": 1461,
       "color": "#f28e2c",
       "latexColor": "vvorange",
       "children": [
         {
-          "name": "Definition",
+          "name": "Definition and basic closure properties",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1153,
-          "children": []
-        },
-        {
-          "name": "What DBAs can and cannot do",
-          "kind": "Topic",
-          "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1172,
+          "line": 1472,
           "children": []
         },
         {
           "name": "The witness pair: infinitely many vs. finitely many a's",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1187,
+          "line": 1504,
           "children": []
         },
         {
           "name": "Why Lfin has no DBA",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1259,
+          "line": 1576,
           "children": []
         },
         {
           "name": "Tracing the NBA for Lfin on ababw",
           "kind": "Topic",
           "source": "chapters/08-s1s-buchi-theorem.tex",
-          "line": 1297,
+          "line": 1614,
           "children": []
         }
       ]
@@ -589,7 +527,7 @@ cookieconsent.run({
       "name": "Towards More Expressive Deterministic Automata",
       "kind": "Section",
       "source": "chapters/08-s1s-buchi-theorem.tex",
-      "line": 1323,
+      "line": 1640,
       "color": "#fc5130",
       "latexColor": "tomato",
       "children": []

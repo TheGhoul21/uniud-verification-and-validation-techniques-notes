@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The heart of Büchi complementation: the profile a word attaches to a Büchi automaton — which states reach which, and whether an accepting state is seen. Compute the state×state grid and see when two words are ≈𝒜-equivalent.">
+
+<title>NB 21: The Congruence ≈𝒜 — VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-76ba6da3b23429282fd50448dceca657.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="NB 21: The Congruence ≈𝒜 — VVT UniUD">
+<meta property="og:description" content="The heart of Büchi complementation: the profile a word attaches to a Büchi automaton — which states reach which, and whether an accepting state is seen. Compute the state×state grid and see when two words are ≈𝒜-equivalent.">
+<meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="NB 21: The Congruence ≈𝒜 — VVT UniUD">
+<meta name="twitter:description" content="The heart of Büchi complementation: the profile a word attaches to a Büchi automaton — which states reach which, and whether an accepting state is seen. Compute the state×state grid and see when two words are ≈𝒜-equivalent.">
+<meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../proofs/index.html"> 
+<span class="menu-text">Proof Labs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../mindmaps/index.html"> 
+<span class="menu-text">Mind Maps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#what-approx_mathcal-a-remembers" id="toc-what-approx_mathcal-a-remembers" class="nav-link active" data-scroll-target="#what-approx_mathcal-a-remembers">What <span class="math inline">\(\approx_{\mathcal A}\)</span> Remembers</a>
+  <ul class="collapse">
+  <li><a href="#widget-compute-and-compare-profiles" id="toc-widget-compute-and-compare-profiles" class="nav-link" data-scroll-target="#widget-compute-and-compare-profiles">Widget: compute and compare profiles</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Notebook 21: The ≈𝒜 Profile of a Word</h1>
+</div>
+
+<div>
+  <div class="description">
+    The heart of Büchi complementation: the profile a word attaches to a Büchi automaton — which states reach which, and whether an accepting state is seen. Compute the state×state grid and see when two words are ≈𝒜-equivalent.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 21: The Congruence ≈𝒜",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+<section id="what-approx_mathcal-a-remembers" class="level1">
+<h1>What <span class="math inline">\(\approx_{\mathcal A}\)</span> Remembers</h1>
+<p>The congruence at the core of the complementation proof does <strong>not</strong> remember the exact word. For a finite word <span class="math inline">\(u\)</span> it remembers only, for every pair of states <span class="math inline">\((p,q)\)</span>:</p>
+<ul>
+<li>whether some path labelled <span class="math inline">\(u\)</span> goes from <span class="math inline">\(p\)</span> to <span class="math inline">\(q\)</span> at all, and</li>
+<li>if so, whether such a path can <strong>visit an accepting state</strong> along the way.</li>
+</ul>
+<p>This is a finite <strong>profile</strong> — a grid over <span class="math inline">\(Q\times Q\)</span> with entries in <span class="math inline">\(\{-,\ q,\ q^{F}\}\)</span>:</p>
+<ul>
+<li><span class="math inline">\(-\)</span> : <strong>no path</strong> from <span class="math inline">\(p\)</span> to <span class="math inline">\(q\)</span> labelled <span class="math inline">\(u\)</span>;</li>
+<li><span class="math inline">\(q\)</span> : a path reaches <span class="math inline">\(q\)</span>, but <strong>without</strong> visiting <span class="math inline">\(F\)</span>;</li>
+<li><span class="math inline">\(q^{F}\)</span> : a path reaches <span class="math inline">\(q\)</span> <strong>visiting</strong> an accepting state.</li>
+</ul>
+<p>Two words are <strong><span class="math inline">\(\approx_{\mathcal A}\)</span>-equivalent</strong> exactly when they have the <em>same grid</em>. There are finitely many grids, so <span class="math inline">\(\approx_{\mathcal A}\)</span> has finite index — and it saturates <span class="math inline">\(L(\mathcal A)\)</span>. The automaton <span class="math inline">\(\mathcal A\)</span> used here (from the chapter) accepts the <span class="math inline">\(\omega\)</span>-words in which the block <span class="math inline">\(ab\)</span> occurs infinitely often, separated by <span class="math inline">\(c\)</span>’s. Note <span class="math inline">\(\Delta\)</span> is <strong>partial</strong>: a missing transition means the run has nowhere to go, not a sink.</p>
+<hr>
+<section id="widget-compute-and-compare-profiles" class="level2">
+<h2 class="anchored" data-anchor-id="widget-compute-and-compare-profiles">Widget: compute and compare profiles</h2>
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; width:130px; }
+.grids { display:flex; gap:24px; flex-wrap:wrap; }
+.gwrap { flex:1; min-width:240px; }
+.grid { border-collapse:collapse; font-family:ui-monospace,monospace; margin-top:6px; }
+.grid td,.grid th { border:1px solid var(--sc-border); padding:8px 12px; text-align:center; min-width:38px; }
+.grid th { background:#eef1f7; }
+.cell-none { color:#b0b0b8; }
+.cell-reach { background:#eaf4fb; }
+.cell-reachF { background:#d4f7ef; color:#0f6b5c; font-weight:800; }
+.verdict-box { margin-top:14px; border-radius:8px; padding:12px 16px; font-size:1.02rem; font-family:ui-monospace,monospace; }
+.verdict-pass { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-fail { background:#fde8d6; border:2px dashed #e08a3c; }
+</style>
+
+<div class="sc-lab" id="nb21">
+  <div class="input-row">
+    <div class="input-group"><label>Word u₁</label><input type="text" id="nb21-w1" value="c"></div>
+    <div class="input-group"><label>Word u₂ (compare)</label><input type="text" id="nb21-w2" value="ab"></div>
+    <div class="input-group">
+      <label>Preset pair</label>
+      <select id="nb21-preset">
+        <option value="0">c  vs  ab</option>
+        <option value="1">ab  vs  abc</option>
+        <option value="2">abc  vs  abcc</option>
+        <option value="3">a  vs  ba</option>
+        <option value="4">ε  vs  cc</option>
+      </select>
+    </div>
+    <div class="input-group"><button class="sc-btn" id="nb21-go">Compute</button></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4 class="anchored">Automaton 𝒜 &nbsp;(F = {s₁})</h4>
+    <svg viewbox="0 0 300 90" style="width:100%;max-width:420px;height:auto" role="img">
+      <defs><marker id="nb21m" markerwidth="9" markerheight="9" refx="8" refy="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#303036"></path></marker></defs>
+      <line x1="4" y1="45" x2="28" y2="45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"></line>
+      <path d="M 62 45 L 108 45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"></path><text x="85" y="36" text-anchor="middle" font-weight="700">a</text>
+      <path d="M 142 45 L 188 45" stroke="#303036" stroke-width="2" marker-end="url(#nb21m)"></path><text x="165" y="36" text-anchor="middle" font-weight="700">b</text>
+      <path d="M 232 30 C 224 4, 250 4, 244 30" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb21m)"></path><text x="238" y="4" text-anchor="middle" font-weight="700">c</text>
+      <path d="M 208 58 C 175 82, 145 82, 125 58" stroke="#303036" stroke-width="2" fill="none" marker-end="url(#nb21m)"></path><text x="165" y="84" text-anchor="middle" font-weight="700">a</text>
+      <g transform="translate(45,45)"><circle r="17" fill="#e8e8f0" stroke="#999" stroke-width="2"></circle><text text-anchor="middle" dy="4" font-weight="700">s₀</text></g>
+      <g transform="translate(125,45)"><circle r="21" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="1.5"></circle><circle r="16" fill="#d4f7ef" stroke="#2ec4b6" stroke-width="2"></circle><text text-anchor="middle" dy="4" font-weight="700">s₁</text></g>
+      <g transform="translate(210,45)"><circle r="17" fill="#e8e8f0" stroke="#999" stroke-width="2"></circle><text text-anchor="middle" dy="4" font-weight="700">s₂</text></g>
+    </svg>
+  </div>
+
+  <div class="sc-panel">
+    <div class="grids">
+      <div class="gwrap"><h4 id="nb21-t1" class="anchored"></h4><div id="nb21-g1"></div></div>
+      <div class="gwrap"><h4 id="nb21-t2" class="anchored"></h4><div id="nb21-g2"></div></div>
+    </div>
+    <div id="nb21-verdict"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const States=['s0','s1','s2']; const Fset=new Set(['s1']);
+  const Delta=[['s0','a','s1'],['s1','b','s2'],['s2','c','s2'],['s2','a','s1']];
+  const NONE=0,REACH=1,REACHF=2;
+  const empty=()=>{const P={};States.forEach(p=>{P[p]={};States.forEach(q=>P[p][q]=NONE);});return P;};
+  function base(sym){const P=empty();Delta.forEach(([p,x,q])=>{if(x===sym){const v=(Fset.has(p)||Fset.has(q))?REACHF:REACH;if(v>P[p][q])P[p][q]=v;}});return P;}
+  function ident(){const P=empty();States.forEach(p=>P[p][p]=Fset.has(p)?REACHF:REACH);return P;}
+  function compose(R,S){const T=empty();for(const p of States)for(const r of States){if(R[p][r]===NONE)continue;for(const q of States){if(S[r][q]===NONE)continue;const v=(R[p][r]===REACHF||S[r][q]===REACHF)?REACHF:REACH;if(v>T[p][q])T[p][q]=v;}}return T;}
+  function profile(w){let P=ident();for(const ch of w)P=compose(P,base(ch));return P;}
+  const parse=s=>s.trim().replace(/\s|,/g,'').split('').filter(x=>x.length);
+  const sub=q=>'s<sub>'+q[1]+'</sub>';
+  function gridHTML(P){
+    let h='<table class="grid"><tr><th>p \\ q</th>'+States.map(q=>`<th>${sub(q)}</th>`).join('')+'</tr>';
+    for(const p of States){
+      h+=`<tr><th>${sub(p)}</th>`;
+      for(const q of States){
+        const v=P[p][q];
+        if(v===NONE) h+='<td class="cell-none">&minus;</td>';
+        else if(v===REACH) h+=`<td class="cell-reach">${sub(q)}</td>`;
+        else h+=`<td class="cell-reachF">${sub(q)}<sup>F</sup></td>`;
+      }
+      h+='</tr>';
+    }
+    return h+'</table>';
+  }
+  function eq(A,B){return States.every(p=>States.every(q=>A[p][q]===B[p][q]));}
+  function go(){
+    const w1=parse(document.getElementById('nb21-w1').value), w2=parse(document.getElementById('nb21-w2').value);
+    for(const w of [w1,w2]) for(const s of w) if(!['a','b','c'].includes(s)){document.getElementById('nb21-verdict').innerHTML=`<div class='verdict-box verdict-fail'>Unknown symbol "${s}". Alphabet is {a,b,c}.</div>`;return;}
+    const P1=profile(w1),P2=profile(w2);
+    document.getElementById('nb21-t1').innerHTML='profile("'+(w1.join('')||'ε')+'")';
+    document.getElementById('nb21-t2').innerHTML='profile("'+(w2.join('')||'ε')+'")';
+    document.getElementById('nb21-g1').innerHTML=gridHTML(P1);
+    document.getElementById('nb21-g2').innerHTML=gridHTML(P2);
+    const same=eq(P1,P2);
+    document.getElementById('nb21-verdict').innerHTML=`<div class="verdict-box ${same?'verdict-pass':'verdict-fail'}"><strong>"${w1.join('')||'ε'}" ${same?'≈𝒜':'≉𝒜'} "${w2.join('')||'ε'}"</strong> — the two grids are ${same?'identical, so the words are indistinguishable to 𝒜':'different (some cell disagrees), so 𝒜 can tell them apart'}.</div>`;
+  }
+  document.getElementById('nb21-preset').addEventListener('change',()=>{
+    const pairs=[['c','ab'],['ab','abc'],['abc','abcc'],['a','ba'],['','cc']][+document.getElementById('nb21-preset').value];
+    document.getElementById('nb21-w1').value=pairs[0]; document.getElementById('nb21-w2').value=pairs[1]; go();
+  });
+  document.getElementById('nb21-go').addEventListener('click',go);
+  ['nb21-w1','nb21-w2'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')go();}));
+  go();
+})();
+</script>
+<p>The default pair reproduces the chapter’s example: for <span class="math inline">\(u=c\)</span> the only non-trivial cell is <span class="math inline">\((s_2,s_2)=s_2\)</span> (a <span class="math inline">\(c\)</span>-loop that never touches <span class="math inline">\(F\)</span>), whereas for <span class="math inline">\(u=ab\)</span> two cells carry <span class="math inline">\(F\)</span>, at <span class="math inline">\((s_0,s_2)\)</span> and <span class="math inline">\((s_2,s_2)\)</span> — the path <span class="math inline">\(s_0\!\to\!s_1\!\to\!s_2\)</span> visits <span class="math inline">\(s_1\in F\)</span>. Different cells at the same position, so <span class="math inline">\(c\not\approx_{\mathcal A}ab\)</span>. Try <code>abc</code> vs <code>abcc</code>: <strong>equal</strong> grids — the extra <span class="math inline">\(c\)</span> just loops at <span class="math inline">\(s_2\)</span>, which is why every block <span class="math inline">\(ab\,c^{i}\)</span> falls in one class (the key fact behind <strong><a href="../notebooks/23-ramsey-decomposition.html">Notebook 23</a></strong>).</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

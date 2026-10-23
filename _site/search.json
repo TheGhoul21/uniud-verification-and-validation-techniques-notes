@@ -42,6 +42,398 @@
     "text": "Subset construction\n  After every prefix, the DFA state is exactly the set of NFA states reachable after that prefix. The union transition preserves this equality one symbol at a time, and a subset is final exactly when it contains an NFA final state."
   },
   {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-01",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-01",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Linguaggi regolari e problemi di decisione",
+    "text": "Linguaggi regolari e problemi di decisione\n\n01 / 43 · Cap. 2 · pp. 23-24\n\nVVT · Lezione 2 · Capitolo 2\nObiettivo: costruire automi, decidere inclusioni e spiegare la memoria minima.\nPercorso: espressioni → automi → raggiungibilità → Myhill–Nerode."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-02",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-02",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Richiamo: accettazione su parole finite",
+    "text": "Richiamo: accettazione su parole finite\n\n02 / 43 · Cap. 2 · introduzione, pp. 23-24\n\nUn DFA ha una sola run; un NFA può averne più di una.\nUna parola è accettata se almeno una run termina in uno stato finale, dopo aver consumato tutto l’input.\n\\[ L(\\mathcal A)\\subseteq\\Sigma^* \\]\nUseremo \\(\\Sigma=\\{0,1\\}\\). La parola vuota è \\(\\varepsilon\\); il complemento è sempre relativo all’alfabeto dichiarato."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-03",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-03",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Sintassi delle espressioni regolari",
+    "text": "Sintassi delle espressioni regolari\n\n03 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\nLe espressioni ristrette partono da:\n\\[ \\varnothing,\\qquad \\varepsilon,\\qquad a\\in\\Sigma \\]\nSe \\(r\\) e \\(s\\) sono espressioni, anche \\(r+s\\), \\(rs\\) e \\(r^*\\) lo sono.\nIl simbolo \\(+\\) indica unione. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-04",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-04",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Semantica delle espressioni regolari",
+    "text": "Semantica delle espressioni regolari\n\n04 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\n\\[ L(\\varnothing)=\\varnothing,\\quad L(\\varepsilon)=\\{\\varepsilon\\},\\quad L(a)=\\{a\\} \\]\n\\[ L(r+s)=L(r)\\cup L(s) \\]\n\\[ L(rs)=L(r)L(s),\\qquad L(r^*)=L(r)^* \\]\n\\(\\varnothing\\) non contiene parole; \\(\\varepsilon\\) descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-05",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-05",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Espressioni per suffisso e parità",
+    "text": "Espressioni per suffisso e parità\n\n05 / 43 · Cap. 2 · §2.1.1, p. 25\n\n\\[ (0+1)^*01 \\]\nDescrive le parole che terminano con 01: accetta 01, 1101; rifiuta ε, 010.\n\\[ 0^*(10^*10^*)^* \\]\nDescrive le parole con un numero pari di 1: ogni blocco ripetuto contribuisce due 1. Sono incluse ε e tutte le parole composte solo da 0."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-06",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-06",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Espressioni generali e star-free",
+    "text": "Espressioni generali e star-free\n\n06 / 43 · Cap. 2 · §2.1.1, pp. 25-26\n\nLe espressioni generali aggiungono intersezione e complemento:\n\\[ L(r\\cap s)=L(r)\\cap L(s),\\qquad L(\\overline r)=\\Sigma^*\\setminus L(r) \\]\nLe espressioni star-free ammettono questi operatori booleani, ma non la stella.\nStar-free non significa linguaggio finito: \\(\\overline{\\varnothing}\\) descrive \\(\\Sigma^*\\). Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-07",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-07",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Transizioni ε e composizione",
+    "text": "Transizioni ε e composizione\n\n07 / 43 · Cap. 2 · §2.1.2, pp. 26-27\n\nUna transizione \\(\\varepsilon\\) cambia stato senza consumare simboli. Non aggiunge un simbolo all’alfabeto.\nPer concatenare gli automi per 0 e 1, colleghiamo l’uscita del primo all’ingresso del secondo. Solo l’ultima uscita resta accettante.\nIl doppio cerchio indica uno stato finale; la freccia esterna indica l’iniziale.\n\nTransizioni ε e composizione — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-08",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-08",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Chiusura ε come punto fisso",
+    "text": "Chiusura ε come punto fisso\n\n08 / 43 · Cap. 2 · §2.1.2, p. 27\n\n\\(\\operatorname{ECl}(S)\\) contiene tutti gli stati raggiungibili da \\(S\\) usando zero o più transizioni ε.\n\\[ X_0=S,\\qquad X_{i+1}=X_i\\cup\\bigcup_{q\\in X_i}\\Delta(q,\\varepsilon) \\]\nSi arresta quando \\(X_{i+1}=X_i\\). Nel diagramma precedente:\n\\[ \\operatorname{ECl}(\\{u\\})=\\{u,v\\} \\]\nLo stato di partenza appartiene sempre alla propria chiusura."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-09",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-09",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulazione di un ε-NFA",
+    "text": "Simulazione di un ε-NFA\n\n09 / 43 · Cap. 2 · §2.1.2, pp. 27-28\n\nPrima di leggere e dopo ogni simbolo, calcoliamo la chiusura ε.\n\nIn Parola scegli 01; Letti conta i simboli consumati, da 0 a 2, inizialmente 0.\nA 0 l’insieme attivo è {s}. A 1 diventa {u,v}: è stato consumato solo 0.\nA 2 rimane {f} e la parola è accettata.\nScegli 0: il cursore si azzera e il massimo diventa 1. Al termine {u,v} non contiene finali.\n\nIl caso ε termina subito in {s} ed è rifiutato.\n\nSimulazione di un ε-NFA — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-10",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-10",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Eliminare le transizioni ε",
+    "text": "Eliminare le transizioni ε\n\n10 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nManteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:\n\\[ \\Delta'(q,a)=\\operatorname{ECl}\\left(\\bigcup_{p\\in\\operatorname{ECl}(\\{q\\})}\\Delta(p,a)\\right) \\]\nNell’esempio: \\(\\Delta'(s,0)=\\{u,v\\}\\) e \\(\\Delta'(u,1)=\\{f\\}\\).\nIl nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-11",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-11",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Eliminazione ε: il caso della parola vuota",
+    "text": "Eliminazione ε: il caso della parola vuota\n\n11 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nCon la convenzione precedente manteniamo \\(F\\), aggiungendo \\(q_0\\) se la sua chiusura ε incontra \\(F\\).\nEsempio: due stati i, f, con una sola freccia ε da i a f; solo f è finale.\nL’automa accetta ε. Eliminando la freccia senza correggere i finali, la rifiuterebbe.\nRendendo finale anche i, il linguaggio rimane esattamente \\(\\{\\varepsilon\\}\\).\nempty_example = enfa({'i','f'}, {('i', EPS): {'f'}}, 'i', {'f'})\nordinary = remove_epsilon(empty_example)\nprint('Finali dopo la rimozione:', names(ordinary['final']))\nprint('ε accettata:', bool(enfa_run(ordinary, '')[-1] & ordinary['final']))\nprint('0 accettata:', bool(enfa_run(ordinary, '0')[-1] & ordinary['final']))\nFinali dopo la rimozione: {f, i}\nε accettata: True\n0 accettata: False"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-12",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-12",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Teorema di Kleene: le due costruzioni",
+    "text": "Teorema di Kleene: le due costruzioni\n\n12 / 43 · Cap. 2 · §2.1.3, pp. 30-32\n\nUn linguaggio su parole finite è riconosciuto da un automa finito se e solo se è descritto da un’espressione regolare ristretta.\n\nEspressione → automa: costruzione strutturale di Thompson.\nAutoma → espressione: ricorrenza sui possibili stati intermedi.\n\nEntrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-13",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-13",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Thompson: casi base e invariante",
+    "text": "Thompson: casi base e invariante\n\n13 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nOgni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.\n\n\\(\\varnothing\\): ingresso e uscita senza un cammino che li colleghi.\n\\(\\varepsilon\\): un arco ε dall’ingresso all’uscita.\n\\(a\\): un arco etichettato \\(a\\) dall’ingresso all’uscita.\n\nI frammenti da comporre devono avere insiemi di stati disgiunti."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-14",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-14",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Thompson: unione, concatenazione e stella",
+    "text": "Thompson: unione, concatenazione e stella\n\n14 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nUnione \\(r+s\\): un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.\nConcatenazione \\(rs\\): colleghiamo l’uscita di \\(r\\) all’ingresso di \\(s\\) con ε.\nStella \\(r^*\\): aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.\nIl salto diretto ingresso → uscita realizza le zero ripetizioni."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-15",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-15",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Compilare un’espressione in Python",
+    "text": "Compilare un’espressione in Python\n\n15 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nCompiliamo \\(r=(0+1)^*01\\) e poi rimuoviamo ε e determinizziamo.\nIl codice rappresenta la sintassi con tuple: lit è un simbolo, plus è unione, cat è concatenazione, star è stella.\nLa prova finita confronta il DFA con la proprietà «termina con 01». La correttezza generale deriva dalla costruzione di Thompson.\nzero, one = ('lit','0'), ('lit','1')\nregex = ('cat', ('star', ('plus', zero, one)), ('cat', zero, one))\ncompiled_e = thompson(regex)\ncompiled_d = determinize(remove_epsilon(compiled_e))\nfor w in words():\n    assert accepts(compiled_d, w) == w.endswith('01')\nprint('Stati ε-NFA:', len(compiled_e['states']))\nprint('Stati DFA raggiungibili:', len(compiled_d['states']))\nprint('255 parole confrontate con il predicato del suffisso.')\nStati ε-NFA: 12\nStati DFA raggiungibili: 4\n255 parole confrontate con il predicato del suffisso."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-16",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-16",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Da automa a espressione: stati intermedi",
+    "text": "Da automa a espressione: stati intermedi\n\n16 / 43 · Cap. 2 · §2.1.3, pp. 32-33\n\nNumeriamo gli stati \\(q_1,\\ldots,q_n\\).\n\\(R_{ij}^{k}\\) descrive le parole dei cammini da \\(q_i\\) a \\(q_j\\) che usano come stati intermedi solo \\(q_1,\\ldots,q_k\\).\nGli estremi non sono vincolati. Con \\(k=0\\) sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.\nQuindi \\(R_{ij}^{0}\\) è l’unione delle etichette dirette, con ε aggiunta quando \\(i=j\\)."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-17",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-17",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Ricorrenza per la traduzione in espressione",
+    "text": "Ricorrenza per la traduzione in espressione\n\n17 / 43 · Cap. 2 · §2.1.3, pp. 33-36\n\nSbloccando \\(q_k\\) come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.\n\\[ R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \\]\nLa stella rappresenta un numero finito qualsiasi di ritorni.\nAlla fine si uniscono \\(R_{1j}^{n}\\) per tutti i finali \\(q_j\\), assumendo \\(q_1\\) iniziale."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-18",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-18",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Ricorrenza sul DFA della parità",
+    "text": "Ricorrenza sul DFA della parità\n\n18 / 43 · Cap. 2 · §2.1.3, pp. 33-34\n\nNel DFA della parità di 1, \\(q_1\\) è pari e \\(q_2\\) dispari. 0 conserva lo stato, 1 lo cambia.\n\\[ R_{11}^{0}=R_{22}^{0}=\\varepsilon+0,\\qquad R_{12}^{0}=R_{21}^{0}=1 \\]\nSbloccando \\(q_1\\):\n\\[ R_{22}^{1}=(\\varepsilon+0)+1(\\varepsilon+0)^*1 \\]\nSono inclusi ε, 0, 11, 101; 00 richiede un passaggio intermedio per \\(q_2\\) e non è ancora incluso."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-19",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-19",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Chiusure dei linguaggi regolari",
+    "text": "Chiusure dei linguaggi regolari\n\n19 / 43 · Cap. 2 · §2.2, pp. 36-37\n\nSe \\(L_1\\) e \\(L_2\\) sono regolari sullo stesso alfabeto, sono regolari anche:\n\\[ L_1\\cup L_2,\\quad L_1L_2,\\quad L_1^*,\\quad \\overline{L_1},\\quad L_1\\cap L_2 \\]\nUnione, concatenazione e stella seguono dalle costruzioni già viste.\nComplemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-20",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-20",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Complemento: serve un DFA completo",
+    "text": "Complemento: serve un DFA completo\n\n20 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nPer un DFA completo basta sostituire \\(F\\) con \\(Q\\setminus F\\).\nOgni parola ha esattamente una run completa: il suo verdetto viene invertito.\nDFA parziale per {1}: solo s —1→ f, con f finale. Scambiando i finali si accetta solo ε: 0 continua a non avere run.\nPrima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-21",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-21",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Perché lo scambio dei finali fallisce su un NFA",
+    "text": "Perché lo scambio dei finali fallisce su un NFA\n\n21 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nConsidera un NFA con iniziale s, finale f, e transizioni:\n\nda s, con 0, resta in s;\nda s, con 1, può restare in s oppure andare in f;\nda f, con 0 o 1, resta in f.\n\nAccetta le parole che contengono 1. Dopo lo scambio accetta ancora 1 tramite il ramo che resta in s.\nProcedura corretta: determinizzare → completare → scambiare."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-22",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-22",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Intersezione mediante prodotto",
+    "text": "Intersezione mediante prodotto\n\n22 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nLo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.\n\\[ \\delta((p,q),a)=(\\delta_1(p,a),\\delta_2(q,a)) \\]\nPer l’intersezione, lo stato iniziale è \\((q_{01},q_{02})\\) e i finali sono:\n\\[ F=F_1\\times F_2 \\]\nEntrambi i componenti devono accettare al termine della stessa parola."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-23",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-23",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulazione del prodotto",
+    "text": "Simulazione del prodotto\n\n23 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nPrimo componente: 1 se il prefisso termina con 1, altrimenti 0. Secondo: 0 se il numero di 1 è pari, 1 se dispari. Solo (1,0) è finale.\n\nScegli Parola 11; Letti va da 0 a 2, inizialmente 0.\nA 1 compare (1,1); a 2 compare (1,0): accettata.\nScegli 110: Letti torna a 0, massimo 3. A 3 compare (0,0): rifiutata.\n\nε parte e termina in (0,0), quindi è rifiutata. La parità da sola non basta.\n\nSimulazione del prodotto — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-24",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-24",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Comporre requisiti per l’editor",
+    "text": "Comporre requisiti per l’editor\n\n24 / 43 · Cap. 2 · §2.2, p. 37\n\nRiprendiamo l’alfabeto di eventi apri, modifica, salva, chiudi.\n\\[ r_{\\mathrm{sessione}}=\\mathrm{apri}\\;(\\mathrm{modifica}+\\mathrm{salva})^*\\;\\mathrm{chiudi} \\]\nIl requisito «contiene almeno un salvataggio» è \\(\\Sigma^*\\;\\mathrm{salva}\\;\\Sigma^*\\).\nIl prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola più corta possibile è apri, salva, chiudi.\nQuesto requisito non impone di salvare ogni modifica."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-25",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-25",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Problemi di decisione su automi",
+    "text": "Problemi di decisione su automi\n\n25 / 43 · Cap. 2 · §2.3, pp. 39-40\n\n\nAppartenenza: questa parola è accettata?\nVuotezza: esiste almeno una parola accettata?\nUniversalità: sono accettate tutte le parole di \\(\\Sigma^*\\)?\nInclusione: ogni parola di \\(L_1\\) appartiene a \\(L_2\\)?\nEquivalenza: i due linguaggi coincidono?\n\nL’appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall’iniziale."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-26",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-26",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Ricerca in ampiezza e parola testimone",
+    "text": "Ricerca in ampiezza e parola testimone\n\n26 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUna BFS esplora gli stati per distanza dall’iniziale. Memorizziamo, per ogni stato nuovo, predecessore e simbolo usato.\nAppena raggiungiamo un finale, ricostruiamo una parola accettata di lunghezza minima.\nAttenzione al risultato: None significa linguaggio vuoto; '' significa che ε è un testimone.\nfor label, machine in [('prodotto', PAIR), ('parità', PARITY)]:\n    witness = shortest_witness(machine)\n    print(label, '→', 'linguaggio vuoto' if witness is None else shown(witness))\nimpossible = dfa_product(ENDS, complement(CONTAINS))\nassert shortest_witness(impossible) is None\nprint('Termina con 1 e non contiene 1 → linguaggio vuoto')\nprodotto → 11\nparità → ε\nTermina con 1 e non contiene 1 → linguaggio vuoto"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-27",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-27",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Proprietà del testimone corto",
+    "text": "Proprietà del testimone corto\n\n27 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUn DFA con \\(n\\) stati ha linguaggio non vuoto se e solo se accetta una parola \\(w\\) con:\n\\[ |w|&lt;n \\]\nIn una run accettante minima nessuno stato si ripete: il tratto fra due visite allo stesso stato potrebbe essere eliminato.\nQuindi la run contiene al massimo \\(n\\) stati e la parola al massimo \\(n-1\\) simboli."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-28",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-28",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Raggiungibilità come punto fisso",
+    "text": "Raggiungibilità come punto fisso\n\n28 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\n\\(\\operatorname{Post}(R)\\) contiene i successori in un passo degli stati in \\(R\\).\n\\[ R_0=\\{q_0\\},\\qquad R_{i+1}=R_i\\cup\\operatorname{Post}(R_i) \\]\n\\(R_i\\) raccoglie gli stati raggiungibili con parole di lunghezza al massimo \\(i\\). Il primo insieme stabile \\(R^*\\) contiene tutti gli stati raggiungibili.\n\\[ L(\\mathcal A)\\ne\\varnothing\\quad\\Longleftrightarrow\\quad R^*\\cap F\\ne\\varnothing \\]"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-29",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-29",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Esplorazione del punto fisso",
+    "text": "Esplorazione del punto fisso\n\n29 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\nIl DFA ricorda quanti 1 consecutivi chiudono il prefisso: 0, 1, 2; 3 significa che 111 è già comparso e resta assorbente. Solo 3 è finale.\nIterazione seleziona \\(R_i\\): valori da 0 a 4, inizialmente 0.\n\nA 1, \\(R_1=\\{0,1\\}\\); a 2, \\(R_2=\\{0,1,2\\}\\).\nA 3 compare il finale 3: il linguaggio è non vuoto, testimone 111.\nA 4 non cambia nulla: il punto fisso è raggiunto.\n\nPrima di 3, non avere ancora trovato un finale non prova la vuotezza.\n\nEsplorazione del punto fisso — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-30",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-30",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Riduzioni alla vuotezza",
+    "text": "Riduzioni alla vuotezza\n\n30 / 43 · Cap. 2 · §2.3.1, p. 42\n\nLe chiusure trasformano le domande sui linguaggi in ricerca di testimoni:\n\\[ L_1\\subseteq L_2\\quad\\Longleftrightarrow\\quad L_1\\cap\\overline{L_2}=\\varnothing \\]\n\\[ L=\\Sigma^*\\quad\\Longleftrightarrow\\quad\\overline L=\\varnothing \\]\nL’equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una parola accettata da uno solo dei due automi.\nPer l’inclusione, ogni parola del prodotto con il complemento è un controesempio concreto."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-31",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-31",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Inclusione e controesempio eseguibile",
+    "text": "Inclusione e controesempio eseguibile\n\n31 / 43 · Cap. 2 · §2.3.1, p. 42\n\nSiano \\(L_E\\) le parole che terminano con 1 e \\(L_C\\) quelle che contengono 1.\n\\(L_E\\subseteq L_C\\): il prodotto con il complemento di \\(L_C\\) non ha finali raggiungibili.\nIl verso opposto fallisce: 10 contiene 1, ma non termina con 1.\nLa BFS trova un testimone minimo della violazione; non esamina un insieme di test scelti a mano.\nfor label, left, right in [('E ⊆ C', ENDS, CONTAINS), ('C ⊆ E', CONTAINS, ENDS)]:\n    bad = dfa_product(left, complement(right))\n    witness = shortest_witness(bad)\n    print(label, '→', 'vera' if witness is None else 'falsa, controesempio: '+shown(witness))\n    if witness is not None:\n        assert accepts(left, witness) and not accepts(right, witness)\nE ⊆ C → vera\nC ⊆ E → falsa, controesempio: 10"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-32",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-32",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Costo delle procedure e rappresentazione",
+    "text": "Costo delle procedure e rappresentazione\n\n32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42\n\nSu un grafo esplicito con \\(n\\) stati e \\(m\\) archi, la BFS costa \\(O(n+m)\\).\nPer due DFA, un prodotto ha al massimo \\(n_1n_2\\) stati; si possono esplorare solo quelli raggiungibili.\nPer gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a \\(2^n\\) sottoinsiemi.\n«Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-33",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-33",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Equivalenze, classi e indice",
+    "text": "Equivalenze, classi e indice\n\n33 / 43 · Cap. 2 · §2.4, pp. 43-44\n\nUna relazione di equivalenza è riflessiva, simmetrica e transitiva. Le sue classi formano una partizione: non si sovrappongono e coprono tutto l’insieme.\nL’indice è il numero delle classi.\nEsempio: raggruppare le parole per parità della lunghezza dà due classi.\n«Condividono un simbolo» non è transitiva: 0 condivide con 01, 01 con 1, ma 0 non condivide con 1."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-34",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-34",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Invarianza a destra e compatibilità",
+    "text": "Invarianza a destra e compatibilità\n\n34 / 43 · Cap. 2 · §2.4, pp. 44-46\n\nPer rappresentare classi di prefissi come stati servono due proprietà.\nInvarianza a destra:\n\\[ x\\sim y\\quad\\Longrightarrow\\quad xz\\sim yz\\quad\\text{per ogni }z\\in\\Sigma^* \\]\nCompatibilità con \\(L\\): prefissi nella stessa classe appartengono entrambi a \\(L\\), oppure entrambi ne sono fuori.\nLa prima rende coerenti le transizioni; la seconda rende coerente il verdetto."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-35",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-35",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Equivalenza di Myhill–Nerode",
+    "text": "Equivalenza di Myhill–Nerode\n\n35 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nDue prefissi sono equivalenti per \\(L\\) quando nessuna continuazione distingue i loro verdetti:\n\\[ x\\sim_L y\\quad\\Longleftrightarrow\\quad\\forall z\\in\\Sigma^*:\\;(xz\\in L\\Longleftrightarrow yz\\in L) \\]\nPer il linguaggio «termina con 1», 01 e 11 sono equivalenti.\n0 e 01 sono distinti: basta \\(z=\\varepsilon\\). Accettare o rifiutare entrambi adesso non garantisce invece che due prefissi siano equivalenti."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-36",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-36",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Confrontare i futuri di due prefissi",
+    "text": "Confrontare i futuri di due prefissi\n\n36 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nUsiamo il linguaggio «numero pari di 1».\nCoppia seleziona ε / 1, 1 / 01 o ε / 11, inizialmente ε / 1. Suffisso seleziona ε, 0, 1, 01, inizialmente ε.\n\nCon ε / 1 e suffisso ε, i verdetti differiscono: i prefissi sono distinguibili.\nScegli 1 / 01 mantenendo ε: entrambi rifiutano. Con suffisso 1, entrambi accettano.\nI due prefissi restano equivalenti per ogni suffisso perché hanno la stessa parità, non perché abbiamo provato quattro casi.\n\n\nConfrontare i futuri di due prefissi — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-37",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-37",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Teorema di Myhill–Nerode",
+    "text": "Teorema di Myhill–Nerode\n\n37 / 43 · Cap. 2 · §2.4, pp. 45-47\n\nPer \\(L\\subseteq\\Sigma^*\\) sono equivalenti:\n\n\\(L\\) è regolare.\nEsiste un’equivalenza di indice finito, invariante a destra e compatibile con \\(L\\).\nL’equivalenza \\(\\sim_L\\) ha indice finito.\n\nUn DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-38",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-38",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Costruire il DFA delle classi",
+    "text": "Costruire il DFA delle classi\n\n38 / 43 · Cap. 2 · §2.4, p. 47\n\nSe \\(\\sim_L\\) ha indice finito, usiamo le sue classi come stati.\n\nStato iniziale: \\([\\varepsilon]\\).\nTransizione: \\(\\delta([w],a)=[wa]\\).\nClasse accettante: \\([w]\\) con \\(w\\in L\\).\n\nL’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali.\nDopo aver letto \\(w\\), lo stato è \\([w]\\): il DFA riconosce esattamente \\(L\\)."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-39",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-39",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Minimalità del DFA delle classi",
+    "text": "Minimalità del DFA delle classi\n\n39 / 43 · Cap. 2 · §2.4, pp. 47-48\n\nSe due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per \\(L\\) deve quindi portarli in stati diversi.\nOgni DFA per \\(L\\) ha almeno tanti stati quante sono le classi di \\(\\sim_L\\). Il DFA delle classi raggiunge questo limite.\nPer «termina con 1» ci sono due classi: prefissi che terminano con 1 e tutti gli altri, inclusa ε. Due stati sono necessari e sufficienti."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-40",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-40",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Non regolarità mediante prefissi distinguibili",
+    "text": "Non regolarità mediante prefissi distinguibili\n\n40 / 43 · Cap. 2 · §2.4, p. 43 e applicazione del teorema, pp. 45-47\n\nConsidera il linguaggio delle parole con tanti 0 quanti 1.\nPrendiamo i prefissi \\(x_n=0^n\\), per ogni \\(n\\geq0\\).\nSe \\(m\\ne n\\), il suffisso \\(z=1^n\\) distingue \\(x_n\\) da \\(x_m\\):\n\\[ 0^n1^n\\in L,\\qquad 0^m1^n\\notin L \\]\nEsistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-41",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-41",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Esercizi di autoverifica",
+    "text": "Esercizi di autoverifica\n\n41 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\nChe linguaggi descrivono \\(\\varnothing^*\\) e \\(\\varepsilon+01\\)?\nDue stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l’accettazione della parola vuota dopo la rimozione ε?\nTrova la parola minima che termina con 1 e contiene un numero pari di 1.\nPer il linguaggio «contiene 1», ε e 0 sono equivalenti? E ε e 1?\nQuale prodotto verifica \\(L_C\\subseteq L_E\\) e quale controesempio trova?\n\nSpiega a voce le ragioni prima di passare alle soluzioni."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-42",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-42",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Soluzioni e verifica degli algoritmi",
+    "text": "Soluzioni e verifica degli algoritmi\n\n42 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\n\\(\\varnothing^*\\) descrive \\(\\{\\varepsilon\\}\\); \\(\\varepsilon+01\\) descrive \\(\\{\\varepsilon,01\\}\\).\nCon la nostra formula per \\(\\Delta'\\), rendiamo finale anche l’iniziale.\n11: un solo 1 dà parità dispari.\nε e 0 hanno gli stessi futuri; ε e 1 sono distinti già dal suffisso vuoto.\nProdotto di \\(C\\) con il complemento di \\(E\\): testimone minimo 10.\n\nIl controllo seguente confronta costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.\nprint('Verifica completata: 255 parole e 10 espressioni.')\nprint('ε-NFA, rimozione ε e DFA concordano con i predicati diretti.')\nprint('BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.')\nVerifica completata: 255 parole e 10 espressioni.\nε-NFA, rimozione ε e DFA concordano con i predicati diretti.\nBFS, inclusioni, testimone vuoto e punto fisso: controlli passati."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-43",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-43",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Riepilogo e collegamento alla verifica",
+    "text": "Riepilogo e collegamento alla verifica\n\n43 / 43 · Cap. 2 · Riepilogo, p. 48\n\n\nEspressioni regolari e automi finiti descrivono gli stessi linguaggi.\nLe transizioni ε rendono modulari le costruzioni e si possono eliminare.\nComplemento e prodotto compilano requisiti booleani.\nL’inclusione si decide cercando un comportamento ammesso dal sistema e vietato dalla specifica.\nMyhill–Nerode identifica la memoria minima necessaria.\n\nNel capitolo 3 passeremo alle parole infinite: il momento finale di accettazione non sarà più disponibile."
+  },
+  {
+    "objectID": "notebooks/index.html",
+    "href": "notebooks/index.html",
+    "title": "Notebooks",
+    "section": "",
+    "text": "Each notebook keeps one construction or algorithm in the foreground and lets you\ndrive it on concrete inputs. They follow the chapters of the lecture notes; work\nthrough a chapter's notebooks alongside its\nProof Labs and\nMind Map.\n\n\nChapter 1 · Finite-State Automata\n\n  \n    NB 1\n    Intro to Finite-State Automata\n    Alphabets, words, languages, and DFAs — a hands-on first contact\n  \n  \n    NB 2\n    NFA Reachable States\n    Step through the blackboard NFA and trace its active state sets\n  \n  \n    NB 3\n    Subset Construction\n    Convert any NFA to an equivalent DFA, subset by subset\n  \n\n\nChapter 2 · Regular Languages & Decision Problems\n\n  \n    NB 4\n    ε-Closure & ε-Removal\n    Compute ε-closures and compile ε-transitions away\n  \n  \n    NB 5\n    Product Automaton\n    Build the intersection of two DFAs by the product construction\n  \n  \n    NB 6\n    Reachability Fixpoint\n    Reachable states via a fixpoint, and the decision problems it settles\n  \n  \n    NB 7\n    Kleene State Elimination\n    Turn a DFA into a regular expression by eliminating states\n  \n  \n    NB 8\n    Regex to Automaton (Kleene)\n    Generate NFAs from a regex and trace the Rᵏᵢⱼ paths\n  \n\n\nChapter 3 · Automata over Infinite Words\n\n  \n    NB 11\n    Infinite Words & In(α)\n    ω-words, segments, and the infinity set of positions\n  \n  \n    NB 12\n    Büchi Automaton Runner\n    Trace u·vω and test acceptance via In(ρ) ∩ F ≠ ∅\n  \n  \n    NB 13\n    Vectorial Closure\n    Which ω-words have infinitely many prefixes in a language W\n  \n  \n    NB 14\n    Büchi Emptiness (Lasso)\n    Decide emptiness by hunting for a reachable accepting cycle\n  \n  \n    NB 15\n    Parity Between a's\n    A deterministic Büchi automaton whose states encode a parity invariant\n  \n  \n    NB 16\n    The DBA vs NBA Gap\n    Why \"finitely many saves\" needs nondeterminism — no DBA can do it\n  \n  \n    NB 17\n    ω-Regular Expressions\n    The ⋃ Uᵢ·Vᵢω normal form and its Büchi automata\n  \n  \n    NB 18\n    Büchi Union & Intersection\n    Trivial union vs the two-phase product for intersection\n  \n  \n    NB 19\n    Ultimately-Periodic Witnesses\n    Read a u·vω witness off a lasso; the fingerprint of non-emptiness\n  \n\n\nChapter 4 · Complementation of ω-Regular Languages\n\n  \n    NB 20\n    Congruence & Saturation\n    Finite-index congruences (parity) and what saturation means\n  \n  \n    NB 21\n    The Congruence ≈𝒜\n    The state×state profile a word attaches to a Büchi automaton\n  \n  \n    NB 22\n    Merging Positions\n    When two positions merge, and why merging can never be broken\n  \n  \n    NB 23\n    Ramsey Decomposition\n    A non-periodic ω-word as prefix + one idempotent block class\n  \n  \n    NB 24\n    Saturation → Complement\n    Assemble the complement automaton from disjoint class products\n  \n\n\nTemporal Logic & Model Checking · Part II preview\n\n  \n    NB 9\n    Linear Temporal Logic (LTL)\n    Syntax and semantics of temporal operators for verification\n  \n\n\nChapter 7 · Reactive Systems, SMV & Model Checking\n\n  \n    NB 10\n    The Arbiter Kripke Structure\n    Click through the buggy/fixed arbiter and watch AG(request → AX busy) hold or break\n  \n  \n    NB 25\n    SMV Step Simulator\n    Flip-flop, modulo-4 counter, and the five-digit mechanical counter, one next() at a time\n  \n  \n    NB 26\n    Producer–Consumer Fairness Sandbox\n    Schedule producer/consumer steps yourself and watch an unfair run take shape"
+  },
+  {
+    "objectID": "notebooks/25-smv-step-simulator.html",
+    "href": "notebooks/25-smv-step-simulator.html",
+    "title": "Notebook 25: SMV Step Simulator",
+    "section": "",
+    "text": "Chapter 7 introduces SMV by simulating small models one next() step at a time. This notebook is a hands-on version of that same simulation loop for the three running examples of the chapter: the flip-flop, the modulo-4 counter, and the five-digit mechanical counter with carry propagation and a reset input.\nEach click computes next(v) from the current valuation of every variable, exactly as the ASSIGN block specifies—there is no lookahead and no hidden state beyond what’s shown.\n\n\n\n  \n    Flip-flop\n    Modulo-4 counter\n    Mechanical counter (5 digits)\n  \n\n  \n\n  \n    Step\n    Reset\n    \n       push reset on next step\n    \n  \n\n  \n    \n    \n    \n    \n  \n\n\n\n\n\n\nFlip-flop and modulo-4 counter are both fully deterministic—every click has exactly one possible outcome, matching ex:flipflop and sec:smv-mod4 in the chapter.\nMechanical counter, no reset. Click Step nine times and watch d0 climb from 0 to 9; on the tenth click, d0 wraps to 0 and carry_out becomes true for one step, which is exactly what pushes d1 from 0 to 1. This is the carry-propagation logic from sec:mech-counter made visible one digit at a time.\nPush reset mid-count. Tick “push reset on next step” after a few increments, then click Step—every digit snaps back to 0 in a single transition, exactly as IVAR reset is modelled: an environment input, unconstrained until the moment you choose its value.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the ASSIGN/case semantics behind every step here, see Chapter 7, §“The SMV Modelling Language” and §“Modules: Hierarchical Modelling”.  Download the Full Lecture Notes (PDF)"
+  },
+  {
+    "objectID": "notebooks/25-smv-step-simulator.html#what-to-try",
+    "href": "notebooks/25-smv-step-simulator.html#what-to-try",
+    "title": "Notebook 25: SMV Step Simulator",
+    "section": "",
+    "text": "Flip-flop and modulo-4 counter are both fully deterministic—every click has exactly one possible outcome, matching ex:flipflop and sec:smv-mod4 in the chapter.\nMechanical counter, no reset. Click Step nine times and watch d0 climb from 0 to 9; on the tenth click, d0 wraps to 0 and carry_out becomes true for one step, which is exactly what pushes d1 from 0 to 1. This is the carry-propagation logic from sec:mech-counter made visible one digit at a time.\nPush reset mid-count. Tick “push reset on next step” after a few increments, then click Step—every digit snaps back to 0 in a single transition, exactly as IVAR reset is modelled: an environment input, unconstrained until the moment you choose its value.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the ASSIGN/case semantics behind every step here, see Chapter 7, §“The SMV Modelling Language” and §“Modules: Hierarchical Modelling”.  Download the Full Lecture Notes (PDF)"
+  },
+  {
+    "objectID": "notebooks/23-ramsey-decomposition.html",
+    "href": "notebooks/23-ramsey-decomposition.html",
+    "title": "Notebook 23: Ramsey Decomposition U·Vω",
+    "section": "",
+    "text": "The last ingredient of complementation is a combinatorial fact: every \\(\\omega\\)-word factors as \\[ \\alpha \\in U\\,V^{\\omega}, \\] a prefix from one class \\(U\\) followed by infinitely many blocks from a single idempotent class \\(V\\) (idempotent means \\(V\\cdot V=V\\)). This holds even when \\(\\alpha\\) is not ultimately periodic.\nThe chapter’s witness is the non-periodic word \\[ \\alpha = \\underbrace{abc}_{v_1}\\ \\underbrace{abcc}_{v_2}\\ \\underbrace{abccc}_{v_3}\\cdots,\\qquad v_i = ab\\,c^{\\,i}. \\] The number of trailing \\(c\\)’s grows forever, so \\(\\alpha\\) is not ultimately periodic. Yet — because an extra \\(c\\) only loops at \\(s_2\\) — every block \\(v_i\\) has the same \\(\\approx_{\\mathcal A}\\)-profile. They all belong to one class \\(V\\), and \\(V\\) is idempotent. So \\(\\alpha=[\\varepsilon]\\,V^{\\omega}\\): prefix class \\(U=[\\varepsilon]\\), then \\(V\\) forever.\n\n\n\n\n\n\n  \n    Blocks shown: 4\n    \n  \n  \n    \n    \n  \n  \n    \n    \n  \n  \n    \n    \n    \n  \n\n\n\nWhy do the blocks collapse? An extra trailing \\(c\\) only loops at \\(s_2\\) (\\(s_2\\xrightarrow{c}s_2\\)), which does not change the profile — every \\(v_i=ab\\,c^{i}\\) takes \\(s_0\\to s_2\\) and \\(s_2\\to s_2\\), each visiting \\(s_1\\in F\\), and has no path from \\(s_1\\). That is one class \\(V\\), and composing two such blocks yields the same shape, so \\(V\\) is idempotent. This is exactly the abstract decomposition the pigeonhole argument produces in general — here we simply read it off the automaton. Saturating on these class products is the final step: Notebook 24."
+  },
+  {
+    "objectID": "notebooks/23-ramsey-decomposition.html#widget-the-blocks-collapse-to-one-class",
+    "href": "notebooks/23-ramsey-decomposition.html#widget-the-blocks-collapse-to-one-class",
+    "title": "Notebook 23: Ramsey Decomposition U·Vω",
+    "section": "",
+    "text": "Blocks shown: 4\n    \n  \n  \n    \n    \n  \n  \n    \n    \n  \n  \n    \n    \n    \n  \n\n\n\nWhy do the blocks collapse? An extra trailing \\(c\\) only loops at \\(s_2\\) (\\(s_2\\xrightarrow{c}s_2\\)), which does not change the profile — every \\(v_i=ab\\,c^{i}\\) takes \\(s_0\\to s_2\\) and \\(s_2\\to s_2\\), each visiting \\(s_1\\in F\\), and has no path from \\(s_1\\). That is one class \\(V\\), and composing two such blocks yields the same shape, so \\(V\\) is idempotent. This is exactly the abstract decomposition the pigeonhole argument produces in general — here we simply read it off the automaton. Saturating on these class products is the final step: Notebook 24."
+  },
+  {
+    "objectID": "notebooks/21-approx-a-profile.html",
+    "href": "notebooks/21-approx-a-profile.html",
+    "title": "Notebook 21: The ≈𝒜 Profile of a Word",
+    "section": "",
+    "text": "The congruence at the core of the complementation proof does not remember the exact word. For a finite word \\(u\\) it remembers only, for every pair of states \\((p,q)\\):\n\nwhether some path labelled \\(u\\) goes from \\(p\\) to \\(q\\) at all, and\nif so, whether such a path can visit an accepting state along the way.\n\nThis is a finite profile — a grid over \\(Q\\times Q\\) with entries in \\(\\{-,\\ q,\\ q^{F}\\}\\):\n\n\\(-\\) : no path from \\(p\\) to \\(q\\) labelled \\(u\\);\n\\(q\\) : a path reaches \\(q\\), but without visiting \\(F\\);\n\\(q^{F}\\) : a path reaches \\(q\\) visiting an accepting state.\n\nTwo words are \\(\\approx_{\\mathcal A}\\)-equivalent exactly when they have the same grid. There are finitely many grids, so \\(\\approx_{\\mathcal A}\\) has finite index — and it saturates \\(L(\\mathcal A)\\). The automaton \\(\\mathcal A\\) used here (from the chapter) accepts the \\(\\omega\\)-words in which the block \\(ab\\) occurs infinitely often, separated by \\(c\\)’s. Note \\(\\Delta\\) is partial: a missing transition means the run has nowhere to go, not a sink.\n\n\n\n\n\n\n  \n    Word u₁\n    Word u₂ (compare)\n    \n      Preset pair\n      \n        c  vs  ab\n        ab  vs  abc\n        abc  vs  abcc\n        a  vs  ba\n        ε  vs  cc\n      \n    \n    Compute\n  \n\n  \n    \n    \n      \n      \n      a\n      b\n      c\n      a\n      s₀\n      s₁\n      s₂\n    \n  \n\n  \n    \n      \n      \n    \n    \n  \n\n\n\nThe default pair reproduces the chapter’s example: for \\(u=c\\) the only non-trivial cell is \\((s_2,s_2)=s_2\\) (a \\(c\\)-loop that never touches \\(F\\)), whereas for \\(u=ab\\) two cells carry \\(F\\), at \\((s_0,s_2)\\) and \\((s_2,s_2)\\) — the path \\(s_0\\!\\to\\!s_1\\!\\to\\!s_2\\) visits \\(s_1\\in F\\). Different cells at the same position, so \\(c\\not\\approx_{\\mathcal A}ab\\). Try abc vs abcc: equal grids — the extra \\(c\\) just loops at \\(s_2\\), which is why every block \\(ab\\,c^{i}\\) falls in one class (the key fact behind Notebook 23)."
+  },
+  {
+    "objectID": "notebooks/21-approx-a-profile.html#widget-compute-and-compare-profiles",
+    "href": "notebooks/21-approx-a-profile.html#widget-compute-and-compare-profiles",
+    "title": "Notebook 21: The ≈𝒜 Profile of a Word",
+    "section": "",
+    "text": "Word u₁\n    Word u₂ (compare)\n    \n      Preset pair\n      \n        c  vs  ab\n        ab  vs  abc\n        abc  vs  abcc\n        a  vs  ba\n        ε  vs  cc\n      \n    \n    Compute\n  \n\n  \n    \n    \n      \n      \n      a\n      b\n      c\n      a\n      s₀\n      s₁\n      s₂\n    \n  \n\n  \n    \n      \n      \n    \n    \n  \n\n\n\nThe default pair reproduces the chapter’s example: for \\(u=c\\) the only non-trivial cell is \\((s_2,s_2)=s_2\\) (a \\(c\\)-loop that never touches \\(F\\)), whereas for \\(u=ab\\) two cells carry \\(F\\), at \\((s_0,s_2)\\) and \\((s_2,s_2)\\) — the path \\(s_0\\!\\to\\!s_1\\!\\to\\!s_2\\) visits \\(s_1\\in F\\). Different cells at the same position, so \\(c\\not\\approx_{\\mathcal A}ab\\). Try abc vs abcc: equal grids — the extra \\(c\\) just loops at \\(s_2\\), which is why every block \\(ab\\,c^{i}\\) falls in one class (the key fact behind Notebook 23)."
+  },
+  {
+    "objectID": "notebooks/19-ultimately-periodic-witness.html",
+    "href": "notebooks/19-ultimately-periodic-witness.html",
+    "title": "Notebook 19: Ultimately-Periodic Witnesses",
+    "section": "",
+    "text": "A Büchi automaton is non-empty iff it has a reachable accepting cycle — a lasso: a stem from the initial state to an accepting state \\(f\\), then a cycle from \\(f\\) back to \\(f\\). Reading the stem once and the cycle forever gives an accepted word of the shape \\[ \\alpha = u\\cdot v^{\\omega},\\qquad u = \\text{stem},\\ v = \\text{cycle}, \\] an ultimately-periodic word. Because a shortest stem and a shortest cycle each stay within the automaton, one can always find such a witness with \\[ |u| &lt; |Q| \\quad\\text{and}\\quad |v| \\le |Q|. \\]\nThis is the fingerprint behind emptiness (Notebook 14): non-emptiness is not just a yes/no answer — it comes with a concrete, finitely-described infinite witness.\nThe automaton below is the editor that saves infinitely often (initial open, then it accepts iff save recurs forever). Pick a loop through the accepting checkpoint \\(f\\) and read off the witness.\n\n\n\n\n\n\n  \n    \n      \n      \n        \n        \n        open\n        edit,idle\n        save\n        edit,idle\n        save\n        q_b\n        q\n        f\n      \n      \n      \n    \n    \n      \n      stem  u = \n      loop  v = \n      α = ·()ω\n      \n      \n      \n    \n  \n\n\n\nThe loop (save) gives the shortest witness open·(save)ω = open save save save …; the loop (edit save) gives open·(edit save)ω. Both are accepted, both are ultimately periodic, and both fit inside the state bound. Different lassos, same language — the witness is never unique, but one always exists whenever the language is non-empty."
+  },
+  {
+    "objectID": "notebooks/19-ultimately-periodic-witness.html#widget-read-a-witness-off-a-lasso",
+    "href": "notebooks/19-ultimately-periodic-witness.html#widget-read-a-witness-off-a-lasso",
+    "title": "Notebook 19: Ultimately-Periodic Witnesses",
+    "section": "",
+    "text": "open\n        edit,idle\n        save\n        edit,idle\n        save\n        q_b\n        q\n        f\n      \n      \n      \n    \n    \n      \n      stem  u = \n      loop  v = \n      α = ·()ω\n      \n      \n      \n    \n  \n\n\n\nThe loop (save) gives the shortest witness open·(save)ω = open save save save …; the loop (edit save) gives open·(edit save)ω. Both are accepted, both are ultimately periodic, and both fit inside the state bound. Different lassos, same language — the witness is never unique, but one always exists whenever the language is non-empty."
+  },
+  {
+    "objectID": "notebooks/17-omega-regular-expressions.html",
+    "href": "notebooks/17-omega-regular-expressions.html",
+    "title": "Notebook 17: ω-Regular Expressions ↔︎ Büchi Automata",
+    "section": "",
+    "text": "An \\(\\omega\\)-regular expression denotes a language of infinite words as a finite union \\[ \\bigcup_{i=1}^{n} U_i\\, V_i^{\\omega}, \\] where each \\(U_i,V_i\\) is an ordinary regular language of finite words and \\(V_i\\) contains no empty word. The Büchi–expression equivalence theorem says these denote exactly the Büchi-recognisable (\\(\\omega\\)-regular) languages.\nTwo features make the \\(U\\,V^{\\omega}\\) shape the right normal form:\n\nthe \\(\\omega\\)-power \\(V^{\\omega}\\) supplies the infinite behaviour by repeating finite blocks from \\(V\\) forever;\nthe finite prefix \\(U\\) absorbs a transient that need not follow the periodic pattern.\n\nBelow are two languages over \\(\\Sigma=\\{a,b\\}\\), each shown as an expression and as its Büchi automaton. Membership of an ultimately-periodic word \\(u\\cdot v^{\\omega}\\) is decided by looking only at the period \\(v\\).\n\n\n\n\n\n\n  \n    \n      Language\n      \n        L₂ = (a+b)*·a·((a+b)*·a)ω  — \"infinitely many a\"\n        L₁ = (a+b)*·bω  — \"finitely many a\"\n      \n    \n    Stem (u)\n    Period (v)\n    Run\n  \n\n  \n\n  \n    \n      \n      \n      \n    \n    \n      \n      \n      \n    \n  \n\n\n\nNotice \\(L_1\\) and \\(L_2\\) are complements of each other: every \\(\\omega\\)-word has either finitely or infinitely many \\(a\\)’s. That \\(L_1\\) is again \\(\\omega\\)-regular is a special case of the general complementation theorem — proved algebraically in Chapter 4 (Notebook 24)."
+  },
+  {
+    "objectID": "notebooks/17-omega-regular-expressions.html#widget-expression-automaton",
+    "href": "notebooks/17-omega-regular-expressions.html#widget-expression-automaton",
+    "title": "Notebook 17: ω-Regular Expressions ↔︎ Büchi Automata",
+    "section": "",
+    "text": "Language\n      \n        L₂ = (a+b)*·a·((a+b)*·a)ω  — \"infinitely many a\"\n        L₁ = (a+b)*·bω  — \"finitely many a\"\n      \n    \n    Stem (u)\n    Period (v)\n    Run\n  \n\n  \n\n  \n    \n      \n      \n      \n    \n    \n      \n      \n      \n    \n  \n\n\n\nNotice \\(L_1\\) and \\(L_2\\) are complements of each other: every \\(\\omega\\)-word has either finitely or infinitely many \\(a\\)’s. That \\(L_1\\) is again \\(\\omega\\)-regular is a special case of the general complementation theorem — proved algebraically in Chapter 4 (Notebook 24)."
+  },
+  {
+    "objectID": "notebooks/15-parity-blocks-buchi.html",
+    "href": "notebooks/15-parity-blocks-buchi.html",
+    "title": "Notebook 15: Parity of Blocks Between a’s",
+    "section": "",
+    "text": "This notebook makes concrete the automaton of the chapter’s parity example (adapted from Wolfgang Thomas). Over \\(\\Sigma=\\{a,b,c\\}\\) we recognise:\n\nBetween any two consecutive occurrences of \\(a\\), there is an even number of \\(b\\) and \\(c\\) symbols combined.\n\nFor instance \\(a\\,b\\,c\\,a\\) is accepted (two symbols between the \\(a\\)’s), while \\(a\\,b\\,b\\,b\\,a\\) is rejected (three). Words with no \\(a\\), or only one \\(a\\), satisfy the condition vacuously.\nThe point of the example is that each state carries a precise invariant:\n\n\\(q_0\\) — before the first \\(a\\) (or no \\(a\\) at all). Accepting.\n\\(q_1\\) — an even number of \\(b/c\\) since the last \\(a\\) (zero counts as even). Accepting.\n\\(q_2\\) — an odd number of \\(b/c\\) since the last \\(a\\). Non-accepting.\n\nReading \\(a\\) from \\(q_2\\) would close an odd gap and violate the property: that transition is simply undefined, so the run dies. Notice \\(q_2\\) need not be accepting — see the widget’s note below.\n\n\n\n\n\n\n  \n    \n      Preset\n      \n        (abc)ω — even block, accept\n        (abbc)ω — odd block, reject\n        a·(bc)ω — only one a (vacuous)\n        (ab)ω — odd block, reject\n        (bc)ω — no a at all (vacuous)\n      \n    \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Run\n    \n  \n\n  \n    \n      \n      \n        \n          \n            \n          \n        \n        \n        \n        \n        b,c\n        \n        \n        a\n        \n        \n        a\n        \n        \n        b,c\n        \n        \n        b,c\n        \n        q₀\n        q₁\n        q₂\n      \n      \n        Why q₂ is not accepting: if no further $a$ ever comes, the\n        run bounces $q_1\\leftrightarrow q_2$ forever and visits $q_1\\in F$\n        infinitely often anyway — $q_1$ alone witnesses acceptance. If an $a$\n        does come while in $q_2$, the transition is undefined and the run\n        dies. Either way $q_2$ carries no acceptance information.\n      \n    \n    \n      \n      \n      \n    \n  \n\n\n\n\nRelated: Notebook 12 — Büchi Automaton Runner runs the simpler “infinitely many saves” automaton; here the state set encodes a genuine counting invariant (parity), which is why the automaton stays deterministic with only three states."
+  },
+  {
+    "objectID": "notebooks/15-parity-blocks-buchi.html#widget-run-alpha-ucdot-vomega",
+    "href": "notebooks/15-parity-blocks-buchi.html#widget-run-alpha-ucdot-vomega",
+    "title": "Notebook 15: Parity of Blocks Between a’s",
+    "section": "",
+    "text": "Preset\n      \n        (abc)ω — even block, accept\n        (abbc)ω — odd block, reject\n        a·(bc)ω — only one a (vacuous)\n        (ab)ω — odd block, reject\n        (bc)ω — no a at all (vacuous)\n      \n    \n    \n      Stem (u)\n      \n    \n    \n      Period (v)\n      \n    \n    \n      Run\n    \n  \n\n  \n    \n      \n      \n        \n          \n            \n          \n        \n        \n        \n        \n        b,c\n        \n        \n        a\n        \n        \n        a\n        \n        \n        b,c\n        \n        \n        b,c\n        \n        q₀\n        q₁\n        q₂\n      \n      \n        Why q₂ is not accepting: if no further $a$ ever comes, the\n        run bounces $q_1\\leftrightarrow q_2$ forever and visits $q_1\\in F$\n        infinitely often anyway — $q_1$ alone witnesses acceptance. If an $a$\n        does come while in $q_2$, the transition is undefined and the run\n        dies. Either way $q_2$ carries no acceptance information.\n      \n    \n    \n      \n      \n      \n    \n  \n\n\n\n\nRelated: Notebook 12 — Büchi Automaton Runner runs the simpler “infinitely many saves” automaton; here the state set encodes a genuine counting invariant (parity), which is why the automaton stays deterministic with only three states."
+  },
+  {
     "objectID": "notebooks/13-vectorial-closure.html",
     "href": "notebooks/13-vectorial-closure.html",
     "title": "Notebook 13: Vectorial Closure — 🔀W",
@@ -74,14 +466,14 @@
     "href": "notebooks/09-ltl.html",
     "title": "Notebook 8: Linear Temporal Logic (LTL)",
     "section": "",
-    "text": "Welcome to the section on Linear Temporal Logic (LTL).\nWhile the first part of the course focuses on automata theory as a foundation, formal verification relies heavily on temporal logics to express the properties that systems must satisfy over time. LTL allows us to state requirements such as “eventually a request will be granted” or “a process never enters a critical section twice concurrently”.\n\n\nCurrently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.\n\n\n\nLTL Syntax: Propositional variables and temporal operators (Next, Until, Globally, Finally).\nSemantics: Evaluating LTL formulas over infinite traces (words).\nEquivalences: Standard logical equivalences and how to rewrite formulas.\nVerification: How LTL formulas translate into automata for model checking.\n\n\n[!TIP] Read the full chapter in the PDF\nThe comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF.  Download the Full Lecture Notes (PDF)"
+    "text": "Welcome to the section on Linear Temporal Logic (LTL).\nWhile the first part of the course focuses on automata theory as a foundation, formal verification relies heavily on temporal logics to express the properties that systems must satisfy over time. LTL allows us to state requirements such as “eventually a request will be granted” or “a process never enters a critical section twice concurrently”.\n\n\nCurrently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the accompanying notes, developed from the course lectures.\n\n\n\nLTL Syntax: Propositional variables and temporal operators (Next, Until, Globally, Finally).\nSemantics: Evaluating LTL formulas over infinite traces (words).\nEquivalences: Standard logical equivalences and how to rewrite formulas.\nVerification: How LTL formulas translate into automata for model checking.\n\n\n[!TIP] Read the full chapter in the PDF\nThe comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF.  Download the Full Lecture Notes (PDF)"
   },
   {
     "objectID": "notebooks/09-ltl.html#course-materials-for-ltl",
     "href": "notebooks/09-ltl.html#course-materials-for-ltl",
     "title": "Notebook 8: Linear Temporal Logic (LTL)",
     "section": "",
-    "text": "Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the official lecture notes.\n\n\n\nLTL Syntax: Propositional variables and temporal operators (Next, Until, Globally, Finally).\nSemantics: Evaluating LTL formulas over infinite traces (words).\nEquivalences: Standard logical equivalences and how to rewrite formulas.\nVerification: How LTL formulas translate into automata for model checking.\n\n\n[!TIP] Read the full chapter in the PDF\nThe comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF.  Download the Full Lecture Notes (PDF)"
+    "text": "Currently, the interactive browser-based notebooks for LTL are under development. However, the complete formal definitions, syntax, semantics, and examples for LTL are thoroughly covered in the accompanying notes, developed from the course lectures.\n\n\n\nLTL Syntax: Propositional variables and temporal operators (Next, Until, Globally, Finally).\nSemantics: Evaluating LTL formulas over infinite traces (words).\nEquivalences: Standard logical equivalences and how to rewrite formulas.\nVerification: How LTL formulas translate into automata for model checking.\n\n\n[!TIP] Read the full chapter in the PDF\nThe comprehensive mathematical theory and proofs for Linear Temporal Logic are available in the course PDF.  Download the Full Lecture Notes (PDF)"
   },
   {
     "objectID": "notebooks/07-kleene-state-elimination.html",
@@ -242,7 +634,7 @@
     "href": "mindmaps/07-reactive-systems-smv-model-checking.html",
     "title": "Mind Map 7: Reactive Systems, SMV, and Explicit Model Checking",
     "section": "",
-    "text": "Chapter 7 · Reactive Systems, SMV, and Explicit Model Checking\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    12 sections · 36 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 6\n    All mind maps\n    Chapter 8"
+    "text": "Chapter 7 · Reactive Systems, SMV, and Explicit Model Checking\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    11 sections · 38 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 6\n    All mind maps\n    Chapter 8"
   },
   {
     "objectID": "mindmaps/05-synthesis-and-games.html",
@@ -268,9 +660,9 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Verification and Validation Techniques",
+    "title": "Verification and Validation Techniques — UniUD",
     "section": "",
-    "text": "Università degli Studi di Udine · A.A. 2025–2026\n    Verification and Validation Techniques\n    \n      Lecture notes (appunti ufficiali) and interactive companions for the Verification and Validation Techniques course.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Major theorems have guided Proof Labs, and the complete lecture notes remain available as a downloadable PDF.\n    \n    \n      \n        \n        \n          Open the Full Lecture Notes\n          283 pages · Complete appunti · PDF\n        \n        \n      \n    \n  \n\n  \n  \n  \n    Course Materials\n    \n      \n        PROOF LABS\n        Interactive Theorem Proofs\n        Predict each proof step, inspect the dominant visual, and reveal the formal justification\n      \n      \n        NB 1\n        Finite-State Automata\n        Alphabets, words, languages, and DFAs — hands-on interactive intro\n      \n      \n        NB 2\n        NFA Reachable States\n        Step through the blackboard NFA example and trace active state sets\n      \n      \n        NB 3\n        Subset Construction\n        Convert any NFA to an equivalent DFA step by step\n      \n      \n        NB 4\n        ε-Closure & ε-Removal\n        Compute epsilon-closures and remove ε-transitions from NFAs\n      \n      \n        NB 5\n        Product Automaton\n        Construct the intersection of two DFAs via the product construction\n      \n      \n        NB 6\n        Reachability Fixpoint\n        Compute reachable states with a fixpoint algorithm; explore decision problems\n      \n      \n        NB 7\n        Kleene State Elimination\n        Convert any DFA to a regular expression via state elimination (Kleene's theorem)\n      \n      \n        NB 8\n        Regex to Automaton (Kleene)\n        Dynamically generate NFAs from Regex and trace R_i,j^k paths\n      \n      \n        NB 9\n        Linear Temporal Logic (LTL)\n        Syntax and semantics of temporal logic for formal verification\n      \n      \n        NB 10\n        Model Checking Basics\n        Algorithmic verification of systems against temporal properties\n      \n      \n        MAPS\n        Interactive Chapter Mind Maps\n        Explore all 15 chapters from their main arteries down to individual topics\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
+    "text": "VERIFICATION\n        & VALIDATION\n        TECHNIQUES\n      \n      LECTURE NOTES\n    \n  \n\n  \n    \n    Università degli Studi di Udine · A.A. 2025–2026\n    \n      Personal lecture notes developed from the Verification and Validation Techniques lectures, with interactive companions.\n    \n    \n      Covers finite-state automata, NFA-to-DFA subset construction, ε-closure and ε-removal,\n      product automata, and reachability fixpoint algorithms, as well as formal verification concepts like LTL and Model Checking.\n      Major theorems have guided Proof Labs, and the complete lecture notes remain available as a downloadable PDF.\n    \n    \n    \n      \n        \n        \n          Open the Full Lecture Notes\n          303 pages · Complete appunti · PDF\n        \n        \n      \n    \n  \n\n  \n  \n\n    Course Materials\n    \n      \n        PRESENTAZIONI\n        Lezioni in slide\n        Presentazioni in italiano, con formule e figure, da sfogliare a schermo intero\n      \n      \n        PROOF LABS\n        Interactive Theorem Proofs\n        Predict each proof step, inspect the dominant visual, and reveal the formal justification\n      \n      \n        NOTEBOOKS\n        Interactive Notebooks\n        26 browser-based notebooks, grouped by chapter — from DFAs and subset construction to Büchi automata, ω-regular complementation, LTL, and model checking\n      \n      \n        MAPS\n        Interactive Chapter Mind Maps\n        Explore all 15 chapters from their main arteries down to individual topics\n      \n      \n        PDF\n        Full Lecture Notes\n        Download or read the complete lecture notes PDF\n      \n    \n\n  \n\n  \n  \n    \n      Verification & Validation\n      UniUD\n    \n    Runs completely in-browser via Pyodide"
   },
   {
     "objectID": "mindmaps/02-regular-languages-and-decision-problems.html",
@@ -298,7 +690,7 @@
     "href": "mindmaps/08-s1s-buchi-theorem.html",
     "title": "Mind Map 8: S1S, the Büchi Theorem, and Deterministic Büchi Automata",
     "section": "",
-    "text": "Chapter 8 · S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    12 sections · 26 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 7\n    All mind maps\n    Chapter 9"
+    "text": "Chapter 8 · S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    12 sections · 25 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n     Chapter 7\n    All mind maps\n    Chapter 9"
   },
   {
     "objectID": "mindmaps/10-tree-languages-tree-automata.html",
@@ -326,7 +718,7 @@
     "href": "mindmaps/index.html",
     "title": "Interactive Chapter Mind Maps",
     "section": "",
-    "text": "Interactive Chapter Mind Maps\n  \n    Every map follows the actual chapter structure: sections become the main\n    arteries, while nested headings and titled conceptual blocks form the\n    topic-level outer rings.\n  \n  \n    \n      Chapter 1\n      Finite-State Automata and Regular Languages\n      4 sections · 12 topics\n    \n    \n      Chapter 2\n      Regular Languages and Decision Problems\n      4 sections · 18 topics\n    \n    \n      Chapter 3\n      Automata over Infinite Words\n      5 sections · 23 topics\n    \n    \n      Chapter 4\n      Complementation of ω-Regular Languages\n      6 sections · 28 topics\n    \n    \n      Chapter 5\n      Synthesis and Infinite Games\n      6 sections · 29 topics\n    \n    \n      Chapter 6\n      Planning as Model Checking\n      8 sections · 21 topics\n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      12 sections · 36 topics\n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      12 sections · 26 topics\n    \n    \n      Chapter 9\n      Deterministic Omega-Automata and Star-Free Languages\n      5 sections · 17 topics\n    \n    \n      Chapter 10\n      Tree Languages and Tree Automata\n      4 sections · 20 topics\n    \n    \n      Chapter 11\n      Linear Temporal Logic\n      8 sections · 26 topics\n    \n    \n      Chapter 12\n      LTL Model Checking and Fairness\n      3 sections · 7 topics\n    \n    \n      Chapter 13\n      CTL and Symbolic Model Checking\n      6 sections · 20 topics\n    \n    \n      Chapter 14\n      Learning Regular Languages\n      5 sections · 15 topics\n    \n    \n      Chapter 15\n      Security Protocol Verification with Tamarin\n      5 sections · 22 topics"
+    "text": "Interactive Chapter Mind Maps\n  \n    Every map follows the actual chapter structure: sections become the main\n    arteries, while nested headings and titled conceptual blocks form the\n    topic-level outer rings.\n  \n  \n    \n      Chapter 1\n      Finite-State Automata and Regular Languages\n      4 sections · 12 topics\n    \n    \n      Chapter 2\n      Regular Languages and Decision Problems\n      4 sections · 18 topics\n    \n    \n      Chapter 3\n      Automata over Infinite Words\n      5 sections · 23 topics\n    \n    \n      Chapter 4\n      Complementation of ω-Regular Languages\n      6 sections · 28 topics\n    \n    \n      Chapter 5\n      Synthesis and Infinite Games\n      6 sections · 29 topics\n    \n    \n      Chapter 6\n      Planning as Model Checking\n      8 sections · 21 topics\n    \n    \n      Chapter 7\n      Reactive Systems, SMV, and Explicit Model Checking\n      11 sections · 38 topics\n    \n    \n      Chapter 8\n      S1S, the Büchi Theorem, and Deterministic Büchi Automata\n      12 sections · 25 topics\n    \n    \n      Chapter 9\n      Deterministic Omega-Automata and Star-Free Languages\n      5 sections · 17 topics\n    \n    \n      Chapter 10\n      Tree Languages and Tree Automata\n      4 sections · 20 topics\n    \n    \n      Chapter 11\n      Linear Temporal Logic\n      8 sections · 26 topics\n    \n    \n      Chapter 12\n      LTL Model Checking and Fairness\n      3 sections · 7 topics\n    \n    \n      Chapter 13\n      CTL and Symbolic Model Checking\n      6 sections · 20 topics\n    \n    \n      Chapter 14\n      Learning Regular Languages\n      5 sections · 15 topics\n    \n    \n      Chapter 15\n      Security Protocol Verification with Tamarin\n      5 sections · 22 topics"
   },
   {
     "objectID": "notebooks/02-nfa-reachable-states.html",
@@ -422,16 +814,23 @@
   {
     "objectID": "notebooks/10-model-checking.html",
     "href": "notebooks/10-model-checking.html",
-    "title": "Notebook 9: Model Checking Basics",
+    "title": "Notebook 10: The Arbiter Kripke Structure",
     "section": "",
-    "text": "Model Checking is the core automated technique studied in Verification and Validation. It is the algorithmic process of determining whether a given finite-state model of a system meets a given formal specification (typically expressed in temporal logic like LTL or CTL).\n\n\nThe theoretical foundations of model checking algorithms, state-space explosion problems, and practical approaches are detailed in the course notes.\n\n\n\nKripke Structures & Transition Systems: Modeling hardware and software systems.\nAutomata-Theoretic Approach: Intersecting the system model with the negation of the specification automaton.\nOn-the-fly Verification: Checking properties without building the entire state space upfront.\nComplexity: Why model checking is computationally hard (PSPACE-complete for LTL) and how abstractions help.\n\n\n[!TIP] Read the full chapter in the PDF\nFor a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes.  Download the Full Lecture Notes (PDF)"
+    "text": "This notebook is the interactive twin of the arbiter running example from Chapter 7 (Reactive Systems, SMV, and Explicit Model Checking). The arbiter has two state variables, request and state ∈ {Ready, Busy}, giving four states:\n\nRF — Ready, no request\nRT — Ready, request pending\nBF — Busy, no request\nBT — Busy, request (still) pending\n\nWe check the property \\(\\mathbf{AG}(\\texttt{request} \\to \\mathbf{AX}(\\texttt{state}=\\textsc{Busy}))\\): whenever a request is present, the very next state must be Busy.\nThe buggy model is the one from the lecture notes: the SMV case statement’s catch-all TRUE branch leaves the arbiter free to go anywhere, so it can silently drop a pending request. The fixed model adds one clause — if already Busy with a request pending, stay Busy — which is exactly the fix from the chapter’s exercises.\n\n\nClick any highlighted (reachable) state to take that transition. The property monitor tracks whether \\(\\mathbf{AG}(\\texttt{request} \\to \\mathbf{AX}(\\texttt{state}=\\textsc{Busy}))\\) has been violated so far along your run — once violated, it stays violated (violations are safety bugs: no future step can undo them, exactly def:safety from the chapter).\n\n\n\n  \n    \n      Buggy model\n      Fixed model\n    \n    Reset\n    Replay the chapter's counterexample\n  \n\n  \n    \n      \n      \n        \n          \n            \n          \n          \n            \n          \n        \n        \n        \n        \n      \n      \n    \n\n    \n      \n      \n      \n      \n    \n  \n\n\n\n\n\n\n\nReproduce the bug manually. Starting from RF, click RT (a request arrives), then BT (the arbiter correctly goes Busy), then RT again. The monitor should flag a violation on that last click—this is exactly the counterexample \\(\\textsf{RF} \\to \\textsf{RT} \\to \\textsf{BT} \\to \\textsf{RT}\\) from the chapter (ex:arbiter-safety-ce).\nSwitch to the fixed model and try to reproduce the same violation from BT. You can’t—BT’s only legal successors are BF and BT itself, so a pending request can never be silently dropped.\nTry an existential query by hand. Can you reach BF from RF without ever passing through a state with request = TRUE? (Yes—RF → BF directly, in one click, in either model.) That is the same shape of question as \\(\\mathbf{EF}(\\texttt{state}=\\textsc{Busy} \\land \\neg\\texttt{request})\\) from the chapter’s existential-model-checking example, and here you can find the witness yourself.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the formal definitions (Kripke structures, safety vs. liveness, counterexamples, SMV syntax) that this notebook operationalizes, see Chapter 7 of the lecture notes.  Download the Full Lecture Notes (PDF)"
   },
   {
-    "objectID": "notebooks/10-model-checking.html#course-materials-for-model-checking",
-    "href": "notebooks/10-model-checking.html#course-materials-for-model-checking",
-    "title": "Notebook 9: Model Checking Basics",
+    "objectID": "notebooks/10-model-checking.html#widget-click-through-the-states",
+    "href": "notebooks/10-model-checking.html#widget-click-through-the-states",
+    "title": "Notebook 10: The Arbiter Kripke Structure",
     "section": "",
-    "text": "The theoretical foundations of model checking algorithms, state-space explosion problems, and practical approaches are detailed in the course notes.\n\n\n\nKripke Structures & Transition Systems: Modeling hardware and software systems.\nAutomata-Theoretic Approach: Intersecting the system model with the negation of the specification automaton.\nOn-the-fly Verification: Checking properties without building the entire state space upfront.\nComplexity: Why model checking is computationally hard (PSPACE-complete for LTL) and how abstractions help.\n\n\n[!TIP] Read the full chapter in the PDF\nFor a deep dive into the algorithms that power modern formal verification tools, please refer to the official notes.  Download the Full Lecture Notes (PDF)"
+    "text": "Click any highlighted (reachable) state to take that transition. The property monitor tracks whether \\(\\mathbf{AG}(\\texttt{request} \\to \\mathbf{AX}(\\texttt{state}=\\textsc{Busy}))\\) has been violated so far along your run — once violated, it stays violated (violations are safety bugs: no future step can undo them, exactly def:safety from the chapter).\n\n\n\n  \n    \n      Buggy model\n      Fixed model\n    \n    Reset\n    Replay the chapter's counterexample"
+  },
+  {
+    "objectID": "notebooks/10-model-checking.html#what-to-try",
+    "href": "notebooks/10-model-checking.html#what-to-try",
+    "title": "Notebook 10: The Arbiter Kripke Structure",
+    "section": "",
+    "text": "Reproduce the bug manually. Starting from RF, click RT (a request arrives), then BT (the arbiter correctly goes Busy), then RT again. The monitor should flag a violation on that last click—this is exactly the counterexample \\(\\textsf{RF} \\to \\textsf{RT} \\to \\textsf{BT} \\to \\textsf{RT}\\) from the chapter (ex:arbiter-safety-ce).\nSwitch to the fixed model and try to reproduce the same violation from BT. You can’t—BT’s only legal successors are BF and BT itself, so a pending request can never be silently dropped.\nTry an existential query by hand. Can you reach BF from RF without ever passing through a state with request = TRUE? (Yes—RF → BF directly, in one click, in either model.) That is the same shape of question as \\(\\mathbf{EF}(\\texttt{state}=\\textsc{Busy} \\land \\neg\\texttt{request})\\) from the chapter’s existential-model-checking example, and here you can find the witness yourself.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the formal definitions (Kripke structures, safety vs. liveness, counterexamples, SMV syntax) that this notebook operationalizes, see Chapter 7 of the lecture notes.  Download the Full Lecture Notes (PDF)"
   },
   {
     "objectID": "notebooks/12-buchi-runner.html",
@@ -460,6 +859,328 @@
     "title": "Notebook 14: Büchi Emptiness — The Lasso Test",
     "section": "",
     "text": "Select a Büchi automaton and click Step \\(\\rightarrow\\) to search for a reachable accepting state on a cycle.\n\n\n\n  \n    \n      1. \"save infinitely often\" (NON-EMPTY)\n      2. \"Thomas parity example\" (NON-EMPTY)\n      3. \"Unreachable accept state\" (EMPTY)\n    \n  \n  \n  \n    Step →\n    Reset"
+  },
+  {
+    "objectID": "notebooks/16-dba-vs-nba-gap.html",
+    "href": "notebooks/16-dba-vs-nba-gap.html",
+    "title": "Notebook 16: The DBA vs NBA Gap",
+    "section": "",
+    "text": "For finite words, complementing a DFA is a one-line trick: complete it with a sink and swap accepting / non-accepting states. This fails for Büchi automata for two reasons — nondeterminism (no unique run to reverse) and, more deeply, that deterministic Büchi automata (DBA) recognise strictly fewer languages than nondeterministic ones (NBA).\nThe running witness is the complement of “infinitely many saves”. After the initial open, over \\(\\Gamma=\\{\\texttt{edit},\\texttt{save},\\texttt{idle}\\}\\): \\[ \\overline{L}=\\{\\alpha : \\text{only finitely many } \\texttt{save}\\text{ occur}\\}. \\]\nThis notebook shows both halves of the gap: an NBA does recognise \\(\\overline L\\), and a natural DBA attempt provably fails.\n\n\n\nThe NBA guesses the position after which no more save ever arrives, then jumps to an accepting component that reads only edit/idle (a save there kills the run). A word \\(u\\cdot v^{\\omega}\\) has only finitely many saves iff its period \\(v\\) contains no save.\n\n\n\n  \n    \n      Preset\n      \n        open · (edit idle)ω — saves stop\n        open · (edit save)ω — saves forever\n        open save save · (idle)ω — saves stop\n        open · (save idle)ω — saves forever\n      \n    \n    Stem (u)\n    Period (v)\n    Check\n  \n  \n    \n    \n    \n  \n\n\n\n\n\n\n\nHere is the most natural DBA one might try for \\(\\overline L\\) — call it \\(\\mathcal D\\). It accepts whenever it keeps seeing non-save symbols:\n\n\\(d_0\\) (accepting): reading edit or idle stays / returns here.\n\\(d_1\\) (non-accepting): reading save goes here.\n\n\\(\\mathcal D\\) visits its accepting state \\(d_0\\) infinitely often exactly when edit/idle occur infinitely often — which is not the same as “finitely many saves”. The button below feeds \\(\\mathcal D\\) the adversarial word \\((\\texttt{save}\\ \\texttt{idle})^{\\omega}\\): it has infinitely many saves (so it is not in \\(\\overline L\\)), yet \\(\\mathcal D\\) accepts it.\n\n  \n    Run 𝒟 on (save idle)ω\n    the general obstruction: delay each save past the next visit to d0\n  \n  \n    \n    \n    \n  \n\n\n\nThe lesson is not that complementation is impossible — \\(\\omega\\)-regular languages are closed under complement. It is that the finite-word state-swapping shortcut does not transfer. The rest of the chapter builds the complement algebraically, via the congruence \\(\\approx_{\\mathcal A}\\) and a Ramsey decomposition — see Notebook 21 and Notebook 23."
+  },
+  {
+    "objectID": "notebooks/16-dba-vs-nba-gap.html#widget-1-the-nba-recognises-overlinel",
+    "href": "notebooks/16-dba-vs-nba-gap.html#widget-1-the-nba-recognises-overlinel",
+    "title": "Notebook 16: The DBA vs NBA Gap",
+    "section": "",
+    "text": "The NBA guesses the position after which no more save ever arrives, then jumps to an accepting component that reads only edit/idle (a save there kills the run). A word \\(u\\cdot v^{\\omega}\\) has only finitely many saves iff its period \\(v\\) contains no save.\n\n\n\n  \n    \n      Preset\n      \n        open · (edit idle)ω — saves stop\n        open · (edit save)ω — saves forever\n        open save save · (idle)ω — saves stop\n        open · (save idle)ω — saves forever\n      \n    \n    Stem (u)\n    Period (v)\n    Check"
+  },
+  {
+    "objectID": "notebooks/16-dba-vs-nba-gap.html#widget-2-any-deterministic-attempt-fails",
+    "href": "notebooks/16-dba-vs-nba-gap.html#widget-2-any-deterministic-attempt-fails",
+    "title": "Notebook 16: The DBA vs NBA Gap",
+    "section": "",
+    "text": "Here is the most natural DBA one might try for \\(\\overline L\\) — call it \\(\\mathcal D\\). It accepts whenever it keeps seeing non-save symbols:\n\n\\(d_0\\) (accepting): reading edit or idle stays / returns here.\n\\(d_1\\) (non-accepting): reading save goes here.\n\n\\(\\mathcal D\\) visits its accepting state \\(d_0\\) infinitely often exactly when edit/idle occur infinitely often — which is not the same as “finitely many saves”. The button below feeds \\(\\mathcal D\\) the adversarial word \\((\\texttt{save}\\ \\texttt{idle})^{\\omega}\\): it has infinitely many saves (so it is not in \\(\\overline L\\)), yet \\(\\mathcal D\\) accepts it.\n\n  \n    Run 𝒟 on (save idle)ω\n    the general obstruction: delay each save past the next visit to d0\n  \n  \n    \n    \n    \n  \n\n\n\nThe lesson is not that complementation is impossible — \\(\\omega\\)-regular languages are closed under complement. It is that the finite-word state-swapping shortcut does not transfer. The rest of the chapter builds the complement algebraically, via the congruence \\(\\approx_{\\mathcal A}\\) and a Ramsey decomposition — see Notebook 21 and Notebook 23."
+  },
+  {
+    "objectID": "notebooks/18-buchi-intersection-product.html",
+    "href": "notebooks/18-buchi-intersection-product.html",
+    "title": "Notebook 18: Büchi Closure — Union & Intersection",
+    "section": "",
+    "text": "\\(\\omega\\)-regular languages are closed under both operations, but the two constructions are not symmetric.\n\nUnion is trivial: put the two automata side by side (a disjoint sum). A word is accepted iff some component accepts it. No new idea is needed.\nIntersection cannot just “accept when both accept”: each automaton has its own accepting set, and a single Büchi condition must witness that \\(F_1\\) and \\(F_2\\) are each hit infinitely often. The fix is a two-phase product: track a phase flag that says which accepting set we are currently waiting for, flip \\(1\\to2\\) when we see \\(F_1\\) and \\(2\\to1\\) when we see \\(F_2\\), and make the \\(2\\to1\\) flip the accepting event. Completing the cycle infinitely often forces both sets to recur.\n\nThe running example over \\(\\Sigma=\\{a,b\\}\\): \\[ L_a = \\text{\"infinitely many } a\\text{\"}, \\qquad L_b = \\text{\"infinitely many } b\\text{\"}, \\qquad L_a\\cap L_b = \\text{\"both infinitely often\"}. \\]\nEach component is a one-state Büchi automaton that “checkpoints” on its letter. In the product, \\(\\alpha=u\\cdot v^{\\omega}\\) is accepted iff the period \\(v\\) contains both an \\(a\\) and a \\(b\\).\n\n\n\n\n\n\n  \n    \n      Operation\n      ∩ intersection∪ union\n    \n    Stem (u)\n    Period (v)\n    Run\n  \n\n  \n    \n    \n    \n  \n\n\n\nTry v = a (only a’s forever): the intersection rejects — the phase reaches \\(2\\) waiting for a \\(b\\) that never returns, so the checkpoint fires at most once. This asymmetry is exactly why intersection needs the phase flag while union does not. The same product underlies the reduction of model checking to emptiness — see Notebook 14."
+  },
+  {
+    "objectID": "notebooks/18-buchi-intersection-product.html#widget-the-two-phase-product",
+    "href": "notebooks/18-buchi-intersection-product.html#widget-the-two-phase-product",
+    "title": "Notebook 18: Büchi Closure — Union & Intersection",
+    "section": "",
+    "text": "Operation\n      ∩ intersection∪ union\n    \n    Stem (u)\n    Period (v)\n    Run\n  \n\n  \n    \n    \n    \n  \n\n\n\nTry v = a (only a’s forever): the intersection rejects — the phase reaches \\(2\\) waiting for a \\(b\\) that never returns, so the checkpoint fires at most once. This asymmetry is exactly why intersection needs the phase flag while union does not. The same product underlies the reduction of model checking to emptiness — see Notebook 14."
+  },
+  {
+    "objectID": "notebooks/20-finite-index-congruence.html",
+    "href": "notebooks/20-finite-index-congruence.html",
+    "title": "Notebook 20: Finite-Index Congruences & Saturation",
+    "section": "",
+    "text": "The algebraic route to complementation partitions finite words into finitely many classes, then describes infinite words by products of classes. The whole idea rests on two everyday intuitions.\nA congruence \\(\\equiv\\) on \\(\\Sigma^{*}\\) is an equivalence relation that is respected by concatenation: if \\(u\\equiv u'\\) and \\(w\\equiv w'\\) then \\(uw\\equiv u'w'\\). It has finite index if it has finitely many classes. The simplest non-trivial example — think even/odd — is parity of length over \\(\\Sigma=\\{a,b\\}\\): \\[ u \\equiv_{\\mathrm{par}} u' \\iff |u|\\equiv|u'| \\pmod 2. \\] Two classes: E (even length, including \\(\\varepsilon\\)) and O (odd length). The symbols read are irrelevant; only length parity matters.\nA language \\(L\\) is saturated by \\(\\equiv\\) if it is a union of whole classes — equivalently, \\(u\\equiv u'\\) never separates a member from a non-member. Saturation is exactly the property that lets us complement by flipping which classes we keep.\n\n\n\nType two words. Each gets a class; their concatenation lands in the class predicted by the class arithmetic (E acts like \\(0\\), O like \\(1\\), modulo \\(2\\)) — never depending on which letters were used.\n\n\n\n  \n    Word u\n    Word w\n    Concatenate\n  \n  \n    \n    \n\n\n\n·\nE\nO\n\n\nE\nE\nO\n\n\nO\nO\nE\n\n\n\n\n    Class of a word = parity of its length. The table is just addition mod 2 — that concatenation respects it is what makes ≡par a congruence.\n  \n\n\n\n\n\n\n\nA language is saturated iff every class lies entirely inside or entirely outside it. The widget probes each class with two representatives; if one is in \\(L\\) and the other is not, the class is split and \\(L\\) is not saturated by \\(\\equiv_{\\mathrm{par}}\\).\n\n  \n    \n      Language L\n      \n        L = words of even length\n        L = words of odd length\n        L = words containing at least one a\n        L = words of length ≥ 3\n      \n    \n  \n  \n\n\n\nParity is a toy congruence — it only saturates length-parity languages. The chapter’s real congruence, \\(\\approx_{\\mathcal A}\\), is much finer: it remembers which states an automaton can traverse on a word, and it saturates the language of any Büchi automaton. That is the subject of Notebook 21."
+  },
+  {
+    "objectID": "notebooks/20-finite-index-congruence.html#widget-1-classes-and-concatenation",
+    "href": "notebooks/20-finite-index-congruence.html#widget-1-classes-and-concatenation",
+    "title": "Notebook 20: Finite-Index Congruences & Saturation",
+    "section": "",
+    "text": "Type two words. Each gets a class; their concatenation lands in the class predicted by the class arithmetic (E acts like \\(0\\), O like \\(1\\), modulo \\(2\\)) — never depending on which letters were used.\n\n\n\n  \n    Word u\n    Word w\n    Concatenate\n  \n  \n    \n    \n\n\n\n·\nE\nO\n\n\nE\nE\nO\n\n\nO\nO\nE\n\n\n\n\n    Class of a word = parity of its length. The table is just addition mod 2 — that concatenation respects it is what makes ≡par a congruence."
+  },
+  {
+    "objectID": "notebooks/20-finite-index-congruence.html#widget-2-is-l-saturated",
+    "href": "notebooks/20-finite-index-congruence.html#widget-2-is-l-saturated",
+    "title": "Notebook 20: Finite-Index Congruences & Saturation",
+    "section": "",
+    "text": "A language is saturated iff every class lies entirely inside or entirely outside it. The widget probes each class with two representatives; if one is in \\(L\\) and the other is not, the class is split and \\(L\\) is not saturated by \\(\\equiv_{\\mathrm{par}}\\).\n\n  \n    \n      Language L\n      \n        L = words of even length\n        L = words of odd length\n        L = words containing at least one a\n        L = words of length ≥ 3\n      \n    \n  \n  \n\n\n\nParity is a toy congruence — it only saturates length-parity languages. The chapter’s real congruence, \\(\\approx_{\\mathcal A}\\), is much finer: it remembers which states an automaton can traverse on a word, and it saturates the language of any Büchi automaton. That is the subject of Notebook 21."
+  },
+  {
+    "objectID": "notebooks/22-position-merge.html",
+    "href": "notebooks/22-position-merge.html",
+    "title": "Notebook 22: Merging Positions & Persistence",
+    "section": "",
+    "text": "The Ramsey decomposition needs a second finite-index equivalence, this time on the positions of an \\(\\omega\\)-word. Fix a congruence \\(\\equiv\\) on finite words. For positions \\(k,k'\\) and a later position \\(m&gt;\\max\\{k,k'\\}\\), say \\(k\\) and \\(k'\\) merge at \\(m\\), written \\(k\\mathrel{\\widetilde{=}}_{\\alpha,m}k'\\), if the two segments reaching \\(m\\) agree: \\[ \\alpha(k,m)\\ \\equiv\\ \\alpha(k',m). \\]\nThe stopping point \\(m\\) is ours to choose; the same two positions may fail to merge at one \\(m\\) and succeed at a later one. But persistence says: once merged, always merged.\nWe illustrate with the smallest possible congruence — parity of length \\(\\equiv_{\\mathrm{par}}\\) — on the word from the chapter figure, \\(\\alpha = b\\,a\\,b\\,c\\,c\\,a\\,b\\,c\\cdots\\). Since \\(\\equiv_{\\mathrm{par}}\\) ignores symbols, \\(\\alpha(k,m)\\) and \\(\\alpha(k',m)\\) have lengths \\(m-k\\) and \\(m-k'\\); they share parity iff \\(k\\) and \\(k'\\) have the same parity as natural numbers. (With a richer congruence like \\(\\approx_{\\mathcal A}\\), merging becomes a genuine, symbol-dependent event.)\n\n\n\n\n\n\n  \n    Position k\n    Position k′\n  \n  \n    \n    \n  \n\n\n\nThe default choice \\(k=1\\), \\(k'=3\\) reproduces the chapter’s figure: the segments \\(\\alpha(1,4)\\) and \\(\\alpha(3,4)\\) have lengths \\(3\\) and \\(1\\), both odd, so they merge at \\(m=4\\). For the parity congruence every even position merges with every even position and every odd with every odd — no real “sifting” is needed. The general Ramsey argument (Notebook 23) runs the same pigeonhole on a richer congruence, where finding an infinite pairwise-merging set takes genuine work."
+  },
+  {
+    "objectID": "notebooks/22-position-merge.html#widget-pick-two-positions",
+    "href": "notebooks/22-position-merge.html#widget-pick-two-positions",
+    "title": "Notebook 22: Merging Positions & Persistence",
+    "section": "",
+    "text": "Position k\n    Position k′\n  \n  \n    \n    \n  \n\n\n\nThe default choice \\(k=1\\), \\(k'=3\\) reproduces the chapter’s figure: the segments \\(\\alpha(1,4)\\) and \\(\\alpha(3,4)\\) have lengths \\(3\\) and \\(1\\), both odd, so they merge at \\(m=4\\). For the parity congruence every even position merges with every even position and every odd with every odd — no real “sifting” is needed. The general Ramsey argument (Notebook 23) runs the same pigeonhole on a richer congruence, where finding an infinite pairwise-merging set takes genuine work."
+  },
+  {
+    "objectID": "notebooks/24-saturation-complement.html",
+    "href": "notebooks/24-saturation-complement.html",
+    "title": "Notebook 24: Saturation → the Complement Automaton",
+    "section": "",
+    "text": "All the pieces now combine. Because \\(\\approx_{\\mathcal A}\\) is a finite-index congruence that saturates \\(L(\\mathcal A)\\), and the Ramsey decomposition writes every \\(\\omega\\)-word as some class product \\(U\\,V^{\\omega}\\) (with \\(V\\) idempotent), each such product is entirely inside \\(L(\\mathcal A)\\) or entirely disjoint from it. The complement is then just the union of the disjoint ones: \\[ \\overline{L(\\mathcal A)} \\;=\\; \\bigcup\\bigl\\{\\,U\\,V^{\\omega} \\;:\\; U\\,V^{\\omega}\\cap L(\\mathcal A)=\\emptyset \\,\\bigr\\}, \\] a finite union. The classes can be enumerated, their products formed, and each intersection with \\(L(\\mathcal A)\\) tested for emptiness — an effective construction.\nWe test products on the chapter’s automaton \\(\\mathcal A\\) (accepts “\\(ab\\) infinitely often, separated by \\(c\\)’s”). Pick a prefix \\(U\\) and an idempotent block \\(V\\); the widget runs the representative \\(u\\cdot v^{\\omega}\\) and reports whether that whole product sits in \\(L\\) or in \\(\\overline{L}\\).\n\nA note on the running example. The chapter’s Example on saturation states \\(\\alpha=a(abc)^{\\omega}\\) is accepted with \\(U=[a]\\). On the deterministic \\(\\mathcal A\\) that run actually dies — after \\(a\\) the automaton is in \\(s_1\\), which has no outgoing \\(a\\). The correct accepted witness is \\(ab(abc)^{\\omega}\\), i.e. \\(U=[ab]\\) (the prefix must reach \\(s_2\\), where the \\(abc\\)-block loops). The widget below uses that verified witness.\n\n\n\n\n\n\n\n  \n    Prefix u (class U)\n    Block v (class V)\n    \n      Preset\n      \n        U=[ab], V=[abc]\n        U=[ab], V=[c]\n        U=[a], V=[abc]\n        U=[ε], V=[abc]\n        U=[ε], V=[c]\n      \n    \n    Classify\n  \n\n  \n    \n    \n    \n  \n\n  \n    \n    \n    \n  \n\n\n\nThis is the whole complementation theorem in miniature: no state-flipping trick (that failed back in Notebook 16), but a finite algebra of class products, each decided in or out by an emptiness test, with the “out” ones assembled into a Büchi automaton for \\(\\overline{L(\\mathcal A)}\\). Decidable inclusion — and hence \\(\\omega\\)-regular model checking — follows."
+  },
+  {
+    "objectID": "notebooks/24-saturation-complement.html#widget-classify-class-products",
+    "href": "notebooks/24-saturation-complement.html#widget-classify-class-products",
+    "title": "Notebook 24: Saturation → the Complement Automaton",
+    "section": "",
+    "text": "Prefix u (class U)\n    Block v (class V)\n    \n      Preset\n      \n        U=[ab], V=[abc]\n        U=[ab], V=[c]\n        U=[a], V=[abc]\n        U=[ε], V=[abc]\n        U=[ε], V=[c]\n      \n    \n    Classify\n  \n\n  \n    \n    \n    \n  \n\n  \n    \n    \n    \n  \n\n\n\nThis is the whole complementation theorem in miniature: no state-flipping trick (that failed back in Notebook 16), but a finite algebra of class products, each decided in or out by an emptiness test, with the “out” ones assembled into a Büchi automaton for \\(\\overline{L(\\mathcal A)}\\). Decidable inclusion — and hence \\(\\omega\\)-regular model checking — follows."
+  },
+  {
+    "objectID": "notebooks/26-fairness-sandbox.html",
+    "href": "notebooks/26-fairness-sandbox.html",
+    "title": "Notebook 26: Producer–Consumer Fairness Sandbox",
+    "section": "",
+    "text": "Chapter 7’s asynchronous producer–consumer example (ex:prod-cons) has a two-cell shared buffer. At each step, the scheduler runs at most one of the two processes; the other remains idle. This notebook lets you be the scheduler.\n\nProducer fills the leftmost empty cell.\nConsumer always empties cell 0; it keeps cell 1 only if cell 0 was non-empty just before running.\n\nThe property to watch is \\(\\mathbf{G}(\\mathit{full} \\to \\mathbf{F}(\\mathit{empty\\_cell}))\\): whenever the buffer is full, some cell is eventually freed. Without fairness, this is false—and you can build the exact schedule that breaks it.\n\n\n\n  \n    Run Producer\n    Run Consumer\n    Run Producer ×10\n    Reset\n  \n\n  \n    \n      \n      \n      \n      \n    \n    \n      \n      \n    \n  \n\n\n\n\n\n\nFill the buffer, then click “Run Producer ×10”. The buffer is already full, so every extra producer step changes nothing—but the warning box still fires, because consumer.running stays enabled (the buffer has a non-empty cell) and is never taken. That is exactly the justice violation from the chapter’s fairness example: continued forever, this schedule refutes \\(\\mathbf{G}(\\mathit{full} \\to \\mathbf{F}(\\mathit{empty\\_cell}))\\).\nAlternate Producer/Consumer by hand. The buffer should never sit full for long, and the warning box should stay green.\nNotice what the badges track. “Producer enabled” and “consumer enabled” are exactly the formal Enabled predicate from the chapter’s fairness definitions (def:enabled)—a process being enabled is a fact about the current state, independent of whether the scheduler actually picks it.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the formal definitions of enabled/taken states, justice, and compassion that this sandbox visualizes, see Chapter 7, §“Fairness Constraints”.  Download the Full Lecture Notes (PDF)"
+  },
+  {
+    "objectID": "notebooks/26-fairness-sandbox.html#what-to-try",
+    "href": "notebooks/26-fairness-sandbox.html#what-to-try",
+    "title": "Notebook 26: Producer–Consumer Fairness Sandbox",
+    "section": "",
+    "text": "Fill the buffer, then click “Run Producer ×10”. The buffer is already full, so every extra producer step changes nothing—but the warning box still fires, because consumer.running stays enabled (the buffer has a non-empty cell) and is never taken. That is exactly the justice violation from the chapter’s fairness example: continued forever, this schedule refutes \\(\\mathbf{G}(\\mathit{full} \\to \\mathbf{F}(\\mathit{empty\\_cell}))\\).\nAlternate Producer/Consumer by hand. The buffer should never sit full for long, and the warning box should stay green.\nNotice what the badges track. “Producer enabled” and “consumer enabled” are exactly the formal Enabled predicate from the chapter’s fairness definitions (def:enabled)—a process being enabled is a fact about the current state, independent of whether the scheduler actually picks it.\n\n\n[!TIP] Read the full chapter in the PDF\nFor the formal definitions of enabled/taken states, justice, and compassion that this sandbox visualizes, see Chapter 7, §“Fairness Constraints”.  Download the Full Lecture Notes (PDF)"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-01",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-01",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Automi finiti e linguaggi regolari",
+    "text": "Automi finiti e linguaggi regolari\n\n01 / 31 · pp. 9-10\n\nUna sequenza di eventi descrive un comportamento. Un automa decide se quella sequenza soddisfa una proprietà.\nPercorso: parole e linguaggi → DFA → NFA → costruzione per sottoinsiemi.\nObiettivo: simulare un automa e spiegare perché DFA e NFA riconoscono gli stessi linguaggi su parole finite."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-02",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-02",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Alfabeto e parola",
+    "text": "Alfabeto e parola\n\n02 / 31 · §1.1, pp. 10-11\n\nUn alfabeto è un insieme finito non vuoto di simboli.\nUna parola è una sequenza finita di simboli dell’alfabeto.\n\\[ A=\\{0,1\\},\\qquad w=0101,\\qquad |w|=4 \\]\nLa parola vuota \\(\\varepsilon\\) ha lunghezza zero. Un evento come apri può essere un unico simbolo: non va confuso con i suoi caratteri."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-03",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-03",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Linguaggi su un alfabeto",
+    "text": "Linguaggi su un alfabeto\n\n03 / 31 · §1.1, p. 11\n\n\\[ L\\subseteq A^* \\]\nL’alfabeto stabilisce cosa possiamo scrivere. Il linguaggio stabilisce quali parole soddisfano la proprietà scelta.\nEsempio: parole binarie che terminano con 01.\n01, 101, 0001 appartengono al linguaggio; ε, 10, 011 no."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-04",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-04",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Concatenazione di parole e linguaggi",
+    "text": "Concatenazione di parole e linguaggi\n\n04 / 31 · §1.1, p. 11\n\n\\[ u=01,\\quad v=1,\\qquad uv=011,\\quad vu=101 \\]\n\\[ |uv|=|u|+|v|,\\qquad \\varepsilon w=w\\varepsilon=w \\]\nPer due linguaggi, \\(L_1L_2\\) contiene le concatenazioni di una parola del primo con una del secondo.\nDa distinguere: \\(L\\{\\varepsilon\\}=L\\), mentre \\(L\\varnothing=\\varnothing\\)."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-05",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-05",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Stella di Kleene e caso vuoto",
+    "text": "Stella di Kleene e caso vuoto\n\n05 / 31 · §1.1, p. 12\n\n\\[ W^0=\\{\\varepsilon\\},\\qquad W^*=\\bigcup_{n\\geq0}W^n \\]\n\\(W^*\\) permette zero o più blocchi; \\(W^+\\) richiede almeno un blocco.\nPer \\(W=\\{01\\}\\): ε, 01, 0101, … appartengono a \\(W^*\\).\nAttenzione: se \\(\\varepsilon\\in W\\), anche \\(W^+\\) contiene \\(\\varepsilon\\). Un blocco non è necessariamente non vuoto."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-06",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-06",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Stati e memoria finita",
+    "text": "Stati e memoria finita\n\n06 / 31 · §1.2, p. 12\n\nPer sapere se il numero di 1 è pari, non serve memorizzare la parola né il conteggio esatto.\nBastano due situazioni:\n\npari: finora un numero pari di 1;\ndispari: finora un numero dispari di 1.\n\nLeggere 1 cambia la parità; leggere 0 la conserva."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-07",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-07",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Definizione di automa deterministico",
+    "text": "Definizione di automa deterministico\n\n07 / 31 · §1.2, p. 13\n\n\\[ \\mathcal A=(Q,A,\\delta,q_0,F) \\]\n\n\\(Q\\): insieme finito degli stati; \\(A\\): alfabeto.\n\\(q_0\\in Q\\): stato iniziale; \\(F\\subseteq Q\\): stati accettanti.\n\\(\\delta:Q\\times A\\to Q\\): una scelta determinata per ogni coppia stato-simbolo.\n\nLo stato iniziale non deve essere necessariamente accettante."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-08",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-08",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "DFA per la parità",
+    "text": "DFA per la parità\n\n08 / 31 · §1.2, pp. 12-13\n\nLa freccia esterna indica lo stato iniziale. Il doppio cerchio indica uno stato accettante.\nPer ogni stato devono esserci le transizioni per entrambi i simboli 0 e 1.\n\nDFA per la parità — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-09",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-09",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Funzione di transizione estesa",
+    "text": "Funzione di transizione estesa\n\n09 / 31 · §1.2, p. 14\n\n\\[ \\widehat\\delta(q,\\varepsilon)=q \\]\n\\[ \\widehat\\delta(q,wx)=\\delta(\\widehat\\delta(q,w),x) \\]\nUna parola di lunghezza \\(n\\) genera una run con \\(n+1\\) stati, contando quello iniziale.\nLa decisione riguarda lo stato dopo tutta la parola, non uno stato visitato a metà.\nw=\"10110\"\nrun=dfa_run(PARITY,0,w)\nprint(\"Parola:\",w)\nprint(\"Run:\",\" → \".join(\"pari\" if q==0 else \"dispari\" for q in run))\nprint(\"Accettata:\",run[-1]==0)\nParola: 10110\nRun: pari → dispari → dispari → pari → dispari → dispari\nAccettata: False"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-10",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-10",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulazione DFA",
+    "text": "Simulazione DFA\n\n10 / 31 · §1.2, pp. 12-14\n\nIl modello riconosce le parole con un numero pari di 1.\n\nIn Parola scegli 10110.\nLetti indica quanti simboli sono già stati letti; 0 mostra lo stato iniziale.\nPorta Letti a 1, poi a 2: lo stato passa da dispari a dispari, perché il secondo simbolo è 0.\nA 5 la parola è completa: viene rifiutata.\n\nCambiare parola riporta il cursore a zero.\n\nSimulazione DFA — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-11",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-11",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "DFA per le sessioni di un editor",
+    "text": "DFA per le sessioni di un editor\n\n11 / 31 · §1.2, p. 13\n\nConsideriamo quattro eventi: apri, modifica, salva, chiudi.\nUna sessione completata apre una volta, può modificare e salvare, poi chiude.\nLa memoria necessaria è la fase: prima, aperto, chiuso, errore.\nSolo chiuso è accettante: un editor ancora aperto non è una sessione completata."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-12",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-12",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Tabella completa del monitor",
+    "text": "Tabella completa del monitor\n\n12 / 31 · §1.2, pp. 13-15\n\nOgni cella della tabella definisce il prossimo stato.\nDa errore non si torna a una sessione valida. Anche un evento dopo chiudi porta a errore.\n\nTabella completa del monitor — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-13",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-13",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulazione dell’editor",
+    "text": "Simulazione dell’editor\n\n13 / 31 · §1.2, p. 13\n\nIl modello controlla l’ordine degli eventi dell’editor.\n\nIn Traccia scegli Dopo la chiusura: apri chiudi salva.\nMuovi Letti da 0 a 3: ogni passo consuma un evento intero.\nA 2 lo stato è chiuso: il prefisso è una sessione completata.\nA 3, salva porta a errore: la traccia completa è rifiutata.\n\nLa riga Ultimo passo indica l’evento che ha cambiato lo stato.\n\nSimulazione dell’editor — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-14",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-14",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Transizioni mancanti: lo stato pozzo",
+    "text": "Transizioni mancanti: lo stato pozzo\n\n14 / 31 · §1.2.1, pp. 14-15\n\nUn DFA formale ha una funzione di transizione totale.\nPer completare un disegno parziale, aggiungiamo uno stato non accettante \\(\\bot\\).\nLe transizioni mancanti vanno a \\(\\bot\\); da \\(\\bot\\) ogni simbolo ritorna a \\(\\bot\\).\nNon sostituire una freccia mancante con un autoanello: potresti cambiare il linguaggio."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-15",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-15",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Proprietà di risposta e conteggio esatto",
+    "text": "Proprietà di risposta e conteggio esatto\n\n15 / 31 · §1.2, pp. 13-14\n\nProprietà: ogni 0 deve avere almeno un 1 in una posizione successiva.\nUn solo 1 può risolvere più 0 pendenti: 0001 va bene.\nBasta ricordare nessun obbligo oppure obbligo pendente. Su 0 siamo pendenti; su 1 torniamo senza obblighi.\nQuesta proprietà non richiede di associare un 1 distinto a ogni 0."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-16",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-16",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "NFA: una relazione di transizione",
+    "text": "NFA: una relazione di transizione\n\n16 / 31 · §1.3, pp. 15-16\n\n\\[ \\mathcal N=(Q,A,\\Delta,q_0,F) \\]\nPer una coppia stato-simbolo, \\(\\Delta(q,x)\\) è un insieme di possibili successori: può avere zero, uno o più elementi.\n\\[ \\Delta:Q\\times A\\to 2^Q \\]\nIn questo capitolo consideriamo NFA senza transizioni \\(\\varepsilon\\)."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-17",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-17",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "NFA per il suffisso 01",
+    "text": "NFA per il suffisso 01\n\n17 / 31 · §1.3, p. 17\n\nUn NFA può continuare a leggere in q0 oppure, su 0, iniziare un tentativo in q1.\nDa q1, un 1 porta a q2, accettante. Da q2 non partono transizioni.\nIl tentativo riesce soltanto se la parola termina appena raggiunto q2.\n\nNFA per il suffisso 01 — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-18",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-18",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulare tutti i rami con un insieme",
+    "text": "Simulare tutti i rami con un insieme\n\n18 / 31 · §1.3, pp. 16-17\n\n\\[ S_0=\\{q_0\\},\\qquad S_{i+1}=\\bigcup_{q\\in S_i}\\Delta(q,w_i) \\]\nSu 001, gli insiemi sono:\n{q0} → {q0,q1} → {q0,q1} → {q0,q2}.\nSe due rami raggiungono lo stesso stato, lo registriamo una sola volta.\nw=\"001\"\nprint(\" → \".join(subset_name(s) for s in nfa_run(ENDING,\"q0\",w)))\n{q0} → {q0, q1} → {q0, q1} → {q0, q2}"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-19",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-19",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Simulazione NFA",
+    "text": "Simulazione NFA\n\n19 / 31 · §1.3, pp. 16-17\n\nIl modello riconosce le parole che terminano con 01.\n\nIn Parola scegli 0010 e porta Letti a 3.\nLo stato attuale è l’insieme {q0,q2}: il prefisso 001 è accettante perché contiene q2.\nPorta Letti a 4: rimangono {q0,q1}. La parola completa è rifiutata.\n\nLe parentesi graffe elencano tutti gli stati raggiungibili, non un singolo ramo scelto.\n\nSimulazione NFA — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-20",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-20",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Condizione di accettazione di un NFA",
+    "text": "Condizione di accettazione di un NFA\n\n20 / 31 · §1.3, p. 17\n\n\\[ w\\in L(\\mathcal N)\\quad\\Longleftrightarrow\\quad S_{|w|}\\cap F\\neq\\varnothing \\]\nBasta almeno uno stato finale nell’insieme raggiunto dopo tutta la parola.\nNon è necessario che tutti i rami accettino. Alcuni possono morire o finire in stati non accettanti."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-21",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-21",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Costruzione per sottoinsiemi",
+    "text": "Costruzione per sottoinsiemi\n\n21 / 31 · §1.4, pp. 18-19\n\nNell’NFA del suffisso 01, dopo 00 sono possibili q0 e q1.\nIl DFA li ricorda con un solo stato, chiamato {q0,q1}. Leggendo 1, da q0 si arriva a q0 e da q1 a q2: il nuovo stato del DFA è {q0,q2}.\nIn generale, uno stato del DFA è un insieme \\(S\\) di stati NFA. Su un simbolo \\(x\\), raccogliamo tutti i loro successori:\n\\[ \\delta_D(S,x)=\\bigcup_{q\\in S}\\Delta(q,x) \\]\n\\[ Q_D=2^Q,\\qquad q_{0,D}=\\{q_0\\} \\]"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-22",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-22",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Costruire soltanto gli insiemi raggiungibili",
+    "text": "Costruire soltanto gli insiemi raggiungibili\n\n22 / 31 · §1.4, pp. 18-20\n\nPartiamo da {q0}. Per ogni insieme scoperto, calcoliamo il successore su 0 e su 1.\nAccodiamo un insieme solo se è nuovo. Ci fermiamo quando non restano insiemi da esplorare.\nNel nostro esempio si raggiungono 3 insiemi, su un massimo teorico di 8.\nfor subset in sorted(SUBSETS,key=lambda s:(len(s),sorted(s))):\n    print(subset_name(subset), \"| 0 →\",subset_name(DET[(subset,\"0\")]),\n          \"| 1 →\",subset_name(DET[(subset,\"1\")]),\"| finale:\",subset in DET_FINAL)\nprint(\"Raggiungibili:\",len(SUBSETS),\"/ massimo:\",2**3)\n{q0} | 0 → {q0, q1} | 1 → {q0} | finale: False\n{q0, q1} | 0 → {q0, q1} | 1 → {q0, q2} | finale: False\n{q0, q2} | 0 → {q0, q1} | 1 → {q0} | finale: True\nRaggiungibili: 3 / massimo: 8"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-23",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-23",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Il DFA risultante",
+    "text": "Il DFA risultante\n\n23 / 31 · §1.4, pp. 18-20\n\nI tre stati corrispondono a tre insiemi possibili.\nÈ accettante l’insieme che contiene q2. Le frecce definiscono una funzione totale sul grafo raggiungibile.\n\nIl DFA risultante — figura 1"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-24",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-24",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Dimostrazione: l’invariante",
+    "text": "Dimostrazione: l’invariante\n\n24 / 31 · §1.4, pp. 19-20\n\nDopo 00, l’NFA può trovarsi in q0 oppure in q1; il DFA è nell’unico stato {q0,q1}.\nProprietà da dimostrare: dopo ogni parola \\(w\\), lo stato del DFA coincide con l’insieme di tutti gli stati raggiungibili nell’NFA:\n\\[ \\widehat\\delta_D(\\{q_0\\},w)=\\widehat\\Delta(q_0,w) \\]\nBase: prima di leggere simboli, l’NFA è solo in q0 e il DFA parte da {q0}. Quindi per \\(w=\\varepsilon\\) la proprietà vale.\nResta da provare che ogni nuovo simbolo conserva questa corrispondenza."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-25",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-25",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Dimostrazione: il passo induttivo",
+    "text": "Dimostrazione: il passo induttivo\n\n25 / 31 · §1.4, pp. 19-20\n\nEsempio: abbiamo letto 00 e l’insieme comune è {q0,q1}. Arriva 1:\n\nda q0, su 1, si raggiunge q0;\nda q1, su 1, si raggiunge q2.\n\nL’NFA può quindi trovarsi in {q0,q2}; il DFA passa proprio allo stato {q0,q2}.\nPasso generale: supponiamo che dopo una parola qualsiasi \\(w\\) i due modelli descrivano lo stesso insieme \\(S\\). Sul simbolo successivo \\(x\\), il DFA calcola:\n\\[ \\delta_D(S,x)=\\bigcup_{q\\in S}\\Delta(q,x) \\]\n\nNessuno stato perso: ogni percorso NFA su \\(wx\\) passa da uno stato di \\(S\\) e fa un passo su \\(x\\).\nNessuno stato inventato: ogni successore raccolto prolunga su \\(x\\) un percorso NFA già possibile dopo \\(w\\).\n\nLa corrispondenza vale anche dopo \\(wx\\): questo conclude l’induzione."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-26",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-26",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Equivalenza e numero di stati",
+    "text": "Equivalenza e numero di stati\n\n26 / 31 · §1.4, pp. 18-20\n\nDopo 001, l’insieme raggiunto è {q0,q2}. L’NFA accetta perché q2 è finale; anche il DFA accetta perché il suo stato contiene q2.\nIn generale, rendiamo accettanti esattamente gli stati-insieme che contengono almeno uno stato finale NFA:\n\\[ F_D=\\{S\\subseteq Q:S\\cap F\\neq\\varnothing\\} \\]\nL’invariante garantisce lo stesso insieme dopo ogni parola finita. Con questa regola, i due automi danno sempre lo stesso verdetto: \\(L(D)=L(\\mathcal N)\\).\nCon \\(n\\) stati NFA ci sono al massimo \\(2^n\\) sottoinsiemi. Nel nostro esempio ne raggiungiamo 3 su 8; nel caso peggiore la crescita può essere esponenziale."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-27",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-27",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Definizione di linguaggio regolare",
+    "text": "Definizione di linguaggio regolare\n\n27 / 31 · §1.4.1, pp. 20-21\n\nUn linguaggio è regolare se un DFA lo riconosce. Equivalentemente, può riconoscerlo un NFA.\nIl numero di stati è finito e fissato prima di leggere la parola.\nContrasto: riconoscere lo stesso numero di 0 iniziali e 1 finali richiederebbe distinguere conteggi arbitrariamente grandi.\n\\[ L_=\\{0^n1^n:n\\geq0\\} \\]"
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-28",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-28",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Perché il conteggio esatto non è regolare",
+    "text": "Perché il conteggio esatto non è regolare\n\n28 / 31 · §1.4.1, p. 21\n\nSupponiamo, per assurdo, che un DFA con \\(k\\) stati riconosca \\(L_=\\).\nEsempio di collisione: se 00 e 00000 arrivassero nello stesso stato, aggiungere 11 darebbe lo stesso verdetto. Ma 0011 va accettata e 0000011 va rifiutata.\nUna collisione è inevitabile: i \\(k+1\\) prefissi \\(\\varepsilon,0,\\ldots,0^k\\) devono distribuirsi in soli \\(k\\) stati. Due di essi, \\(0^i\\) e \\(0^j\\) con \\(i&lt;j\\), finiscono nello stesso stato.\nDa quello stato, leggere la stessa continuazione \\(1^i\\) porta allo stesso stato di arrivo. Eppure:\n\\[ 0^i1^i\\in L_=,\\qquad 0^j1^i\\notin L_= \\]\nContraddizione: il DFA dà lo stesso verdetto a due parole che richiedono verdetti diversi."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-29",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-29",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Esercizi di verifica",
+    "text": "Esercizi di verifica\n\n29 / 31 · Esercizi, p. 22\n\n\nSimula la parità su 11010: qual è la run completa?\nNell’editor, a quale evento apri salva chiudi modifica diventa invalida?\nPer l’NFA del suffisso 01, cosa accade su 0010?\nProgetta un DFA che riconosce la sottostringa 10 in qualunque posizione.\n\nMetodo Feynman: spiega a voce perché uno stato DFA può rappresentare un insieme senza introdurre nuove scelte."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-30",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-30",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Soluzioni e controllo degli esempi",
+    "text": "Soluzioni e controllo degli esempi\n\n30 / 31 · Esercizi, p. 22\n\n\nRun della parità: pari → dispari → pari → pari → dispari → dispari; rifiutata.\nmodifica dopo chiudi porta a errore.\nDopo 0010 restano {q0,q1}: nessuno stato finale.\nPer 10: ricorda nessun 1 utile, ultimo simbolo 1, oppure sottostringa già trovata. Quest’ultimo stato è accettante e assorbente.\n\nfor w in words(max_len=7):\n    assert (dfa_run(PARITY,0,w)[-1]==0)==(w.count(\"1\")%2==0)\n    nfa_ok=bool(nfa_run(ENDING,\"q0\",w)[-1]&NFA_FINAL)\n    dfa_ok=dfa_run(DET,DET_START,w)[-1] in DET_FINAL\n    assert nfa_ok==dfa_ok==w.endswith(\"01\")\nassert dfa_run(EDITOR,\"prima\",[\"apri\",\"salva\",\"chiudi\"])[-1]==\"chiuso\"\nassert dfa_run(EDITOR,\"prima\",[\"apri\",\"salva\",\"chiudi\",\"modifica\"])[-1]==\"errore\"\nSUBSTRING={(0,\"0\"):0,(0,\"1\"):1,(1,\"0\"):2,(1,\"1\"):1,(2,\"0\"):2,(2,\"1\"):2}\nfor w in words(max_len=7):\n    assert (dfa_run(SUBSTRING,0,w)[-1]==2)==(\"10\" in w)\nprint(\"Verificati tutti i 255 input binari di lunghezza fino a 7.\")\nprint(\"Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati.\")\nVerificati tutti i 255 input binari di lunghezza fino a 7.\nParità, suffisso 01, determinizzazione e sottostringa 10: controlli passati."
+  },
+  {
+    "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-31",
+    "href": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-31",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Riepilogo del capitolo",
+    "text": "Riepilogo del capitolo\n\n31 / 31 · Riepilogo, p. 22\n\n\nUna parola è un input; un linguaggio è un insieme di input.\nIl DFA conserva un solo stato; l’NFA può avere più run.\nL’NFA accetta se almeno una run termina in uno stato finale.\nLa determinizzazione conserva tutti gli stati possibili in un insieme.\nMemoria finita non significa poter riconoscere ogni linguaggio.\n\nProssimo passo: descrivere i linguaggi regolari con espressioni regolari."
+  },
+  {
+    "objectID": "presentazioni/index.html",
+    "href": "presentazioni/index.html",
+    "title": "Presentazioni",
+    "section": "",
+    "text": "Lezioni di Verification and Validation Techniques, in italiano. Apri un capitolo e usa le frecce per sfogliare le slide; F attiva lo schermo intero e O mostra la panoramica.\n\nCAPITOLO 01Automi finiti e linguaggi regolari31 slide · Apri la presentazione →\nCAPITOLO 02Linguaggi regolari e problemi di decisione43 slide · Apri la presentazione →\n\nPer esplorare gli algoritmi, apri i notebook interattivi."
   },
   {
     "objectID": "proofs/chapter-02/epsilon-removal.html",
@@ -494,6 +1215,6 @@
     "href": "proofs/chapter-04/ramsey-decomposition.html",
     "title": "Ramsey Decomposition Proof Lab",
     "section": "",
-    "text": "Ramsey decomposition\n  Every omega-word alpha belongs to U times V-omega for some classes U, V of a finite-index congruence, with V times V contained in V. Two nested pigeonhole arguments -- one on positions of alpha, one on segment classes -- linked by a persistence property, produce the decomposition even when alpha is not ultimately periodic."
+    "text": "Ramsey decomposition\n  Theorem. Every omega-word alpha belongs to U·V-omega for\n  some classes U, V of a finite-index congruence (=), with V·V contained in V.\n\n  Running example. The automaton has states s0, s1, s2 with\n  F = {s1} and transitions s0-a-&gt;s1, s1-b-&gt;s2, s2-c-&gt;s2 (self-loop),\n  s2-a-&gt;s1. The word alpha = abc·abcc·abccc··· has\n  ever-growing gaps of c's and is not ultimately periodic, yet every block abc^n\n  produces the same behaviour, so alpha decomposes as [epsilon]·V-omega for a\n  single class V.\n\n  Strategy. Build a second finite-index equivalence on the\n  positions of alpha by colouring each pair of positions with the (=)-class of the\n  segment between them. Pigeonhole gives an infinite pairwise-merging set of\n  positions; persistence (congruence applied to a shared future suffix) makes that\n  merge survive forever. A separate pigeonhole on cumulative-prefix classes gives\n  infinitely many prefixes in one class V; persistence then transfers V's class onto\n  each gap, turning them into genuine consecutive V-blocks. One witnessed\n  concatenation transports, via congruence, to V·V contained in V.\n\n  Proof outline.\n  \n    Setup. The congruence (=) compares the finite segments between\n    positions, not positions themselves; so build a relation on positions, colouring\n    a pair (k, k') by the (=)-class of the shared-future segments alpha(k, m) and\n    alpha(k', m).\n    Pigeonhole on positions. That relation inherits finite index from\n    (=), so among any r+1 positions two must merge; run over all of N to get an\n    infinite pairwise-merging sequence k0 &lt; k1 &lt; k2 &lt; ...\n    Persistence. (=) is right-invariant, so appending the shared suffix\n    to both sides shows: once two positions merge at some checkpoint m, they merge at\n    every later checkpoint m' &gt;= m.\n    Pigeonhole on segments. Independently, pigeonhole the cumulative\n    prefixes alpha(k0, ki): infinitely many share one class V. This gives alpha in\n    U·(infinitely many V-prefixes), but not yet consecutive blocks.\n    Thinning. Thin the sequence so that k0, ..., ki all merge at k(i+1);\n    persistence transfers alpha(k0, k(i+1)) in V onto the gap, giving alpha(ki, k(i+1))\n    in V. Every consecutive block lies in V, so alpha in U·V-omega.\n    Idempotence. For one witnessed pair a = alpha(k0, k1), b =\n    alpha(k1, k2) with ab in V, congruence gives xy = ab in V for all x = a, y = b in\n    V; hence V·V contained in V.\n  \n\n  Conclusion. alpha in U·V-omega with V·V contained\n  in V — the Ramsey decomposition, holding even when alpha is not ultimately\n  periodic."
   }
 ]

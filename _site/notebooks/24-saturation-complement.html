@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The payoff: since ≈𝒜 saturates L(𝒜), every class product U·Vω lies wholly inside L or wholly outside it. Collect the ones outside and you have the complement — an effective Büchi complementation.">
+
+<title>NB 24: Büchi Complement by Saturation — VVT UniUD – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-76ba6da3b23429282fd50448dceca657.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<meta property="og:title" content="NB 24: Büchi Complement by Saturation — VVT UniUD">
+<meta property="og:description" content="The payoff: since ≈𝒜 saturates L(𝒜), every class product U·Vω lies wholly inside L or wholly outside it. Collect the ones outside and you have the complement — an effective Büchi complementation.">
+<meta property="og:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="NB 24: Büchi Complement by Saturation — VVT UniUD">
+<meta name="twitter:description" content="The payoff: since ≈𝒜 saturates L(𝒜), every class product U·Vω lies wholly inside L or wholly outside it. Collect the ones outside and you have the complement — an effective Büchi complementation.">
+<meta name="twitter:image" content="https://vvt.aliteia.com/notebooks/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../proofs/index.html"> 
+<span class="menu-text">Proof Labs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../mindmaps/index.html"> 
+<span class="menu-text">Mind Maps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#building-the-complement" id="toc-building-the-complement" class="nav-link active" data-scroll-target="#building-the-complement">Building the Complement</a>
+  <ul class="collapse">
+  <li><a href="#widget-classify-class-products" id="toc-widget-classify-class-products" class="nav-link" data-scroll-target="#widget-classify-class-products">Widget: classify class products</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Notebook 24: Saturation → the Complement Automaton</h1>
+</div>
+
+<div>
+  <div class="description">
+    The payoff: since ≈𝒜 saturates L(𝒜), every class product U·Vω lies wholly inside L or wholly outside it. Collect the ones outside and you have the complement — an effective Büchi complementation.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LearningResource",
+  "name": "Notebook 24: Saturation and the Complement Automaton",
+  "learningResourceType": "Interactive Notebook"
+}
+</script>
+<section id="building-the-complement" class="level1">
+<h1>Building the Complement</h1>
+<p>All the pieces now combine. Because <span class="math inline">\(\approx_{\mathcal A}\)</span> is a finite-index congruence that <strong>saturates</strong> <span class="math inline">\(L(\mathcal A)\)</span>, and the Ramsey decomposition writes every <span class="math inline">\(\omega\)</span>-word as some class product <span class="math inline">\(U\,V^{\omega}\)</span> (with <span class="math inline">\(V\)</span> idempotent), each such product is <strong>entirely inside</strong> <span class="math inline">\(L(\mathcal A)\)</span> or <strong>entirely disjoint</strong> from it. The complement is then just the union of the disjoint ones: <span class="math display">\[ \overline{L(\mathcal A)} \;=\; \bigcup\bigl\{\,U\,V^{\omega} \;:\; U\,V^{\omega}\cap L(\mathcal A)=\emptyset \,\bigr\}, \]</span> a <strong>finite</strong> union. The classes can be enumerated, their products formed, and each intersection with <span class="math inline">\(L(\mathcal A)\)</span> tested for emptiness — an <em>effective</em> construction.</p>
+<p>We test products on the chapter’s automaton <span class="math inline">\(\mathcal A\)</span> (accepts “<span class="math inline">\(ab\)</span> infinitely often, separated by <span class="math inline">\(c\)</span>’s”). Pick a prefix <span class="math inline">\(U\)</span> and an idempotent block <span class="math inline">\(V\)</span>; the widget runs the representative <span class="math inline">\(u\cdot v^{\omega}\)</span> and reports whether that whole product sits in <span class="math inline">\(L\)</span> or in <span class="math inline">\(\overline{L}\)</span>.</p>
+<blockquote class="blockquote">
+<p><strong>A note on the running example.</strong> The chapter’s Example on saturation states <span class="math inline">\(\alpha=a(abc)^{\omega}\)</span> is accepted with <span class="math inline">\(U=[a]\)</span>. On the <em>deterministic</em> <span class="math inline">\(\mathcal A\)</span> that run actually <strong>dies</strong> — after <span class="math inline">\(a\)</span> the automaton is in <span class="math inline">\(s_1\)</span>, which has no outgoing <span class="math inline">\(a\)</span>. The correct accepted witness is <span class="math inline">\(ab(abc)^{\omega}\)</span>, i.e.&nbsp;<span class="math inline">\(U=[ab]\)</span> (the prefix must reach <span class="math inline">\(s_2\)</span>, where the <span class="math inline">\(abc\)</span>-block loops). The widget below uses that verified witness.</p>
+</blockquote>
+<hr>
+<section id="widget-classify-class-products" class="level2">
+<h2 class="anchored" data-anchor-id="widget-classify-class-products">Widget: classify class products</h2>
+<style>
+:root { --sc-primary:#30bced; --sc-bg:#fffaff; --sc-border:#d7d7dc; --sc-text:#050401; --sc-label:#303036; }
+.sc-lab { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:18px; margin:1.2rem 0 2rem; font-family:system-ui,sans-serif; }
+.sc-btn { border:1px solid var(--sc-primary); background:var(--sc-primary); color:var(--sc-text); border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer; font-size:0.97rem; }
+.sc-panel { background:var(--sc-bg); border:1px solid var(--sc-border); border-radius:10px; padding:14px; margin-top:14px; }
+.sc-panel h4 { margin:0 0 10px; font-size:0.9rem; color:var(--sc-label); text-transform:uppercase; letter-spacing:.04em; }
+.input-row { display:flex; gap:16px; margin-bottom:8px; flex-wrap:wrap; align-items:flex-end; }
+.input-group { display:flex; flex-direction:column; gap:4px; }
+.input-group label { font-size:0.85rem; font-weight:700; color:var(--sc-label); text-transform:uppercase; }
+.input-group input, .input-group select { padding:8px 12px; border:1px solid var(--sc-border); border-radius:6px; font-family:ui-monospace,monospace; font-size:1rem; width:120px; }
+.run-strip { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; }
+.run-step { display:flex; flex-direction:column; align-items:center; width:34px; }
+.run-sym { font-size:0.78rem; color:var(--sc-label); font-weight:700; }
+.run-state { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:14px; font-weight:700; font-family:ui-monospace,monospace; font-size:0.74rem; background:#e8e8e8; border:2px solid #999; }
+.run-state.accept { background:#d4f7ef; border-color:#2ec4b6; }
+.run-state.dead { background:#fee8e3; border-color:#fc5130; }
+.verdict-box { margin-top:12px; border-radius:8px; padding:12px 16px; font-size:1.0rem; font-family:ui-monospace,monospace; }
+.verdict-L { background:#d4f7ef; border:2px dashed #2ec4b6; }
+.verdict-C { background:#e7e0fb; border:2px dashed #8e6fd4; }
+.ptable { border-collapse:collapse; margin-top:8px; font-family:ui-monospace,monospace; font-size:0.9rem; width:100%; }
+.ptable td,.ptable th { border:1px solid var(--sc-border); padding:6px 10px; text-align:left; }
+.tag { padding:1px 8px; border-radius:10px; font-weight:700; font-size:0.8rem; }
+.tag.L { background:#d4f7ef; color:#0f6b5c; } .tag.C { background:#e7e0fb; color:#5a3fa0; }
+.formula { font-family:ui-monospace,monospace; background:#f4f1fb; border:1px solid #d9cef2; border-radius:8px; padding:12px; margin-top:12px; }
+</style>
+
+<div class="sc-lab" id="nb24">
+  <div class="input-row">
+    <div class="input-group"><label>Prefix u (class U)</label><input type="text" id="nb24-u" value="ab"></div>
+    <div class="input-group"><label>Block v (class V)</label><input type="text" id="nb24-v" value="abc"></div>
+    <div class="input-group">
+      <label>Preset</label>
+      <select id="nb24-preset">
+        <option value="0">U=[ab], V=[abc]</option>
+        <option value="1">U=[ab], V=[c]</option>
+        <option value="2">U=[a], V=[abc]</option>
+        <option value="3">U=[ε], V=[abc]</option>
+        <option value="4">U=[ε], V=[c]</option>
+      </select>
+    </div>
+    <div class="input-group"><button class="sc-btn" id="nb24-go">Classify</button></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4 class="anchored">Run of u·vω on 𝒜 (prefix + 3 blocks)</h4>
+    <div class="run-strip" id="nb24-strip"></div>
+    <div id="nb24-verdict"></div>
+  </div>
+
+  <div class="sc-panel">
+    <h4 class="anchored">Enumerated class products → the complement</h4>
+    <table class="ptable" id="nb24-table"></table>
+    <div class="formula" id="nb24-formula"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const delta={ s0:{a:'s1'}, s1:{b:'s2'}, s2:{c:'s2',a:'s1'} };
+  const F=new Set(['s1']); const init='s0';
+  const parse=s=>s.trim().replace(/\s|,/g,'').split('').filter(x=>x.length);
+  function runProduct(u,v,cycles=3){
+    const seq=u.concat(...Array(cycles).fill(v));
+    let state=init; const steps=[{sym:'',state}]; const tail=new Set(); let dead=false;
+    for(let i=0;i<seq.length;i++){
+      const nxt=delta[state]&&delta[state][seq[i]];
+      if(nxt===undefined){ steps.push({sym:seq[i],state:'✗',dead:true}); dead=true; break; }
+      state=nxt; steps.push({sym:seq[i],state}); if(i>=u.length) tail.add(state);
+    }
+    const accepted = !dead && [...tail].some(q=>F.has(q));
+    return {steps,accepted,dead,tail:[...tail]};
+  }
+  function drawRun(steps){
+    const strip=document.getElementById('nb24-strip'); strip.innerHTML='';
+    steps.forEach(s=>{const box=document.createElement('div');box.className='run-step';
+      const sy=document.createElement('div');sy.className='run-sym';sy.innerHTML=s.sym===''?'&nbsp;':s.sym;
+      const st=document.createElement('div');st.className='run-state'+(s.dead?' dead':(F.has(s.state)?' accept':''));
+      st.innerHTML=s.dead?'&#10007;':'s<sub>'+s.state[1]+'</sub>';
+      box.appendChild(sy);box.appendChild(st);strip.appendChild(box);});
+  }
+  function classify(u,v){ return runProduct(u,v).accepted ? 'L' : 'C'; }
+  const PRODUCTS=[['ab','abc'],['ab','c'],['a','abc'],['','abc'],['','c']];
+  function go(){
+    const u=parse(document.getElementById('nb24-u').value), v=parse(document.getElementById('nb24-v').value);
+    const vd=document.getElementById('nb24-verdict');
+    if(!v.length){vd.innerHTML="<div class='verdict-box verdict-C'>Block v cannot be empty.</div>";return;}
+    for(const w of [u,v]) for(const s of w) if(!['a','b','c'].includes(s)){vd.innerHTML=`<div class='verdict-box verdict-C'>Unknown symbol "${s}". Alphabet is {a,b,c}.</div>`;return;}
+    const r=runProduct(u,v); drawRun(r.steps);
+    const inL=r.accepted;
+    vd.innerHTML=`<div class="verdict-box ${inL?'verdict-L':'verdict-C'}"><strong>U·Vω = [${u.join('')||'ε'}]·[${v.join('')}]ω ⊆ ${inL?'L(𝒜)':'L(𝒜)ᶜ (the complement)'}.</strong><br>`+
+      (inL ? `In(ρ)∩F = { s₁ } — the run threads through s₁∈F in every block, so the whole product is accepted.`
+           : (r.dead ? `The run dies (a missing transition), so no word of this product is accepted — the product lies entirely in the complement.`
+                     : `In(ρ) = { ${r.tail.map(x=>'s'+x[1]).join(', ')} }, disjoint from F — no accepting state recurs, so the whole product lies in the complement.`))+`</div>`;
+    // enumerate table
+    const tbl=document.getElementById('nb24-table');
+    tbl.innerHTML='<tr><th>class product</th><th>witness u·vω</th><th>run</th><th>side</th></tr>';
+    const comp=[];
+    for(const [pu,pv] of PRODUCTS){
+      const rr=runProduct(pu,pv); const side=rr.accepted?'L':'C'; if(side==='C')comp.push(`[${pu||'ε'}]·[${pv}]ω`);
+      tbl.innerHTML+=`<tr><td>[${pu||'ε'}]·[${pv}]ω</td><td>${(pu||'ε')}·(${pv})ω</td><td>${rr.accepted?'accepts':(rr.dead?'dies':'no F recurs')}</td><td><span class="tag ${side}">${side==='L'?'L(𝒜)':'complement'}</span></td></tr>`;
+    }
+    document.getElementById('nb24-formula').innerHTML=`L(𝒜)ᶜ &supe; &nbsp; ${comp.join(' &nbsp;∪&nbsp; ')}<br><span style="font-size:0.82rem;color:#5a3fa0">(the complement automaton is the union of every class product disjoint from L — here, the products tagged “complement”.)</span>`;
+  }
+  document.getElementById('nb24-preset').addEventListener('change',()=>{
+    const p=PRODUCTS[+document.getElementById('nb24-preset').value];
+    document.getElementById('nb24-u').value=p[0]; document.getElementById('nb24-v').value=p[1]; go();
+  });
+  document.getElementById('nb24-go').addEventListener('click',go);
+  ['nb24-u','nb24-v'].forEach(id=>document.getElementById(id).addEventListener('keyup',e=>{if(e.key==='Enter')go();}));
+  go();
+})();
+</script>
+<p>This is the whole complementation theorem in miniature: no state-flipping trick (that failed back in <strong><a href="../notebooks/16-dba-vs-nba-gap.html">Notebook 16</a></strong>), but a finite algebra of class products, each decided in or out by an emptiness test, with the “out” ones assembled into a Büchi automaton for <span class="math inline">\(\overline{L(\mathcal A)}\)</span>. Decidable inclusion — and hence <span class="math inline">\(\omega\)</span>-regular model checking — follows.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

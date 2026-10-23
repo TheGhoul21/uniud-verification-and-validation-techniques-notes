@@ -75,6 +75,11 @@ format:
 
     <div class="chapter-label">Course Materials</div>
     <div class="card-grid">
+      <a class="algo-card" href="presentazioni/index.qmd">
+        <span class="card-num">PRESENTAZIONI</span>
+        <span class="card-title">Lezioni in slide</span>
+        <span class="card-desc">Presentazioni in italiano, con formule e figure, da sfogliare a schermo intero</span>
+      </a>
       <a class="algo-card" href="proofs/index.qmd">
         <span class="card-num">PROOF LABS</span>
         <span class="card-title">Interactive Theorem Proofs</span>

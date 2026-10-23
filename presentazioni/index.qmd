@@ -1,0 +1,18 @@
+---
+title: "Presentazioni"
+lang: it
+format:
+  html:
+    toc: false
+---
+
+Lezioni di Verification and Validation Techniques, in italiano. Apri un capitolo e usa le **frecce** per sfogliare le slide; **F** attiva lo schermo intero e **O** mostra la panoramica.
+
+```{=html}
+<div class="card-grid">
+<a class="algo-card" href="01-automi-finiti-e-linguaggi-regolari.qmd"><span class="card-num">CAPITOLO 01</span><span class="card-title">Automi finiti e linguaggi regolari</span><span class="card-desc">31 slide · Apri la presentazione →</span></a>
+<a class="algo-card" href="02-linguaggi-regolari-e-problemi-di-decisione.qmd"><span class="card-num">CAPITOLO 02</span><span class="card-title">Linguaggi regolari e problemi di decisione</span><span class="card-desc">43 slide · Apri la presentazione →</span></a>
+</div>
+```
+
+Per esplorare gli algoritmi, apri i [notebook interattivi](../notebooks/index.qmd).

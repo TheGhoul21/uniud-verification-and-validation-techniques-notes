@@ -4,6 +4,7 @@ project:
   render:
     - "*.qmd"
     - "notebooks/*.qmd"
+    - "presentazioni/*.qmd"
     - "mindmaps/*.qmd"
     - "proofs/*.qmd"
     - "proofs/chapter-*/*.qmd"
@@ -17,6 +18,10 @@ project:
     - "proofs/proof-lab.css"
     - "proofs/proof-lab-content.js"
     - "proofs/proof-lab.js"
+    - "presentazioni/slides.css"
+    - "presentazioni/fonts/"
+    - "presentazioni/assets/"
+    - "presentazioni/presentations.json"
 
 website:
   title: "Verification and Validation Techniques — UniUD"
@@ -47,6 +52,8 @@ website:
         href: mindmaps/index.qmd
       - text: Notebooks
         href: notebooks/index.qmd
+      - text: Presentazioni
+        href: presentazioni/index.qmd
 
 format:
   html:

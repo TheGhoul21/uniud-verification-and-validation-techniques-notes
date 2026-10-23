@@ -832,30 +832,49 @@
       intro: "A generic \u03c9-word need not be periodic at all — it can have gaps that grow forever. Yet a finite-index congruence can still slice any such word into one finite prefix and infinitely many interchangeable repeating blocks. Two nested pigeonhole arguments, linked by a persistence property, do the slicing.",
       application: "Running example: the automaton has states s\u2080,s\u2081,s\u2082 (F={s\u2081}) and transitions s\u2080\u2013a\u2192s\u2081, s\u2081\u2013b\u2192s\u2082, s\u2082\u2013c\u2192s\u2082 (self-loop), s\u2082\u2013a\u2192s\u2081. The word \u03b1=abc\u00b7abcc\u00b7abccc\u22ef has ever-growing gaps of c's and is not ultimately periodic — yet every block abc\u207f produces the identical \u2248\u1d00-behaviour (reach s\u2082 from s\u2080 or s\u2082, visiting F, and die immediately from s\u2081), so \u03b1 decomposes as [\u03b5]\u00b7V\u03c9 for a single class V.",
       strategy: "Build a second finite-index equivalence, this time on the positions of \u03b1, by colouring pairs of positions with the \u2261-class of the segment between them. Pigeonhole gives an infinite pairwise-merging set of positions; persistence (congruence applied to a shared future suffix) lets that merge survive forever. A second, independent pigeonhole on cumulative-prefix classes gives infinitely many prefixes in one class V — not yet consecutive blocks. Persistence links the two arguments: it transfers V's class from a cumulative prefix onto the very next gap, turning the merely-infinite-prefixes claim into genuine consecutive V-blocks. One witnessed concatenation then transports, via congruence, to V\u00b7V\u2286V.",
-      invariant: "Every fact used at a later step (a merge, a class membership) was already established — by pigeonhole, by persistence, or by congruence — before this step relies on it; nothing is assumed ahead of when it's proved.",
+      invariant: "Step by step, more of the concrete α = abc·abcc·abccc⋯ is certified to lie in U·Vω: first the finitely many segment-classes exist, then infinitely many prefixes α(k₀,kᵢ) share one class V, then every consecutive gap α(kᵢ,kⱼ) also lies in V, and finally V·V ⊆ V — so the running example is provably U·Vω, not merely plausibly so.",
       synthesis: String.raw`Fix a finite-index congruence \(\equiv\) on \(\Sigma^*\) and an \(\omega\)-word \(\alpha\). Define \(k\mathbin{\overset{\sim}{=}}_\alpha k'\) when \(\alpha(k,m)\equiv\alpha(k',m)\) for some future position \(m\); this relation inherits finite index from \(\equiv\) via pigeonhole, and it is persistent: once two positions merge at some \(m\), congruence (\(x\equiv y\Rightarrow xz\equiv yz\)) keeps them merged at every later \(m'\). Pigeonhole on positions yields an infinite, pairwise-merging sequence \(k_0<k_1<k_2<\cdots\). Separately, pigeonhole on the \(\equiv\)-classes of the cumulative prefixes \(\alpha(k_0,k_i)\) yields infinitely many of them in one class \(V\), so \(\alpha\in U\overrightarrow V\) for \(U=[\alpha(0,k_0)]\) — real progress, but not yet consecutive blocks. Thinning the sequence once more so that \(k_0,\ldots,k_i\) all merge at \(k_{i+1}\) lets persistence transfer \(\alpha(k_0,k_{i+1})\in V\) onto the gap: \(\alpha(k_i,k_{i+1})\equiv\alpha(k_0,k_{i+1})\in V\). Every consecutive block is therefore in \(V\), so \(\alpha\in UV^\omega\). Finally, one witnessed pair \(a=\alpha(k_0,k_1)\), \(b=\alpha(k_1,k_2)\) with \(ab\in V\) transports, via congruence, to \(V\cdot V\subseteq V\): for arbitrary \(x,y\in V\), \(x\equiv a\) and \(y\equiv b\) give \(xy\equiv ab\in V\).`,
       diagram: {
-        description: "Two independent pigeonhole arguments (on positions, and on segment classes) feed into a persistence-powered thinning step that produces consecutive V-blocks, concluding in the Ramsey decomposition alpha in U times V-omega with V times V contained in V.",
-        viewBox: [0, 0, 1000, 560],
+        description: "The omega-word alpha is drawn as a ribbon of indexed positions carrying the symbols a,b,c -- here each symbol is its own merge-class. A compact automaton on top defines the equivalence; the checkpoints m=7, m=8 and the segment arcs alpha(2,8)=cabcca, alpha(5,8)=cca below the ribbon stage the thinning step.",
+        viewBox: [0, 0, 1000, 340],
+        lanes: [
+          { y: 200, x1: 100, x2: 955, label: "", labelX: 0, labelY: 0 }
+        ],
         nodes: [
-          N("posrel", 150, 110, "positions of \u03b1", "endless supply, no periodicity needed", { width: 200 }),
-          N("pighole1", 400, 110, "\u2203 k\u2080<k\u2081<k\u2082<\u22ef", "pairwise merging (pigeonhole)", { width: 220 }),
-          N("persist", 650, 110, "merge once \u21d2 forever", "persistence", { width: 200 }),
-          N("segclasses", 150, 380, "classes of \u03b1(k\u2080,k\u1d62)", "pigeonhole on segments", { width: 210 }),
-          N("vecclosure", 400, 380, "vectorial closure", "\u03b1 \u2208 U\u00b7(\u221e many V-prefixes)", { width: 220 }),
-          N("thin", 650, 380, "gaps \u2208 V too", "thinning + persistence", { width: 200 }),
-          N("final", 900, 245, "\u03b1 \u2208 UV\u03c9|V\u00b7V\u2286V", "Ramsey decomposition", { width: 190, height: 88 })
+          N("s0", 180, 58, "s\u2080", "", { shape: "circle", r: 20 }),
+          N("s1", 400, 58, "s\u2081", "", { shape: "circle", r: 20, accepting: true }),
+          N("s2", 620, 58, "s\u2082", "", { shape: "circle", r: 20 }),
+          N("p0", 120, 200, "a", "0", { shape: "circle", r: 16 }),
+          N("p1", 192, 200, "b", "1", { shape: "circle", r: 16 }),
+          N("p2", 264, 200, "c", "2", { shape: "circle", r: 16 }),
+          N("p3", 336, 200, "a", "3", { shape: "circle", r: 16 }),
+          N("p4", 408, 200, "b", "4", { shape: "circle", r: 16 }),
+          N("p5", 480, 200, "c", "5", { shape: "circle", r: 16 }),
+          N("p6", 552, 200, "c", "6", { shape: "circle", r: 16 }),
+          N("p7", 624, 200, "a", "7", { shape: "circle", r: 16 }),
+          N("p8", 696, 200, "b", "8", { shape: "circle", r: 16 }),
+          N("p9", 768, 200, "c", "9", { shape: "circle", r: 16 }),
+          N("p10", 840, 200, "c", "10", { shape: "circle", r: 16 }),
+          N("p11", 912, 200, "c", "11", { shape: "circle", r: 16 })
         ],
         edges: [
-          E("posrel-pighole1", "posrel", "pighole1", "pigeonhole"),
-          E("pighole1-persist", "pighole1", "persist", "once merged"),
-          E("segclasses-vecclosure", "segclasses", "vecclosure", "pigeonhole"),
-          E("persist-thin", "persist", "thin", "links the two"),
-          E("vecclosure-thin", "vecclosure", "thin", "prefixes known"),
-          E("thin-final", "thin", "final", "gaps confirmed")
+          E("aut_a", "s0", "s1", "a"),
+          E("aut_b", "s1", "s2", "b"),
+          E("aut_c", "s2", "s2", "c", { path: "M 602 46 C 590 14 650 14 638 46", labelX: 620, labelY: 14 }),
+          E("aut_a2", "s2", "s1", "a", { path: "M 604 74 C 540 104 480 104 416 76", labelX: 508, labelY: 106 }),
+          E("pbr", "p3", "p7", "3 ≈ 7", { path: "M 336 182 Q 480 152 624 182", labelX: 480, labelY: 173 }),
+          E("m7", "p6", "p7", "m=7", { path: "M 588 176 L 588 224", labelX: 588, labelY: 240 }),
+          E("m8", "p7", "p8", "m=8", { path: "M 660 176 L 660 224", labelX: 660, labelY: 240 }),
+          E("seg28", "p2", "p7", "\u03b1(2,8)=cabcca", { path: "M 264 216 Q 460 304 660 220", labelX: 452, labelY: 304 }),
+          E("seg58", "p5", "p7", "\u03b1(5,8)=cca", { path: "M 480 216 Q 574 284 660 214", labelX: 578, labelY: 282 })
         ],
         annotations: [
-          { x: 500, y: 540, text: "Positions and segments are pigeonholed independently; persistence is what lets thinning combine them into consecutive V-blocks.", anchor: "middle" }
+          { x: 96, y: 206, text: "\u03b1 =", anchor: "end" },
+          { x: 948, y: 206, text: "\u22ef", anchor: "start" },
+          { x: 660, y: 78, text: "\u2248\u1d00 sends each block to a \u2261-class", anchor: "start" },
+          { x: 192, y: 138, text: "abc", anchor: "middle" },
+          { x: 444, y: 138, text: "abcc", anchor: "middle" },
+          { x: 768, y: 138, text: "abccc", anchor: "middle" }
         ]
       },
       steps: [
@@ -874,21 +893,21 @@
               text: "Colour each position k by the single symbol \u03b1(k) — finitely many alphabet symbols already force a collision.",
               correct: false,
               causalFailure: "For THIS automaton that happens to match the real partition (Example 4.4.6 found exactly 3 classes, one per symbol) — but purely by coincidence, since this automaton's states each read at most one letter. It doesn't use \u2261 at all, so for a general congruence it need not have finite index, and it has no persistence property: two positions with the same next symbol can behave completely differently just one step later.",
-              consequence: V(["posrel"], [], { badNodes: ["pighole1", "persist"], dimNodes: ["segclasses", "vecclosure", "thin", "final"] })
+              consequence: V(["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10", "p11"], [], { badNodes: ["s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "Colour each position k by the \u2261-class of the entire infinite suffix \u03b1(k,\u03c9) — finite index on \u2261 bounds the number of suffixes.",
               correct: false,
               causalFailure: "\u2261 is a congruence on FINITE words (\u03a3*); \u03b1(k,\u03c9) is an infinite suffix, so it has no \u2261-class to begin with — \u2261 was never defined on infinite objects, and none of its properties (congruence, finite index) say anything about entire \u03c9-suffixes.",
-              consequence: V(["posrel"], [], { badNodes: ["pighole1"], dimNodes: ["segclasses", "vecclosure", "thin", "final", "persist"] })
+              consequence: V([], [], { badNodes: ["p9", "p10", "p11"], dimNodes: ["s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             }
           ],
           hint: "The relation being built compares two FINITE segments that both run out to the same future point m — not single symbols, not whole infinite suffixes.",
           formal: String.raw`\(k\mathbin{\overset{\sim}{=}}_{\alpha,m}k'\) means \(\alpha(k,m)\equiv\alpha(k',m)\); \(k\mathbin{\overset{\sim}{=}}_\alpha k'\) means this holds for some \(m\).`,
-          preview: V(["posrel"], [], { dimNodes: ["pighole1", "persist", "segclasses", "vecclosure", "thin", "final"] }),
-          reveal: V(["posrel", "segclasses"], [], { goodNodes: ["posrel", "segclasses"], dimNodes: ["pighole1", "persist", "vecclosure", "thin", "final"] }),
-          previewNote: "Positions and segments are different kinds of object — keep them apart.",
-          revealNote: "Two independent finite-index tools are now in play: one on positions, one on segments."
+          preview: V([], [], { dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          reveal: V(["s0", "s1", "s2"], ["aut_a", "aut_b", "aut_c", "aut_a2"], { goodNodes: ["p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10", "p11"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          previewNote: "Two objects on the board: the automaton (which defines ≡) and the bare positions of α.",
+          revealNote: "Each position now carries a finite-index class, read off the automaton — a second tool, on positions."
         },
         {
           label: "Pigeonhole on positions",
@@ -905,21 +924,21 @@
               text: "Nothing is guaranteed — with a deterministic automaton, all 11 positions could still land in separate classes.",
               correct: false,
               causalFailure: "This confuses 'up to 3^9 classes possible in general' with 'only 3 classes actually occur for this \u03b1' — a fact already computed directly in Example 4.4.6. Once the number of REALIZED classes is bounded (here, 3), pigeonhole is unconditional: determinism doesn't change arithmetic, 11 items cannot survive in 3 bins without a collision.",
-              consequence: V(["posrel"], ["posrel-pighole1"], { badNodes: ["pighole1"], dimNodes: ["persist", "segclasses", "vecclosure", "thin", "final"] })
+              consequence: V([], [], { badNodes: ["p2", "p5", "p6", "p9", "p10"], dimNodes: ["p0", "p1", "p3", "p4", "p7", "p8", "s0", "s1", "s2", "p11"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "Every position from 0 to 10 must merge with position 0 specifically.",
               correct: false,
               causalFailure: "Pigeonhole only guarantees SOME class gets crowded — it says nothing about WHICH one. Here the crowded class is actually the 'c' class {2,5,6,9,\u2026}, not position 0's own 'a' class {0,3,7,\u2026}; positions 2, 5, 6, 9 never merge with 0 at all.",
-              consequence: V(["posrel", "pighole1"], ["posrel-pighole1"], { badNodes: ["pighole1"], dimNodes: ["persist", "segclasses", "vecclosure", "thin", "final"] })
+              consequence: V(["p0"], [], { goodNodes: ["p3", "p7"], badNodes: ["p2", "p5", "p6", "p9", "p10"], dimNodes: ["p1", "p4", "p8", "s0", "s1", "s2", "p11"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             }
           ],
           hint: "Pigeonhole compares the number of items (11 positions) to the number of realized bins (3 classes) — it doesn't care what the automaton does internally.",
           formal: String.raw`If \(\equiv\) has \(r\) classes and \(\mathbin{\overset{\sim}{=}}_\alpha\) had more than \(r\), then \(r+1\) pairwise non-merging positions would yield \(r+1\) segments to one common \(m\) falling into only \(r\) classes of \(\equiv\) — a contradiction.`,
-          preview: V(["posrel", "segclasses"], [], { dimNodes: ["persist", "vecclosure", "thin", "final"] }),
-          reveal: V(["posrel", "pighole1", "segclasses"], ["posrel-pighole1"], { goodNodes: ["pighole1"], dimNodes: ["persist", "vecclosure", "thin", "final"] }),
-          previewNote: "Only 3 classes are realized among this word's positions (Example 4.4.6).",
-          revealNote: "An infinite, pairwise-merging sequence k\u2080<k\u2081<k\u2082<\u22ef now exists."
+          preview: V([], [], { dimNodes: ["s0", "s1", "s2", "p11"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          reveal: V([], [], { goodNodes: ["p2", "p5", "p6", "p9", "p10"], dimNodes: ["p0", "p1", "p3", "p4", "p7", "p8", "s0", "s1", "s2", "p11"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          previewNote: "Only 3 classes are realized among positions 0\u201310 (Example 4.4.6).",
+          revealNote: "11 positions into 3 classes: the c-class {2,5,6,9,10} must hold 5 \u2265 \u230811/3\u2309 = 4."
         },
         {
           label: "Persistence",
@@ -936,21 +955,21 @@
               text: "It has to be checked separately — merging is a fact about one specific m, so a later m' is an independent question.",
               correct: false,
               causalFailure: "If that were true, an infinite pairwise-merging set of positions would only ever certify 'merged at SOME point', never 'merged from some point on forever' — and the Thinning step needs exactly the forever version to transfer a cumulative prefix's class onto a gap. Without persistence, no finite amount of checking could certify infinitely many blocks in one class, and U\u00b7V\u03c9 would collapse to a claim about finitely many blocks.",
-              consequence: V(["pighole1"], ["pighole1-persist"], { badNodes: ["persist", "thin", "final"], dimNodes: ["segclasses", "vecclosure"] })
+              consequence: V([], [], { badNodes: ["p3", "p7"], dimNodes: ["p0", "p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "It depends on whether \u03b1(12,17) itself is long enough to reach a final state — short continuations might not preserve the merge.",
               correct: false,
               causalFailure: "Congruence doesn't care about length or about F at all here — x\u2261y \u21d2 xz\u2261yz holds for every z, however short, whatever it does with F. Whether F is visited is already one of the coordinates \u2261 tracks inside x and y; z is simply appended identically to both sides, unexamined.",
-              consequence: V(["pighole1", "persist"], ["pighole1-persist"], { badNodes: ["persist"], dimNodes: ["segclasses", "vecclosure", "thin", "final"] })
+              consequence: V(["p3", "p7"], ["pbr"], { goodNodes: ["p3", "p7"], dimNodes: ["p0", "p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58"] })
             }
           ],
           hint: "Don't recompute reachability from positions 3 and 7 out to 17 separately — factor both through the shared checkpoint 12 and reuse what's already established there.",
           formal: String.raw`If \(k\mathbin{\overset{\sim}{=}}_{\alpha,m}k'\), then \(k\mathbin{\overset{\sim}{=}}_{\alpha,m'}k'\) for every \(m'\geq m\).`,
-          preview: V(["pighole1"], [], { dimNodes: ["segclasses", "vecclosure", "thin", "final"] }),
-          reveal: V(["pighole1", "persist"], ["pighole1-persist"], { goodNodes: ["persist"], dimNodes: ["segclasses", "vecclosure", "thin", "final"] }),
-          previewNote: "Confirmed merged only up to checkpoint m=12 so far.",
-          revealNote: "The shared suffix \u03b1(12,17) extends the merge to m'=17 for free."
+          preview: V(["p3", "p7"], [], { dimNodes: ["p0", "p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          reveal: V(["p3", "p7"], ["pbr"], { goodNodes: ["p3", "p7"], dimNodes: ["p0", "p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58"] }),
+          previewNote: "Positions 3 and 7 merge at one checkpoint \u2014 must a later one be re-checked?",
+          revealNote: "Congruence appends the shared suffix to both sides: merged once \u21d2 merged at every later m (12 \u2192 17)."
         },
         {
           label: "Pigeonhole on segments",
@@ -967,21 +986,21 @@
               text: "Yes — if \u03b1(k\u2080,k\u1d62) and \u03b1(k\u2080,k\u2c7c) are both in V, congruence forces \u03b1(k\u1d62,k\u2c7c) into V too, since V is closed under concatenation.",
               correct: false,
               causalFailure: "This assumes V\u00b7V\u2286V before it's proved — that closure is this very lemma's own conclusion, established later from one witnessed concatenation, not asserted upfront. And even granting it, concatenation isn't cancellative: \u03b1(k\u2080,k\u1d62)\u00b7\u03b1(k\u1d62,k\u2c7c)=\u03b1(k\u2080,k\u2c7c) doesn't let you solve for the middle factor's class from the two endpoints alone.",
-              consequence: V(["segclasses", "vecclosure"], ["segclasses-vecclosure"], { badNodes: ["thin", "final"], dimNodes: ["posrel", "pighole1", "persist"] })
+              consequence: V([], [], { goodNodes: ["p0", "p3", "p7"], badNodes: ["p4", "p5", "p6"], dimNodes: ["p1", "p2", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "Yes, automatically — every \u2261-class is regular, and regular languages are closed under all Boolean operations.",
               correct: false,
               causalFailure: "Closure of regular LANGUAGES under Boolean operations is a fact about U and V as sets (useful later, for building an automaton for U\u00b7V\u03c9). It says nothing about which class one specific segment \u03b1(k\u1d62,k\u2c7c) of this one word \u03b1 happens to land in — that's a membership question about a single finite word, not a language-closure question.",
-              consequence: V(["segclasses", "vecclosure"], ["segclasses-vecclosure"], { badNodes: ["vecclosure"], dimNodes: ["posrel", "pighole1", "persist", "thin", "final"] })
+              consequence: V([], [], { goodNodes: ["p0", "p3", "p7"], badNodes: ["p4", "p5", "p6", "p8"], dimNodes: ["p1", "p2", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             }
           ],
           hint: "Ask what the two good prefixes \u03b1(k\u2080,k\u1d62) and \u03b1(k\u2080,k\u2c7c) have in common as POSITIONS, not just as words — do k\u1d62 and k\u2c7c merge with each other?",
           formal: String.raw`\(\alpha(k_0,\omega)\in\overrightarrow{V}\) implies \(\alpha\in U\overrightarrow V\); but \(\alpha(k_i,k_j)\in V\) for consecutive \(i<j\) is NOT yet implied.`,
-          preview: V(["segclasses"], [], { dimNodes: ["posrel", "pighole1", "persist", "thin", "final"] }),
-          reveal: V(["segclasses", "vecclosure"], ["segclasses-vecclosure"], { goodNodes: ["vecclosure"], dimNodes: ["posrel", "pighole1", "persist", "thin", "final"] }),
-          previewNote: "Only the cumulative prefixes are pigeonholed here — gaps are a separate question.",
-          revealNote: "\u03b1\u2208U\u2192V (vectorial closure): real progress, but not yet U\u00b7V\u03c9."
+          preview: V(["p0", "p3", "p7"], [], { dimNodes: ["p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          reveal: V([], [], { goodNodes: ["p0", "p3", "p7"], dimNodes: ["p1", "p2", "p4", "p5", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          previewNote: "Cumulative prefixes α(k₀,kᵢ) end at the block-starts — pigeonholed on their classes.",
+          revealNote: "Infinitely many prefixes share class V \u2014 but the gap between two of them is unconstrained."
         },
         {
           label: "Thinning to real blocks",
@@ -998,21 +1017,21 @@
               text: "That they failed to merge at m=7 — showing the earlier attempt doesn't matter once a later one succeeds.",
               correct: false,
               causalFailure: "A failed merge at m=7 gives no positive information; it only means m=7 can't be used as a witness. The gap conclusion needs a SUCCESSFUL merge at the SAME m used for the cumulative-prefix comparison, not the mere fact that an earlier m didn't work.",
-              consequence: V(["persist", "vecclosure"], ["persist-thin", "vecclosure-thin"], { badNodes: ["thin"], dimNodes: ["posrel", "pighole1", "segclasses", "final"] })
+              consequence: V(["p2", "p5"], ["m7"], { badNodes: ["p2", "p5"], dimNodes: ["p0", "p1", "p3", "p4", "p6", "p7", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "That \u03b1(2,8) and \u03b1(5,8) have the same length.",
               correct: false,
               causalFailure: "\u03b1(2,8)=\u201ccabcca\u201d has 6 symbols; \u03b1(5,8)=\u201ccca\u201d has 3. \u2261 (built from \u2248\u1d00 here) never compares length, only reachability and F-visits — the two segments merge despite different lengths, which is exactly why \u2261 succeeds where a length-based congruence (like the parity example) would not even ask the right question.",
-              consequence: V(["persist", "vecclosure", "thin"], ["persist-thin", "vecclosure-thin"], { badNodes: ["thin"], dimNodes: ["posrel", "pighole1", "segclasses", "final"] })
+              consequence: V(["p2", "p5", "p7"], ["m8", "seg28", "seg58"], { dimNodes: ["p0", "p1", "p3", "p4", "p6", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "pbr"] })
             }
           ],
           hint: "Compare the two segments at the SAME right endpoint m=8, not m=7 — persistence only ever equates things that merge at a common point.",
           formal: String.raw`\(k_0\mathbin{\overset{\sim}{=}}_{\alpha,k_{i+1}}k_i\) implies \(\alpha(k_i,k_{i+1})\equiv\alpha(k_0,k_{i+1})\in V\), hence \(\alpha(k_i,k_{i+1})\in V\).`,
-          preview: V(["persist", "vecclosure"], [], { dimNodes: ["posrel", "pighole1", "segclasses", "final"] }),
-          reveal: V(["persist", "vecclosure", "thin"], ["persist-thin", "vecclosure-thin"], { goodNodes: ["thin"], dimNodes: ["posrel", "pighole1", "segclasses", "final"] }),
-          previewNote: "Two separate pigeonhole results are sitting unconnected so far.",
-          revealNote: "Persistence links them: every gap \u03b1(k\u1d62,k\u1d62\u208a\u2081) lands in V. Now \u03b1\u2208UV\u03c9."
+          preview: V(["p2", "p5"], ["m7"], { dimNodes: ["p0", "p1", "p3", "p4", "p6", "p7", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m8", "seg28", "seg58", "pbr"] }),
+          reveal: V(["p2", "p5", "p7"], ["m8", "seg28", "seg58"], { goodNodes: ["p5", "p6", "p7"], dimNodes: ["p0", "p1", "p3", "p4", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "pbr"] }),
+          previewNote: "At m=7, α(2,7)=cabcc and α(5,7)=cc do NOT merge — one visits F, the other doesn't.",
+          revealNote: "At m=8 they merge: the gap \u03b1(5,8)=cca inherits V from the prefix \u03b1(2,8)=cabcca."
         },
         {
           label: "Idempotence and conclusion",
@@ -1029,21 +1048,21 @@
               text: "Only that ab itself is in V — nothing follows about other pairs x,y unless they're checked individually.",
               correct: false,
               causalFailure: "This misses what congruence buys us: x\u2261a and y\u2261b already force xy\u2261ab with no need to trace x,y through the automaton again. Treating every pair as needing its own check would make V\u00b7V\u2286V unprovable in general — infinitely many pairs would need checking. The whole point of using a congruence, not an arbitrary relation, is that one witnessed instance transports to the entire class.",
-              consequence: V(["thin", "final"], ["thin-final"], { badNodes: ["final"], dimNodes: ["posrel", "pighole1", "persist", "segclasses", "vecclosure"] })
+              consequence: V([], [], { goodNodes: ["p0", "p1", "p2", "p3", "p4", "p5", "p6"], badNodes: ["p7", "p8", "p9", "p10", "p11"], dimNodes: ["s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             },
             {
               text: "That V must equal exactly {a,b,ab}, since those are the only elements we've explicitly constructed.",
               correct: false,
               causalFailure: "V is an \u2261-class of \u03a3*, and here it's already infinite by construction — it has to contain every block abc\u207f (n\u22651) to build V\u03c9 at all. a, b, ab are just three witnessed members, not an exhaustive list.",
-              consequence: V(["thin", "final"], ["thin-final"], { badNodes: ["final"], dimNodes: ["posrel", "pighole1", "persist", "segclasses", "vecclosure"] })
+              consequence: V(["p7", "p8", "p9", "p10", "p11"], [], { goodNodes: ["p0", "p1", "p2", "p3", "p4", "p5", "p6"], dimNodes: ["s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] })
             }
           ],
           hint: "You don't need to re-derive anything about x and y from the automaton — congruence alone connects xy to the already-known ab.",
           formal: String.raw`\(x\equiv a\) and \(y\equiv b\) imply \(xy\equiv ab\in V\), hence \(xy\in V\). Therefore \(V\cdot V\subseteq V\) and \(\alpha\in UV^\omega\).`,
-          preview: V(["thin"], [], { dimNodes: ["posrel", "pighole1", "persist", "segclasses", "vecclosure", "final"] }),
-          reveal: V(["thin", "final"], ["thin-final"], { goodNodes: ["final"], dimNodes: ["posrel", "pighole1", "persist", "segclasses", "vecclosure"] }),
-          previewNote: "The gaps are all confirmed in V — idempotence of V is the last piece.",
-          revealNote: "\u03b1\u2208UV\u03c9 with V\u00b7V\u2286V: exactly the Ramsey decomposition."
+          preview: V(["p0", "p1", "p2", "p3", "p4", "p5", "p6"], [], { dimNodes: ["p7", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          reveal: V([], [], { goodNodes: ["p0", "p1", "p2", "p3", "p4", "p5", "p6"], dimNodes: ["p7", "p8", "p9", "p10", "p11", "s0", "s1", "s2"], dimEdges: ["m7", "m8", "seg28", "seg58", "pbr"] }),
+          previewNote: "Two consecutive blocks a=α(k₀,k₁), b=α(k₁,k₂), and their concatenation ab.",
+          revealNote: "a, b, ab all in V. Congruence transports it to every pair: V\u00b7V \u2286 V, so \u03b1 \u2208 U\u00b7V\u03c9."
         }
       ],
       previous: { label: "B\u00fcchi\u2013expression equivalence", href: "/proofs/chapter-03/buchi-expression-equivalence.html" },
