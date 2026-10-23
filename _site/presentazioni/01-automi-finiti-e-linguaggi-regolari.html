@@ -98,6 +98,22 @@
   </style>
   <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-5b48f34d633aed70c74c672477009ffc.css">
   <link rel="stylesheet" href="slides.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
 
   <script type="text/plain" cookie-consent="tracking">
@@ -217,6 +233,32 @@
       margin-right: 0; 
     }
   </style>
+  <script>
+  (() => {
+    const reading = new URL(location.href);
+    reading.pathname = reading.pathname.replace(/\.html$/, '-lettura.html');
+    reading.hash = reading.hash.replace(/^#\//, '#');
+    reading.searchParams.delete('view');
+    // A portrait phone gets the reflowed page; an explicit slide choice wins.
+    if (matchMedia('(max-width: 768px) and (orientation: portrait)').matches &&
+        new URLSearchParams(location.search).get('view') !== 'slides' &&
+        !new URLSearchParams(location.search).has('print-pdf')) {
+      location.replace(reading.href);
+      return;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const link = document.createElement('a');
+      link.className = 'reading-mode-link';
+      link.textContent = 'Lettura';
+      link.href = reading.href;
+      link.addEventListener('click', () => {
+        reading.hash = window.Reveal?.getCurrentSlide()?.id || '';
+        link.href = reading.href;
+      });
+      document.body.append(link);
+    });
+  })();
+  </script>
 <meta property="og:title" content="VVT - Automi finiti e linguaggi regolari">
 <meta property="og:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
 <meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
@@ -246,15 +288,15 @@
 </p>
 <p>Un <strong>alfabeto</strong> è un insieme finito non vuoto di simboli.</p>
 <p>Una <strong>parola</strong> è una sequenza finita di simboli dell’alfabeto.</p>
-<p><span class="math display">\[ A=\{0,1\},\qquad w=0101,\qquad |w|=4 \]</span></p>
-<p>La parola vuota <span class="math inline">\(\varepsilon\)</span> ha lunghezza zero. Un evento come <code>apri</code> può essere un unico simbolo: non va confuso con i suoi caratteri.</p>
+<p><span class="math display"> A=\{0,1\},\qquad w=0101,\qquad |w|=4 </span></p>
+<p>La parola vuota <span class="math inline">\varepsilon</span> ha lunghezza zero. Un evento come <code>apri</code> può essere un unico simbolo: non va confuso con i suoi caratteri.</p>
 </section>
 <section id="scena-03" class="slide level2 scrollable">
 <h2>Linguaggi su un alfabeto</h2>
 <p class="scene-meta">
 03 / 31 · §1.1, p.&nbsp;11
 </p>
-<p><span class="math display">\[ L\subseteq A^* \]</span></p>
+<p><span class="math display"> L\subseteq A^* </span></p>
 <p>L’alfabeto stabilisce cosa possiamo scrivere. Il linguaggio stabilisce quali parole soddisfano la proprietà scelta.</p>
 <p><strong>Esempio:</strong> parole binarie che terminano con <code>01</code>.</p>
 <p><code>01</code>, <code>101</code>, <code>0001</code> appartengono al linguaggio; <code>ε</code>, <code>10</code>, <code>011</code> no.</p>
@@ -264,20 +306,20 @@
 <p class="scene-meta">
 04 / 31 · §1.1, p.&nbsp;11
 </p>
-<p><span class="math display">\[ u=01,\quad v=1,\qquad uv=011,\quad vu=101 \]</span></p>
-<p><span class="math display">\[ |uv|=|u|+|v|,\qquad \varepsilon w=w\varepsilon=w \]</span></p>
-<p>Per due linguaggi, <span class="math inline">\(L_1L_2\)</span> contiene le concatenazioni di una parola del primo con una del secondo.</p>
-<p><strong>Da distinguere:</strong> <span class="math inline">\(L\{\varepsilon\}=L\)</span>, mentre <span class="math inline">\(L\varnothing=\varnothing\)</span>.</p>
+<p><span class="math display"> u=01,\quad v=1,\qquad uv=011,\quad vu=101 </span></p>
+<p><span class="math display"> |uv|=|u|+|v|,\qquad \varepsilon w=w\varepsilon=w </span></p>
+<p>Per due linguaggi, <span class="math inline">L_1L_2</span> contiene le concatenazioni di una parola del primo con una del secondo.</p>
+<p><strong>Da distinguere:</strong> <span class="math inline">L\{\varepsilon\}=L</span>, mentre <span class="math inline">L\varnothing=\varnothing</span>.</p>
 </section>
 <section id="scena-05" class="slide level2 scrollable">
 <h2>Stella di Kleene e caso vuoto</h2>
 <p class="scene-meta">
 05 / 31 · §1.1, p.&nbsp;12
 </p>
-<p><span class="math display">\[ W^0=\{\varepsilon\},\qquad W^*=\bigcup_{n\geq0}W^n \]</span></p>
-<p><span class="math inline">\(W^*\)</span> permette <strong>zero o più blocchi</strong>; <span class="math inline">\(W^+\)</span> richiede <strong>almeno un blocco</strong>.</p>
-<p>Per <span class="math inline">\(W=\{01\}\)</span>: <code>ε</code>, <code>01</code>, <code>0101</code>, … appartengono a <span class="math inline">\(W^*\)</span>.</p>
-<p>Attenzione: se <span class="math inline">\(\varepsilon\in W\)</span>, anche <span class="math inline">\(W^+\)</span> contiene <span class="math inline">\(\varepsilon\)</span>. Un blocco non è necessariamente non vuoto.</p>
+<p><span class="math display"> W^0=\{\varepsilon\},\qquad W^*=\bigcup_{n\geq0}W^n </span></p>
+<p><span class="math inline">W^*</span> permette <strong>zero o più blocchi</strong>; <span class="math inline">W^+</span> richiede <strong>almeno un blocco</strong>.</p>
+<p>Per <span class="math inline">W=\{01\}</span>: <code>ε</code>, <code>01</code>, <code>0101</code>, … appartengono a <span class="math inline">W^*</span>.</p>
+<p>Attenzione: se <span class="math inline">\varepsilon\in W</span>, anche <span class="math inline">W^+</span> contiene <span class="math inline">\varepsilon</span>. Un blocco non è necessariamente non vuoto.</p>
 </section>
 <section id="scena-06" class="slide level2 scrollable">
 <h2>Stati e memoria finita</h2>
@@ -297,11 +339,11 @@
 <p class="scene-meta">
 07 / 31 · §1.2, p.&nbsp;13
 </p>
-<p><span class="math display">\[ \mathcal A=(Q,A,\delta,q_0,F) \]</span></p>
+<p><span class="math display"> \mathcal A=(Q,A,\delta,q_0,F) </span></p>
 <ul>
-<li><span class="math inline">\(Q\)</span>: insieme finito degli stati; <span class="math inline">\(A\)</span>: alfabeto.</li>
-<li><span class="math inline">\(q_0\in Q\)</span>: stato iniziale; <span class="math inline">\(F\subseteq Q\)</span>: stati accettanti.</li>
-<li><span class="math inline">\(\delta:Q\times A\to Q\)</span>: una scelta determinata per ogni coppia stato-simbolo.</li>
+<li><span class="math inline">Q</span>: insieme finito degli stati; <span class="math inline">A</span>: alfabeto.</li>
+<li><span class="math inline">q_0\in Q</span>: stato iniziale; <span class="math inline">F\subseteq Q</span>: stati accettanti.</li>
+<li><span class="math inline">\delta:Q\times A\to Q</span>: una scelta determinata per ogni coppia stato-simbolo.</li>
 </ul>
 <p>Lo stato iniziale non deve essere necessariamente accettante.</p>
 </section>
@@ -319,9 +361,9 @@
 <p class="scene-meta">
 09 / 31 · §1.2, p.&nbsp;14
 </p>
-<p><span class="math display">\[ \widehat\delta(q,\varepsilon)=q \]</span></p>
-<p><span class="math display">\[ \widehat\delta(q,wx)=\delta(\widehat\delta(q,w),x) \]</span></p>
-<p>Una parola di lunghezza <span class="math inline">\(n\)</span> genera una run con <span class="math inline">\(n+1\)</span> stati, contando quello iniziale.</p>
+<p><span class="math display"> \widehat\delta(q,\varepsilon)=q </span></p>
+<p><span class="math display"> \widehat\delta(q,wx)=\delta(\widehat\delta(q,w),x) </span></p>
+<p>Una parola di lunghezza <span class="math inline">n</span> genera una run con <span class="math inline">n+1</span> stati, contando quello iniziale.</p>
 <p>La decisione riguarda lo stato <strong>dopo tutta la parola</strong>, non uno stato visitato a metà.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a>w<span class="op">=</span><span class="st">"10110"</span></span>
 <span id="cb1-2"><a></a>run<span class="op">=</span>dfa_run(PARITY,<span class="dv">0</span>,w)</span>
@@ -387,8 +429,8 @@ Accettata: False</code></pre>
 14 / 31 · §1.2.1, pp.&nbsp;14-15
 </p>
 <p>Un DFA formale ha una funzione di transizione totale.</p>
-<p>Per completare un disegno parziale, aggiungiamo uno stato <strong>non accettante</strong> <span class="math inline">\(\bot\)</span>.</p>
-<p>Le transizioni mancanti vanno a <span class="math inline">\(\bot\)</span>; da <span class="math inline">\(\bot\)</span> ogni simbolo ritorna a <span class="math inline">\(\bot\)</span>.</p>
+<p>Per completare un disegno parziale, aggiungiamo uno stato <strong>non accettante</strong> <span class="math inline">\bot</span>.</p>
+<p>Le transizioni mancanti vanno a <span class="math inline">\bot</span>; da <span class="math inline">\bot</span> ogni simbolo ritorna a <span class="math inline">\bot</span>.</p>
 <p><strong>Non sostituire una freccia mancante con un autoanello:</strong> potresti cambiare il linguaggio.</p>
 </section>
 <section id="scena-15" class="slide level2 scrollable">
@@ -406,10 +448,10 @@ Accettata: False</code></pre>
 <p class="scene-meta">
 16 / 31 · §1.3, pp.&nbsp;15-16
 </p>
-<p><span class="math display">\[ \mathcal N=(Q,A,\Delta,q_0,F) \]</span></p>
-<p>Per una coppia stato-simbolo, <span class="math inline">\(\Delta(q,x)\)</span> è un <strong>insieme</strong> di possibili successori: può avere zero, uno o più elementi.</p>
-<p><span class="math display">\[ \Delta:Q\times A\to 2^Q \]</span></p>
-<p>In questo capitolo consideriamo NFA senza transizioni <span class="math inline">\(\varepsilon\)</span>.</p>
+<p><span class="math display"> \mathcal N=(Q,A,\Delta,q_0,F) </span></p>
+<p>Per una coppia stato-simbolo, <span class="math inline">\Delta(q,x)</span> è un <strong>insieme</strong> di possibili successori: può avere zero, uno o più elementi.</p>
+<p><span class="math display"> \Delta:Q\times A\to 2^Q </span></p>
+<p>In questo capitolo consideriamo NFA senza transizioni <span class="math inline">\varepsilon</span>.</p>
 </section>
 <section id="scena-17" class="slide level2 scrollable">
 <h2>NFA per il suffisso 01</h2>
@@ -426,7 +468,7 @@ Accettata: False</code></pre>
 <p class="scene-meta">
 18 / 31 · §1.3, pp.&nbsp;16-17
 </p>
-<p><span class="math display">\[ S_0=\{q_0\},\qquad S_{i+1}=\bigcup_{q\in S_i}\Delta(q,w_i) \]</span></p>
+<p><span class="math display"> S_0=\{q_0\},\qquad S_{i+1}=\bigcup_{q\in S_i}\Delta(q,w_i) </span></p>
 <p>Su <code>001</code>, gli insiemi sono:</p>
 <p><code>{q0}</code> → <code>{q0,q1}</code> → <code>{q0,q1}</code> → <code>{q0,q2}</code>.</p>
 <p>Se due rami raggiungono lo stesso stato, lo registriamo una sola volta.</p>
@@ -453,7 +495,7 @@ Accettata: False</code></pre>
 <p class="scene-meta">
 20 / 31 · §1.3, p.&nbsp;17
 </p>
-<p><span class="math display">\[ w\in L(\mathcal N)\quad\Longleftrightarrow\quad S_{|w|}\cap F\neq\varnothing \]</span></p>
+<p><span class="math display"> w\in L(\mathcal N)\quad\Longleftrightarrow\quad S_{|w|}\cap F\neq\varnothing </span></p>
 <p>Basta <strong>almeno uno</strong> stato finale nell’insieme raggiunto dopo tutta la parola.</p>
 <p>Non è necessario che tutti i rami accettino. Alcuni possono morire o finire in stati non accettanti.</p>
 </section>
@@ -464,9 +506,9 @@ Accettata: False</code></pre>
 </p>
 <p>Nell’NFA del suffisso <code>01</code>, dopo <code>00</code> sono possibili <code>q0</code> e <code>q1</code>.</p>
 <p>Il DFA li ricorda con <strong>un solo stato</strong>, chiamato <code>{q0,q1}</code>. Leggendo <code>1</code>, da <code>q0</code> si arriva a <code>q0</code> e da <code>q1</code> a <code>q2</code>: il nuovo stato del DFA è <code>{q0,q2}</code>.</p>
-<p>In generale, uno stato del DFA è un insieme <span class="math inline">\(S\)</span> di stati NFA. Su un simbolo <span class="math inline">\(x\)</span>, raccogliamo tutti i loro successori:</p>
-<p><span class="math display">\[ \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) \]</span></p>
-<p><span class="math display">\[ Q_D=2^Q,\qquad q_{0,D}=\{q_0\} \]</span></p>
+<p>In generale, uno stato del DFA è un insieme <span class="math inline">S</span> di stati NFA. Su un simbolo <span class="math inline">x</span>, raccogliamo tutti i loro successori:</p>
+<p><span class="math display"> \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) </span></p>
+<p><span class="math display"> Q_D=2^Q,\qquad q_{0,D}=\{q_0\} </span></p>
 </section>
 <section id="scena-22" class="slide level2 scrollable">
 <h2>Costruire soltanto gli insiemi raggiungibili</h2>
@@ -500,9 +542,9 @@ Raggiungibili: 3 / massimo: 8</code></pre>
 24 / 31 · §1.4, pp.&nbsp;19-20
 </p>
 <p>Dopo <code>00</code>, l’NFA può trovarsi in <code>q0</code> oppure in <code>q1</code>; il DFA è nell’unico stato <code>{q0,q1}</code>.</p>
-<p><strong>Proprietà da dimostrare:</strong> dopo ogni parola <span class="math inline">\(w\)</span>, lo stato del DFA coincide con l’insieme di tutti gli stati raggiungibili nell’NFA:</p>
-<p><span class="math display">\[ \widehat\delta_D(\{q_0\},w)=\widehat\Delta(q_0,w) \]</span></p>
-<p><strong>Base:</strong> prima di leggere simboli, l’NFA è solo in <code>q0</code> e il DFA parte da <code>{q0}</code>. Quindi per <span class="math inline">\(w=\varepsilon\)</span> la proprietà vale.</p>
+<p><strong>Proprietà da dimostrare:</strong> dopo ogni parola <span class="math inline">w</span>, lo stato del DFA coincide con l’insieme di tutti gli stati raggiungibili nell’NFA:</p>
+<p><span class="math display"> \widehat\delta_D(\{q_0\},w)=\widehat\Delta(q_0,w) </span></p>
+<p><strong>Base:</strong> prima di leggere simboli, l’NFA è solo in <code>q0</code> e il DFA parte da <code>{q0}</code>. Quindi per <span class="math inline">w=\varepsilon</span> la proprietà vale.</p>
 <p>Resta da provare che ogni nuovo simbolo conserva questa corrispondenza.</p>
 </section>
 <section id="scena-25" class="slide level2 scrollable">
@@ -516,13 +558,13 @@ Raggiungibili: 3 / massimo: 8</code></pre>
 <li>da <code>q1</code>, su <code>1</code>, si raggiunge <code>q2</code>.</li>
 </ul>
 <p>L’NFA può quindi trovarsi in <code>{q0,q2}</code>; il DFA passa proprio allo stato <code>{q0,q2}</code>.</p>
-<p><strong>Passo generale:</strong> supponiamo che dopo una parola qualsiasi <span class="math inline">\(w\)</span> i due modelli descrivano lo stesso insieme <span class="math inline">\(S\)</span>. Sul simbolo successivo <span class="math inline">\(x\)</span>, il DFA calcola:</p>
-<p><span class="math display">\[ \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) \]</span></p>
+<p><strong>Passo generale:</strong> supponiamo che dopo una parola qualsiasi <span class="math inline">w</span> i due modelli descrivano lo stesso insieme <span class="math inline">S</span>. Sul simbolo successivo <span class="math inline">x</span>, il DFA calcola:</p>
+<p><span class="math display"> \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) </span></p>
 <ul>
-<li><strong>Nessuno stato perso:</strong> ogni percorso NFA su <span class="math inline">\(wx\)</span> passa da uno stato di <span class="math inline">\(S\)</span> e fa un passo su <span class="math inline">\(x\)</span>.</li>
-<li><strong>Nessuno stato inventato:</strong> ogni successore raccolto prolunga su <span class="math inline">\(x\)</span> un percorso NFA già possibile dopo <span class="math inline">\(w\)</span>.</li>
+<li><strong>Nessuno stato perso:</strong> ogni percorso NFA su <span class="math inline">wx</span> passa da uno stato di <span class="math inline">S</span> e fa un passo su <span class="math inline">x</span>.</li>
+<li><strong>Nessuno stato inventato:</strong> ogni successore raccolto prolunga su <span class="math inline">x</span> un percorso NFA già possibile dopo <span class="math inline">w</span>.</li>
 </ul>
-<p>La corrispondenza vale anche dopo <span class="math inline">\(wx\)</span>: questo conclude l’induzione.</p>
+<p>La corrispondenza vale anche dopo <span class="math inline">wx</span>: questo conclude l’induzione.</p>
 </section>
 <section id="scena-26" class="slide level2 scrollable">
 <h2>Equivalenza e numero di stati</h2>
@@ -531,9 +573,9 @@ Raggiungibili: 3 / massimo: 8</code></pre>
 </p>
 <p>Dopo <code>001</code>, l’insieme raggiunto è <code>{q0,q2}</code>. L’NFA accetta perché <code>q2</code> è finale; anche il DFA accetta perché il suo stato contiene <code>q2</code>.</p>
 <p>In generale, rendiamo accettanti esattamente gli stati-insieme che contengono almeno uno stato finale NFA:</p>
-<p><span class="math display">\[ F_D=\{S\subseteq Q:S\cap F\neq\varnothing\} \]</span></p>
-<p>L’invariante garantisce lo stesso insieme dopo ogni parola finita. Con questa regola, i due automi danno sempre lo stesso verdetto: <span class="math inline">\(L(D)=L(\mathcal N)\)</span>.</p>
-<p>Con <span class="math inline">\(n\)</span> stati NFA ci sono al massimo <span class="math inline">\(2^n\)</span> sottoinsiemi. Nel nostro esempio ne raggiungiamo <strong>3 su 8</strong>; nel caso peggiore la crescita può essere esponenziale.</p>
+<p><span class="math display"> F_D=\{S\subseteq Q:S\cap F\neq\varnothing\} </span></p>
+<p>L’invariante garantisce lo stesso insieme dopo ogni parola finita. Con questa regola, i due automi danno sempre lo stesso verdetto: <span class="math inline">L(D)=L(\mathcal N)</span>.</p>
+<p>Con <span class="math inline">n</span> stati NFA ci sono al massimo <span class="math inline">2^n</span> sottoinsiemi. Nel nostro esempio ne raggiungiamo <strong>3 su 8</strong>; nel caso peggiore la crescita può essere esponenziale.</p>
 </section>
 <section id="scena-27" class="slide level2 scrollable">
 <h2>Definizione di linguaggio regolare</h2>
@@ -543,18 +585,18 @@ Raggiungibili: 3 / massimo: 8</code></pre>
 <p>Un linguaggio è <strong>regolare</strong> se un DFA lo riconosce. Equivalentemente, può riconoscerlo un NFA.</p>
 <p>Il numero di stati è finito e fissato prima di leggere la parola.</p>
 <p><strong>Contrasto:</strong> riconoscere lo stesso numero di <code>0</code> iniziali e <code>1</code> finali richiederebbe distinguere conteggi arbitrariamente grandi.</p>
-<p><span class="math display">\[ L_=\{0^n1^n:n\geq0\} \]</span></p>
+<p><span class="math display"> L_=\{0^n1^n:n\geq0\} </span></p>
 </section>
 <section id="scena-28" class="slide level2 scrollable">
 <h2>Perché il conteggio esatto non è regolare</h2>
 <p class="scene-meta">
 28 / 31 · §1.4.1, p.&nbsp;21
 </p>
-<p>Supponiamo, per assurdo, che un DFA con <span class="math inline">\(k\)</span> stati riconosca <span class="math inline">\(L_=\)</span>.</p>
+<p>Supponiamo, per assurdo, che un DFA con <span class="math inline">k</span> stati riconosca <span class="math inline">L_=</span>.</p>
 <p><strong>Esempio di collisione:</strong> se <code>00</code> e <code>00000</code> arrivassero nello stesso stato, aggiungere <code>11</code> darebbe lo stesso verdetto. Ma <code>0011</code> va accettata e <code>0000011</code> va rifiutata.</p>
-<p><strong>Una collisione è inevitabile:</strong> i <span class="math inline">\(k+1\)</span> prefissi <span class="math inline">\(\varepsilon,0,\ldots,0^k\)</span> devono distribuirsi in soli <span class="math inline">\(k\)</span> stati. Due di essi, <span class="math inline">\(0^i\)</span> e <span class="math inline">\(0^j\)</span> con <span class="math inline">\(i&lt;j\)</span>, finiscono nello stesso stato.</p>
-<p>Da quello stato, leggere la stessa continuazione <span class="math inline">\(1^i\)</span> porta allo stesso stato di arrivo. Eppure:</p>
-<p><span class="math display">\[ 0^i1^i\in L_=,\qquad 0^j1^i\notin L_= \]</span></p>
+<p><strong>Una collisione è inevitabile:</strong> i <span class="math inline">k+1</span> prefissi <span class="math inline">\varepsilon,0,\ldots,0^k</span> devono distribuirsi in soli <span class="math inline">k</span> stati. Due di essi, <span class="math inline">0^i</span> e <span class="math inline">0^j</span> con <span class="math inline">i&lt;j</span>, finiscono nello stesso stato.</p>
+<p>Da quello stato, leggere la stessa continuazione <span class="math inline">1^i</span> porta allo stesso stato di arrivo. Eppure:</p>
+<p><span class="math display"> 0^i1^i\in L_=,\qquad 0^j1^i\notin L_= </span></p>
 <p><strong>Contraddizione:</strong> il DFA dà lo stesso verdetto a due parole che richiedono verdetti diversi.</p>
 </section>
 <section id="scena-29" class="slide level2 scrollable">
@@ -632,7 +674,6 @@ Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati.</c
   <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../site_libs/revealjs/plugin/search/search.js"></script>
   <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -647,6 +688,7 @@ Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati.</c
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
+'scrollActivationWidth': 0,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
  
@@ -800,27 +842,9 @@ Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati.</c
         // Factor of the display size that should remain empty around the content
         margin: 6.0e-2,
 
-        math: {
-          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom

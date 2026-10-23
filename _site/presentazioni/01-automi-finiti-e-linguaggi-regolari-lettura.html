@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Automi finiti e linguaggi regolari – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-76ba6da3b23429282fd50448dceca657.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"it"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="lettura.css">
+<meta property="og:title" content="Automi finiti e linguaggi regolari – Verification and Validation Techniques — UniUD">
+<meta property="og:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="Automi finiti e linguaggi regolari – Verification and Validation Techniques — UniUD">
+<meta name="twitter:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed lesson-reading fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Ricerca"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Attiva/disattiva la navigazione" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../proofs/index.html"> 
+<span class="menu-text">Proof Labs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../mindmaps/index.html"> 
+<span class="menu-text">Mind Maps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Automi finiti e linguaggi regolari</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="reading-toolbar">
+<p><a href="../presentazioni/index.html">Presentazioni</a> · <a href="01-automi-finiti-e-linguaggi-regolari.html?view=slides" class="presentation-link">Modalità slide</a></p>
+</div>
+<div class="reading-slides">
+<section id="scena-01" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-01">Automi finiti e linguaggi regolari</h2>
+<p class="scene-meta">
+01 / 31 · pp.&nbsp;9-10
+</p>
+<p>Una sequenza di eventi descrive un comportamento. Un automa decide se quella sequenza soddisfa una proprietà.</p>
+<p><strong>Percorso:</strong> parole e linguaggi → DFA → NFA → costruzione per sottoinsiemi.</p>
+<p><strong>Obiettivo:</strong> simulare un automa e spiegare perché DFA e NFA riconoscono gli stessi linguaggi su parole finite.</p>
+</section>
+<section id="scena-02" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-02">Alfabeto e parola</h2>
+<p class="scene-meta">
+02 / 31 · §1.1, pp.&nbsp;10-11
+</p>
+<p>Un <strong>alfabeto</strong> è un insieme finito non vuoto di simboli.</p>
+<p>Una <strong>parola</strong> è una sequenza finita di simboli dell’alfabeto.</p>
+<p><span class="math display"> A=\{0,1\},\qquad w=0101,\qquad |w|=4 </span></p>
+<p>La parola vuota <span class="math inline">\varepsilon</span> ha lunghezza zero. Un evento come <code>apri</code> può essere un unico simbolo: non va confuso con i suoi caratteri.</p>
+</section>
+<section id="scena-03" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-03">Linguaggi su un alfabeto</h2>
+<p class="scene-meta">
+03 / 31 · §1.1, p.&nbsp;11
+</p>
+<p><span class="math display"> L\subseteq A^* </span></p>
+<p>L’alfabeto stabilisce cosa possiamo scrivere. Il linguaggio stabilisce quali parole soddisfano la proprietà scelta.</p>
+<p><strong>Esempio:</strong> parole binarie che terminano con <code>01</code>.</p>
+<p><code>01</code>, <code>101</code>, <code>0001</code> appartengono al linguaggio; <code>ε</code>, <code>10</code>, <code>011</code> no.</p>
+</section>
+<section id="scena-04" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-04">Concatenazione di parole e linguaggi</h2>
+<p class="scene-meta">
+04 / 31 · §1.1, p.&nbsp;11
+</p>
+<p><span class="math display"> u=01,\quad v=1,\qquad uv=011,\quad vu=101 </span></p>
+<p><span class="math display"> |uv|=|u|+|v|,\qquad \varepsilon w=w\varepsilon=w </span></p>
+<p>Per due linguaggi, <span class="math inline">L_1L_2</span> contiene le concatenazioni di una parola del primo con una del secondo.</p>
+<p><strong>Da distinguere:</strong> <span class="math inline">L\{\varepsilon\}=L</span>, mentre <span class="math inline">L\varnothing=\varnothing</span>.</p>
+</section>
+<section id="scena-05" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-05">Stella di Kleene e caso vuoto</h2>
+<p class="scene-meta">
+05 / 31 · §1.1, p.&nbsp;12
+</p>
+<p><span class="math display"> W^0=\{\varepsilon\},\qquad W^*=\bigcup_{n\geq0}W^n </span></p>
+<p><span class="math inline">W^*</span> permette <strong>zero o più blocchi</strong>; <span class="math inline">W^+</span> richiede <strong>almeno un blocco</strong>.</p>
+<p>Per <span class="math inline">W=\{01\}</span>: <code>ε</code>, <code>01</code>, <code>0101</code>, … appartengono a <span class="math inline">W^*</span>.</p>
+<p>Attenzione: se <span class="math inline">\varepsilon\in W</span>, anche <span class="math inline">W^+</span> contiene <span class="math inline">\varepsilon</span>. Un blocco non è necessariamente non vuoto.</p>
+</section>
+<section id="scena-06" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-06">Stati e memoria finita</h2>
+<p class="scene-meta">
+06 / 31 · §1.2, p.&nbsp;12
+</p>
+<p>Per sapere se il numero di <code>1</code> è pari, non serve memorizzare la parola né il conteggio esatto.</p>
+<p>Bastano due situazioni:</p>
+<ul>
+<li><code>pari</code>: finora un numero pari di <code>1</code>;</li>
+<li><code>dispari</code>: finora un numero dispari di <code>1</code>.</li>
+</ul>
+<p>Leggere <code>1</code> cambia la parità; leggere <code>0</code> la conserva.</p>
+</section>
+<section id="scena-07" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-07">Definizione di automa deterministico</h2>
+<p class="scene-meta">
+07 / 31 · §1.2, p.&nbsp;13
+</p>
+<p><span class="math display"> \mathcal A=(Q,A,\delta,q_0,F) </span></p>
+<ul>
+<li><span class="math inline">Q</span>: insieme finito degli stati; <span class="math inline">A</span>: alfabeto.</li>
+<li><span class="math inline">q_0\in Q</span>: stato iniziale; <span class="math inline">F\subseteq Q</span>: stati accettanti.</li>
+<li><span class="math inline">\delta:Q\times A\to Q</span>: una scelta determinata per ogni coppia stato-simbolo.</li>
+</ul>
+<p>Lo stato iniziale non deve essere necessariamente accettante.</p>
+</section>
+<section id="scena-08" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-08">DFA per la parità</h2>
+<p class="scene-meta">
+08 / 31 · §1.2, pp.&nbsp;12-13
+</p>
+<p>La freccia esterna indica lo stato iniziale. Il doppio cerchio indica uno stato accettante.</p>
+<p>Per ogni stato devono esserci le transizioni per entrambi i simboli <code>0</code> e <code>1</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-08-24-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>DFA per la parità — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-09" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-09">Funzione di transizione estesa</h2>
+<p class="scene-meta">
+09 / 31 · §1.2, p.&nbsp;14
+</p>
+<p><span class="math display"> \widehat\delta(q,\varepsilon)=q </span></p>
+<p><span class="math display"> \widehat\delta(q,wx)=\delta(\widehat\delta(q,w),x) </span></p>
+<p>Una parola di lunghezza <span class="math inline">n</span> genera una run con <span class="math inline">n+1</span> stati, contando quello iniziale.</p>
+<p>La decisione riguarda lo stato <strong>dopo tutta la parola</strong>, non uno stato visitato a metà.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>w<span class="op">=</span><span class="st">"10110"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>run<span class="op">=</span>dfa_run(PARITY,<span class="dv">0</span>,w)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Parola:"</span>,w)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Run:"</span>,<span class="st">" → "</span>.join(<span class="st">"pari"</span> <span class="cf">if</span> q<span class="op">==</span><span class="dv">0</span> <span class="cf">else</span> <span class="st">"dispari"</span> <span class="cf">for</span> q <span class="kw">in</span> run))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Accettata:"</span>,run[<span class="op">-</span><span class="dv">1</span>]<span class="op">==</span><span class="dv">0</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Parola: 10110
+Run: pari → dispari → dispari → pari → dispari → dispari
+Accettata: False</code></pre>
+</section>
+<section id="scena-10" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-10">Simulazione DFA</h2>
+<p class="scene-meta">
+10 / 31 · §1.2, pp.&nbsp;12-14
+</p>
+<p>Il modello riconosce le parole con un numero pari di <code>1</code>.</p>
+<ol type="1">
+<li>In <strong>Parola</strong> scegli <code>10110</code>.</li>
+<li><strong>Letti</strong> indica quanti simboli sono già stati letti; <code>0</code> mostra lo stato iniziale.</li>
+<li>Porta <strong>Letti</strong> a <code>1</code>, poi a <code>2</code>: lo stato passa da <code>dispari</code> a <code>dispari</code>, perché il secondo simbolo è <code>0</code>.</li>
+<li>A <code>5</code> la parola è completa: viene rifiutata.</li>
+</ol>
+<p>Cambiare parola riporta il cursore a zero.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-10-30-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Simulazione DFA — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-11" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-11">DFA per le sessioni di un editor</h2>
+<p class="scene-meta">
+11 / 31 · §1.2, p.&nbsp;13
+</p>
+<p>Consideriamo quattro eventi: <code>apri</code>, <code>modifica</code>, <code>salva</code>, <code>chiudi</code>.</p>
+<p>Una sessione completata apre una volta, può modificare e salvare, poi chiude.</p>
+<p>La memoria necessaria è la fase: <strong>prima</strong>, <strong>aperto</strong>, <strong>chiuso</strong>, <strong>errore</strong>.</p>
+<p>Solo <code>chiuso</code> è accettante: un editor ancora aperto non è una sessione completata.</p>
+</section>
+<section id="scena-12" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-12">Tabella completa del monitor</h2>
+<p class="scene-meta">
+12 / 31 · §1.2, pp.&nbsp;13-15
+</p>
+<p>Ogni cella della tabella definisce il prossimo stato.</p>
+<p>Da <code>errore</code> non si torna a una sessione valida. Anche un evento dopo <code>chiudi</code> porta a <code>errore</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-12-35-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Tabella completa del monitor — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-13" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-13">Simulazione dell’editor</h2>
+<p class="scene-meta">
+13 / 31 · §1.2, p.&nbsp;13
+</p>
+<p>Il modello controlla l’ordine degli eventi dell’editor.</p>
+<ol type="1">
+<li>In <strong>Traccia</strong> scegli <strong>Dopo la chiusura</strong>: <code>apri chiudi salva</code>.</li>
+<li>Muovi <strong>Letti</strong> da <code>0</code> a <code>3</code>: ogni passo consuma un evento intero.</li>
+<li>A <code>2</code> lo stato è <code>chiuso</code>: il prefisso è una sessione completata.</li>
+<li>A <code>3</code>, <code>salva</code> porta a <code>errore</code>: la traccia completa è rifiutata.</li>
+</ol>
+<p>La riga <strong>Ultimo passo</strong> indica l’evento che ha cambiato lo stato.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-13-38-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Simulazione dell’editor — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-14" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-14">Transizioni mancanti: lo stato pozzo</h2>
+<p class="scene-meta">
+14 / 31 · §1.2.1, pp.&nbsp;14-15
+</p>
+<p>Un DFA formale ha una funzione di transizione totale.</p>
+<p>Per completare un disegno parziale, aggiungiamo uno stato <strong>non accettante</strong> <span class="math inline">\bot</span>.</p>
+<p>Le transizioni mancanti vanno a <span class="math inline">\bot</span>; da <span class="math inline">\bot</span> ogni simbolo ritorna a <span class="math inline">\bot</span>.</p>
+<p><strong>Non sostituire una freccia mancante con un autoanello:</strong> potresti cambiare il linguaggio.</p>
+</section>
+<section id="scena-15" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-15">Proprietà di risposta e conteggio esatto</h2>
+<p class="scene-meta">
+15 / 31 · §1.2, pp.&nbsp;13-14
+</p>
+<p>Proprietà: ogni <code>0</code> deve avere almeno un <code>1</code> in una posizione successiva.</p>
+<p>Un solo <code>1</code> può risolvere più <code>0</code> pendenti: <code>0001</code> va bene.</p>
+<p>Basta ricordare <strong>nessun obbligo</strong> oppure <strong>obbligo pendente</strong>. Su <code>0</code> siamo pendenti; su <code>1</code> torniamo senza obblighi.</p>
+<p>Questa proprietà non richiede di associare un <code>1</code> distinto a ogni <code>0</code>.</p>
+</section>
+<section id="scena-16" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-16">NFA: una relazione di transizione</h2>
+<p class="scene-meta">
+16 / 31 · §1.3, pp.&nbsp;15-16
+</p>
+<p><span class="math display"> \mathcal N=(Q,A,\Delta,q_0,F) </span></p>
+<p>Per una coppia stato-simbolo, <span class="math inline">\Delta(q,x)</span> è un <strong>insieme</strong> di possibili successori: può avere zero, uno o più elementi.</p>
+<p><span class="math display"> \Delta:Q\times A\to 2^Q </span></p>
+<p>In questo capitolo consideriamo NFA senza transizioni <span class="math inline">\varepsilon</span>.</p>
+</section>
+<section id="scena-17" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-17">NFA per il suffisso 01</h2>
+<p class="scene-meta">
+17 / 31 · §1.3, p.&nbsp;17
+</p>
+<p>Un NFA può continuare a leggere in <code>q0</code> oppure, su <code>0</code>, iniziare un tentativo in <code>q1</code>.</p>
+<p>Da <code>q1</code>, un <code>1</code> porta a <code>q2</code>, accettante. Da <code>q2</code> non partono transizioni.</p>
+<p>Il tentativo riesce soltanto se <strong>la parola termina</strong> appena raggiunto <code>q2</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-17-47-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>NFA per il suffisso 01 — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-18" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-18">Simulare tutti i rami con un insieme</h2>
+<p class="scene-meta">
+18 / 31 · §1.3, pp.&nbsp;16-17
+</p>
+<p><span class="math display"> S_0=\{q_0\},\qquad S_{i+1}=\bigcup_{q\in S_i}\Delta(q,w_i) </span></p>
+<p>Su <code>001</code>, gli insiemi sono:</p>
+<p><code>{q0}</code> → <code>{q0,q1}</code> → <code>{q0,q1}</code> → <code>{q0,q2}</code>.</p>
+<p>Se due rami raggiungono lo stesso stato, lo registriamo una sola volta.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>w<span class="op">=</span><span class="st">"001"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">" → "</span>.join(subset_name(s) <span class="cf">for</span> s <span class="kw">in</span> nfa_run(ENDING,<span class="st">"q0"</span>,w)))</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>{q0} → {q0, q1} → {q0, q1} → {q0, q2}</code></pre>
+</section>
+<section id="scena-19" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-19">Simulazione NFA</h2>
+<p class="scene-meta">
+19 / 31 · §1.3, pp.&nbsp;16-17
+</p>
+<p>Il modello riconosce le parole che terminano con <code>01</code>.</p>
+<ol type="1">
+<li>In <strong>Parola</strong> scegli <code>0010</code> e porta <strong>Letti</strong> a <code>3</code>.</li>
+<li>Lo stato attuale è l’insieme <code>{q0,q2}</code>: il prefisso <code>001</code> è accettante perché contiene <code>q2</code>.</li>
+<li>Porta <strong>Letti</strong> a <code>4</code>: rimangono <code>{q0,q1}</code>. La parola completa è rifiutata.</li>
+</ol>
+<p>Le parentesi graffe elencano tutti gli stati raggiungibili, non un singolo ramo scelto.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-19-53-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Simulazione NFA — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-20" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-20">Condizione di accettazione di un NFA</h2>
+<p class="scene-meta">
+20 / 31 · §1.3, p.&nbsp;17
+</p>
+<p><span class="math display"> w\in L(\mathcal N)\quad\Longleftrightarrow\quad S_{|w|}\cap F\neq\varnothing </span></p>
+<p>Basta <strong>almeno uno</strong> stato finale nell’insieme raggiunto dopo tutta la parola.</p>
+<p>Non è necessario che tutti i rami accettino. Alcuni possono morire o finire in stati non accettanti.</p>
+</section>
+<section id="scena-21" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-21">Costruzione per sottoinsiemi</h2>
+<p class="scene-meta">
+21 / 31 · §1.4, pp.&nbsp;18-19
+</p>
+<p>Nell’NFA del suffisso <code>01</code>, dopo <code>00</code> sono possibili <code>q0</code> e <code>q1</code>.</p>
+<p>Il DFA li ricorda con <strong>un solo stato</strong>, chiamato <code>{q0,q1}</code>. Leggendo <code>1</code>, da <code>q0</code> si arriva a <code>q0</code> e da <code>q1</code> a <code>q2</code>: il nuovo stato del DFA è <code>{q0,q2}</code>.</p>
+<p>In generale, uno stato del DFA è un insieme <span class="math inline">S</span> di stati NFA. Su un simbolo <span class="math inline">x</span>, raccogliamo tutti i loro successori:</p>
+<p><span class="math display"> \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) </span></p>
+<p><span class="math display"> Q_D=2^Q,\qquad q_{0,D}=\{q_0\} </span></p>
+</section>
+<section id="scena-22" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-22">Costruire soltanto gli insiemi raggiungibili</h2>
+<p class="scene-meta">
+22 / 31 · §1.4, pp.&nbsp;18-20
+</p>
+<p>Partiamo da <code>{q0}</code>. Per ogni insieme scoperto, calcoliamo il successore su <code>0</code> e su <code>1</code>.</p>
+<p>Accodiamo un insieme solo se è nuovo. Ci fermiamo quando non restano insiemi da esplorare.</p>
+<p>Nel nostro esempio si raggiungono <strong>3 insiemi</strong>, su un massimo teorico di <strong>8</strong>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subset <span class="kw">in</span> <span class="bu">sorted</span>(SUBSETS,key<span class="op">=</span><span class="kw">lambda</span> s:(<span class="bu">len</span>(s),<span class="bu">sorted</span>(s))):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(subset_name(subset), <span class="st">"| 0 →"</span>,subset_name(DET[(subset,<span class="st">"0"</span>)]),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>          <span class="st">"| 1 →"</span>,subset_name(DET[(subset,<span class="st">"1"</span>)]),<span class="st">"| finale:"</span>,subset <span class="kw">in</span> DET_FINAL)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Raggiungibili:"</span>,<span class="bu">len</span>(SUBSETS),<span class="st">"/ massimo:"</span>,<span class="dv">2</span><span class="op">**</span><span class="dv">3</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>{q0} | 0 → {q0, q1} | 1 → {q0} | finale: False
+{q0, q1} | 0 → {q0, q1} | 1 → {q0, q2} | finale: False
+{q0, q2} | 0 → {q0, q1} | 1 → {q0} | finale: True
+Raggiungibili: 3 / massimo: 8</code></pre>
+</section>
+<section id="scena-23" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-23">Il DFA risultante</h2>
+<p class="scene-meta">
+23 / 31 · §1.4, pp.&nbsp;18-20
+</p>
+<p>I tre stati corrispondono a tre insiemi possibili.</p>
+<p>È accettante l’insieme che contiene <code>q2</code>. Le frecce definiscono una funzione totale sul grafo raggiungibile.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/01-automi-finiti-e-linguaggi-regolari/scena-23-63-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Il DFA risultante — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-24" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-24">Dimostrazione: l’invariante</h2>
+<p class="scene-meta">
+24 / 31 · §1.4, pp.&nbsp;19-20
+</p>
+<p>Dopo <code>00</code>, l’NFA può trovarsi in <code>q0</code> oppure in <code>q1</code>; il DFA è nell’unico stato <code>{q0,q1}</code>.</p>
+<p><strong>Proprietà da dimostrare:</strong> dopo ogni parola <span class="math inline">w</span>, lo stato del DFA coincide con l’insieme di tutti gli stati raggiungibili nell’NFA:</p>
+<p><span class="math display"> \widehat\delta_D(\{q_0\},w)=\widehat\Delta(q_0,w) </span></p>
+<p><strong>Base:</strong> prima di leggere simboli, l’NFA è solo in <code>q0</code> e il DFA parte da <code>{q0}</code>. Quindi per <span class="math inline">w=\varepsilon</span> la proprietà vale.</p>
+<p>Resta da provare che ogni nuovo simbolo conserva questa corrispondenza.</p>
+</section>
+<section id="scena-25" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-25">Dimostrazione: il passo induttivo</h2>
+<p class="scene-meta">
+25 / 31 · §1.4, pp.&nbsp;19-20
+</p>
+<p><strong>Esempio:</strong> abbiamo letto <code>00</code> e l’insieme comune è <code>{q0,q1}</code>. Arriva <code>1</code>:</p>
+<ul>
+<li>da <code>q0</code>, su <code>1</code>, si raggiunge <code>q0</code>;</li>
+<li>da <code>q1</code>, su <code>1</code>, si raggiunge <code>q2</code>.</li>
+</ul>
+<p>L’NFA può quindi trovarsi in <code>{q0,q2}</code>; il DFA passa proprio allo stato <code>{q0,q2}</code>.</p>
+<p><strong>Passo generale:</strong> supponiamo che dopo una parola qualsiasi <span class="math inline">w</span> i due modelli descrivano lo stesso insieme <span class="math inline">S</span>. Sul simbolo successivo <span class="math inline">x</span>, il DFA calcola:</p>
+<p><span class="math display"> \delta_D(S,x)=\bigcup_{q\in S}\Delta(q,x) </span></p>
+<ul>
+<li><strong>Nessuno stato perso:</strong> ogni percorso NFA su <span class="math inline">wx</span> passa da uno stato di <span class="math inline">S</span> e fa un passo su <span class="math inline">x</span>.</li>
+<li><strong>Nessuno stato inventato:</strong> ogni successore raccolto prolunga su <span class="math inline">x</span> un percorso NFA già possibile dopo <span class="math inline">w</span>.</li>
+</ul>
+<p>La corrispondenza vale anche dopo <span class="math inline">wx</span>: questo conclude l’induzione.</p>
+</section>
+<section id="scena-26" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-26">Equivalenza e numero di stati</h2>
+<p class="scene-meta">
+26 / 31 · §1.4, pp.&nbsp;18-20
+</p>
+<p>Dopo <code>001</code>, l’insieme raggiunto è <code>{q0,q2}</code>. L’NFA accetta perché <code>q2</code> è finale; anche il DFA accetta perché il suo stato contiene <code>q2</code>.</p>
+<p>In generale, rendiamo accettanti esattamente gli stati-insieme che contengono almeno uno stato finale NFA:</p>
+<p><span class="math display"> F_D=\{S\subseteq Q:S\cap F\neq\varnothing\} </span></p>
+<p>L’invariante garantisce lo stesso insieme dopo ogni parola finita. Con questa regola, i due automi danno sempre lo stesso verdetto: <span class="math inline">L(D)=L(\mathcal N)</span>.</p>
+<p>Con <span class="math inline">n</span> stati NFA ci sono al massimo <span class="math inline">2^n</span> sottoinsiemi. Nel nostro esempio ne raggiungiamo <strong>3 su 8</strong>; nel caso peggiore la crescita può essere esponenziale.</p>
+</section>
+<section id="scena-27" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-27">Definizione di linguaggio regolare</h2>
+<p class="scene-meta">
+27 / 31 · §1.4.1, pp.&nbsp;20-21
+</p>
+<p>Un linguaggio è <strong>regolare</strong> se un DFA lo riconosce. Equivalentemente, può riconoscerlo un NFA.</p>
+<p>Il numero di stati è finito e fissato prima di leggere la parola.</p>
+<p><strong>Contrasto:</strong> riconoscere lo stesso numero di <code>0</code> iniziali e <code>1</code> finali richiederebbe distinguere conteggi arbitrariamente grandi.</p>
+<p><span class="math display"> L_=\{0^n1^n:n\geq0\} </span></p>
+</section>
+<section id="scena-28" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-28">Perché il conteggio esatto non è regolare</h2>
+<p class="scene-meta">
+28 / 31 · §1.4.1, p.&nbsp;21
+</p>
+<p>Supponiamo, per assurdo, che un DFA con <span class="math inline">k</span> stati riconosca <span class="math inline">L_=</span>.</p>
+<p><strong>Esempio di collisione:</strong> se <code>00</code> e <code>00000</code> arrivassero nello stesso stato, aggiungere <code>11</code> darebbe lo stesso verdetto. Ma <code>0011</code> va accettata e <code>0000011</code> va rifiutata.</p>
+<p><strong>Una collisione è inevitabile:</strong> i <span class="math inline">k+1</span> prefissi <span class="math inline">\varepsilon,0,\ldots,0^k</span> devono distribuirsi in soli <span class="math inline">k</span> stati. Due di essi, <span class="math inline">0^i</span> e <span class="math inline">0^j</span> con <span class="math inline">i&lt;j</span>, finiscono nello stesso stato.</p>
+<p>Da quello stato, leggere la stessa continuazione <span class="math inline">1^i</span> porta allo stesso stato di arrivo. Eppure:</p>
+<p><span class="math display"> 0^i1^i\in L_=,\qquad 0^j1^i\notin L_= </span></p>
+<p><strong>Contraddizione:</strong> il DFA dà lo stesso verdetto a due parole che richiedono verdetti diversi.</p>
+</section>
+<section id="scena-29" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-29">Esercizi di verifica</h2>
+<p class="scene-meta">
+29 / 31 · Esercizi, p.&nbsp;22
+</p>
+<ol type="1">
+<li>Simula la parità su <code>11010</code>: qual è la run completa?</li>
+<li>Nell’editor, a quale evento <code>apri salva chiudi modifica</code> diventa invalida?</li>
+<li>Per l’NFA del suffisso <code>01</code>, cosa accade su <code>0010</code>?</li>
+<li>Progetta un DFA che riconosce la sottostringa <code>10</code> in qualunque posizione.</li>
+</ol>
+<p><strong>Metodo Feynman:</strong> spiega a voce perché uno stato DFA può rappresentare un insieme senza introdurre nuove scelte.</p>
+</section>
+<section id="scena-30" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-30">Soluzioni e controllo degli esempi</h2>
+<p class="scene-meta">
+30 / 31 · Esercizi, p.&nbsp;22
+</p>
+<ol type="1">
+<li>Run della parità: <code>pari → dispari → pari → pari → dispari → dispari</code>; rifiutata.</li>
+<li><code>modifica</code> dopo <code>chiudi</code> porta a <code>errore</code>.</li>
+<li>Dopo <code>0010</code> restano <code>{q0,q1}</code>: nessuno stato finale.</li>
+<li>Per <code>10</code>: ricorda nessun <code>1</code> utile, ultimo simbolo <code>1</code>, oppure sottostringa già trovata. Quest’ultimo stato è accettante e assorbente.</li>
+</ol>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> words(max_len<span class="op">=</span><span class="dv">7</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> (dfa_run(PARITY,<span class="dv">0</span>,w)[<span class="op">-</span><span class="dv">1</span>]<span class="op">==</span><span class="dv">0</span>)<span class="op">==</span>(w.count(<span class="st">"1"</span>)<span class="op">%</span><span class="dv">2</span><span class="op">==</span><span class="dv">0</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    nfa_ok<span class="op">=</span><span class="bu">bool</span>(nfa_run(ENDING,<span class="st">"q0"</span>,w)[<span class="op">-</span><span class="dv">1</span>]<span class="op">&amp;</span>NFA_FINAL)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    dfa_ok<span class="op">=</span>dfa_run(DET,DET_START,w)[<span class="op">-</span><span class="dv">1</span>] <span class="kw">in</span> DET_FINAL</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> nfa_ok<span class="op">==</span>dfa_ok<span class="op">==</span>w.endswith(<span class="st">"01"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> dfa_run(EDITOR,<span class="st">"prima"</span>,[<span class="st">"apri"</span>,<span class="st">"salva"</span>,<span class="st">"chiudi"</span>])[<span class="op">-</span><span class="dv">1</span>]<span class="op">==</span><span class="st">"chiuso"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> dfa_run(EDITOR,<span class="st">"prima"</span>,[<span class="st">"apri"</span>,<span class="st">"salva"</span>,<span class="st">"chiudi"</span>,<span class="st">"modifica"</span>])[<span class="op">-</span><span class="dv">1</span>]<span class="op">==</span><span class="st">"errore"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>SUBSTRING<span class="op">=</span>{(<span class="dv">0</span>,<span class="st">"0"</span>):<span class="dv">0</span>,(<span class="dv">0</span>,<span class="st">"1"</span>):<span class="dv">1</span>,(<span class="dv">1</span>,<span class="st">"0"</span>):<span class="dv">2</span>,(<span class="dv">1</span>,<span class="st">"1"</span>):<span class="dv">1</span>,(<span class="dv">2</span>,<span class="st">"0"</span>):<span class="dv">2</span>,(<span class="dv">2</span>,<span class="st">"1"</span>):<span class="dv">2</span>}</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> words(max_len<span class="op">=</span><span class="dv">7</span>):</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> (dfa_run(SUBSTRING,<span class="dv">0</span>,w)[<span class="op">-</span><span class="dv">1</span>]<span class="op">==</span><span class="dv">2</span>)<span class="op">==</span>(<span class="st">"10"</span> <span class="kw">in</span> w)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Verificati tutti i 255 input binari di lunghezza fino a 7."</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati."</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Verificati tutti i 255 input binari di lunghezza fino a 7.
+Parità, suffisso 01, determinizzazione e sottostringa 10: controlli passati.</code></pre>
+</section>
+<section id="scena-31" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-31">Riepilogo del capitolo</h2>
+<p class="scene-meta">
+31 / 31 · Riepilogo, p.&nbsp;22
+</p>
+<ul>
+<li>Una parola è un input; un linguaggio è un insieme di input.</li>
+<li>Il DFA conserva un solo stato; l’NFA può avere più run.</li>
+<li>L’NFA accetta se almeno una run termina in uno stato finale.</li>
+<li>La determinizzazione conserva tutti gli stati possibili in un insieme.</li>
+<li>Memoria finita non significa poter riconoscere ogni linguaggio.</li>
+</ul>
+<p><strong>Prossimo passo:</strong> descrivere i linguaggi regolari con espressioni regolari.</p>
+</section>
+</div>
+
+
+
+</main> <!-- /main -->
+<script>
+// Carry the current scene back to the presentation when switching views.
+document.querySelector('.presentation-link')?.addEventListener('click', function () {
+  const scenes = [...document.querySelectorAll('.reading-slides section[id]')];
+  const scene = scenes.filter(section => section.getBoundingClientRect().top <= innerHeight / 2).at(-1);
+  if (scene) this.hash = '/' + scene.id;
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

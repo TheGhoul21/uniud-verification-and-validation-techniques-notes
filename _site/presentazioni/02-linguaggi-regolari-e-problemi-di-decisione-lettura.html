@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Linguaggi regolari e problemi di decisione – Verification and Validation Techniques — UniUD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../images/favicon.svg" rel="icon" type="image/svg+xml">
+<script src="../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-4086d49ad3745f0703893990d4daf0ce.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-76ba6da3b23429282fd50448dceca657.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "Nessun risultato",
+    "search-matching-documents-text": "documenti trovati",
+    "search-copy-link-title": "Copiare il link nella ricerca",
+    "search-hide-matches-text": "Nascondere i risultati aggiuntivi",
+    "search-more-match-text": "ci sono altri risultati in questo documento",
+    "search-more-matches-text": "ulteriori risultati in questo documento",
+    "search-clear-button-title": "Pulire",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancellare",
+    "search-submit-button-title": "Inviare",
+    "search-label": "Ricerca"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-V5T4WKNT8G', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"dark",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":"",
+"website_privacy_policy_url":"/privacy-policy.html"
+  ,
+"language":"it"
+  });
+});
+</script> 
+  
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400;0,600;0,700;1,400&amp;family=Inter:wght@500;600&amp;display=swap" rel="stylesheet">
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="lettura.css">
+<meta property="og:title" content="Linguaggi regolari e problemi di decisione – Verification and Validation Techniques — UniUD">
+<meta property="og:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
+<meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:title" content="Linguaggi regolari e problemi di decisione – Verification and Validation Techniques — UniUD">
+<meta name="twitter:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed lesson-reading fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Verification and Validation Techniques — UniUD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Ricerca"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Attiva/disattiva la navigazione" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../proofs/index.html"> 
+<span class="menu-text">Proof Labs</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../mindmaps/index.html"> 
+<span class="menu-text">Mind Maps</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../notebooks/index.html"> 
+<span class="menu-text">Notebooks</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../presentazioni/index.html"> 
+<span class="menu-text">Presentazioni</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Linguaggi regolari e problemi di decisione</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="reading-toolbar">
+<p><a href="../presentazioni/index.html">Presentazioni</a> · <a href="02-linguaggi-regolari-e-problemi-di-decisione.html?view=slides" class="presentation-link">Modalità slide</a></p>
+</div>
+<div class="reading-slides">
+<section id="scena-01" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-01">Linguaggi regolari e problemi di decisione</h2>
+<p class="scene-meta">
+01 / 43 · Cap. 2 · pp.&nbsp;23-24
+</p>
+<p><strong>VVT · Lezione 2 · Capitolo 2</strong></p>
+<p><strong>Obiettivo:</strong> costruire automi, decidere inclusioni e spiegare la memoria minima.</p>
+<p><strong>Percorso:</strong> espressioni → automi → raggiungibilità → Myhill–Nerode.</p>
+</section>
+<section id="scena-02" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-02">Richiamo: accettazione su parole finite</h2>
+<p class="scene-meta">
+02 / 43 · Cap. 2 · introduzione, pp.&nbsp;23-24
+</p>
+<p>Un DFA ha una sola run; un NFA può averne più di una.</p>
+<p>Una parola è accettata se <strong>almeno una run</strong> termina in uno stato finale, dopo aver consumato tutto l’input.</p>
+<p><span class="math display"> L(\mathcal A)\subseteq\Sigma^* </span></p>
+<p>Useremo <span class="math inline">\Sigma=\{0,1\}</span>. La parola vuota è <span class="math inline">\varepsilon</span>; il complemento è sempre relativo all’alfabeto dichiarato.</p>
+</section>
+<section id="scena-03" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-03">Sintassi delle espressioni regolari</h2>
+<p class="scene-meta">
+03 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;24-25
+</p>
+<p>Le espressioni <strong>ristrette</strong> partono da:</p>
+<p><span class="math display"> \varnothing,\qquad \varepsilon,\qquad a\in\Sigma </span></p>
+<p>Se <span class="math inline">r</span> e <span class="math inline">s</span> sono espressioni, anche <span class="math inline">r+s</span>, <span class="math inline">rs</span> e <span class="math inline">r^*</span> lo sono.</p>
+<p>Il simbolo <span class="math inline">+</span> indica <strong>unione</strong>. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità.</p>
+</section>
+<section id="scena-04" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-04">Semantica delle espressioni regolari</h2>
+<p class="scene-meta">
+04 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;24-25
+</p>
+<p><span class="math display"> L(\varnothing)=\varnothing,\quad L(\varepsilon)=\{\varepsilon\},\quad L(a)=\{a\} </span></p>
+<p><span class="math display"> L(r+s)=L(r)\cup L(s) </span></p>
+<p><span class="math display"> L(rs)=L(r)L(s),\qquad L(r^*)=L(r)^* </span></p>
+<p><span class="math inline">\varnothing</span> non contiene parole; <span class="math inline">\varepsilon</span> descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni.</p>
+</section>
+<section id="scena-05" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-05">Espressioni per suffisso e parità</h2>
+<p class="scene-meta">
+05 / 43 · Cap. 2 · §2.1.1, p.&nbsp;25
+</p>
+<p><span class="math display"> (0+1)^*01 </span></p>
+<p>Descrive le parole che terminano con <code>01</code>: accetta <code>01</code>, <code>1101</code>; rifiuta <code>ε</code>, <code>010</code>.</p>
+<p><span class="math display"> 0^*(10^*10^*)^* </span></p>
+<p>Descrive le parole con un numero pari di <code>1</code>: ogni blocco ripetuto contribuisce due <code>1</code>. Sono incluse <code>ε</code> e tutte le parole composte solo da <code>0</code>.</p>
+</section>
+<section id="scena-06" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-06">Espressioni generali e star-free</h2>
+<p class="scene-meta">
+06 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;25-26
+</p>
+<p>Le espressioni <strong>generali</strong> aggiungono intersezione e complemento:</p>
+<p><span class="math display"> L(r\cap s)=L(r)\cap L(s),\qquad L(\overline r)=\Sigma^*\setminus L(r) </span></p>
+<p>Le espressioni <strong>star-free</strong> ammettono questi operatori booleani, ma non la stella.</p>
+<p>Star-free non significa linguaggio finito: <span class="math inline">\overline{\varnothing}</span> descrive <span class="math inline">\Sigma^*</span>. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno.</p>
+</section>
+<section id="scena-07" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-07">Transizioni ε e composizione</h2>
+<p class="scene-meta">
+07 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;26-27
+</p>
+<p>Una transizione <span class="math inline">\varepsilon</span> cambia stato <strong>senza consumare simboli</strong>. Non aggiunge un simbolo all’alfabeto.</p>
+<p>Per concatenare gli automi per <code>0</code> e <code>1</code>, colleghiamo l’uscita del primo all’ingresso del secondo. Solo l’ultima uscita resta accettante.</p>
+<p>Il doppio cerchio indica uno stato finale; la freccia esterna indica l’iniziale.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-07-22-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Transizioni ε e composizione — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-08" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-08">Chiusura ε come punto fisso</h2>
+<p class="scene-meta">
+08 / 43 · Cap. 2 · §2.1.2, p.&nbsp;27
+</p>
+<p><span class="math inline">\operatorname{ECl}(S)</span> contiene tutti gli stati raggiungibili da <span class="math inline">S</span> usando zero o più transizioni ε.</p>
+<p><span class="math display"> X_0=S,\qquad X_{i+1}=X_i\cup\bigcup_{q\in X_i}\Delta(q,\varepsilon) </span></p>
+<p>Si arresta quando <span class="math inline">X_{i+1}=X_i</span>. Nel diagramma precedente:</p>
+<p><span class="math display"> \operatorname{ECl}(\{u\})=\{u,v\} </span></p>
+<p>Lo stato di partenza appartiene sempre alla propria chiusura.</p>
+</section>
+<section id="scena-09" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-09">Simulazione di un ε-NFA</h2>
+<p class="scene-meta">
+09 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;27-28
+</p>
+<p>Prima di leggere e dopo ogni simbolo, calcoliamo la chiusura ε.</p>
+<ol type="1">
+<li>In <strong>Parola</strong> scegli <code>01</code>; <strong>Letti</strong> conta i simboli consumati, da <code>0</code> a <code>2</code>, inizialmente <code>0</code>.</li>
+<li>A <code>0</code> l’insieme attivo è <code>{s}</code>. A <code>1</code> diventa <code>{u,v}</code>: è stato consumato solo <code>0</code>.</li>
+<li>A <code>2</code> rimane <code>{f}</code> e la parola è accettata.</li>
+<li>Scegli <code>0</code>: il cursore si azzera e il massimo diventa <code>1</code>. Al termine <code>{u,v}</code> non contiene finali.</li>
+</ol>
+<p>Il caso <code>ε</code> termina subito in <code>{s}</code> ed è rifiutato.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-09-27-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Simulazione di un ε-NFA — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-10" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-10">Eliminare le transizioni ε</h2>
+<p class="scene-meta">
+10 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;29-30
+</p>
+<p>Manteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:</p>
+<p><span class="math display"> \Delta'(q,a)=\operatorname{ECl}\left(\bigcup_{p\in\operatorname{ECl}(\{q\})}\Delta(p,a)\right) </span></p>
+<p>Nell’esempio: <span class="math inline">\Delta'(s,0)=\{u,v\}</span> e <span class="math inline">\Delta'(u,1)=\{f\}</span>.</p>
+<p>Il nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota.</p>
+</section>
+<section id="scena-11" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-11">Eliminazione ε: il caso della parola vuota</h2>
+<p class="scene-meta">
+11 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;29-30
+</p>
+<p>Con la convenzione precedente manteniamo <span class="math inline">F</span>, aggiungendo <span class="math inline">q_0</span> se la sua chiusura ε incontra <span class="math inline">F</span>.</p>
+<p><strong>Esempio:</strong> due stati <code>i</code>, <code>f</code>, con una sola freccia ε da <code>i</code> a <code>f</code>; solo <code>f</code> è finale.</p>
+<p>L’automa accetta <code>ε</code>. Eliminando la freccia senza correggere i finali, la rifiuterebbe.</p>
+<p>Rendendo finale anche <code>i</code>, il linguaggio rimane esattamente <span class="math inline">\{\varepsilon\}</span>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>empty_example <span class="op">=</span> enfa({<span class="st">'i'</span>,<span class="st">'f'</span>}, {(<span class="st">'i'</span>, EPS): {<span class="st">'f'</span>}}, <span class="st">'i'</span>, {<span class="st">'f'</span>})</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ordinary <span class="op">=</span> remove_epsilon(empty_example)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Finali dopo la rimozione:'</span>, names(ordinary[<span class="st">'final'</span>]))</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ε accettata:'</span>, <span class="bu">bool</span>(enfa_run(ordinary, <span class="st">''</span>)[<span class="op">-</span><span class="dv">1</span>] <span class="op">&amp;</span> ordinary[<span class="st">'final'</span>]))</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'0 accettata:'</span>, <span class="bu">bool</span>(enfa_run(ordinary, <span class="st">'0'</span>)[<span class="op">-</span><span class="dv">1</span>] <span class="op">&amp;</span> ordinary[<span class="st">'final'</span>]))</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Finali dopo la rimozione: {f, i}
+ε accettata: True
+0 accettata: False</code></pre>
+</section>
+<section id="scena-12" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-12">Teorema di Kleene: le due costruzioni</h2>
+<p class="scene-meta">
+12 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;30-32
+</p>
+<p>Un linguaggio su parole finite è riconosciuto da un automa finito <strong>se e solo se</strong> è descritto da un’espressione regolare ristretta.</p>
+<ul>
+<li><strong>Espressione → automa:</strong> costruzione strutturale di Thompson.</li>
+<li><strong>Automa → espressione:</strong> ricorrenza sui possibili stati intermedi.</li>
+</ul>
+<p>Entrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio.</p>
+</section>
+<section id="scena-13" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-13">Thompson: casi base e invariante</h2>
+<p class="scene-meta">
+13 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;34-35
+</p>
+<p>Ogni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.</p>
+<ul>
+<li><span class="math inline">\varnothing</span>: ingresso e uscita senza un cammino che li colleghi.</li>
+<li><span class="math inline">\varepsilon</span>: un arco ε dall’ingresso all’uscita.</li>
+<li><span class="math inline">a</span>: un arco etichettato <span class="math inline">a</span> dall’ingresso all’uscita.</li>
+</ul>
+<p>I frammenti da comporre devono avere insiemi di stati disgiunti.</p>
+</section>
+<section id="scena-14" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-14">Thompson: unione, concatenazione e stella</h2>
+<p class="scene-meta">
+14 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;34-35
+</p>
+<p><strong>Unione <span class="math inline">r+s</span>:</strong> un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.</p>
+<p><strong>Concatenazione <span class="math inline">rs</span>:</strong> colleghiamo l’uscita di <span class="math inline">r</span> all’ingresso di <span class="math inline">s</span> con ε.</p>
+<p><strong>Stella <span class="math inline">r^*</span>:</strong> aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.</p>
+<p>Il salto diretto ingresso → uscita realizza le zero ripetizioni.</p>
+</section>
+<section id="scena-15" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-15">Compilare un’espressione in Python</h2>
+<p class="scene-meta">
+15 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;34-35
+</p>
+<p>Compiliamo <span class="math inline">r=(0+1)^*01</span> e poi rimuoviamo ε e determinizziamo.</p>
+<p>Il codice rappresenta la sintassi con tuple: <code>lit</code> è un simbolo, <code>plus</code> è unione, <code>cat</code> è concatenazione, <code>star</code> è stella.</p>
+<p>La prova finita confronta il DFA con la proprietà «termina con <code>01</code>». La correttezza generale deriva dalla costruzione di Thompson.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>zero, one <span class="op">=</span> (<span class="st">'lit'</span>,<span class="st">'0'</span>), (<span class="st">'lit'</span>,<span class="st">'1'</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>regex <span class="op">=</span> (<span class="st">'cat'</span>, (<span class="st">'star'</span>, (<span class="st">'plus'</span>, zero, one)), (<span class="st">'cat'</span>, zero, one))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>compiled_e <span class="op">=</span> thompson(regex)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>compiled_d <span class="op">=</span> determinize(remove_epsilon(compiled_e))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> w <span class="kw">in</span> words():</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> accepts(compiled_d, w) <span class="op">==</span> w.endswith(<span class="st">'01'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Stati ε-NFA:'</span>, <span class="bu">len</span>(compiled_e[<span class="st">'states'</span>]))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Stati DFA raggiungibili:'</span>, <span class="bu">len</span>(compiled_d[<span class="st">'states'</span>]))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'255 parole confrontate con il predicato del suffisso.'</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Stati ε-NFA: 12
+Stati DFA raggiungibili: 4
+255 parole confrontate con il predicato del suffisso.</code></pre>
+</section>
+<section id="scena-16" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-16">Da automa a espressione: stati intermedi</h2>
+<p class="scene-meta">
+16 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;32-33
+</p>
+<p>Numeriamo gli stati <span class="math inline">q_1,\ldots,q_n</span>.</p>
+<p><span class="math inline">R_{ij}^{k}</span> descrive le parole dei cammini da <span class="math inline">q_i</span> a <span class="math inline">q_j</span> che usano come stati <strong>intermedi</strong> solo <span class="math inline">q_1,\ldots,q_k</span>.</p>
+<p>Gli estremi non sono vincolati. Con <span class="math inline">k=0</span> sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.</p>
+<p>Quindi <span class="math inline">R_{ij}^{0}</span> è l’unione delle etichette dirette, con ε aggiunta quando <span class="math inline">i=j</span>.</p>
+</section>
+<section id="scena-17" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-17">Ricorrenza per la traduzione in espressione</h2>
+<p class="scene-meta">
+17 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;33-36
+</p>
+<p>Sbloccando <span class="math inline">q_k</span> come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.</p>
+<p><span class="math display"> R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} </span></p>
+<p>La stella rappresenta un numero finito qualsiasi di ritorni.</p>
+<p>Alla fine si uniscono <span class="math inline">R_{1j}^{n}</span> per tutti i finali <span class="math inline">q_j</span>, assumendo <span class="math inline">q_1</span> iniziale.</p>
+</section>
+<section id="scena-18" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-18">Ricorrenza sul DFA della parità</h2>
+<p class="scene-meta">
+18 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;33-34
+</p>
+<p>Nel DFA della parità di <code>1</code>, <span class="math inline">q_1</span> è pari e <span class="math inline">q_2</span> dispari. <code>0</code> conserva lo stato, <code>1</code> lo cambia.</p>
+<p><span class="math display"> R_{11}^{0}=R_{22}^{0}=\varepsilon+0,\qquad R_{12}^{0}=R_{21}^{0}=1 </span></p>
+<p>Sbloccando <span class="math inline">q_1</span>:</p>
+<p><span class="math display"> R_{22}^{1}=(\varepsilon+0)+1(\varepsilon+0)^*1 </span></p>
+<p>Sono inclusi <code>ε</code>, <code>0</code>, <code>11</code>, <code>101</code>; <code>00</code> richiede un passaggio intermedio per <span class="math inline">q_2</span> e non è ancora incluso.</p>
+</section>
+<section id="scena-19" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-19">Chiusure dei linguaggi regolari</h2>
+<p class="scene-meta">
+19 / 43 · Cap. 2 · §2.2, pp.&nbsp;36-37
+</p>
+<p>Se <span class="math inline">L_1</span> e <span class="math inline">L_2</span> sono regolari sullo stesso alfabeto, sono regolari anche:</p>
+<p><span class="math display"> L_1\cup L_2,\quad L_1L_2,\quad L_1^*,\quad \overline{L_1},\quad L_1\cap L_2 </span></p>
+<p>Unione, concatenazione e stella seguono dalle costruzioni già viste.</p>
+<p>Complemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo.</p>
+</section>
+<section id="scena-20" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-20">Complemento: serve un DFA completo</h2>
+<p class="scene-meta">
+20 / 43 · Cap. 2 · §2.2.1, pp.&nbsp;37-38
+</p>
+<p>Per un DFA completo basta sostituire <span class="math inline">F</span> con <span class="math inline">Q\setminus F</span>.</p>
+<p>Ogni parola ha esattamente una run completa: il suo verdetto viene invertito.</p>
+<p><strong>DFA parziale per <code>{1}</code>:</strong> solo <code>s —1→ f</code>, con <code>f</code> finale. Scambiando i finali si accetta solo <code>ε</code>: <code>0</code> continua a non avere run.</p>
+<p>Prima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti.</p>
+</section>
+<section id="scena-21" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-21">Perché lo scambio dei finali fallisce su un NFA</h2>
+<p class="scene-meta">
+21 / 43 · Cap. 2 · §2.2.1, pp.&nbsp;37-38
+</p>
+<p>Considera un NFA con iniziale <code>s</code>, finale <code>f</code>, e transizioni:</p>
+<ul>
+<li>da <code>s</code>, con <code>0</code>, resta in <code>s</code>;</li>
+<li>da <code>s</code>, con <code>1</code>, può restare in <code>s</code> oppure andare in <code>f</code>;</li>
+<li>da <code>f</code>, con <code>0</code> o <code>1</code>, resta in <code>f</code>.</li>
+</ul>
+<p>Accetta le parole che contengono <code>1</code>. Dopo lo scambio accetta ancora <code>1</code> tramite il ramo che resta in <code>s</code>.</p>
+<p>Procedura corretta: <strong>determinizzare → completare → scambiare</strong>.</p>
+</section>
+<section id="scena-22" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-22">Intersezione mediante prodotto</h2>
+<p class="scene-meta">
+22 / 43 · Cap. 2 · §2.2.2, pp.&nbsp;38-39
+</p>
+<p>Lo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.</p>
+<p><span class="math display"> \delta((p,q),a)=(\delta_1(p,a),\delta_2(q,a)) </span></p>
+<p>Per l’intersezione, lo stato iniziale è <span class="math inline">(q_{01},q_{02})</span> e i finali sono:</p>
+<p><span class="math display"> F=F_1\times F_2 </span></p>
+<p>Entrambi i componenti devono accettare <strong>al termine della stessa parola</strong>.</p>
+</section>
+<section id="scena-23" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-23">Simulazione del prodotto</h2>
+<p class="scene-meta">
+23 / 43 · Cap. 2 · §2.2.2, pp.&nbsp;38-39
+</p>
+<p>Primo componente: <code>1</code> se il prefisso termina con <code>1</code>, altrimenti <code>0</code>. Secondo: <code>0</code> se il numero di <code>1</code> è pari, <code>1</code> se dispari. Solo <code>(1,0)</code> è finale.</p>
+<ol type="1">
+<li>Scegli <strong>Parola</strong> <code>11</code>; <strong>Letti</strong> va da <code>0</code> a <code>2</code>, inizialmente <code>0</code>.</li>
+<li>A <code>1</code> compare <code>(1,1)</code>; a <code>2</code> compare <code>(1,0)</code>: accettata.</li>
+<li>Scegli <code>110</code>: Letti torna a <code>0</code>, massimo <code>3</code>. A <code>3</code> compare <code>(0,0)</code>: rifiutata.</li>
+</ol>
+<p><code>ε</code> parte e termina in <code>(0,0)</code>, quindi è rifiutata. La parità da sola non basta.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-23-58-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Simulazione del prodotto — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-24" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-24">Comporre requisiti per l’editor</h2>
+<p class="scene-meta">
+24 / 43 · Cap. 2 · §2.2, p.&nbsp;37
+</p>
+<p>Riprendiamo l’alfabeto di eventi <code>apri</code>, <code>modifica</code>, <code>salva</code>, <code>chiudi</code>.</p>
+<p><span class="math display"> r_{\mathrm{sessione}}=\mathrm{apri}\;(\mathrm{modifica}+\mathrm{salva})^*\;\mathrm{chiudi} </span></p>
+<p>Il requisito «contiene almeno un salvataggio» è <span class="math inline">\Sigma^*\;\mathrm{salva}\;\Sigma^*</span>.</p>
+<p>Il prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola più corta possibile è <code>apri, salva, chiudi</code>.</p>
+<p>Questo requisito non impone di salvare ogni modifica.</p>
+</section>
+<section id="scena-25" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-25">Problemi di decisione su automi</h2>
+<p class="scene-meta">
+25 / 43 · Cap. 2 · §2.3, pp.&nbsp;39-40
+</p>
+<ul>
+<li><strong>Appartenenza:</strong> questa parola è accettata?</li>
+<li><strong>Vuotezza:</strong> esiste almeno una parola accettata?</li>
+<li><strong>Universalità:</strong> sono accettate tutte le parole di <span class="math inline">\Sigma^*</span>?</li>
+<li><strong>Inclusione:</strong> ogni parola di <span class="math inline">L_1</span> appartiene a <span class="math inline">L_2</span>?</li>
+<li><strong>Equivalenza:</strong> i due linguaggi coincidono?</li>
+</ul>
+<p>L’appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall’iniziale.</p>
+</section>
+<section id="scena-26" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-26">Ricerca in ampiezza e parola testimone</h2>
+<p class="scene-meta">
+26 / 43 · Cap. 2 · §2.3, pp.&nbsp;40-41
+</p>
+<p>Una BFS esplora gli stati per distanza dall’iniziale. Memorizziamo, per ogni stato nuovo, predecessore e simbolo usato.</p>
+<p>Appena raggiungiamo un finale, ricostruiamo una parola accettata di lunghezza minima.</p>
+<p><strong>Attenzione al risultato:</strong> <code>None</code> significa linguaggio vuoto; <code>''</code> significa che <code>ε</code> è un testimone.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, machine <span class="kw">in</span> [(<span class="st">'prodotto'</span>, PAIR), (<span class="st">'parità'</span>, PARITY)]:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    witness <span class="op">=</span> shortest_witness(machine)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(label, <span class="st">'→'</span>, <span class="st">'linguaggio vuoto'</span> <span class="cf">if</span> witness <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> shown(witness))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>impossible <span class="op">=</span> dfa_product(ENDS, complement(CONTAINS))</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> shortest_witness(impossible) <span class="kw">is</span> <span class="va">None</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Termina con 1 e non contiene 1 → linguaggio vuoto'</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>prodotto → 11
+parità → ε
+Termina con 1 e non contiene 1 → linguaggio vuoto</code></pre>
+</section>
+<section id="scena-27" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-27">Proprietà del testimone corto</h2>
+<p class="scene-meta">
+27 / 43 · Cap. 2 · §2.3, pp.&nbsp;40-41
+</p>
+<p>Un DFA con <span class="math inline">n</span> stati ha linguaggio non vuoto se e solo se accetta una parola <span class="math inline">w</span> con:</p>
+<p><span class="math display"> |w|&lt;n </span></p>
+<p>In una run accettante minima nessuno stato si ripete: il tratto fra due visite allo stesso stato potrebbe essere eliminato.</p>
+<p>Quindi la run contiene al massimo <span class="math inline">n</span> stati e la parola al massimo <span class="math inline">n-1</span> simboli.</p>
+</section>
+<section id="scena-28" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-28">Raggiungibilità come punto fisso</h2>
+<p class="scene-meta">
+28 / 43 · Cap. 2 · §2.3.1, pp.&nbsp;41-42
+</p>
+<p><span class="math inline">\operatorname{Post}(R)</span> contiene i successori in un passo degli stati in <span class="math inline">R</span>.</p>
+<p><span class="math display"> R_0=\{q_0\},\qquad R_{i+1}=R_i\cup\operatorname{Post}(R_i) </span></p>
+<p><span class="math inline">R_i</span> raccoglie gli stati raggiungibili con parole di lunghezza <strong>al massimo</strong> <span class="math inline">i</span>. Il primo insieme stabile <span class="math inline">R^*</span> contiene tutti gli stati raggiungibili.</p>
+<p><span class="math display"> L(\mathcal A)\ne\varnothing\quad\Longleftrightarrow\quad R^*\cap F\ne\varnothing </span></p>
+</section>
+<section id="scena-29" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-29">Esplorazione del punto fisso</h2>
+<p class="scene-meta">
+29 / 43 · Cap. 2 · §2.3.1, pp.&nbsp;41-42
+</p>
+<p>Il DFA ricorda quanti <code>1</code> consecutivi chiudono il prefisso: <code>0</code>, <code>1</code>, <code>2</code>; <code>3</code> significa che <code>111</code> è già comparso e resta assorbente. Solo <code>3</code> è finale.</p>
+<p><strong>Iterazione</strong> seleziona <span class="math inline">R_i</span>: valori da <code>0</code> a <code>4</code>, inizialmente <code>0</code>.</p>
+<ol type="1">
+<li>A <code>1</code>, <span class="math inline">R_1=\{0,1\}</span>; a <code>2</code>, <span class="math inline">R_2=\{0,1,2\}</span>.</li>
+<li>A <code>3</code> compare il finale <code>3</code>: il linguaggio è non vuoto, testimone <code>111</code>.</li>
+<li>A <code>4</code> non cambia nulla: il punto fisso è raggiunto.</li>
+</ol>
+<p>Prima di <code>3</code>, non avere ancora trovato un finale non prova la vuotezza.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-29-72-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Esplorazione del punto fisso — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-30" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-30">Riduzioni alla vuotezza</h2>
+<p class="scene-meta">
+30 / 43 · Cap. 2 · §2.3.1, p.&nbsp;42
+</p>
+<p>Le chiusure trasformano le domande sui linguaggi in ricerca di testimoni:</p>
+<p><span class="math display"> L_1\subseteq L_2\quad\Longleftrightarrow\quad L_1\cap\overline{L_2}=\varnothing </span></p>
+<p><span class="math display"> L=\Sigma^*\quad\Longleftrightarrow\quad\overline L=\varnothing </span></p>
+<p>L’equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una parola accettata da uno solo dei due automi.</p>
+<p>Per l’inclusione, ogni parola del prodotto con il complemento è un <strong>controesempio concreto</strong>.</p>
+</section>
+<section id="scena-31" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-31">Inclusione e controesempio eseguibile</h2>
+<p class="scene-meta">
+31 / 43 · Cap. 2 · §2.3.1, p.&nbsp;42
+</p>
+<p>Siano <span class="math inline">L_E</span> le parole che terminano con <code>1</code> e <span class="math inline">L_C</span> quelle che contengono <code>1</code>.</p>
+<p><span class="math inline">L_E\subseteq L_C</span>: il prodotto con il complemento di <span class="math inline">L_C</span> non ha finali raggiungibili.</p>
+<p>Il verso opposto fallisce: <code>10</code> contiene <code>1</code>, ma non termina con <code>1</code>.</p>
+<p>La BFS trova un testimone minimo della violazione; non esamina un insieme di test scelti a mano.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> label, left, right <span class="kw">in</span> [(<span class="st">'E ⊆ C'</span>, ENDS, CONTAINS), (<span class="st">'C ⊆ E'</span>, CONTAINS, ENDS)]:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    bad <span class="op">=</span> dfa_product(left, complement(right))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    witness <span class="op">=</span> shortest_witness(bad)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(label, <span class="st">'→'</span>, <span class="st">'vera'</span> <span class="cf">if</span> witness <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> <span class="st">'falsa, controesempio: '</span><span class="op">+</span>shown(witness))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> witness <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> accepts(left, witness) <span class="kw">and</span> <span class="kw">not</span> accepts(right, witness)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>E ⊆ C → vera
+C ⊆ E → falsa, controesempio: 10</code></pre>
+</section>
+<section id="scena-32" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-32">Costo delle procedure e rappresentazione</h2>
+<p class="scene-meta">
+32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp.&nbsp;39-42
+</p>
+<p>Su un grafo esplicito con <span class="math inline">n</span> stati e <span class="math inline">m</span> archi, la BFS costa <span class="math inline">O(n+m)</span>.</p>
+<p>Per due DFA, un prodotto ha al massimo <span class="math inline">n_1n_2</span> stati; si possono esplorare solo quelli raggiungibili.</p>
+<p>Per gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a <span class="math inline">2^n</span> sottoinsiemi.</p>
+<p>«Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo.</p>
+</section>
+<section id="scena-33" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-33">Equivalenze, classi e indice</h2>
+<p class="scene-meta">
+33 / 43 · Cap. 2 · §2.4, pp.&nbsp;43-44
+</p>
+<p>Una relazione di equivalenza è riflessiva, simmetrica e transitiva. Le sue classi formano una partizione: non si sovrappongono e coprono tutto l’insieme.</p>
+<p>L’<strong>indice</strong> è il numero delle classi.</p>
+<p>Esempio: raggruppare le parole per parità della lunghezza dà due classi.</p>
+<p>«Condividono un simbolo» non è transitiva: <code>0</code> condivide con <code>01</code>, <code>01</code> con <code>1</code>, ma <code>0</code> non condivide con <code>1</code>.</p>
+</section>
+<section id="scena-34" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-34">Invarianza a destra e compatibilità</h2>
+<p class="scene-meta">
+34 / 43 · Cap. 2 · §2.4, pp.&nbsp;44-46
+</p>
+<p>Per rappresentare classi di prefissi come stati servono due proprietà.</p>
+<p><strong>Invarianza a destra:</strong></p>
+<p><span class="math display"> x\sim y\quad\Longrightarrow\quad xz\sim yz\quad\text{per ogni }z\in\Sigma^* </span></p>
+<p><strong>Compatibilità con <span class="math inline">L</span>:</strong> prefissi nella stessa classe appartengono entrambi a <span class="math inline">L</span>, oppure entrambi ne sono fuori.</p>
+<p>La prima rende coerenti le transizioni; la seconda rende coerente il verdetto.</p>
+</section>
+<section id="scena-35" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-35">Equivalenza di Myhill–Nerode</h2>
+<p class="scene-meta">
+35 / 43 · Cap. 2 · §2.4, pp.&nbsp;45-46
+</p>
+<p>Due prefissi sono equivalenti per <span class="math inline">L</span> quando nessuna continuazione distingue i loro verdetti:</p>
+<p><span class="math display"> x\sim_L y\quad\Longleftrightarrow\quad\forall z\in\Sigma^*:\;(xz\in L\Longleftrightarrow yz\in L) </span></p>
+<p>Per il linguaggio «termina con <code>1</code>», <code>01</code> e <code>11</code> sono equivalenti.</p>
+<p><code>0</code> e <code>01</code> sono distinti: basta <span class="math inline">z=\varepsilon</span>. Accettare o rifiutare entrambi <strong>adesso</strong> non garantisce invece che due prefissi siano equivalenti.</p>
+</section>
+<section id="scena-36" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-36">Confrontare i futuri di due prefissi</h2>
+<p class="scene-meta">
+36 / 43 · Cap. 2 · §2.4, pp.&nbsp;45-46
+</p>
+<p>Usiamo il linguaggio «numero pari di <code>1</code>».</p>
+<p><strong>Coppia</strong> seleziona <code>ε / 1</code>, <code>1 / 01</code> o <code>ε / 11</code>, inizialmente <code>ε / 1</code>. <strong>Suffisso</strong> seleziona <code>ε</code>, <code>0</code>, <code>1</code>, <code>01</code>, inizialmente <code>ε</code>.</p>
+<ol type="1">
+<li>Con <code>ε / 1</code> e suffisso <code>ε</code>, i verdetti differiscono: i prefissi sono distinguibili.</li>
+<li>Scegli <code>1 / 01</code> mantenendo <code>ε</code>: entrambi rifiutano. Con suffisso <code>1</code>, entrambi accettano.</li>
+<li>I due prefissi restano equivalenti per <strong>ogni</strong> suffisso perché hanno la stessa parità, non perché abbiamo provato quattro casi.</li>
+</ol>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-36-88-1.png" class="lesson-figure img-fluid figure-img"></p>
+<figcaption>Confrontare i futuri di due prefissi — figura 1</figcaption>
+</figure>
+</div>
+</section>
+<section id="scena-37" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-37">Teorema di Myhill–Nerode</h2>
+<p class="scene-meta">
+37 / 43 · Cap. 2 · §2.4, pp.&nbsp;45-47
+</p>
+<p>Per <span class="math inline">L\subseteq\Sigma^*</span> sono equivalenti:</p>
+<ol type="1">
+<li><span class="math inline">L</span> è regolare.</li>
+<li>Esiste un’equivalenza di indice finito, invariante a destra e compatibile con <span class="math inline">L</span>.</li>
+<li>L’equivalenza <span class="math inline">\sim_L</span> ha indice finito.</li>
+</ol>
+<p>Un DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare.</p>
+</section>
+<section id="scena-38" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-38">Costruire il DFA delle classi</h2>
+<p class="scene-meta">
+38 / 43 · Cap. 2 · §2.4, p.&nbsp;47
+</p>
+<p>Se <span class="math inline">\sim_L</span> ha indice finito, usiamo le sue classi come stati.</p>
+<ul>
+<li>Stato iniziale: <span class="math inline">[\varepsilon]</span>.</li>
+<li>Transizione: <span class="math inline">\delta([w],a)=[wa]</span>.</li>
+<li>Classe accettante: <span class="math inline">[w]</span> con <span class="math inline">w\in L</span>.</li>
+</ul>
+<p>L’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali.</p>
+<p>Dopo aver letto <span class="math inline">w</span>, lo stato è <span class="math inline">[w]</span>: il DFA riconosce esattamente <span class="math inline">L</span>.</p>
+</section>
+<section id="scena-39" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-39">Minimalità del DFA delle classi</h2>
+<p class="scene-meta">
+39 / 43 · Cap. 2 · §2.4, pp.&nbsp;47-48
+</p>
+<p>Se due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per <span class="math inline">L</span> deve quindi portarli in stati diversi.</p>
+<p>Ogni DFA per <span class="math inline">L</span> ha almeno tanti stati quante sono le classi di <span class="math inline">\sim_L</span>. Il DFA delle classi raggiunge questo limite.</p>
+<p>Per «termina con <code>1</code>» ci sono due classi: prefissi che terminano con <code>1</code> e tutti gli altri, inclusa <code>ε</code>. Due stati sono necessari e sufficienti.</p>
+</section>
+<section id="scena-40" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-40">Non regolarità mediante prefissi distinguibili</h2>
+<p class="scene-meta">
+40 / 43 · Cap. 2 · §2.4, p.&nbsp;43 e applicazione del teorema, pp.&nbsp;45-47
+</p>
+<p>Considera il linguaggio delle parole con tanti <code>0</code> quanti <code>1</code>.</p>
+<p>Prendiamo i prefissi <span class="math inline">x_n=0^n</span>, per ogni <span class="math inline">n\geq0</span>.</p>
+<p>Se <span class="math inline">m\ne n</span>, il suffisso <span class="math inline">z=1^n</span> distingue <span class="math inline">x_n</span> da <span class="math inline">x_m</span>:</p>
+<p><span class="math display"> 0^n1^n\in L,\qquad 0^m1^n\notin L </span></p>
+<p>Esistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare.</p>
+</section>
+<section id="scena-41" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-41">Esercizi di autoverifica</h2>
+<p class="scene-meta">
+41 / 43 · Cap. 2 · Esercizi, pp.&nbsp;48-49
+</p>
+<ol type="1">
+<li>Che linguaggi descrivono <span class="math inline">\varnothing^*</span> e <span class="math inline">\varepsilon+01</span>?</li>
+<li>Due stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l’accettazione della parola vuota dopo la rimozione ε?</li>
+<li>Trova la parola minima che termina con <code>1</code> e contiene un numero pari di <code>1</code>.</li>
+<li>Per il linguaggio «contiene <code>1</code>», <code>ε</code> e <code>0</code> sono equivalenti? E <code>ε</code> e <code>1</code>?</li>
+<li>Quale prodotto verifica <span class="math inline">L_C\subseteq L_E</span> e quale controesempio trova?</li>
+</ol>
+<p>Spiega a voce le ragioni prima di passare alle soluzioni.</p>
+</section>
+<section id="scena-42" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-42">Soluzioni e verifica degli algoritmi</h2>
+<p class="scene-meta">
+42 / 43 · Cap. 2 · Esercizi, pp.&nbsp;48-49
+</p>
+<ol type="1">
+<li><span class="math inline">\varnothing^*</span> descrive <span class="math inline">\{\varepsilon\}</span>; <span class="math inline">\varepsilon+01</span> descrive <span class="math inline">\{\varepsilon,01\}</span>.</li>
+<li>Con la nostra formula per <span class="math inline">\Delta'</span>, rendiamo finale anche l’iniziale.</li>
+<li><code>11</code>: un solo <code>1</code> dà parità dispari.</li>
+<li><code>ε</code> e <code>0</code> hanno gli stessi futuri; <code>ε</code> e <code>1</code> sono distinti già dal suffisso vuoto.</li>
+<li>Prodotto di <span class="math inline">C</span> con il complemento di <span class="math inline">E</span>: testimone minimo <code>10</code>.</li>
+</ol>
+<p>Il controllo seguente confronta costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'Verifica completata: 255 parole e 10 espressioni.'</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'ε-NFA, rimozione ε e DFA concordano con i predicati diretti.'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">'BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.'</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Verifica completata: 255 parole e 10 espressioni.
+ε-NFA, rimozione ε e DFA concordano con i predicati diretti.
+BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.</code></pre>
+</section>
+<section id="scena-43" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="scena-43">Riepilogo e collegamento alla verifica</h2>
+<p class="scene-meta">
+43 / 43 · Cap. 2 · Riepilogo, p.&nbsp;48
+</p>
+<ul>
+<li>Espressioni regolari e automi finiti descrivono gli stessi linguaggi.</li>
+<li>Le transizioni ε rendono modulari le costruzioni e si possono eliminare.</li>
+<li>Complemento e prodotto compilano requisiti booleani.</li>
+<li>L’inclusione si decide cercando un comportamento ammesso dal sistema e vietato dalla specifica.</li>
+<li>Myhill–Nerode identifica la memoria minima necessaria.</li>
+</ul>
+<p>Nel capitolo 3 passeremo alle parole infinite: il momento finale di accettazione non sarà più disponibile.</p>
+</section>
+</div>
+
+
+
+</main> <!-- /main -->
+<script>
+// Carry the current scene back to the presentation when switching views.
+document.querySelector('.presentation-link')?.addEventListener('click', function () {
+  const scenes = [...document.querySelectorAll('.reading-slides section[id]')];
+  const scene = scenes.filter(section => section.getBoundingClientRect().top <= innerHeight / 2).at(-1);
+  if (scene) this.hash = '/' + scene.id;
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/vvt\.aliteia\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p><a href="../privacy-policy.html">Privacy &amp; Cookies</a></p>
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

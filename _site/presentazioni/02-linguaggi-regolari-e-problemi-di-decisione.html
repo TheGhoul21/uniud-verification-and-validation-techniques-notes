@@ -98,6 +98,22 @@
   </style>
   <link rel="stylesheet" href="../site_libs/revealjs/dist/theme/quarto-5b48f34d633aed70c74c672477009ffc.css">
   <link rel="stylesheet" href="slides.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-V5T4WKNT8G"></script>
 
   <script type="text/plain" cookie-consent="tracking">
@@ -217,6 +233,32 @@
       margin-right: 0; 
     }
   </style>
+  <script>
+  (() => {
+    const reading = new URL(location.href);
+    reading.pathname = reading.pathname.replace(/\.html$/, '-lettura.html');
+    reading.hash = reading.hash.replace(/^#\//, '#');
+    reading.searchParams.delete('view');
+    // A portrait phone gets the reflowed page; an explicit slide choice wins.
+    if (matchMedia('(max-width: 768px) and (orientation: portrait)').matches &&
+        new URLSearchParams(location.search).get('view') !== 'slides' &&
+        !new URLSearchParams(location.search).has('print-pdf')) {
+      location.replace(reading.href);
+      return;
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      const link = document.createElement('a');
+      link.className = 'reading-mode-link';
+      link.textContent = 'Lettura';
+      link.href = reading.href;
+      link.addEventListener('click', () => {
+        reading.hash = window.Reveal?.getCurrentSlide()?.id || '';
+        link.href = reading.href;
+      });
+      document.body.append(link);
+    });
+  })();
+  </script>
 <meta property="og:title" content="VVT 02 - Linguaggi regolari e problemi di decisione">
 <meta property="og:image" content="https://vvt.aliteia.com/presentazioni/images/social-preview.jpg">
 <meta property="og:site_name" content="Verification and Validation Techniques — UniUD">
@@ -246,8 +288,8 @@
 </p>
 <p>Un DFA ha una sola run; un NFA può averne più di una.</p>
 <p>Una parola è accettata se <strong>almeno una run</strong> termina in uno stato finale, dopo aver consumato tutto l’input.</p>
-<p><span class="math display">\[ L(\mathcal A)\subseteq\Sigma^* \]</span></p>
-<p>Useremo <span class="math inline">\(\Sigma=\{0,1\}\)</span>. La parola vuota è <span class="math inline">\(\varepsilon\)</span>; il complemento è sempre relativo all’alfabeto dichiarato.</p>
+<p><span class="math display"> L(\mathcal A)\subseteq\Sigma^* </span></p>
+<p>Useremo <span class="math inline">\Sigma=\{0,1\}</span>. La parola vuota è <span class="math inline">\varepsilon</span>; il complemento è sempre relativo all’alfabeto dichiarato.</p>
 </section>
 <section id="scena-03" class="slide level2 scrollable">
 <h2>Sintassi delle espressioni regolari</h2>
@@ -255,28 +297,28 @@
 03 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;24-25
 </p>
 <p>Le espressioni <strong>ristrette</strong> partono da:</p>
-<p><span class="math display">\[ \varnothing,\qquad \varepsilon,\qquad a\in\Sigma \]</span></p>
-<p>Se <span class="math inline">\(r\)</span> e <span class="math inline">\(s\)</span> sono espressioni, anche <span class="math inline">\(r+s\)</span>, <span class="math inline">\(rs\)</span> e <span class="math inline">\(r^*\)</span> lo sono.</p>
-<p>Il simbolo <span class="math inline">\(+\)</span> indica <strong>unione</strong>. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità.</p>
+<p><span class="math display"> \varnothing,\qquad \varepsilon,\qquad a\in\Sigma </span></p>
+<p>Se <span class="math inline">r</span> e <span class="math inline">s</span> sono espressioni, anche <span class="math inline">r+s</span>, <span class="math inline">rs</span> e <span class="math inline">r^*</span> lo sono.</p>
+<p>Il simbolo <span class="math inline">+</span> indica <strong>unione</strong>. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità.</p>
 </section>
 <section id="scena-04" class="slide level2 scrollable">
 <h2>Semantica delle espressioni regolari</h2>
 <p class="scene-meta">
 04 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;24-25
 </p>
-<p><span class="math display">\[ L(\varnothing)=\varnothing,\quad L(\varepsilon)=\{\varepsilon\},\quad L(a)=\{a\} \]</span></p>
-<p><span class="math display">\[ L(r+s)=L(r)\cup L(s) \]</span></p>
-<p><span class="math display">\[ L(rs)=L(r)L(s),\qquad L(r^*)=L(r)^* \]</span></p>
-<p><span class="math inline">\(\varnothing\)</span> non contiene parole; <span class="math inline">\(\varepsilon\)</span> descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni.</p>
+<p><span class="math display"> L(\varnothing)=\varnothing,\quad L(\varepsilon)=\{\varepsilon\},\quad L(a)=\{a\} </span></p>
+<p><span class="math display"> L(r+s)=L(r)\cup L(s) </span></p>
+<p><span class="math display"> L(rs)=L(r)L(s),\qquad L(r^*)=L(r)^* </span></p>
+<p><span class="math inline">\varnothing</span> non contiene parole; <span class="math inline">\varepsilon</span> descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni.</p>
 </section>
 <section id="scena-05" class="slide level2 scrollable">
 <h2>Espressioni per suffisso e parità</h2>
 <p class="scene-meta">
 05 / 43 · Cap. 2 · §2.1.1, p.&nbsp;25
 </p>
-<p><span class="math display">\[ (0+1)^*01 \]</span></p>
+<p><span class="math display"> (0+1)^*01 </span></p>
 <p>Descrive le parole che terminano con <code>01</code>: accetta <code>01</code>, <code>1101</code>; rifiuta <code>ε</code>, <code>010</code>.</p>
-<p><span class="math display">\[ 0^*(10^*10^*)^* \]</span></p>
+<p><span class="math display"> 0^*(10^*10^*)^* </span></p>
 <p>Descrive le parole con un numero pari di <code>1</code>: ogni blocco ripetuto contribuisce due <code>1</code>. Sono incluse <code>ε</code> e tutte le parole composte solo da <code>0</code>.</p>
 </section>
 <section id="scena-06" class="slide level2 scrollable">
@@ -285,16 +327,16 @@
 06 / 43 · Cap. 2 · §2.1.1, pp.&nbsp;25-26
 </p>
 <p>Le espressioni <strong>generali</strong> aggiungono intersezione e complemento:</p>
-<p><span class="math display">\[ L(r\cap s)=L(r)\cap L(s),\qquad L(\overline r)=\Sigma^*\setminus L(r) \]</span></p>
+<p><span class="math display"> L(r\cap s)=L(r)\cap L(s),\qquad L(\overline r)=\Sigma^*\setminus L(r) </span></p>
 <p>Le espressioni <strong>star-free</strong> ammettono questi operatori booleani, ma non la stella.</p>
-<p>Star-free non significa linguaggio finito: <span class="math inline">\(\overline{\varnothing}\)</span> descrive <span class="math inline">\(\Sigma^*\)</span>. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno.</p>
+<p>Star-free non significa linguaggio finito: <span class="math inline">\overline{\varnothing}</span> descrive <span class="math inline">\Sigma^*</span>. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno.</p>
 </section>
 <section id="scena-07" class="slide level2 scrollable">
 <h2>Transizioni ε e composizione</h2>
 <p class="scene-meta">
 07 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;26-27
 </p>
-<p>Una transizione <span class="math inline">\(\varepsilon\)</span> cambia stato <strong>senza consumare simboli</strong>. Non aggiunge un simbolo all’alfabeto.</p>
+<p>Una transizione <span class="math inline">\varepsilon</span> cambia stato <strong>senza consumare simboli</strong>. Non aggiunge un simbolo all’alfabeto.</p>
 <p>Per concatenare gli automi per <code>0</code> e <code>1</code>, colleghiamo l’uscita del primo all’ingresso del secondo. Solo l’ultima uscita resta accettante.</p>
 <p>Il doppio cerchio indica uno stato finale; la freccia esterna indica l’iniziale.</p>
 
@@ -304,10 +346,10 @@
 <p class="scene-meta">
 08 / 43 · Cap. 2 · §2.1.2, p.&nbsp;27
 </p>
-<p><span class="math inline">\(\operatorname{ECl}(S)\)</span> contiene tutti gli stati raggiungibili da <span class="math inline">\(S\)</span> usando zero o più transizioni ε.</p>
-<p><span class="math display">\[ X_0=S,\qquad X_{i+1}=X_i\cup\bigcup_{q\in X_i}\Delta(q,\varepsilon) \]</span></p>
-<p>Si arresta quando <span class="math inline">\(X_{i+1}=X_i\)</span>. Nel diagramma precedente:</p>
-<p><span class="math display">\[ \operatorname{ECl}(\{u\})=\{u,v\} \]</span></p>
+<p><span class="math inline">\operatorname{ECl}(S)</span> contiene tutti gli stati raggiungibili da <span class="math inline">S</span> usando zero o più transizioni ε.</p>
+<p><span class="math display"> X_0=S,\qquad X_{i+1}=X_i\cup\bigcup_{q\in X_i}\Delta(q,\varepsilon) </span></p>
+<p>Si arresta quando <span class="math inline">X_{i+1}=X_i</span>. Nel diagramma precedente:</p>
+<p><span class="math display"> \operatorname{ECl}(\{u\})=\{u,v\} </span></p>
 <p>Lo stato di partenza appartiene sempre alla propria chiusura.</p>
 </section>
 <section id="scena-09" class="slide level2 scrollable">
@@ -331,8 +373,8 @@
 10 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;29-30
 </p>
 <p>Manteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:</p>
-<p><span class="math display">\[ \Delta'(q,a)=\operatorname{ECl}\left(\bigcup_{p\in\operatorname{ECl}(\{q\})}\Delta(p,a)\right) \]</span></p>
-<p>Nell’esempio: <span class="math inline">\(\Delta'(s,0)=\{u,v\}\)</span> e <span class="math inline">\(\Delta'(u,1)=\{f\}\)</span>.</p>
+<p><span class="math display"> \Delta'(q,a)=\operatorname{ECl}\left(\bigcup_{p\in\operatorname{ECl}(\{q\})}\Delta(p,a)\right) </span></p>
+<p>Nell’esempio: <span class="math inline">\Delta'(s,0)=\{u,v\}</span> e <span class="math inline">\Delta'(u,1)=\{f\}</span>.</p>
 <p>Il nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota.</p>
 </section>
 <section id="scena-11" class="slide level2 scrollable">
@@ -340,10 +382,10 @@
 <p class="scene-meta">
 11 / 43 · Cap. 2 · §2.1.2, pp.&nbsp;29-30
 </p>
-<p>Con la convenzione precedente manteniamo <span class="math inline">\(F\)</span>, aggiungendo <span class="math inline">\(q_0\)</span> se la sua chiusura ε incontra <span class="math inline">\(F\)</span>.</p>
+<p>Con la convenzione precedente manteniamo <span class="math inline">F</span>, aggiungendo <span class="math inline">q_0</span> se la sua chiusura ε incontra <span class="math inline">F</span>.</p>
 <p><strong>Esempio:</strong> due stati <code>i</code>, <code>f</code>, con una sola freccia ε da <code>i</code> a <code>f</code>; solo <code>f</code> è finale.</p>
 <p>L’automa accetta <code>ε</code>. Eliminando la freccia senza correggere i finali, la rifiuterebbe.</p>
-<p>Rendendo finale anche <code>i</code>, il linguaggio rimane esattamente <span class="math inline">\(\{\varepsilon\}\)</span>.</p>
+<p>Rendendo finale anche <code>i</code>, il linguaggio rimane esattamente <span class="math inline">\{\varepsilon\}</span>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a></a>empty_example <span class="op">=</span> enfa({<span class="st">'i'</span>,<span class="st">'f'</span>}, {(<span class="st">'i'</span>, EPS): {<span class="st">'f'</span>}}, <span class="st">'i'</span>, {<span class="st">'f'</span>})</span>
 <span id="cb1-2"><a></a>ordinary <span class="op">=</span> remove_epsilon(empty_example)</span>
 <span id="cb1-3"><a></a><span class="bu">print</span>(<span class="st">'Finali dopo la rimozione:'</span>, names(ordinary[<span class="st">'final'</span>]))</span>
@@ -372,9 +414,9 @@
 </p>
 <p>Ogni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.</p>
 <ul>
-<li><span class="math inline">\(\varnothing\)</span>: ingresso e uscita senza un cammino che li colleghi.</li>
-<li><span class="math inline">\(\varepsilon\)</span>: un arco ε dall’ingresso all’uscita.</li>
-<li><span class="math inline">\(a\)</span>: un arco etichettato <span class="math inline">\(a\)</span> dall’ingresso all’uscita.</li>
+<li><span class="math inline">\varnothing</span>: ingresso e uscita senza un cammino che li colleghi.</li>
+<li><span class="math inline">\varepsilon</span>: un arco ε dall’ingresso all’uscita.</li>
+<li><span class="math inline">a</span>: un arco etichettato <span class="math inline">a</span> dall’ingresso all’uscita.</li>
 </ul>
 <p>I frammenti da comporre devono avere insiemi di stati disgiunti.</p>
 </section>
@@ -383,9 +425,9 @@
 <p class="scene-meta">
 14 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;34-35
 </p>
-<p><strong>Unione <span class="math inline">\(r+s\)</span>:</strong> un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.</p>
-<p><strong>Concatenazione <span class="math inline">\(rs\)</span>:</strong> colleghiamo l’uscita di <span class="math inline">\(r\)</span> all’ingresso di <span class="math inline">\(s\)</span> con ε.</p>
-<p><strong>Stella <span class="math inline">\(r^*\)</span>:</strong> aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.</p>
+<p><strong>Unione <span class="math inline">r+s</span>:</strong> un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.</p>
+<p><strong>Concatenazione <span class="math inline">rs</span>:</strong> colleghiamo l’uscita di <span class="math inline">r</span> all’ingresso di <span class="math inline">s</span> con ε.</p>
+<p><strong>Stella <span class="math inline">r^*</span>:</strong> aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.</p>
 <p>Il salto diretto ingresso → uscita realizza le zero ripetizioni.</p>
 </section>
 <section id="scena-15" class="slide level2 scrollable">
@@ -393,7 +435,7 @@
 <p class="scene-meta">
 15 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;34-35
 </p>
-<p>Compiliamo <span class="math inline">\(r=(0+1)^*01\)</span> e poi rimuoviamo ε e determinizziamo.</p>
+<p>Compiliamo <span class="math inline">r=(0+1)^*01</span> e poi rimuoviamo ε e determinizziamo.</p>
 <p>Il codice rappresenta la sintassi con tuple: <code>lit</code> è un simbolo, <code>plus</code> è unione, <code>cat</code> è concatenazione, <code>star</code> è stella.</p>
 <p>La prova finita confronta il DFA con la proprietà «termina con <code>01</code>». La correttezza generale deriva dalla costruzione di Thompson.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>zero, one <span class="op">=</span> (<span class="st">'lit'</span>,<span class="st">'0'</span>), (<span class="st">'lit'</span>,<span class="st">'1'</span>)</span>
@@ -414,39 +456,39 @@ Stati DFA raggiungibili: 4
 <p class="scene-meta">
 16 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;32-33
 </p>
-<p>Numeriamo gli stati <span class="math inline">\(q_1,\ldots,q_n\)</span>.</p>
-<p><span class="math inline">\(R_{ij}^{k}\)</span> descrive le parole dei cammini da <span class="math inline">\(q_i\)</span> a <span class="math inline">\(q_j\)</span> che usano come stati <strong>intermedi</strong> solo <span class="math inline">\(q_1,\ldots,q_k\)</span>.</p>
-<p>Gli estremi non sono vincolati. Con <span class="math inline">\(k=0\)</span> sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.</p>
-<p>Quindi <span class="math inline">\(R_{ij}^{0}\)</span> è l’unione delle etichette dirette, con ε aggiunta quando <span class="math inline">\(i=j\)</span>.</p>
+<p>Numeriamo gli stati <span class="math inline">q_1,\ldots,q_n</span>.</p>
+<p><span class="math inline">R_{ij}^{k}</span> descrive le parole dei cammini da <span class="math inline">q_i</span> a <span class="math inline">q_j</span> che usano come stati <strong>intermedi</strong> solo <span class="math inline">q_1,\ldots,q_k</span>.</p>
+<p>Gli estremi non sono vincolati. Con <span class="math inline">k=0</span> sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.</p>
+<p>Quindi <span class="math inline">R_{ij}^{0}</span> è l’unione delle etichette dirette, con ε aggiunta quando <span class="math inline">i=j</span>.</p>
 </section>
 <section id="scena-17" class="slide level2 scrollable">
 <h2>Ricorrenza per la traduzione in espressione</h2>
 <p class="scene-meta">
 17 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;33-36
 </p>
-<p>Sbloccando <span class="math inline">\(q_k\)</span> come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.</p>
-<p><span class="math display">\[ R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \]</span></p>
+<p>Sbloccando <span class="math inline">q_k</span> come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.</p>
+<p><span class="math display"> R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} </span></p>
 <p>La stella rappresenta un numero finito qualsiasi di ritorni.</p>
-<p>Alla fine si uniscono <span class="math inline">\(R_{1j}^{n}\)</span> per tutti i finali <span class="math inline">\(q_j\)</span>, assumendo <span class="math inline">\(q_1\)</span> iniziale.</p>
+<p>Alla fine si uniscono <span class="math inline">R_{1j}^{n}</span> per tutti i finali <span class="math inline">q_j</span>, assumendo <span class="math inline">q_1</span> iniziale.</p>
 </section>
 <section id="scena-18" class="slide level2 scrollable">
 <h2>Ricorrenza sul DFA della parità</h2>
 <p class="scene-meta">
 18 / 43 · Cap. 2 · §2.1.3, pp.&nbsp;33-34
 </p>
-<p>Nel DFA della parità di <code>1</code>, <span class="math inline">\(q_1\)</span> è pari e <span class="math inline">\(q_2\)</span> dispari. <code>0</code> conserva lo stato, <code>1</code> lo cambia.</p>
-<p><span class="math display">\[ R_{11}^{0}=R_{22}^{0}=\varepsilon+0,\qquad R_{12}^{0}=R_{21}^{0}=1 \]</span></p>
-<p>Sbloccando <span class="math inline">\(q_1\)</span>:</p>
-<p><span class="math display">\[ R_{22}^{1}=(\varepsilon+0)+1(\varepsilon+0)^*1 \]</span></p>
-<p>Sono inclusi <code>ε</code>, <code>0</code>, <code>11</code>, <code>101</code>; <code>00</code> richiede un passaggio intermedio per <span class="math inline">\(q_2\)</span> e non è ancora incluso.</p>
+<p>Nel DFA della parità di <code>1</code>, <span class="math inline">q_1</span> è pari e <span class="math inline">q_2</span> dispari. <code>0</code> conserva lo stato, <code>1</code> lo cambia.</p>
+<p><span class="math display"> R_{11}^{0}=R_{22}^{0}=\varepsilon+0,\qquad R_{12}^{0}=R_{21}^{0}=1 </span></p>
+<p>Sbloccando <span class="math inline">q_1</span>:</p>
+<p><span class="math display"> R_{22}^{1}=(\varepsilon+0)+1(\varepsilon+0)^*1 </span></p>
+<p>Sono inclusi <code>ε</code>, <code>0</code>, <code>11</code>, <code>101</code>; <code>00</code> richiede un passaggio intermedio per <span class="math inline">q_2</span> e non è ancora incluso.</p>
 </section>
 <section id="scena-19" class="slide level2 scrollable">
 <h2>Chiusure dei linguaggi regolari</h2>
 <p class="scene-meta">
 19 / 43 · Cap. 2 · §2.2, pp.&nbsp;36-37
 </p>
-<p>Se <span class="math inline">\(L_1\)</span> e <span class="math inline">\(L_2\)</span> sono regolari sullo stesso alfabeto, sono regolari anche:</p>
-<p><span class="math display">\[ L_1\cup L_2,\quad L_1L_2,\quad L_1^*,\quad \overline{L_1},\quad L_1\cap L_2 \]</span></p>
+<p>Se <span class="math inline">L_1</span> e <span class="math inline">L_2</span> sono regolari sullo stesso alfabeto, sono regolari anche:</p>
+<p><span class="math display"> L_1\cup L_2,\quad L_1L_2,\quad L_1^*,\quad \overline{L_1},\quad L_1\cap L_2 </span></p>
 <p>Unione, concatenazione e stella seguono dalle costruzioni già viste.</p>
 <p>Complemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo.</p>
 </section>
@@ -455,7 +497,7 @@ Stati DFA raggiungibili: 4
 <p class="scene-meta">
 20 / 43 · Cap. 2 · §2.2.1, pp.&nbsp;37-38
 </p>
-<p>Per un DFA completo basta sostituire <span class="math inline">\(F\)</span> con <span class="math inline">\(Q\setminus F\)</span>.</p>
+<p>Per un DFA completo basta sostituire <span class="math inline">F</span> con <span class="math inline">Q\setminus F</span>.</p>
 <p>Ogni parola ha esattamente una run completa: il suo verdetto viene invertito.</p>
 <p><strong>DFA parziale per <code>{1}</code>:</strong> solo <code>s —1→ f</code>, con <code>f</code> finale. Scambiando i finali si accetta solo <code>ε</code>: <code>0</code> continua a non avere run.</p>
 <p>Prima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti.</p>
@@ -480,9 +522,9 @@ Stati DFA raggiungibili: 4
 22 / 43 · Cap. 2 · §2.2.2, pp.&nbsp;38-39
 </p>
 <p>Lo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.</p>
-<p><span class="math display">\[ \delta((p,q),a)=(\delta_1(p,a),\delta_2(q,a)) \]</span></p>
-<p>Per l’intersezione, lo stato iniziale è <span class="math inline">\((q_{01},q_{02})\)</span> e i finali sono:</p>
-<p><span class="math display">\[ F=F_1\times F_2 \]</span></p>
+<p><span class="math display"> \delta((p,q),a)=(\delta_1(p,a),\delta_2(q,a)) </span></p>
+<p>Per l’intersezione, lo stato iniziale è <span class="math inline">(q_{01},q_{02})</span> e i finali sono:</p>
+<p><span class="math display"> F=F_1\times F_2 </span></p>
 <p>Entrambi i componenti devono accettare <strong>al termine della stessa parola</strong>.</p>
 </section>
 <section id="scena-23" class="slide level2 scrollable">
@@ -505,8 +547,8 @@ Stati DFA raggiungibili: 4
 24 / 43 · Cap. 2 · §2.2, p.&nbsp;37
 </p>
 <p>Riprendiamo l’alfabeto di eventi <code>apri</code>, <code>modifica</code>, <code>salva</code>, <code>chiudi</code>.</p>
-<p><span class="math display">\[ r_{\mathrm{sessione}}=\mathrm{apri}\;(\mathrm{modifica}+\mathrm{salva})^*\;\mathrm{chiudi} \]</span></p>
-<p>Il requisito «contiene almeno un salvataggio» è <span class="math inline">\(\Sigma^*\;\mathrm{salva}\;\Sigma^*\)</span>.</p>
+<p><span class="math display"> r_{\mathrm{sessione}}=\mathrm{apri}\;(\mathrm{modifica}+\mathrm{salva})^*\;\mathrm{chiudi} </span></p>
+<p>Il requisito «contiene almeno un salvataggio» è <span class="math inline">\Sigma^*\;\mathrm{salva}\;\Sigma^*</span>.</p>
 <p>Il prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola più corta possibile è <code>apri, salva, chiudi</code>.</p>
 <p>Questo requisito non impone di salvare ogni modifica.</p>
 </section>
@@ -518,8 +560,8 @@ Stati DFA raggiungibili: 4
 <ul>
 <li><strong>Appartenenza:</strong> questa parola è accettata?</li>
 <li><strong>Vuotezza:</strong> esiste almeno una parola accettata?</li>
-<li><strong>Universalità:</strong> sono accettate tutte le parole di <span class="math inline">\(\Sigma^*\)</span>?</li>
-<li><strong>Inclusione:</strong> ogni parola di <span class="math inline">\(L_1\)</span> appartiene a <span class="math inline">\(L_2\)</span>?</li>
+<li><strong>Universalità:</strong> sono accettate tutte le parole di <span class="math inline">\Sigma^*</span>?</li>
+<li><strong>Inclusione:</strong> ogni parola di <span class="math inline">L_1</span> appartiene a <span class="math inline">L_2</span>?</li>
 <li><strong>Equivalenza:</strong> i due linguaggi coincidono?</li>
 </ul>
 <p>L’appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall’iniziale.</p>
@@ -547,20 +589,20 @@ Termina con 1 e non contiene 1 → linguaggio vuoto</code></pre>
 <p class="scene-meta">
 27 / 43 · Cap. 2 · §2.3, pp.&nbsp;40-41
 </p>
-<p>Un DFA con <span class="math inline">\(n\)</span> stati ha linguaggio non vuoto se e solo se accetta una parola <span class="math inline">\(w\)</span> con:</p>
-<p><span class="math display">\[ |w|&lt;n \]</span></p>
+<p>Un DFA con <span class="math inline">n</span> stati ha linguaggio non vuoto se e solo se accetta una parola <span class="math inline">w</span> con:</p>
+<p><span class="math display"> |w|&lt;n </span></p>
 <p>In una run accettante minima nessuno stato si ripete: il tratto fra due visite allo stesso stato potrebbe essere eliminato.</p>
-<p>Quindi la run contiene al massimo <span class="math inline">\(n\)</span> stati e la parola al massimo <span class="math inline">\(n-1\)</span> simboli.</p>
+<p>Quindi la run contiene al massimo <span class="math inline">n</span> stati e la parola al massimo <span class="math inline">n-1</span> simboli.</p>
 </section>
 <section id="scena-28" class="slide level2 scrollable">
 <h2>Raggiungibilità come punto fisso</h2>
 <p class="scene-meta">
 28 / 43 · Cap. 2 · §2.3.1, pp.&nbsp;41-42
 </p>
-<p><span class="math inline">\(\operatorname{Post}(R)\)</span> contiene i successori in un passo degli stati in <span class="math inline">\(R\)</span>.</p>
-<p><span class="math display">\[ R_0=\{q_0\},\qquad R_{i+1}=R_i\cup\operatorname{Post}(R_i) \]</span></p>
-<p><span class="math inline">\(R_i\)</span> raccoglie gli stati raggiungibili con parole di lunghezza <strong>al massimo</strong> <span class="math inline">\(i\)</span>. Il primo insieme stabile <span class="math inline">\(R^*\)</span> contiene tutti gli stati raggiungibili.</p>
-<p><span class="math display">\[ L(\mathcal A)\ne\varnothing\quad\Longleftrightarrow\quad R^*\cap F\ne\varnothing \]</span></p>
+<p><span class="math inline">\operatorname{Post}(R)</span> contiene i successori in un passo degli stati in <span class="math inline">R</span>.</p>
+<p><span class="math display"> R_0=\{q_0\},\qquad R_{i+1}=R_i\cup\operatorname{Post}(R_i) </span></p>
+<p><span class="math inline">R_i</span> raccoglie gli stati raggiungibili con parole di lunghezza <strong>al massimo</strong> <span class="math inline">i</span>. Il primo insieme stabile <span class="math inline">R^*</span> contiene tutti gli stati raggiungibili.</p>
+<p><span class="math display"> L(\mathcal A)\ne\varnothing\quad\Longleftrightarrow\quad R^*\cap F\ne\varnothing </span></p>
 </section>
 <section id="scena-29" class="slide level2 scrollable">
 <h2>Esplorazione del punto fisso</h2>
@@ -568,9 +610,9 @@ Termina con 1 e non contiene 1 → linguaggio vuoto</code></pre>
 29 / 43 · Cap. 2 · §2.3.1, pp.&nbsp;41-42
 </p>
 <p>Il DFA ricorda quanti <code>1</code> consecutivi chiudono il prefisso: <code>0</code>, <code>1</code>, <code>2</code>; <code>3</code> significa che <code>111</code> è già comparso e resta assorbente. Solo <code>3</code> è finale.</p>
-<p><strong>Iterazione</strong> seleziona <span class="math inline">\(R_i\)</span>: valori da <code>0</code> a <code>4</code>, inizialmente <code>0</code>.</p>
+<p><strong>Iterazione</strong> seleziona <span class="math inline">R_i</span>: valori da <code>0</code> a <code>4</code>, inizialmente <code>0</code>.</p>
 <ol type="1">
-<li>A <code>1</code>, <span class="math inline">\(R_1=\{0,1\}\)</span>; a <code>2</code>, <span class="math inline">\(R_2=\{0,1,2\}\)</span>.</li>
+<li>A <code>1</code>, <span class="math inline">R_1=\{0,1\}</span>; a <code>2</code>, <span class="math inline">R_2=\{0,1,2\}</span>.</li>
 <li>A <code>3</code> compare il finale <code>3</code>: il linguaggio è non vuoto, testimone <code>111</code>.</li>
 <li>A <code>4</code> non cambia nulla: il punto fisso è raggiunto.</li>
 </ol>
@@ -583,8 +625,8 @@ Termina con 1 e non contiene 1 → linguaggio vuoto</code></pre>
 30 / 43 · Cap. 2 · §2.3.1, p.&nbsp;42
 </p>
 <p>Le chiusure trasformano le domande sui linguaggi in ricerca di testimoni:</p>
-<p><span class="math display">\[ L_1\subseteq L_2\quad\Longleftrightarrow\quad L_1\cap\overline{L_2}=\varnothing \]</span></p>
-<p><span class="math display">\[ L=\Sigma^*\quad\Longleftrightarrow\quad\overline L=\varnothing \]</span></p>
+<p><span class="math display"> L_1\subseteq L_2\quad\Longleftrightarrow\quad L_1\cap\overline{L_2}=\varnothing </span></p>
+<p><span class="math display"> L=\Sigma^*\quad\Longleftrightarrow\quad\overline L=\varnothing </span></p>
 <p>L’equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una parola accettata da uno solo dei due automi.</p>
 <p>Per l’inclusione, ogni parola del prodotto con il complemento è un <strong>controesempio concreto</strong>.</p>
 </section>
@@ -593,8 +635,8 @@ Termina con 1 e non contiene 1 → linguaggio vuoto</code></pre>
 <p class="scene-meta">
 31 / 43 · Cap. 2 · §2.3.1, p.&nbsp;42
 </p>
-<p>Siano <span class="math inline">\(L_E\)</span> le parole che terminano con <code>1</code> e <span class="math inline">\(L_C\)</span> quelle che contengono <code>1</code>.</p>
-<p><span class="math inline">\(L_E\subseteq L_C\)</span>: il prodotto con il complemento di <span class="math inline">\(L_C\)</span> non ha finali raggiungibili.</p>
+<p>Siano <span class="math inline">L_E</span> le parole che terminano con <code>1</code> e <span class="math inline">L_C</span> quelle che contengono <code>1</code>.</p>
+<p><span class="math inline">L_E\subseteq L_C</span>: il prodotto con il complemento di <span class="math inline">L_C</span> non ha finali raggiungibili.</p>
 <p>Il verso opposto fallisce: <code>10</code> contiene <code>1</code>, ma non termina con <code>1</code>.</p>
 <p>La BFS trova un testimone minimo della violazione; non esamina un insieme di test scelti a mano.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a></a><span class="cf">for</span> label, left, right <span class="kw">in</span> [(<span class="st">'E ⊆ C'</span>, ENDS, CONTAINS), (<span class="st">'C ⊆ E'</span>, CONTAINS, ENDS)]:</span>
@@ -611,9 +653,9 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 <p class="scene-meta">
 32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp.&nbsp;39-42
 </p>
-<p>Su un grafo esplicito con <span class="math inline">\(n\)</span> stati e <span class="math inline">\(m\)</span> archi, la BFS costa <span class="math inline">\(O(n+m)\)</span>.</p>
-<p>Per due DFA, un prodotto ha al massimo <span class="math inline">\(n_1n_2\)</span> stati; si possono esplorare solo quelli raggiungibili.</p>
-<p>Per gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a <span class="math inline">\(2^n\)</span> sottoinsiemi.</p>
+<p>Su un grafo esplicito con <span class="math inline">n</span> stati e <span class="math inline">m</span> archi, la BFS costa <span class="math inline">O(n+m)</span>.</p>
+<p>Per due DFA, un prodotto ha al massimo <span class="math inline">n_1n_2</span> stati; si possono esplorare solo quelli raggiungibili.</p>
+<p>Per gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a <span class="math inline">2^n</span> sottoinsiemi.</p>
 <p>«Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo.</p>
 </section>
 <section id="scena-33" class="slide level2 scrollable">
@@ -633,8 +675,8 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 </p>
 <p>Per rappresentare classi di prefissi come stati servono due proprietà.</p>
 <p><strong>Invarianza a destra:</strong></p>
-<p><span class="math display">\[ x\sim y\quad\Longrightarrow\quad xz\sim yz\quad\text{per ogni }z\in\Sigma^* \]</span></p>
-<p><strong>Compatibilità con <span class="math inline">\(L\)</span>:</strong> prefissi nella stessa classe appartengono entrambi a <span class="math inline">\(L\)</span>, oppure entrambi ne sono fuori.</p>
+<p><span class="math display"> x\sim y\quad\Longrightarrow\quad xz\sim yz\quad\text{per ogni }z\in\Sigma^* </span></p>
+<p><strong>Compatibilità con <span class="math inline">L</span>:</strong> prefissi nella stessa classe appartengono entrambi a <span class="math inline">L</span>, oppure entrambi ne sono fuori.</p>
 <p>La prima rende coerenti le transizioni; la seconda rende coerente il verdetto.</p>
 </section>
 <section id="scena-35" class="slide level2 scrollable">
@@ -642,10 +684,10 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 <p class="scene-meta">
 35 / 43 · Cap. 2 · §2.4, pp.&nbsp;45-46
 </p>
-<p>Due prefissi sono equivalenti per <span class="math inline">\(L\)</span> quando nessuna continuazione distingue i loro verdetti:</p>
-<p><span class="math display">\[ x\sim_L y\quad\Longleftrightarrow\quad\forall z\in\Sigma^*:\;(xz\in L\Longleftrightarrow yz\in L) \]</span></p>
+<p>Due prefissi sono equivalenti per <span class="math inline">L</span> quando nessuna continuazione distingue i loro verdetti:</p>
+<p><span class="math display"> x\sim_L y\quad\Longleftrightarrow\quad\forall z\in\Sigma^*:\;(xz\in L\Longleftrightarrow yz\in L) </span></p>
 <p>Per il linguaggio «termina con <code>1</code>», <code>01</code> e <code>11</code> sono equivalenti.</p>
-<p><code>0</code> e <code>01</code> sono distinti: basta <span class="math inline">\(z=\varepsilon\)</span>. Accettare o rifiutare entrambi <strong>adesso</strong> non garantisce invece che due prefissi siano equivalenti.</p>
+<p><code>0</code> e <code>01</code> sono distinti: basta <span class="math inline">z=\varepsilon</span>. Accettare o rifiutare entrambi <strong>adesso</strong> non garantisce invece che due prefissi siano equivalenti.</p>
 </section>
 <section id="scena-36" class="slide level2 scrollable">
 <h2>Confrontare i futuri di due prefissi</h2>
@@ -666,11 +708,11 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 <p class="scene-meta">
 37 / 43 · Cap. 2 · §2.4, pp.&nbsp;45-47
 </p>
-<p>Per <span class="math inline">\(L\subseteq\Sigma^*\)</span> sono equivalenti:</p>
+<p>Per <span class="math inline">L\subseteq\Sigma^*</span> sono equivalenti:</p>
 <ol type="1">
-<li><span class="math inline">\(L\)</span> è regolare.</li>
-<li>Esiste un’equivalenza di indice finito, invariante a destra e compatibile con <span class="math inline">\(L\)</span>.</li>
-<li>L’equivalenza <span class="math inline">\(\sim_L\)</span> ha indice finito.</li>
+<li><span class="math inline">L</span> è regolare.</li>
+<li>Esiste un’equivalenza di indice finito, invariante a destra e compatibile con <span class="math inline">L</span>.</li>
+<li>L’equivalenza <span class="math inline">\sim_L</span> ha indice finito.</li>
 </ol>
 <p>Un DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare.</p>
 </section>
@@ -679,22 +721,22 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 <p class="scene-meta">
 38 / 43 · Cap. 2 · §2.4, p.&nbsp;47
 </p>
-<p>Se <span class="math inline">\(\sim_L\)</span> ha indice finito, usiamo le sue classi come stati.</p>
+<p>Se <span class="math inline">\sim_L</span> ha indice finito, usiamo le sue classi come stati.</p>
 <ul>
-<li>Stato iniziale: <span class="math inline">\([\varepsilon]\)</span>.</li>
-<li>Transizione: <span class="math inline">\(\delta([w],a)=[wa]\)</span>.</li>
-<li>Classe accettante: <span class="math inline">\([w]\)</span> con <span class="math inline">\(w\in L\)</span>.</li>
+<li>Stato iniziale: <span class="math inline">[\varepsilon]</span>.</li>
+<li>Transizione: <span class="math inline">\delta([w],a)=[wa]</span>.</li>
+<li>Classe accettante: <span class="math inline">[w]</span> con <span class="math inline">w\in L</span>.</li>
 </ul>
 <p>L’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali.</p>
-<p>Dopo aver letto <span class="math inline">\(w\)</span>, lo stato è <span class="math inline">\([w]\)</span>: il DFA riconosce esattamente <span class="math inline">\(L\)</span>.</p>
+<p>Dopo aver letto <span class="math inline">w</span>, lo stato è <span class="math inline">[w]</span>: il DFA riconosce esattamente <span class="math inline">L</span>.</p>
 </section>
 <section id="scena-39" class="slide level2 scrollable">
 <h2>Minimalità del DFA delle classi</h2>
 <p class="scene-meta">
 39 / 43 · Cap. 2 · §2.4, pp.&nbsp;47-48
 </p>
-<p>Se due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per <span class="math inline">\(L\)</span> deve quindi portarli in stati diversi.</p>
-<p>Ogni DFA per <span class="math inline">\(L\)</span> ha almeno tanti stati quante sono le classi di <span class="math inline">\(\sim_L\)</span>. Il DFA delle classi raggiunge questo limite.</p>
+<p>Se due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per <span class="math inline">L</span> deve quindi portarli in stati diversi.</p>
+<p>Ogni DFA per <span class="math inline">L</span> ha almeno tanti stati quante sono le classi di <span class="math inline">\sim_L</span>. Il DFA delle classi raggiunge questo limite.</p>
 <p>Per «termina con <code>1</code>» ci sono due classi: prefissi che terminano con <code>1</code> e tutti gli altri, inclusa <code>ε</code>. Due stati sono necessari e sufficienti.</p>
 </section>
 <section id="scena-40" class="slide level2 scrollable">
@@ -703,9 +745,9 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 40 / 43 · Cap. 2 · §2.4, p.&nbsp;43 e applicazione del teorema, pp.&nbsp;45-47
 </p>
 <p>Considera il linguaggio delle parole con tanti <code>0</code> quanti <code>1</code>.</p>
-<p>Prendiamo i prefissi <span class="math inline">\(x_n=0^n\)</span>, per ogni <span class="math inline">\(n\geq0\)</span>.</p>
-<p>Se <span class="math inline">\(m\ne n\)</span>, il suffisso <span class="math inline">\(z=1^n\)</span> distingue <span class="math inline">\(x_n\)</span> da <span class="math inline">\(x_m\)</span>:</p>
-<p><span class="math display">\[ 0^n1^n\in L,\qquad 0^m1^n\notin L \]</span></p>
+<p>Prendiamo i prefissi <span class="math inline">x_n=0^n</span>, per ogni <span class="math inline">n\geq0</span>.</p>
+<p>Se <span class="math inline">m\ne n</span>, il suffisso <span class="math inline">z=1^n</span> distingue <span class="math inline">x_n</span> da <span class="math inline">x_m</span>:</p>
+<p><span class="math display"> 0^n1^n\in L,\qquad 0^m1^n\notin L </span></p>
 <p>Esistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare.</p>
 </section>
 <section id="scena-41" class="slide level2 scrollable">
@@ -714,11 +756,11 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 41 / 43 · Cap. 2 · Esercizi, pp.&nbsp;48-49
 </p>
 <ol type="1">
-<li>Che linguaggi descrivono <span class="math inline">\(\varnothing^*\)</span> e <span class="math inline">\(\varepsilon+01\)</span>?</li>
+<li>Che linguaggi descrivono <span class="math inline">\varnothing^*</span> e <span class="math inline">\varepsilon+01</span>?</li>
 <li>Due stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l’accettazione della parola vuota dopo la rimozione ε?</li>
 <li>Trova la parola minima che termina con <code>1</code> e contiene un numero pari di <code>1</code>.</li>
 <li>Per il linguaggio «contiene <code>1</code>», <code>ε</code> e <code>0</code> sono equivalenti? E <code>ε</code> e <code>1</code>?</li>
-<li>Quale prodotto verifica <span class="math inline">\(L_C\subseteq L_E\)</span> e quale controesempio trova?</li>
+<li>Quale prodotto verifica <span class="math inline">L_C\subseteq L_E</span> e quale controesempio trova?</li>
 </ol>
 <p>Spiega a voce le ragioni prima di passare alle soluzioni.</p>
 </section>
@@ -728,11 +770,11 @@ C ⊆ E → falsa, controesempio: 10</code></pre>
 42 / 43 · Cap. 2 · Esercizi, pp.&nbsp;48-49
 </p>
 <ol type="1">
-<li><span class="math inline">\(\varnothing^*\)</span> descrive <span class="math inline">\(\{\varepsilon\}\)</span>; <span class="math inline">\(\varepsilon+01\)</span> descrive <span class="math inline">\(\{\varepsilon,01\}\)</span>.</li>
-<li>Con la nostra formula per <span class="math inline">\(\Delta'\)</span>, rendiamo finale anche l’iniziale.</li>
+<li><span class="math inline">\varnothing^*</span> descrive <span class="math inline">\{\varepsilon\}</span>; <span class="math inline">\varepsilon+01</span> descrive <span class="math inline">\{\varepsilon,01\}</span>.</li>
+<li>Con la nostra formula per <span class="math inline">\Delta'</span>, rendiamo finale anche l’iniziale.</li>
 <li><code>11</code>: un solo <code>1</code> dà parità dispari.</li>
 <li><code>ε</code> e <code>0</code> hanno gli stessi futuri; <code>ε</code> e <code>1</code> sono distinti già dal suffisso vuoto.</li>
-<li>Prodotto di <span class="math inline">\(C\)</span> con il complemento di <span class="math inline">\(E\)</span>: testimone minimo <code>10</code>.</li>
+<li>Prodotto di <span class="math inline">C</span> con il complemento di <span class="math inline">E</span>: testimone minimo <code>10</code>.</li>
 </ol>
 <p>Il controllo seguente confronta costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a></a><span class="bu">print</span>(<span class="st">'Verifica completata: 255 parole e 10 espressioni.'</span>)</span>
@@ -778,7 +820,6 @@ BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.</code></pre>
   <script src="../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../site_libs/revealjs/plugin/search/search.js"></script>
   <script src="../site_libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="../site_libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -793,6 +834,7 @@ BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.</code></pre>
 'autoAnimateDuration': 1,
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
+'scrollActivationWidth': 0,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
  
@@ -946,27 +988,9 @@ BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.</code></pre>
         // Factor of the display size that should remain empty around the content
         margin: 6.0e-2,
 
-        math: {
-          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom

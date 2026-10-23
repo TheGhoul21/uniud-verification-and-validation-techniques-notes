@@ -1,0 +1,19 @@
+---
+title: "Linguaggi regolari e problemi di decisione"
+lang: it
+format:
+  html:
+    toc: false
+    html-math-method: katex
+    css: lettura.css
+    include-after-body: lettura.html
+body-classes: lesson-reading
+---
+
+::: {.reading-toolbar}
+[Presentazioni](index.qmd) · [Modalità slide](02-linguaggi-regolari-e-problemi-di-decisione.html?view=slides){.presentation-link}
+:::
+
+::: {.reading-slides}
+{{< include _02-linguaggi-regolari-e-problemi-di-decisione.md >}}
+:::

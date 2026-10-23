@@ -1,0 +1,45 @@
+/* Reading view uses the same Markdown as the deck, with natural page flow. */
+.lesson-reading #title-block-header { display: none; }
+.lesson-reading #quarto-header { transform: none !important; }
+.lesson-reading .reading-slides > section {
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--bs-border-color);
+  scroll-margin-top: 9rem;
+}
+.lesson-reading .reading-slides h2 {
+  margin-top: 0;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+.lesson-reading .scene-meta {
+  font-size: .8rem;
+  color: var(--bs-secondary-color);
+}
+.lesson-reading .reading-toolbar {
+  position: sticky;
+  top: 4.5rem;
+  z-index: 10;
+  margin-bottom: 1.5rem;
+  padding: .65rem .8rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .5rem;
+  background: var(--bs-body-bg);
+  font-size: .9rem;
+}
+.lesson-reading .reading-toolbar p { margin: 0; }
+.lesson-reading .reading-slides img {
+  max-width: 100%;
+  height: auto;
+}
+.lesson-reading .math.display {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: .4rem 0;
+}
+.lesson-reading .katex-display { margin: .5rem 0; }
+.lesson-reading .katex-display > .katex { white-space: nowrap; }
+@media (max-width: 600px) {
+  .lesson-reading main { font-size: 18px; }
+  .lesson-reading .reading-slides > section { padding: 1.5rem 0; }
+}

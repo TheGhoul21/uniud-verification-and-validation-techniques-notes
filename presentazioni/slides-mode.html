@@ -1,0 +1,26 @@
+<script>
+(() => {
+  const reading = new URL(location.href);
+  reading.pathname = reading.pathname.replace(/\.html$/, '-lettura.html');
+  reading.hash = reading.hash.replace(/^#\//, '#');
+  reading.searchParams.delete('view');
+  // A portrait phone gets the reflowed page; an explicit slide choice wins.
+  if (matchMedia('(max-width: 768px) and (orientation: portrait)').matches &&
+      new URLSearchParams(location.search).get('view') !== 'slides' &&
+      !new URLSearchParams(location.search).has('print-pdf')) {
+    location.replace(reading.href);
+    return;
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    const link = document.createElement('a');
+    link.className = 'reading-mode-link';
+    link.textContent = 'Lettura';
+    link.href = reading.href;
+    link.addEventListener('click', () => {
+      reading.hash = window.Reveal?.getCurrentSlide()?.id || '';
+      link.href = reading.href;
+    });
+    document.body.append(link);
+  });
+})();
+</script>

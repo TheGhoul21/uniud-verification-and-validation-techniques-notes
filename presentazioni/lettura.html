@@ -1,0 +1,8 @@
+<script>
+// Carry the current scene back to the presentation when switching views.
+document.querySelector('.presentation-link')?.addEventListener('click', function () {
+  const scenes = [...document.querySelectorAll('.reading-slides section[id]')];
+  const scene = scenes.filter(section => section.getBoundingClientRect().top <= innerHeight / 2).at(-1);
+  if (scene) this.hash = '/' + scene.id;
+});
+</script>

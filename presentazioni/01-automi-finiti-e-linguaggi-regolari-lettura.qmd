@@ -1,0 +1,19 @@
+---
+title: "Automi finiti e linguaggi regolari"
+lang: it
+format:
+  html:
+    toc: false
+    html-math-method: katex
+    css: lettura.css
+    include-after-body: lettura.html
+body-classes: lesson-reading
+---
+
+::: {.reading-toolbar}
+[Presentazioni](index.qmd) · [Modalità slide](01-automi-finiti-e-linguaggi-regolari.html?view=slides){.presentation-link}
+:::
+
+::: {.reading-slides}
+{{< include _01-automi-finiti-e-linguaggi-regolari.md >}}
+:::

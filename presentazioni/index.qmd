@@ -8,6 +8,8 @@ format:
 
 Lezioni di Verification and Validation Techniques, in italiano. Apri un capitolo e usa le **frecce** per sfogliare le slide; **F** attiva lo schermo intero e **O** mostra la panoramica.
 
+Sul telefono in verticale si apre la **vista di lettura**, con testo a larghezza schermo e scorrimento continuo. Puoi passare a **Modalità slide** o tornare a **Lettura** in qualsiasi momento, anche su desktop.
+
 ```{=html}
 <div class="card-grid">
 <a class="algo-card" href="01-automi-finiti-e-linguaggi-regolari.qmd"><span class="card-num">CAPITOLO 01</span><span class="card-title">Automi finiti e linguaggi regolari</span><span class="card-desc">31 slide · Apri la presentazione →</span></a>
