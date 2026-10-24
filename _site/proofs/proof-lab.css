@@ -114,14 +114,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: calc(100dvh - 6.5rem);
-  min-height: 400px;
+  height: clamp(520px, calc(100dvh - 7.5rem), 780px);
+  min-height: 520px;
 }
 
 .proof-lab__workspace {
-  display: flex;
-  flex-direction: column;
-  width: min(100%, 900px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) minmax(360px, 1fr);
+  grid-template-rows: auto 1fr;
+  width: min(100%, 1400px);
   flex: 1 1 auto;
   min-height: 0;
   border: 1px solid var(--proof-line);
@@ -134,6 +135,8 @@
 /* ── topbar: progress dots + step label + phase badge ────────── */
 
 .proof-lab__topbar {
+  grid-column: 1 / -1;
+  grid-row: 1;
   display: flex;
   align-items: center;
   gap: .75rem;
@@ -211,37 +214,53 @@
 /* ── canvas: diagram ─────────────────────────────────────────── */
 
 .proof-lab__canvas {
+  grid-column: 1;
+  grid-row: 2;
   position: relative;
-  flex: 0 0 auto;
-  height: min(31%, 220px);
-  min-height: 146px;
-  padding: .4rem .75rem 0;
-  border-bottom: 1px solid var(--proof-line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  height: 100%;
+  min-height: 0;
+  padding: .75rem 1.25rem .75rem;
+  border-right: 1px solid var(--proof-line);
+  border-bottom: 0;
   background: var(--proof-paper);
-  transition: height .3s ease;
 }
 
 .proof-lab__diagram {
   display: block;
   width: 100%;
-  height: calc(100% - 1.3rem);
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(100% - 2.5rem);
   overflow: visible;
 }
 
 .proof-lab__canvas-note {
-  height: 1.3rem;
+  flex-shrink: 0;
+  height: 1.8rem;
   color: var(--proof-muted);
-  font-size: .72rem;
+  font-size: .95rem;
+  font-weight: 500;
   text-align: center;
-  line-height: 1.3rem;
+  line-height: 1.8rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  width: 100%;
 }
 
 /* ── body: scrollable phase content ──────────────────────────── */
 
 .proof-lab__body {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   overflow-y: auto;
   min-height: 0;
@@ -261,8 +280,10 @@
 .proof-lab__phase {
   display: none;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 100%;
-  padding: .7rem clamp(.75rem, 2.5vw, 1.5rem) .9rem;
+  box-sizing: border-box;
+  padding: 1.1rem 1.4rem 1.25rem;
   animation: proofPhaseIn .28s ease both;
 }
 
@@ -516,7 +537,7 @@
 
 .proof-lab__lane {
   stroke: var(--proof-line);
-  stroke-width: 1;
+  stroke-width: 1.5;
 }
 
 .proof-lab__lane-label,
@@ -527,7 +548,7 @@
 }
 
 .proof-lab__lane-label {
-  font-size: 14px;
+  font-size: 23px;
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -535,57 +556,59 @@
 
 .proof-lab__edge {
   fill: none;
-  stroke: #a0a0a7;
-  stroke-width: 2.2;
+  stroke: #9ea0a8;
+  stroke-width: 2.8;
   transition: stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
 }
 
 .proof-lab__edge.is-active {
   stroke: var(--proof-tomato);
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .proof-lab__edge.is-dim {
-  opacity: .22;
+  opacity: .38;
 }
 
 .proof-lab__edge-label {
-  font-size: 13px;
+  font-size: 21px;
   font-weight: 700;
   paint-order: stroke;
   stroke: var(--proof-paper);
-  stroke-width: 5px;
+  stroke-width: 8px;
 }
 
 .proof-lab__node-shape {
   fill: #fff;
-  stroke: #9999a1;
-  stroke-width: 2.2;
+  stroke: #8d8d96;
+  stroke-width: 2.8;
   transition: fill .2s ease, stroke .2s ease, stroke-width .2s ease, opacity .2s ease;
 }
 
 .proof-lab__node.is-active .proof-lab__node-shape {
   fill: var(--proof-sky-soft);
   stroke: #167b9e;
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .proof-lab__node.is-good .proof-lab__node-shape {
   fill: var(--proof-teal-soft);
   stroke: var(--proof-teal);
+  stroke-width: 5;
 }
 
 .proof-lab__node.is-bad .proof-lab__node-shape {
   fill: #fee8e3;
   stroke: var(--proof-tomato);
+  stroke-width: 5;
 }
 
 .proof-lab__node.is-dim {
-  opacity: .28;
+  opacity: .52;
 }
 
 .proof-lab__node.is-accepting .proof-lab__node-shape {
-  stroke-width: 4;
+  stroke-width: 5;
 }
 
 .proof-lab__node-text,
@@ -596,13 +619,31 @@
 }
 
 .proof-lab__node-text {
-  font-size: 16px;
+  font-size: 28px;
   font-weight: 700;
 }
 
 .proof-lab__node-detail {
   fill: var(--proof-muted);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.proof-lab__annotation {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+#proof-diagram-ramsey-decomposition .proof-lab__node-text {
+  font-size: 17px;
+}
+
+#proof-diagram-ramsey-decomposition .proof-lab__node-detail {
   font-size: 12px;
+}
+
+#proof-diagram-ramsey-decomposition .proof-lab__edge-label {
+  font-size: 15px;
 }
 
 /* ── proof-lab index page ───────────────────────────────────── */
@@ -658,14 +699,42 @@
 
 /* ── responsive ─────────────────────────────────────────────── */
 
+@media (max-width: 959px) {
+  .proof-lab__stage {
+    height: auto;
+    min-height: 0;
+  }
+
+  .proof-lab__workspace {
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 750px);
+    height: auto;
+    overflow: visible;
+  }
+
+  .proof-lab__canvas {
+    border-right: 0;
+    border-bottom: 1px solid var(--proof-line);
+    height: auto;
+    min-height: 240px;
+    padding: .75rem 1rem .5rem;
+  }
+
+  .proof-lab__diagram {
+    width: 100%;
+    height: auto;
+    max-height: 48vh;
+  }
+
+  .proof-lab__body {
+    overflow-y: visible;
+  }
+}
+
 @media (max-width: 560px) {
   .proof-lab__header {
     margin-bottom: .5rem;
-  }
-
-  .proof-lab__stage {
-    height: calc(100dvh - 4rem);
-    align-items: stretch;
   }
 
   .proof-lab__workspace {
@@ -677,7 +746,12 @@
   }
 
   .proof-lab__canvas {
-    min-height: 132px;
+    min-height: 180px;
+    padding: .5rem .5rem .3rem;
+  }
+
+  .proof-lab__diagram {
+    max-height: 52vh;
   }
 
   .proof-lab__nav {

@@ -31,10 +31,10 @@
           { y: 500, label: "DFA", labelX: 35, labelY: 310 }
         ],
         nodes: [
-          N("qs", 285, 145, "q\u209B", "scanning", { shape: "circle", r: 48 }),
-          N("qa", 700, 145, "q\u2090", "accepted 'a'", { shape: "circle", r: 48, accepting: true }),
-          N("s0", 285, 400, "S\u2080", "{q\u209B}", { shape: "circle", r: 56 }),
-          N("s1", 700, 400, "S\u2081", "{q\u209B, q\u2090}", { shape: "circle", r: 62, accepting: true })
+          N("qs", 285, 145, "q\u209B", "scanning", { shape: "circle", r: 52 }),
+          N("qa", 700, 145, "q\u2090", "accepted 'a'", { shape: "circle", r: 54, accepting: true }),
+          N("s0", 285, 400, "S\u2080", "{q\u209B}", { shape: "circle", r: 58 }),
+          N("s1", 700, 400, "S\u2081", "{q\u209B, q\u2090}", { shape: "circle", r: 66, accepting: true })
         ],
         edges: [
           E("nfa-loop", "qs", "qs", "a, b", { path: "M 260 102 C 205 28 365 28 310 102", labelX: 285, labelY: 38 }),
@@ -251,9 +251,9 @@
           E("regex-enfa", "regex", "enfa", "Thompson"),
           E("enfa-nfa", "enfa", "nfa", "remove \u03b5"),
           E("nfa-dfa", "nfa", "dfa", "determinize"),
-          E("dfa-regex", "dfa", "regex", "eliminate states"),
+          E("dfa-regex", "dfa", "regex", "eliminate states", { labelX: 305, labelY: 175 }),
           E("dfa-rk", "dfa", "rk", "index paths by k"),
-          E("rk-regex", "rk", "regex", "R\u207f\u1d62\u2071 = expression")
+          E("rk-regex", "rk", "regex", "R\u207f\u1d62\u2071 = expression", { labelX: 585, labelY: 200 })
         ],
         annotations: [
           { x: 500, y: 520, text: "Every arrow preserves the recognized language.", anchor: "middle" }

@@ -2,242 +2,242 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://vvt.aliteia.com/proofs/index.html</loc>
-    <lastmod>2026-08-03T05:02:13.360Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-04/buchi-complementation.html</loc>
-    <lastmod>2026-08-01T05:00:55.997Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-03/buchi-expression-equivalence.html</loc>
-    <lastmod>2026-07-30T11:01:13.227Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/regular-closure.html</loc>
-    <lastmod>2026-07-30T11:01:13.052Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/kleene-equivalence.html</loc>
-    <lastmod>2026-07-30T11:01:12.880Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-01/subset-construction.html</loc>
-    <lastmod>2026-07-30T11:01:12.705Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html</loc>
-    <lastmod>2026-10-23T07:54:00.927Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.866Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/presentazioni/01-automi-finiti-e-linguaggi-regolari.html</loc>
-    <lastmod>2026-10-23T07:54:00.910Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.866Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/index.html</loc>
-    <lastmod>2026-08-04T08:40:02.870Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.348Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/25-smv-step-simulator.html</loc>
-    <lastmod>2026-08-04T08:38:34.713Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.348Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/23-ramsey-decomposition.html</loc>
-    <lastmod>2026-08-03T15:03:25.318Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.347Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/21-approx-a-profile.html</loc>
-    <lastmod>2026-08-03T15:01:46.279Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.347Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/19-ultimately-periodic-witness.html</loc>
-    <lastmod>2026-08-03T14:59:53.759Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/17-omega-regular-expressions.html</loc>
-    <lastmod>2026-08-03T14:57:23.279Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/15-parity-blocks-buchi.html</loc>
-    <lastmod>2026-08-03T14:55:34.332Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/13-vectorial-closure.html</loc>
-    <lastmod>2026-07-30T15:03:36.639Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.345Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/11-omega-words.html</loc>
-    <lastmod>2026-07-30T15:01:57.317Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.344Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/09-ltl.html</loc>
-    <lastmod>2026-08-03T13:18:09.333Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.344Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/07-kleene-state-elimination.html</loc>
-    <lastmod>2026-07-07T09:04:27.760Z</lastmod>
+    <lastmod>2026-07-08T05:29:28.058Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/05-product-automaton.html</loc>
-    <lastmod>2026-07-03T07:32:44.688Z</lastmod>
+    <lastmod>2026-07-03T11:36:07.500Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/03-subset-construction.html</loc>
-    <lastmod>2026-07-03T07:32:44.689Z</lastmod>
+    <lastmod>2026-07-03T11:36:07.499Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/01-intro.html</loc>
-    <lastmod>2026-07-30T15:01:27.616Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.340Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/15-security-protocol-verification-with-tamarin.html</loc>
-    <lastmod>2026-08-09T07:14:06.036Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.227Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/13-ctl-and-symbolic-model-checking.html</loc>
-    <lastmod>2026-10-23T07:30:42.511Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.226Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/11-linear-temporal-logic.html</loc>
-    <lastmod>2026-08-09T07:14:06.034Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.225Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/09-deterministic-automata-star-free-languages.html</loc>
-    <lastmod>2026-08-09T07:14:06.033Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.224Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/07-reactive-systems-smv-model-checking.html</loc>
-    <lastmod>2026-08-09T07:14:06.032Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.223Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/05-synthesis-and-games.html</loc>
-    <lastmod>2026-08-09T07:14:06.030Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.222Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/03-automata-over-infinite-words.html</loc>
-    <lastmod>2026-10-23T07:30:42.501Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.221Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/01-finite-state-automata.html</loc>
-    <lastmod>2026-08-09T07:14:06.027Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.219Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/index.html</loc>
-    <lastmod>2026-10-23T07:30:42.495Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.865Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/02-regular-languages-and-decision-problems.html</loc>
-    <lastmod>2026-08-09T07:14:06.028Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.220Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/04-complementation-of-omega-regular-languages.html</loc>
-    <lastmod>2026-10-23T07:31:05.840Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.221Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/06-planning-as-model-checking.html</loc>
-    <lastmod>2026-08-09T07:14:06.031Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.222Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/08-s1s-buchi-theorem.html</loc>
-    <lastmod>2026-10-23T07:30:42.510Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.224Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/10-tree-languages-tree-automata.html</loc>
-    <lastmod>2026-08-09T07:14:06.033Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.225Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/12-ltl-model-checking-and-fairness.html</loc>
-    <lastmod>2026-08-09T07:14:06.034Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.226Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/14-learning-regular-languages.html</loc>
-    <lastmod>2026-08-09T07:14:06.035Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.226Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/mindmaps/index.html</loc>
-    <lastmod>2026-10-23T07:30:42.512Z</lastmod>
+    <lastmod>2026-09-02T05:09:07.227Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/02-nfa-reachable-states.html</loc>
-    <lastmod>2026-07-03T07:32:44.687Z</lastmod>
+    <lastmod>2026-10-24T05:22:08.995Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/04-epsilon-closure-removal.html</loc>
-    <lastmod>2026-07-03T07:32:44.688Z</lastmod>
+    <lastmod>2026-07-03T11:36:07.500Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/06-reachability-fixpoint.html</loc>
-    <lastmod>2026-07-03T07:32:44.686Z</lastmod>
+    <lastmod>2026-07-03T11:36:07.501Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/08-regex-to-automata-kleene.html</loc>
-    <lastmod>2026-07-07T10:08:15.098Z</lastmod>
+    <lastmod>2026-07-08T05:29:28.059Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/10-model-checking.html</loc>
-    <lastmod>2026-08-04T08:37:04.745Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.344Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/12-buchi-runner.html</loc>
-    <lastmod>2026-07-30T15:02:56.205Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.345Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/14-buchi-emptiness-lasso.html</loc>
-    <lastmod>2026-07-30T15:04:08.530Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/16-dba-vs-nba-gap.html</loc>
-    <lastmod>2026-08-03T14:56:25.282Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/18-buchi-intersection-product.html</loc>
-    <lastmod>2026-08-03T14:58:18.216Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.346Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/20-finite-index-congruence.html</loc>
-    <lastmod>2026-08-03T15:00:45.122Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.347Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/22-position-merge.html</loc>
-    <lastmod>2026-08-03T15:02:35.870Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.347Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/24-saturation-complement.html</loc>
-    <lastmod>2026-08-03T15:04:43.195Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.347Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/notebooks/26-fairness-sandbox.html</loc>
-    <lastmod>2026-08-04T08:39:45.763Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.348Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/presentazioni/01-automi-finiti-e-linguaggi-regolari-lettura.html</loc>
-    <lastmod>2026-10-23T07:51:22.587Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.865Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html</loc>
-    <lastmod>2026-10-23T07:51:22.608Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.866Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/presentazioni/index.html</loc>
-    <lastmod>2026-10-23T07:50:23.895Z</lastmod>
+    <lastmod>2026-10-23T17:17:41.874Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/epsilon-removal.html</loc>
-    <lastmod>2026-07-30T11:01:12.791Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/myhill-nerode.html</loc>
-    <lastmod>2026-07-30T11:01:12.965Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/small-model-property.html</loc>
-    <lastmod>2026-07-30T11:01:13.140Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-03/omega-closure.html</loc>
-    <lastmod>2026-07-30T11:01:13.311Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-04/ramsey-decomposition.html</loc>
-    <lastmod>2026-08-03T09:42:44.602Z</lastmod>
+    <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
 </urlset>
