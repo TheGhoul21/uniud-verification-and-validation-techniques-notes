@@ -1,0 +1,13 @@
+---
+title: "McNaughton–Papert Theorem Proof Lab"
+pagetitle: "McNaughton–Papert Theorem — Interactive Proof Lab"
+description: "An interactive proof of the trilateral equivalence between Star-Free languages, FO[<], and Aperiodic Monoids."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="mcnaughton-papert"></div>
+<noscript>
+  <h1>McNaughton–Papert & Schützenberger theorem (1971)</h1>
+  <p>A regular language is star-free iff it is definable in first-order logic of linear order FO[<] iff its syntactic monoid is aperiodic. The equivalence characterizes languages without modulo counting.</p>
+</noscript>
+```

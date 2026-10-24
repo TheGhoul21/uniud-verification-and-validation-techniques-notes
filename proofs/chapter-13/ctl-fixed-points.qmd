@@ -1,0 +1,13 @@
+---
+title: "CTL Fixed-Point Characterizations Proof Lab"
+pagetitle: "CTL Fixed Points — Interactive Proof Lab"
+description: "An interactive proof of CTL temporal operators as least and greatest fixed points."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="ctl-fixed-points"></div>
+<noscript>
+  <h1>CTL fixed-point characterizations</h1>
+  <p>CTL reachability and safety operators are least and greatest fixed points of monotone predicate transformers on the complete powerset lattice. Symbolic model checking evaluates these fixpoints in polynomial rounds via BDDs.</p>
+</noscript>
+```

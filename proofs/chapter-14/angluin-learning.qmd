@@ -1,0 +1,13 @@
+---
+title: "Angluin's L* Active Learning Proof Lab"
+pagetitle: "Angluin L* Learning — Interactive Proof Lab"
+description: "An interactive proof of correctness and polynomial convergence for Angluin's L* learning algorithm."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="angluin-learning"></div>
+<noscript>
+  <h1>Angluin's L* active learning algorithm correctness</h1>
+  <p>Angluin's L* algorithm synthesizes the unique minimal DFA for a regular language using membership and equivalence queries. Closed and consistent observation tables define candidate DFAs, converging in polynomial queries.</p>
+</noscript>
+```

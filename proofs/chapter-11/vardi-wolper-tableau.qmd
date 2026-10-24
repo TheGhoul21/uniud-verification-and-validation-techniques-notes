@@ -1,0 +1,13 @@
+---
+title: "Vardi–Wolper Tableau Proof Lab"
+pagetitle: "Vardi–Wolper Tableau — Interactive Proof Lab"
+description: "An interactive proof of the Fulfilling Path Theorem translating LTL to Generalized Büchi Automata."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="vardi-wolper-tableau"></div>
+<noscript>
+  <h1>Vardi–Wolper tableau & fulfilling path theorem</h1>
+  <p>An LTL formula is satisfiable iff its tableau graph of maximal consistent atoms has a fulfilling path. Temporal expansion rules enforce local consistency, while recurrence conditions prevent infinite postponement of Until promises.</p>
+</noscript>
+```

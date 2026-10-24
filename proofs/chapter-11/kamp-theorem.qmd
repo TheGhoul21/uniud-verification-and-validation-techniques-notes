@@ -1,0 +1,13 @@
+---
+title: "Kamp's Theorem Proof Lab"
+pagetitle: "Kamp's Theorem — Interactive Proof Lab"
+description: "An interactive proof of the expressive completeness of LTL over linear orders."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="kamp-theorem"></div>
+<noscript>
+  <h1>Kamp's expressive completeness theorem (1968)</h1>
+  <p>Linear Temporal Logic with Until and Since has the exact expressive power of First-Order Logic FO[<] over the natural numbers. Gabbay's separation property eliminates nested temporal interferences, reducing initial validity to pure-future LTL.</p>
+</noscript>
+```

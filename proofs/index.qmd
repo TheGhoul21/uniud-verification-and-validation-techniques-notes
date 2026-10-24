@@ -10,11 +10,12 @@ description: "Guided, visual and interactive explanations of the main theorems i
     <p class="proof-lab__breadcrumb">Interactive theorem companion</p>
     <h1>Proof Labs</h1>
     <p class="proof-lab__statement">
-      See the mechanism, predict the next proof state, then open the formal justification.
+      See the mechanism, predict the next proof state, then explore the formal derivation.
     </p>
     <p class="proof-lab__intro">
-      Each lab keeps one mathematical visual in the foreground. The example
-      explains the current step; the formal argument proves it for every case.
+      Each lab visualizes one foundational theorem of the course. The interactive
+      challenge tests deductive understanding; the formal derivation card details
+      the complete mathematical proof.
     </p>
   </header>
 
@@ -24,7 +25,7 @@ description: "Guided, visual and interactive explanations of the main theorems i
       <a class="proof-lab-index__card" href="/proofs/chapter-01/subset-construction.html">
         <small>Theorem 1</small>
         <strong>Subset construction</strong>
-        <span>Synchronize every NFA run with one deterministic subset.</span>
+        <span>Synchronize every NFA run with one deterministic macro-state.</span>
       </a>
     </div>
   </section>
@@ -35,7 +36,7 @@ description: "Guided, visual and interactive explanations of the main theorems i
       <a class="proof-lab-index__card" href="/proofs/chapter-02/epsilon-removal.html">
         <small>Theorem 2</small>
         <strong>ε-removal</strong>
-        <span>Compile free paths into ordinary symbol transitions.</span>
+        <span>Compile silent paths into ordinary symbol transitions.</span>
       </a>
       <a class="proof-lab-index__card" href="/proofs/chapter-02/kleene-equivalence.html">
         <small>Theorem 3</small>
@@ -50,12 +51,12 @@ description: "Guided, visual and interactive explanations of the main theorems i
       <a class="proof-lab-index__card" href="/proofs/chapter-02/small-model-property.html">
         <small>Theorem 5</small>
         <strong>Small model property</strong>
-        <span>Delete a repeated-state loop from a shortest accepting run.</span>
+        <span>Delete repeated-state loops from a shortest accepting run.</span>
       </a>
       <a class="proof-lab-index__card" href="/proofs/chapter-02/myhill-nerode.html">
         <small>Theorem 6</small>
         <strong>Myhill–Nerode</strong>
-        <span>Turn indistinguishable futures into the canonical DFA.</span>
+        <span>Turn indistinguishable futures into the canonical minimal DFA.</span>
       </a>
     </div>
   </section>
@@ -73,6 +74,11 @@ description: "Guided, visual and interactive explanations of the main theorems i
         <strong>Büchi–expression equivalence</strong>
         <span>Cut an accepting run into a finite prefix and recurring loops.</span>
       </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-03/buchi-emptiness.html">
+        <small>Theorem 3.4</small>
+        <strong>Decidability of Büchi emptiness</strong>
+        <span>Reduce infinite-word acceptance to reachable cycles through F (lasso u·v^ω).</span>
+      </a>
     </div>
   </section>
 
@@ -88,6 +94,109 @@ description: "Guided, visual and interactive explanations of the main theorems i
         <small>Theorem 9</small>
         <strong>Büchi complementation</strong>
         <span>Partition all infinite words into saturated class products.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 5 · Synthesis and Two-Player Games</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-05/attractor-correctness.html">
+        <small>Theorem 5.1</small>
+        <strong>Attractor correctness & controllable predecessors</strong>
+        <span>Synthesize memoryless winning strategies via strictly decreasing Lyapunov rank.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-05/parity-determinacy.html">
+        <small>Theorem 5.2</small>
+        <strong>Büchi–Landweber & positional determinacy</strong>
+        <span>Zielonka's recursive induction solves parity games with zero memory.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 8 · S1S Logic and Büchi's Theorem</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-08/s1s-buchi.html">
+        <small>Theorem 8.1</small>
+        <strong>Büchi's S1S decidability theorem</strong>
+        <span>Bridge monadic second-order logic and ω-automata via projection and complementation.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 9 · Deterministic Automata and Star-Free Languages</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-09/mcnaughton-determinization.html">
+        <small>Theorem 9.4</small>
+        <strong>McNaughton's determinization theorem</strong>
+        <span>Overcome DBA incompleteness using Safra trees and deterministic parity automata.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-09/mcnaughton-papert.html">
+        <small>Theorem 9.8</small>
+        <strong>McNaughton–Papert & Schützenberger</strong>
+        <span>Equate Star-Free languages, first-order logic FO[<], and aperiodic monoids.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 10 · Tree Languages and Tree Automata</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-10/tree-automata-determinization.html">
+        <small>Theorem 10.2</small>
+        <strong>Bottom-up tree automata determinization</strong>
+        <span>Merge child states on ranked trees and uncover top-down path independence limits.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 11 · Linear Temporal Logic (LTL)</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-11/vardi-wolper-tableau.html">
+        <small>Theorem 11.3</small>
+        <strong>Vardi–Wolper tableau & fulfilling paths</strong>
+        <span>Compile LTL formulas into Generalized Büchi Automata without infinite postponement.</span>
+      </a>
+      <a class="proof-lab-index__card" href="/proofs/chapter-11/kamp-theorem.html">
+        <small>Theorem 11.1</small>
+        <strong>Kamp's expressive completeness</strong>
+        <span>Separate past and future modalities to prove LTL[U] ≡ FO[<] on the natural numbers.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 12 · LTL Model Checking and Fairness</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-12/ltl-model-checking.html">
+        <small>Theorem 12.1</small>
+        <strong>Automata-theoretic LTL model checking</strong>
+        <span>Search for counterexample lassos in the synchronous product M ⊗ A_{¬φ} via Nested DFS.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 13 · CTL and Symbolic Model Checking</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-13/ctl-fixed-points.html">
+        <small>Proposition 13.2</small>
+        <strong>CTL fixed-point characterizations</strong>
+        <span>Evaluate reachability (μ) and safety (ν) transformers symbolically on BDD lattices.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="proof-lab-index__chapter">
+    <h2>Chapter 14 · Learning Regular Languages</h2>
+    <div class="proof-lab-index__grid">
+      <a class="proof-lab-index__card" href="/proofs/chapter-14/angluin-learning.html">
+        <small>Algorithm 14.1</small>
+        <strong>Angluin's L* active learning correctness</strong>
+        <span>Synthesize canonical minimal DFAs from closed and consistent observation tables.</span>
       </a>
     </div>
   </section>

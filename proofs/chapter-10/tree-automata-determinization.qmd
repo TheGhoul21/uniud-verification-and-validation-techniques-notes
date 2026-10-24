@@ -1,0 +1,13 @@
+---
+title: "Bottom-Up Tree Automata Determinization Proof Lab"
+pagetitle: "Tree Automata Determinization — Interactive Proof Lab"
+description: "An interactive proof of bottom-up tree automata determinization via subset construction."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="tree-automata-determinization"></div>
+<noscript>
+  <h1>Bottom-up tree automata determinization</h1>
+  <p>Non-deterministic finite tree automata operating bottom-up determinize completely via a generalized subset construction on tuples of child states. Conversely, deterministic top-down tree automata are strictly less expressive due to path independence.</p>
+</noscript>
+```

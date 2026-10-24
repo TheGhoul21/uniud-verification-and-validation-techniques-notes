@@ -4,21 +4,63 @@
     "href": "proofs/index.html",
     "title": "Proof Labs",
     "section": "",
-    "text": "Interactive theorem companion\n    Proof Labs\n    \n      See the mechanism, predict the next proof state, then open the formal justification.\n    \n    \n      Each lab keeps one mathematical visual in the foreground. The example\n      explains the current step; the formal argument proves it for every case.\n    \n  \n\n  \n    Chapter 1 · Finite-State Automata\n    \n      \n        Theorem 1\n        Subset construction\n        Synchronize every NFA run with one deterministic subset.\n      \n    \n  \n\n  \n    Chapter 2 · Regular Languages and Decision Problems\n    \n      \n        Theorem 2\n        ε-removal\n        Compile free paths into ordinary symbol transitions.\n      \n      \n        Theorem 3\n        Kleene equivalence\n        Follow the constructive cycle between automata and expressions.\n      \n      \n        Theorem 4\n        Closure of regular languages\n        Read every closure property as an automaton compiler.\n      \n      \n        Theorem 5\n        Small model property\n        Delete a repeated-state loop from a shortest accepting run.\n      \n      \n        Theorem 6\n        Myhill–Nerode\n        Turn indistinguishable futures into the canonical DFA.\n      \n    \n  \n\n  \n    Chapter 3 · Automata over Infinite Words\n    \n      \n        Theorem 7\n        Basic ω-regular closure\n        Alternate recurring obligations in Büchi intersection.\n      \n      \n        Theorem 8\n        Büchi–expression equivalence\n        Cut an accepting run into a finite prefix and recurring loops.\n      \n    \n  \n\n  \n    Chapter 4 · Complementation of ω-Regular Languages\n    \n      \n        Lemma\n        Ramsey decomposition\n        Slice any ω-word, periodic or not, into a prefix and repeating V-blocks.\n      \n      \n        Theorem 9\n        Büchi complementation\n        Partition all infinite words into saturated class products."
+    "text": "Interactive theorem companion\n    Proof Labs\n    \n      See the mechanism, predict the next proof state, then explore the formal derivation.\n    \n    \n      Each lab visualizes one foundational theorem of the course. The interactive\n      challenge tests deductive understanding; the formal derivation card details\n      the complete mathematical proof.\n    \n  \n\n  \n    Chapter 1 · Finite-State Automata\n    \n      \n        Theorem 1\n        Subset construction\n        Synchronize every NFA run with one deterministic macro-state.\n      \n    \n  \n\n  \n    Chapter 2 · Regular Languages and Decision Problems\n    \n      \n        Theorem 2\n        ε-removal\n        Compile silent paths into ordinary symbol transitions.\n      \n      \n        Theorem 3\n        Kleene equivalence\n        Follow the constructive cycle between automata and expressions.\n      \n      \n        Theorem 4\n        Closure of regular languages\n        Read every closure property as an automaton compiler.\n      \n      \n        Theorem 5\n        Small model property\n        Delete repeated-state loops from a shortest accepting run.\n      \n      \n        Theorem 6\n        Myhill–Nerode\n        Turn indistinguishable futures into the canonical minimal DFA.\n      \n    \n  \n\n  \n    Chapter 3 · Automata over Infinite Words\n    \n      \n        Theorem 7\n        Basic ω-regular closure\n        Alternate recurring obligations in Büchi intersection.\n      \n      \n        Theorem 8\n        Büchi–expression equivalence\n        Cut an accepting run into a finite prefix and recurring loops.\n      \n      \n        Theorem 3.4\n        Decidability of Büchi emptiness\n        Reduce infinite-word acceptance to reachable cycles through F (lasso u·v^ω).\n      \n    \n  \n\n  \n    Chapter 4 · Complementation of ω-Regular Languages\n    \n      \n        Lemma\n        Ramsey decomposition\n        Slice any ω-word, periodic or not, into a prefix and repeating V-blocks.\n      \n      \n        Theorem 9\n        Büchi complementation\n        Partition all infinite words into saturated class products.\n      \n    \n  \n\n  \n    Chapter 5 · Synthesis and Two-Player Games\n    \n      \n        Theorem 5.1\n        Attractor correctness & controllable predecessors\n        Synthesize memoryless winning strategies via strictly decreasing Lyapunov rank.\n      \n      \n        Theorem 5.2\n        Büchi–Landweber & positional determinacy\n        Zielonka's recursive induction solves parity games with zero memory.\n      \n    \n  \n\n  \n    Chapter 8 · S1S Logic and Büchi's Theorem\n    \n      \n        Theorem 8.1\n        Büchi's S1S decidability theorem\n        Bridge monadic second-order logic and ω-automata via projection and complementation.\n      \n    \n  \n\n  \n    Chapter 9 · Deterministic Automata and Star-Free Languages\n    \n      \n        Theorem 9.4\n        McNaughton's determinization theorem\n        Overcome DBA incompleteness using Safra trees and deterministic parity automata.\n      \n      \n        Theorem 9.8\n        McNaughton–Papert & Schützenberger\n        Equate Star-Free languages, first-order logic FO[&lt;], and aperiodic monoids.\n      \n    \n  \n\n  \n    Chapter 10 · Tree Languages and Tree Automata\n    \n      \n        Theorem 10.2\n        Bottom-up tree automata determinization\n        Merge child states on ranked trees and uncover top-down path independence limits.\n      \n    \n  \n\n  \n    Chapter 11 · Linear Temporal Logic (LTL)\n    \n      \n        Theorem 11.3\n        Vardi–Wolper tableau & fulfilling paths\n        Compile LTL formulas into Generalized Büchi Automata without infinite postponement.\n      \n      \n        Theorem 11.1\n        Kamp's expressive completeness\n        Separate past and future modalities to prove LTL[U] ≡ FO[&lt;] on the natural numbers.\n      \n    \n  \n\n  \n    Chapter 12 · LTL Model Checking and Fairness\n    \n      \n        Theorem 12.1\n        Automata-theoretic LTL model checking\n        Search for counterexample lassos in the synchronous product M ⊗ A_{¬φ} via Nested DFS.\n      \n    \n  \n\n  \n    Chapter 13 · CTL and Symbolic Model Checking\n    \n      \n        Proposition 13.2\n        CTL fixed-point characterizations\n        Evaluate reachability (μ) and safety (ν) transformers symbolically on BDD lattices.\n      \n    \n  \n\n  \n    Chapter 14 · Learning Regular Languages\n    \n      \n        Algorithm 14.1\n        Angluin's L* active learning correctness\n        Synthesize canonical minimal DFAs from closed and consistent observation tables."
   },
   {
-    "objectID": "proofs/chapter-04/buchi-complementation.html",
-    "href": "proofs/chapter-04/buchi-complementation.html",
-    "title": "Büchi Complementation Proof Lab",
+    "objectID": "proofs/chapter-13/ctl-fixed-points.html",
+    "href": "proofs/chapter-13/ctl-fixed-points.html",
+    "title": "CTL Fixed-Point Characterizations Proof Lab",
     "section": "",
-    "text": "Büchi complementation\n  The finite classes of the relation \\(\\approx_{\\mathcal A}\\) generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while the Ramsey decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products."
+    "text": "CTL fixed-point characterizations\n  CTL reachability and safety operators are least and greatest fixed points of monotone predicate transformers on the complete powerset lattice. Symbolic model checking evaluates these fixpoints in polynomial rounds via BDDs."
   },
   {
-    "objectID": "proofs/chapter-03/buchi-expression-equivalence.html",
-    "href": "proofs/chapter-03/buchi-expression-equivalence.html",
-    "title": "Büchi–Expression Equivalence Proof Lab",
+    "objectID": "proofs/chapter-11/vardi-wolper-tableau.html",
+    "href": "proofs/chapter-11/vardi-wolper-tableau.html",
+    "title": "Vardi–Wolper Tableau Proof Lab",
     "section": "",
-    "text": "Büchi–expression equivalence\n  An expression term builds a Büchi automaton that completes infinitely many blocks. Conversely, an accepting run revisits one final state infinitely often and can be cut into a prefix leading to that state followed by infinitely many non-empty return loops."
+    "text": "Vardi–Wolper tableau & fulfilling path theorem\n  An LTL formula is satisfiable iff its tableau graph of maximal consistent atoms has a fulfilling path. Temporal expansion rules enforce local consistency, while recurrence conditions prevent infinite postponement of Until promises."
+  },
+  {
+    "objectID": "proofs/chapter-10/tree-automata-determinization.html",
+    "href": "proofs/chapter-10/tree-automata-determinization.html",
+    "title": "Bottom-Up Tree Automata Determinization Proof Lab",
+    "section": "",
+    "text": "Bottom-up tree automata determinization\n  Non-deterministic finite tree automata operating bottom-up determinize completely via a generalized subset construction on tuples of child states. Conversely, deterministic top-down tree automata are strictly less expressive due to path independence."
+  },
+  {
+    "objectID": "proofs/chapter-09/mcnaughton-determinization.html",
+    "href": "proofs/chapter-09/mcnaughton-determinization.html",
+    "title": "McNaughton’s Determinization Proof Lab",
+    "section": "",
+    "text": "McNaughton's determinization theorem (1966)\n  Every non-deterministic Büchi automaton can be determinized into an equivalent deterministic Muller or Parity automaton. Safra trees structure macro-states into hierarchical threads, flashing green signals upon breakpoint completion."
+  },
+  {
+    "objectID": "proofs/chapter-05/parity-determinacy.html",
+    "href": "proofs/chapter-05/parity-determinacy.html",
+    "title": "Parity Game Positional Determinacy Proof Lab",
+    "section": "",
+    "text": "Büchi–Landweber & positional determinacy of parity games\n  Every finite parity game is determined with memoryless winning strategies. Zielonka's induction on priorities decomposes the arena using top-priority attractors, combining positional strategies without memory overhead."
+  },
+  {
+    "objectID": "proofs/chapter-04/ramsey-decomposition.html",
+    "href": "proofs/chapter-04/ramsey-decomposition.html",
+    "title": "Ramsey Decomposition Proof Lab",
+    "section": "",
+    "text": "Ramsey decomposition\n  Theorem. Every omega-word alpha belongs to U·V-omega for\n  some classes U, V of a finite-index congruence (=), with V·V contained in V.\n\n  Running example. The automaton has states s0, s1, s2 with\n  F = {s1} and transitions s0-a-&gt;s1, s1-b-&gt;s2, s2-c-&gt;s2 (self-loop),\n  s2-a-&gt;s1. The word alpha = abc·abcc·abccc··· has\n  ever-growing gaps of c's and is not ultimately periodic, yet every block abc^n\n  produces the same behaviour, so alpha decomposes as [epsilon]·V-omega for a\n  single class V.\n\n  Strategy. Build a second finite-index equivalence on the\n  positions of alpha by colouring each pair of positions with the (=)-class of the\n  segment between them. Pigeonhole gives an infinite pairwise-merging set of\n  positions; persistence (congruence applied to a shared future suffix) makes that\n  merge survive forever. A separate pigeonhole on cumulative-prefix classes gives\n  infinitely many prefixes in one class V; persistence then transfers V's class onto\n  each gap, turning them into genuine consecutive V-blocks. One witnessed\n  concatenation transports, via congruence, to V·V contained in V.\n\n  Proof outline.\n  \n    Setup. The congruence (=) compares the finite segments between\n    positions, not positions themselves; so build a relation on positions, colouring\n    a pair (k, k') by the (=)-class of the shared-future segments alpha(k, m) and\n    alpha(k', m).\n    Pigeonhole on positions. That relation inherits finite index from\n    (=), so among any r+1 positions two must merge; run over all of N to get an\n    infinite pairwise-merging sequence k0 &lt; k1 &lt; k2 &lt; ...\n    Persistence. (=) is right-invariant, so appending the shared suffix\n    to both sides shows: once two positions merge at some checkpoint m, they merge at\n    every later checkpoint m' &gt;= m.\n    Pigeonhole on segments. Independently, pigeonhole the cumulative\n    prefixes alpha(k0, ki): infinitely many share one class V. This gives alpha in\n    U·(infinitely many V-prefixes), but not yet consecutive blocks.\n    Thinning. Thin the sequence so that k0, ..., ki all merge at k(i+1);\n    persistence transfers alpha(k0, k(i+1)) in V onto the gap, giving alpha(ki, k(i+1))\n    in V. Every consecutive block lies in V, so alpha in U·V-omega.\n    Idempotence. For one witnessed pair a = alpha(k0, k1), b =\n    alpha(k1, k2) with ab in V, congruence gives xy = ab in V for all x = a, y = b in\n    V; hence V·V contained in V.\n  \n\n  Conclusion. alpha in U·V-omega with V·V contained\n  in V — the Ramsey decomposition, holding even when alpha is not ultimately\n  periodic."
+  },
+  {
+    "objectID": "proofs/chapter-03/omega-closure.html",
+    "href": "proofs/chapter-03/omega-closure.html",
+    "title": "ω-Regular Closure Proof Lab",
+    "section": "",
+    "text": "Basic ω-regular closure\n  Omega-power restarts after every finite block, concatenation hands off after a finite prefix, and union makes an initial nondeterministic choice. Intersection alternates between waiting for the two Büchi final sets, accepting after each completed round."
+  },
+  {
+    "objectID": "proofs/chapter-03/buchi-emptiness.html",
+    "href": "proofs/chapter-03/buchi-emptiness.html",
+    "title": "Decidability of Büchi Emptiness Proof Lab",
+    "section": "",
+    "text": "Decidability of Büchi emptiness\n  A Büchi automaton accepts an infinite word iff there is an accepting state reachable from the initial state that belongs to a directed cycle. This reduces infinite-word emptiness to finite cycle detection, witnessed by an ultimately periodic lasso word u v^omega."
   },
   {
     "objectID": "proofs/chapter-02/regular-closure.html",
@@ -1736,17 +1778,59 @@
     "text": "Small model property\n  Choose a shortest accepted word. If its length were at least the number of states, its run would repeat a state. Removing the non-empty loop between the repetitions would preserve the accepting suffix and produce a shorter accepted word, a contradiction."
   },
   {
-    "objectID": "proofs/chapter-03/omega-closure.html",
-    "href": "proofs/chapter-03/omega-closure.html",
-    "title": "ω-Regular Closure Proof Lab",
+    "objectID": "proofs/chapter-03/buchi-expression-equivalence.html",
+    "href": "proofs/chapter-03/buchi-expression-equivalence.html",
+    "title": "Büchi–Expression Equivalence Proof Lab",
     "section": "",
-    "text": "Basic ω-regular closure\n  Omega-power restarts after every finite block, concatenation hands off after a finite prefix, and union makes an initial nondeterministic choice. Intersection alternates between waiting for the two Büchi final sets, accepting after each completed round."
+    "text": "Büchi–expression equivalence\n  An expression term builds a Büchi automaton that completes infinitely many blocks. Conversely, an accepting run revisits one final state infinitely often and can be cut into a prefix leading to that state followed by infinitely many non-empty return loops."
   },
   {
-    "objectID": "proofs/chapter-04/ramsey-decomposition.html",
-    "href": "proofs/chapter-04/ramsey-decomposition.html",
-    "title": "Ramsey Decomposition Proof Lab",
+    "objectID": "proofs/chapter-04/buchi-complementation.html",
+    "href": "proofs/chapter-04/buchi-complementation.html",
+    "title": "Büchi Complementation Proof Lab",
     "section": "",
-    "text": "Ramsey decomposition\n  Theorem. Every omega-word alpha belongs to U·V-omega for\n  some classes U, V of a finite-index congruence (=), with V·V contained in V.\n\n  Running example. The automaton has states s0, s1, s2 with\n  F = {s1} and transitions s0-a-&gt;s1, s1-b-&gt;s2, s2-c-&gt;s2 (self-loop),\n  s2-a-&gt;s1. The word alpha = abc·abcc·abccc··· has\n  ever-growing gaps of c's and is not ultimately periodic, yet every block abc^n\n  produces the same behaviour, so alpha decomposes as [epsilon]·V-omega for a\n  single class V.\n\n  Strategy. Build a second finite-index equivalence on the\n  positions of alpha by colouring each pair of positions with the (=)-class of the\n  segment between them. Pigeonhole gives an infinite pairwise-merging set of\n  positions; persistence (congruence applied to a shared future suffix) makes that\n  merge survive forever. A separate pigeonhole on cumulative-prefix classes gives\n  infinitely many prefixes in one class V; persistence then transfers V's class onto\n  each gap, turning them into genuine consecutive V-blocks. One witnessed\n  concatenation transports, via congruence, to V·V contained in V.\n\n  Proof outline.\n  \n    Setup. The congruence (=) compares the finite segments between\n    positions, not positions themselves; so build a relation on positions, colouring\n    a pair (k, k') by the (=)-class of the shared-future segments alpha(k, m) and\n    alpha(k', m).\n    Pigeonhole on positions. That relation inherits finite index from\n    (=), so among any r+1 positions two must merge; run over all of N to get an\n    infinite pairwise-merging sequence k0 &lt; k1 &lt; k2 &lt; ...\n    Persistence. (=) is right-invariant, so appending the shared suffix\n    to both sides shows: once two positions merge at some checkpoint m, they merge at\n    every later checkpoint m' &gt;= m.\n    Pigeonhole on segments. Independently, pigeonhole the cumulative\n    prefixes alpha(k0, ki): infinitely many share one class V. This gives alpha in\n    U·(infinitely many V-prefixes), but not yet consecutive blocks.\n    Thinning. Thin the sequence so that k0, ..., ki all merge at k(i+1);\n    persistence transfers alpha(k0, k(i+1)) in V onto the gap, giving alpha(ki, k(i+1))\n    in V. Every consecutive block lies in V, so alpha in U·V-omega.\n    Idempotence. For one witnessed pair a = alpha(k0, k1), b =\n    alpha(k1, k2) with ab in V, congruence gives xy = ab in V for all x = a, y = b in\n    V; hence V·V contained in V.\n  \n\n  Conclusion. alpha in U·V-omega with V·V contained\n  in V — the Ramsey decomposition, holding even when alpha is not ultimately\n  periodic."
+    "text": "Büchi complementation\n  The finite classes of the relation \\(\\approx_{\\mathcal A}\\) generate finitely many products UV to the omega. Saturation places each product entirely inside or outside the language, while the Ramsey decomposition covers every infinite word. The complement is therefore a finite union of omega-regular products."
+  },
+  {
+    "objectID": "proofs/chapter-05/attractor-correctness.html",
+    "href": "proofs/chapter-05/attractor-correctness.html",
+    "title": "Attractor Correctness Proof Lab",
+    "section": "",
+    "text": "Attractor correctness & controllable predecessors\n  A vertex belongs to the controllable attractor of target set T iff the System has a memoryless winning strategy to force reachability. The integer rank function strictly decreases at every System move, guaranteeing arrival in T in finitely many steps."
+  },
+  {
+    "objectID": "proofs/chapter-08/s1s-buchi.html",
+    "href": "proofs/chapter-08/s1s-buchi.html",
+    "title": "Büchi’s S1S Decidability Proof Lab",
+    "section": "",
+    "text": "Büchi's S1S decidability theorem (1960)\n  An omega-language is omega-regular iff it is definable in monadic second-order logic S1S. Accepting runs translate to second-order existential quantifiers, while logical connectives translate to automata operations, proving S1S decidability."
+  },
+  {
+    "objectID": "proofs/chapter-09/mcnaughton-papert.html",
+    "href": "proofs/chapter-09/mcnaughton-papert.html",
+    "title": "McNaughton–Papert Theorem Proof Lab",
+    "section": "",
+    "text": "McNaughton–Papert & Schützenberger theorem (1971)\n  A regular language is star-free iff it is definable in first-order logic of linear order FO[&lt;] iff its syntactic monoid is aperiodic. The equivalence characterizes languages without modulo counting."
+  },
+  {
+    "objectID": "proofs/chapter-11/kamp-theorem.html",
+    "href": "proofs/chapter-11/kamp-theorem.html",
+    "title": "Kamp’s Theorem Proof Lab",
+    "section": "",
+    "text": "Kamp's expressive completeness theorem (1968)\n  Linear Temporal Logic with Until and Since has the exact expressive power of First-Order Logic FO[&lt;] over the natural numbers. Gabbay's separation property eliminates nested temporal interferences, reducing initial validity to pure-future LTL."
+  },
+  {
+    "objectID": "proofs/chapter-12/ltl-model-checking.html",
+    "href": "proofs/chapter-12/ltl-model-checking.html",
+    "title": "Automata-Theoretic LTL Model Checking Proof Lab",
+    "section": "",
+    "text": "Automata-theoretic LTL model checking\n  A Kripke structure satisfies an LTL formula iff the synchronous product with the negated formula monitor has no accepting run. Nested DFS detects counterexample lassos on-the-fly in linear time."
+  },
+  {
+    "objectID": "proofs/chapter-14/angluin-learning.html",
+    "href": "proofs/chapter-14/angluin-learning.html",
+    "title": "Angluin’s L* Active Learning Proof Lab",
+    "section": "",
+    "text": "Angluin's L* active learning algorithm correctness\n  Angluin's L* algorithm synthesizes the unique minimal DFA for a regular language using membership and equivalence queries. Closed and consistent observation tables define candidate DFAs, converging in polynomial queries."
   }
 ]

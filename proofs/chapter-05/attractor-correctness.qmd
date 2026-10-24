@@ -1,0 +1,13 @@
+---
+title: "Attractor Correctness Proof Lab"
+pagetitle: "Attractor Correctness — Interactive Proof Lab"
+description: "An interactive proof of correctness for controllable attractors in two-player games."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="attractor-correctness"></div>
+<noscript>
+  <h1>Attractor correctness & controllable predecessors</h1>
+  <p>A vertex belongs to the controllable attractor of target set T iff the System has a memoryless winning strategy to force reachability. The integer rank function strictly decreases at every System move, guaranteeing arrival in T in finitely many steps.</p>
+</noscript>
+```

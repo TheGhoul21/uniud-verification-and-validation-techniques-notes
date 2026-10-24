@@ -1225,7 +1225,7 @@
         }
       ],
       previous: { label: "\u03c9-regular closure", href: "/proofs/chapter-03/omega-closure.html" },
-      next: { label: "Ramsey decomposition", href: "/proofs/chapter-04/ramsey-decomposition.html" }
+      next: { label: "Büchi emptiness", href: "/proofs/chapter-03/buchi-emptiness.html" }
     },
 
     "ramsey-decomposition": {
@@ -1469,7 +1469,7 @@
           revealNote: "a, b, ab all in V. Congruence transports it to every pair: V\u00b7V \u2286 V, so \u03b1 \u2208 U\u00b7V\u03c9."
         }
       ],
-      previous: { label: "B\u00fcchi\u2013expression equivalence", href: "/proofs/chapter-03/buchi-expression-equivalence.html" },
+      previous: { label: "Büchi emptiness", href: "/proofs/chapter-03/buchi-emptiness.html" },
       next: { label: "B\u00fcchi complementation", href: "/proofs/chapter-04/buchi-complementation.html" }
     },
 
@@ -1627,5 +1627,4358 @@
       ],
       previous: { label: "Ramsey decomposition", href: "/proofs/chapter-04/ramsey-decomposition.html" }
     }
+,
+
+    "buchi-emptiness": {
+  "slug": "buchi-emptiness",
+  "chapter": 3,
+  "title": "Decidability of Büchi emptiness",
+  "theorem": "Let \\(\\mathcal{A} = (Q, \\Sigma, \\Delta, q_0, F)\\) be a Büchi automaton. Then \\(L(\\mathcal{A}) \\neq \\emptyset \\iff\\) there exists an accepting state \\(f \\in F\\) that is reachable from \\(q_0\\) and belongs to a directed cycle in the transition graph.",
+  "intro": "The emptiness problem asks whether a Büchi automaton accepts at least one infinite word. In finite automata, emptiness is simple state reachability. For Büchi automata, acceptance demands visiting an accepting state infinitely often. This theorem establishes that if any accepting run exists, there is an ultimately periodic run witnessing it: a finite stem reaching an accepting state (f in F) followed by a cycle through (f) repeated indefinitely ((u v^omega)).",
+  "application": "Büchi emptiness is the core decision algorithm in automata-theoretic LTL and CTL* model checking. Verifying a system against a property (\u000barphi) reduces to checking whether the synchronous product (mathcal{M} otimes mathcal{A}_{\neg\u000barphi}) is empty. Whenever the language is non-empty, cycle detection directly produces a concrete counterexample trace (u v^omega) (stem and loop) witnessing the specification violation.",
+  "strategy": "Prove both directions: \\((\\impliedby)\\) Given a path from \\(q_0\\) to \\(f \\in F\\) reading \\(u \\in \\Sigma^*\\) and a non-empty cycle from \\(f\\) to \\(f\\) reading \\(v \\in \\Sigma^+\\), construct the infinite word \\(w = u v^\\omega\\). The generated run visits \\(f\\) at every iteration of \\(v\\), ensuring \\(f \\in \\mathrm{Inf}(\\rho)\\) and \\(w \\in L(\\mathcal{A})\\). \\((\\implies)\\) Given any accepting run \\(\\rho\\) over some word \\(w\\), by definition \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\). Since \\(F\\) is finite, the Pigeonhole Principle forces some state \\(f \\in F\\) to be revisited infinitely often. The segment between two consecutive visits to \\(f\\) defines a non-empty directed cycle from \\(f\\) back to \\(f\\), establishing a finite stem and loop. Graph-theoretically, this is equivalent to finding a reachable strongly connected component (SCC) containing an accepting state and at least one transition, computable in linear time \\(O(|Q| + |\\Delta|)\\) via Tarjan's or Nested DFS algorithms.",
+  "invariant": "\\(\\rho\\) is an accepting run \\(\\iff \\exists f \\in F,\\; q_0 \\xrightarrow{u}^* f \\land f \\xrightarrow{v}^+ f \\text{ with } |v| \\ge 1\\)",
+  "synthesis": "Let \\(\\mathcal{A}=(Q,\\Sigma,\\Delta,q_0,F)\\). If there exist \\(f\\in F\\) and words \\(u\\in\\Sigma^*, v\\in\\Sigma^+\\) such that \\(q_0\\xrightarrow{u}^* f\\) and \\(f\\xrightarrow{v}^+ f\\), the concatenated infinite word \\(w = u v^\\omega\\) generates the infinite run \\(\\rho = q_0 \\xrightarrow{u} f \\xrightarrow{v} f \\xrightarrow{v} \\dots\\). The set of states visited infinitely often is \\(\\mathrm{Inf}(\\rho) \\supseteq \\{f\\}\\); since \\(f\\in F\\), \\(\\mathrm{Inf}(\\rho)\\cap F \\neq \\emptyset\\), proving \\(w\\in L(\\mathcal{A})\\). Conversely, let \\(w\\in L(\\mathcal{A})\\) with run \\(\\rho = s_0 s_1 s_2 \\dots\\) where \\(s_0 = q_0\\). By Büchi acceptance, \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\), so there exists \\(f \\in F\\) occurring infinitely often. Choose two indices \\(i_1 < i_2\\) such that \\(s_{i_1} = s_{i_2} = f\\). The prefix \\(w_0 \\dots w_{i_1-1}\\) labels a finite run from \\(q_0\\) to \\(f\\), and the segment \\(w_{i_1} \\dots w_{i_2-1}\\) (length \\(\\ge 1\\)) labels a directed cycle from \\(f\\) to \\(f\\). Thus, \\(L(\\mathcal{A}) \\neq \\emptyset\\) is equivalent to the existence of a reachable non-trivial SCC containing at least one state in \\(F\\), decidable in \\(O(|Q| + |\\Delta|)\\) time.",
+  "diagram": {
+    "description": "Büchi automaton transition graph decomposing an infinite accepting run into a finite stem reaching an accepting state f, and a directed non-trivial cycle through f.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 240,
+        "label": "Reachable Path (Stem u)",
+        "labelX": 35,
+        "labelY": 55
+      },
+      {
+        "y": 490,
+        "label": "Accepting Cycle (Loop v)",
+        "labelX": 35,
+        "labelY": 300
+      }
+    ],
+    "nodes": [
+      {
+        "id": "q0",
+        "x": 180,
+        "y": 140,
+        "label": "q₀",
+        "detail": "initial state",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "q1",
+        "x": 450,
+        "y": 140,
+        "label": "q₁",
+        "detail": "stem path",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "f",
+        "x": 750,
+        "y": 140,
+        "label": "f ∈ F",
+        "detail": "accepting target",
+        "shape": "circle",
+        "r": 56,
+        "accepting": true
+      },
+      {
+        "id": "c1",
+        "x": 850,
+        "y": 380,
+        "label": "c₁",
+        "detail": "cycle state",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "c2",
+        "x": 650,
+        "y": 380,
+        "label": "c₂",
+        "detail": "cycle return",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "sink",
+        "x": 450,
+        "y": 380,
+        "label": "qₛₗₙₖ",
+        "detail": "transient trap",
+        "shape": "circle",
+        "r": 46
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-stem1",
+        "from": "q0",
+        "to": "q1",
+        "label": "u₁",
+        "labelY": 120
+      },
+      {
+        "id": "e-stem2",
+        "from": "q1",
+        "to": "f",
+        "label": "u₂",
+        "labelY": 120
+      },
+      {
+        "id": "e-trap",
+        "from": "q1",
+        "to": "sink",
+        "label": "d",
+        "labelX": 475,
+        "labelY": 260
+      },
+      {
+        "id": "e-c1",
+        "from": "f",
+        "to": "c1",
+        "label": "v₁",
+        "path": "M 780 185 C 840 240 870 300 855 335",
+        "labelX": 840,
+        "labelY": 250
+      },
+      {
+        "id": "e-c2",
+        "from": "c1",
+        "to": "c2",
+        "label": "v₂",
+        "labelY": 360
+      },
+      {
+        "id": "e-close",
+        "from": "c2",
+        "to": "f",
+        "label": "v₃",
+        "path": "M 660 335 C 660 250 710 200 730 185",
+        "labelX": 675,
+        "labelY": 250
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 470,
+        "text": "Lasso witness: u = u₁u₂, v = v₁v₂v₃  ⟹  u·vω ∈ L(Ⅎ)",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Sufficiency",
+      "title": "Constructing an accepting run from a finite stem and loop",
+      "exposition": "Suppose there exists an accepting state \\(f \\in F\\) that is reachable from \\(q_0\\) via a finite word \\(u \\in \\Sigma^*\\) and admits a non-empty directed cycle back to \\(f\\) via \\(v \\in \\Sigma^+\\). We construct the ultimately periodic word \\(w = u v^\\omega = u v v v \\dots\\). We must formally verify why the run generated by \\(w\\) satisfies the Büchi acceptance condition.",
+      "question": "Why does the periodic run produced by w = u v^ω guarantee Büchi acceptance?",
+      "choices": [
+        {
+          "text": "Because following the stem reaches \\(f\\), and traversing the loop \\(v\\) repeatedly visits \\(f\\) at every period, making \\(f \\in \\mathrm{Inf}(\\rho)\\) with \\(f \\in F\\).",
+          "correct": true,
+          "feedback": "Correct. The run visits state \\(f\\) at step \\(|u|\\), step \\(|u|+|v|\\), step \\(|u|+2|v|\\), etc. Since \\(|v| \\ge 1\\), this visits \\(f\\) at infinitely many distinct time indices, ensuring \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\)."
+        },
+        {
+          "text": "Because any cycle in a finite automaton forces all states of the automaton to appear infinitely often.",
+          "correct": false,
+          "causalFailure": "A cycle visits only the vertices on that specific cycle; states outside the cycle (such as \\(q_0\\) or non-cycle states) are visited only finitely many times."
+        },
+        {
+          "text": "Because Büchi automata accept any word that traverses at least one accepting state at least once.",
+          "correct": false,
+          "causalFailure": "Visiting an accepting state once is finite automaton acceptance; Büchi acceptance strictly requires an accepting state to be visited infinitely often (\\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\))."
+        }
+      ],
+      "hint": "Recall the Büchi acceptance condition: Inf(ρ) ∩ F ≠ ∅. How often is state f visited when repeating loop v?",
+      "formal": "\\(q_0 \\xrightarrow{u} f \\land f \\xrightarrow{v} f \\implies \\rho = q_0 \\xrightarrow{u} f (\\xrightarrow{v} f)^\\omega\\). Since \\(|v| \\ge 1\\), \\(\\{f\\} \\subseteq \\mathrm{Inf}(\\rho)\\). As \\(f \\in F\\), \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\), so \\(u v^\\omega \\in L(\\mathcal{A})\\).",
+      "preview": {
+        "activeNodes": [
+          "q0",
+          "f"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-stem2"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "q0",
+          "q1",
+          "f",
+          "c1",
+          "c2"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-stem2",
+          "e-c1",
+          "e-c2",
+          "e-close"
+        ],
+        "goodNodes": [
+          "f",
+          "c1",
+          "c2"
+        ]
+      },
+      "previewNote": "The stem u reaches an accepting state f ∈ F.",
+      "revealNote": "Indefinitely iterating the cycle v visits f infinitely often, certifying acceptance."
+    },
+    {
+      "label": "Necessity",
+      "title": "Pigeonhole principle on infinite accepting visits",
+      "exposition": "Now assume \\(L(\\mathcal{A}) \\neq \\emptyset\\), so there exists an infinite word \\(w\\) admitting an accepting run \\(\\rho = s_0 s_1 s_2 \\dots\\) with \\(s_0 = q_0\\). By definition, \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\), meaning the run visits states from \\(F\\) infinitely many times. We must deduce the existence of a finite cycle from this infinite sequence.",
+      "question": "Which combinatorial argument guarantees that an accepting run must contain a cycle through some state in F?",
+      "choices": [
+        {
+          "text": "Since \\(F\\) is finite, the infinite sequence of visits to \\(F\\) must revisit at least one specific state \\(f \\in F\\) at multiple indices \\(i_1 < i_2\\), forming a cycle \\(f \\xrightarrow{w_{i_1}\\dots w_{i_2-1}} f\\).",
+          "correct": true,
+          "feedback": "Exactly. By the Dirichlet Pigeonhole Principle, distributing infinitely many visits across a finite set \\(F\\) forces at least one state \\(f \\in F\\) to occur infinitely often. The run segment between two occurrences forms a directed cycle."
+        },
+        {
+          "text": "Because every infinite sequence of transitions in a graph must visit all vertices of the graph.",
+          "correct": false,
+          "causalFailure": "A run can easily remain trapped in a small 2-state subcomponent, never visiting the rest of the graph."
+        },
+        {
+          "text": "Because non-deterministic transitions always duplicate states until a cycle is formed.",
+          "correct": false,
+          "causalFailure": "Non-determinism allows branching choices, but the run itself is a single sequence of states; cycle existence stems from graph finiteness and infinite length."
+        }
+      ],
+      "hint": "How many states are in F? How many times does an accepting run visit F?",
+      "formal": "\\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset \\implies \\exists f \\in F \\text{ such that } \\{i \\mid s_i = f\\} \\text{ is infinite}\\). Picking any two indices \\(i_1 < i_2\\) gives \\(s_{i_1} = s_{i_2} = f\\), defining the directed cycle.",
+      "preview": {
+        "activeNodes": [
+          "f"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "f",
+          "c1",
+          "c2"
+        ],
+        "activeEdges": [
+          "e-c1",
+          "e-c2",
+          "e-close"
+        ],
+        "goodNodes": [
+          "f"
+        ]
+      },
+      "previewNote": "Some state f in F is visited at infinitely many time steps.",
+      "revealNote": "Two distinct visit times i₁ < i₂ delimit a finite closed cycle from f back to f."
+    },
+    {
+      "label": "Graph Reduction",
+      "title": "Strongly Connected Components and non-transient components",
+      "exposition": "A strongly connected component (SCC) is a maximal subgraph where every pair of vertices is mutually reachable. An SCC is non-trivial (or non-transient) if it contains at least one directed edge (which includes self-loops or cycles of length \\(\\ge 2\\)). A single isolated state without self-loops is a trivial SCC with no cycle.",
+      "question": "What exact condition on the SCC decomposition of the transition graph characterizes non-emptiness of L(A)?",
+      "choices": [
+        {
+          "text": "There is a reachable non-trivial SCC \\(C\\) containing at least one accepting state \\(f \\in F \\cap C\\).",
+          "correct": true,
+          "feedback": "Precisely. In a non-trivial SCC, every state belongs to a directed cycle. If that SCC contains \\(f \\in F\\) and is reachable from \\(q_0\\), \\(f\\) can be visited and cycled through repeatedly."
+        },
+        {
+          "text": "Every accepting state in the automaton must belong to a single global strongly connected component.",
+          "correct": false,
+          "causalFailure": "An automaton can have multiple disconnected accepting components; only one reachable accepting cycle is required for non-emptiness."
+        },
+        {
+          "text": "The graph must contain no sink states anywhere in the state space.",
+          "correct": false,
+          "causalFailure": "The presence of sink states elsewhere does not affect language non-emptiness as long as one accepting lasso exists."
+        }
+      ],
+      "hint": "Does a trivial SCC (a single vertex without a self-loop) contain a cycle?",
+      "formal": "\\(L(\\mathcal{A}) \\neq \\emptyset \\iff \\exists \\text{ non-trivial SCC } C \\subseteq Q \\text{ such that } C \\text{ is reachable from } q_0 \\land C \\cap F \\neq \\emptyset\\).",
+      "preview": {
+        "activeNodes": [
+          "q0",
+          "q1",
+          "sink"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-trap"
+        ],
+        "badNodes": [
+          "sink"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "q0",
+          "q1",
+          "f",
+          "c1",
+          "c2"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-stem2",
+          "e-c1",
+          "e-c2",
+          "e-close"
+        ],
+        "goodNodes": [
+          "f",
+          "c1",
+          "c2"
+        ],
+        "badNodes": [
+          "sink"
+        ]
+      },
+      "previewNote": "Transient paths leading to dead sinks do not form cycles.",
+      "revealNote": "Reachable non-trivial SCC containing f ∈ F confirms a cycle: language is non-empty."
+    },
+    {
+      "label": "Algorithmics",
+      "title": "Linear-time decision and counterexample extraction",
+      "exposition": "To solve Büchi emptiness algorithmically on an automaton with \\(|Q|\\) states and \\(|\\Delta|\\) transitions, we can compute all SCCs using Tarjan's algorithm in \\(O(|Q| + |\\Delta|)\\) time, or execute a Nested Depth-First Search (NDFS) that searches for accepting states during DFS-1 and finds return cycles in DFS-2.",
+      "question": "What is the worst-case time complexity of checking Büchi emptiness, and what witness is produced?",
+      "choices": [
+        {
+          "text": "Linear time \\(O(|Q| + |\\Delta|)\\), producing an ultimately periodic word \\(u v^\\omega\\) as a concrete counterexample witness.",
+          "correct": true,
+          "feedback": "Spot on. Graph reachability and cycle detection run in linear time. The stem path and cycle path directly supply the words \\(u\\) and \\(v\\), forming the counterexample lasso \\(u v^\\omega\\)."
+        },
+        {
+          "text": "Exponential time \\(O(2^{|Q|})\\), because infinite runs require exploring all subsets of states.",
+          "correct": false,
+          "causalFailure": "Subset exploration is needed for determinization or complementation, but emptiness checks the existing transition graph directly in linear time."
+        },
+        {
+          "text": "Undecidable, because the language consists of infinite-length words.",
+          "correct": false,
+          "causalFailure": "The language contains infinite words, but the automaton is finite; the ultimately periodic property reduces the infinite problem to finite cycle detection."
+        }
+      ],
+      "hint": "Tarjan's SCC algorithm and Nested DFS both inspect vertices and edges a constant number of times.",
+      "formal": "\\(\\text{Time complexity: } O(|Q| + |\\Delta|)\\). The witness is \\(w = u v^\\omega \\in L(\\mathcal{A})\\) with \\(|u| \\le |Q|\\) and \\(1 \\le |v| \\le |Q|\\).",
+      "preview": {
+        "activeNodes": [
+          "q0",
+          "q1",
+          "f"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-stem2"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "q0",
+          "q1",
+          "f",
+          "c1",
+          "c2"
+        ],
+        "activeEdges": [
+          "e-stem1",
+          "e-stem2",
+          "e-c1",
+          "e-c2",
+          "e-close"
+        ],
+        "goodNodes": [
+          "q0",
+          "f",
+          "c1",
+          "c2"
+        ]
+      },
+      "previewNote": "DFS-1 reaches the accepting state f.",
+      "revealNote": "DFS-2 closes the cycle back to f, returning the lasso counterexample in linear time."
+    }
+  ],
+  "previous": {
+    "label": "Büchi–expression equivalence",
+    "href": "/proofs/chapter-03/buchi-expression-equivalence.html"
+  },
+  "next": {
+    "label": "Ramsey decomposition",
+    "href": "/proofs/chapter-04/ramsey-decomposition.html"
+  }
+},
+
+    "attractor-correctness": {
+  "slug": "attractor-correctness",
+  "chapter": 5,
+  "title": "Attractor correctness & controllable predecessors",
+  "theorem": "Let \\(G = (V_E, V_S, E)\\) be a finite 2-player game arena with target \\(T \\subseteq V\\). A vertex \\(v\\) belongs to \\(\\mathsf{Attr}_S(T)\\) if and only if the System has a memoryless winning strategy for the reachability objective to force the play into \\(T\\) regardless of Environment choices.",
+  "intro": "In reactive synthesis, a software or hardware controller interacts with an antagonistic environment. The controllable attractor (mathsf{Attr}_S(T)) formalizes backward reachability: it is the set of all arena states from which the System can guarantee entering the target set (T) within a finite number of steps, no matter how the Environment plays.",
+  "application": "Attractor computation is the workhorse of game solving: it computes winning regions in safety games, reachability games, Büchi games, and parity games (via Zielonka's algorithm). When synthesizing reactive controllers, the attractor's rank function directly yields a correct-by-construction positional control policy.",
+  "strategy": "Define the predecessor operators \\(\\textit{Pre}_S(X) = \\{v \\in V_S \\mid \\exists (v, u) \\in E.\\; u \\in X\\}\\) (existential for System) and \\(\\textit{Pre}_E(X) = \\{v \\in V_E \\mid \\forall (v, u) \\in E.\\; u \\in X\\}\\) (universal for Environment). Form the attractor iteration \\(\\mathsf{Attr}_0(T) = T\\), \\(\\mathsf{Attr}_{k+1}(T) = \\mathsf{Attr}_k(T) \\cup \\textit{Pre}_S(\\mathsf{Attr}_k(T)) \\cup \\textit{Pre}_E(\\mathsf{Attr}_k(T))\\). On \\(\\mathsf{Attr}_S(T)\\), define the rank \\(r(v) = \\min \\{k \\mid v \\in \\mathsf{Attr}_k(T)\\}\\). Prove that \\(r(v)\\) acts as a Lyapunov function: the System can choose a successor with strictly lower rank, while the Environment cannot prevent moving to a state with lower rank. Hence, play reaches \\(T\\) in at most \\(r(v)\\) steps. Conversely, show that on the complement \\(V \\setminus \\mathsf{Attr}_S(T)\\), the Environment has a strategy to trap the play forever outside \\(T\\).",
+  "invariant": "\\(\\forall v \\in \\mathsf{Attr}_S(T) \\setminus T,\\; (v \\in V_S \\implies \\exists u.\\; r(u) < r(v)) \\land (v \\in V_E \\implies \\forall u.\\; r(u) < r(v))\\)",
+  "synthesis": "Let \\(G=(V_E,V_S,E)\\) with target \\(T\\subseteq V\\). The sequence \\(\\mathsf{Attr}_0(T)\\subseteq \\mathsf{Attr}_1(T)\\subseteq \\dots\\) is monotone in the finite lattice \\((2^V,\\subseteq)\\), reaching a fixed point \\(\\mathsf{Attr}_S(T) = \\mathsf{Attr}_{|V|}(T)\\). For \\(v\\in\\mathsf{Attr}_S(T)\\), define \\(r(v)=\\min\\{k\\mid v\\in\\mathsf{Attr}_k(T)\\}\\). Construct a memoryless System strategy \\(\\sigma: V_S\\to V\\): for \\(v\\in V_S\\cap\\mathsf{Attr}_S(T)\\setminus T\\) with \\(r(v)=k+1\\), by definition of \\(\\textit{Pre}_S\\), \\(\\exists u\\in\\mathsf{Attr}_k(T)\\) such that \\((v,u)\\in E\\); set \\(\\sigma(v)=u\\). For Environment vertices \\(v\\in V_E\\cap\\mathsf{Attr}_S(T)\\setminus T\\) with \\(r(v)=k+1\\), by definition of \\(\\textit{Pre}_E\\), all successors \\(u\\) satisfy \\(u\\in\\mathsf{Attr}_k(T)\\), so \\(r(u)\\le k < r(v)\\). Thus, along any play obeying \\(\\sigma\\), the integer rank strictly decreases at every step, ensuring arrival in \\(T\\) in at most \\(r(v)\\) steps. On the complement \\(U = V\\setminus\\mathsf{Attr}_S(T)\\), for all \\(v\\in U\\cap V_S\\), all successors remain in \\(U\\) (otherwise \\(v\\in\\textit{Pre}_S(\\mathsf{Attr}_S(T))\\)); for all \\(v\\in U\\cap V_E\\), there exists a successor in \\(U\\) (otherwise \\(v\\in\\textit{Pre}_E(\\mathsf{Attr}_S(T))\\)). Thus the Environment traps the play in \\(U\\), proving that the System cannot win from \\(U\\).",
+  "diagram": {
+    "description": "Controllable attractor arena showing System vertices (squares) with existential choice, Environment vertices (circles) with universal branches, rank layers, and the external trap.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "System Vertices (Vs) — Existential Choice",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Environment Vertices (Ve) — Universal Obligation",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Target Region T (Rank 0)",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "vs2",
+        "x": 200,
+        "y": 100,
+        "label": "vₛ₂",
+        "detail": "rank 2 (Vs)",
+        "shape": "rect",
+        "width": 140,
+        "height": 60
+      },
+      {
+        "id": "ve1",
+        "x": 500,
+        "y": 270,
+        "label": "vₑ₁",
+        "detail": "rank 1 (Ve)",
+        "shape": "circle",
+        "r": 46
+      },
+      {
+        "id": "vs1",
+        "x": 200,
+        "y": 270,
+        "label": "vₛ₁",
+        "detail": "rank 1 (Vs)",
+        "shape": "rect",
+        "width": 140,
+        "height": 60
+      },
+      {
+        "id": "t1",
+        "x": 350,
+        "y": 430,
+        "label": "t₁ ∈ T",
+        "detail": "target state",
+        "shape": "circle",
+        "r": 48,
+        "accepting": true
+      },
+      {
+        "id": "t2",
+        "x": 650,
+        "y": 430,
+        "label": "t₂ ∈ T",
+        "detail": "target state",
+        "shape": "circle",
+        "r": 48,
+        "accepting": true
+      },
+      {
+        "id": "trap",
+        "x": 820,
+        "y": 270,
+        "label": "uₜᵣₐₚ",
+        "detail": "outside attractor",
+        "shape": "circle",
+        "r": 48
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-vs2-vs1",
+        "from": "vs2",
+        "to": "vs1",
+        "label": "σ(vₛ₂)",
+        "labelX": 230,
+        "labelY": 185
+      },
+      {
+        "id": "e-vs2-trap",
+        "from": "vs2",
+        "to": "trap",
+        "label": "bad choice",
+        "path": "M 280 80 C 600 40 820 120 820 220",
+        "labelX": 620,
+        "labelY": 80
+      },
+      {
+        "id": "e-vs1-t1",
+        "from": "vs1",
+        "to": "t1",
+        "label": "σ(vₛ₁)",
+        "labelX": 250,
+        "labelY": 355
+      },
+      {
+        "id": "e-ve1-t1",
+        "from": "ve1",
+        "to": "t1",
+        "label": "env move 1",
+        "labelX": 405,
+        "labelY": 355
+      },
+      {
+        "id": "e-ve1-t2",
+        "from": "ve1",
+        "to": "t2",
+        "label": "env move 2",
+        "labelX": 600,
+        "labelY": 355
+      },
+      {
+        "id": "e-trap-loop",
+        "from": "trap",
+        "to": "trap",
+        "label": "trap loop",
+        "path": "M 855 240 C 930 200 930 340 855 300",
+        "labelX": 955,
+        "labelY": 270
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Rank function r(v) guarantees arrival in T within at most r(v) steps.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Predecessor Duality",
+      "title": "Existential versus universal predecessor operators",
+      "exposition": "In an arena \\(G = (V_E, V_S, E)\\), the System controls transitions from \\(V_S\\), while the Environment controls transitions from \\(V_E\\). To expand a target set \\(X \\subseteq V\\) backwards by one step, we must account for this strategic asymmetry.",
+      "question": "How are the controllable predecessor operators defined for System and Environment vertices?",
+      "choices": [
+        {
+          "text": "\\(\\textit{Pre}_S(X) = \\{v \\in V_S \\mid \\exists u \\in X.\\; (v, u) \\in E\\}\\) and \\(\\textit{Pre}_E(X) = \\{v \\in V_E \\mid \\forall u.\\; (v, u) \\in E \\implies u \\in X\\}\\).",
+          "correct": true,
+          "feedback": "Correct. The System needs only one winning move to enter \\(X\\), whereas from an Environment vertex, all possible adversary transitions must remain inside \\(X\\)."
+        },
+        {
+          "text": "Both System and Environment use existential quantification: \\(\\exists u \\in X.\\; (v, u) \\in E\\).",
+          "correct": false,
+          "causalFailure": "If an Environment vertex has one move to \\(X\\) and another to an escape route, the Environment will simply choose the escape route, defeating the System."
+        },
+        {
+          "text": "Both System and Environment use universal quantification: \\(\\forall u.\\; (v, u) \\in E \\implies u \\in X\\).",
+          "correct": false,
+          "causalFailure": "Universal quantification is overly restrictive for the System: the System picks the transition, so having multiple outgoing moves is an advantage, not a failure."
+        }
+      ],
+      "hint": "Consider who chooses the move: the System wants at least one good successor; against the adversary, all successors must be safe.",
+      "formal": "\\(\\textit{CPre}(X) = \\{v \\in V_S \\mid E(v) \\cap X \\neq \\emptyset\\} \\cup \\{v \\in V_E \\mid E(v) \\subseteq X\\}\\).",
+      "preview": {
+        "activeNodes": [
+          "t1",
+          "t2"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "vs1",
+          "ve1",
+          "t1",
+          "t2"
+        ],
+        "activeEdges": [
+          "e-vs1-t1",
+          "e-ve1-t1",
+          "e-ve1-t2"
+        ],
+        "goodNodes": [
+          "vs1",
+          "ve1",
+          "t1",
+          "t2"
+        ]
+      },
+      "previewNote": "Starting target set T (rank 0).",
+      "revealNote": "Rank 1: vs1 has an existential move to T; ve1 has all its moves to T."
+    },
+    {
+      "label": "Fixed-Point Monotonicity",
+      "title": "Iterative expansion and finite convergence",
+      "exposition": "The attractor is computed by iterating the controllable predecessor: \\(\\mathsf{Attr}_0(T) = T\\) and \\(\\mathsf{Attr}_{k+1}(T) = \\mathsf{Attr}_k(T) \\cup \\textit{CPre}(\\mathsf{Attr}_k(T))\\). We analyze the convergence of this sequence in a finite arena.",
+      "question": "Why is the sequence guaranteed to reach a fixed point in at most |V| steps?",
+      "choices": [
+        {
+          "text": "Because \\(\\mathsf{Attr}_k(T) \\subseteq \\mathsf{Attr}_{k+1}(T)\\) is a monotonically increasing sequence on the finite set \\(V\\), stabilizing when no new vertex is added.",
+          "correct": true,
+          "feedback": "Exactly. Since each step only adds vertices and \\(|V|\\) is finite, the iteration must terminate in at most \\(|V|\\) rounds when \\(\\mathsf{Attr}_{k+1}(T) = \\mathsf{Attr}_k(T)\\)."
+        },
+        {
+          "text": "Because the Environment vertices are deleted from the arena at each iteration.",
+          "correct": false,
+          "causalFailure": "Vertices are never deleted during attractor computation; their membership in the attractor set is accumulated monotonically."
+        },
+        {
+          "text": "Because reachability games always terminate in zero steps when targets are non-empty.",
+          "correct": false,
+          "causalFailure": "Reachability requires traversing paths of positive length; stabilizing requires \\(k\\) steps where \\(k\\) is the diameter of the attractor."
+        }
+      ],
+      "hint": "A monotonically increasing sequence of subsets of a finite set must stabilize.",
+      "formal": "\\(\\mathsf{Attr}_0(T) \\subseteq \\mathsf{Attr}_1(T) \\subseteq \\dots \\subseteq V\\). Finiteness implies \\(\\exists k \\le |V|.\\; \\mathsf{Attr}_{k+1}(T) = \\mathsf{Attr}_k(T) = \\mathsf{Attr}_S(T)\\).",
+      "preview": {
+        "activeNodes": [
+          "vs1",
+          "ve1",
+          "t1",
+          "t2"
+        ],
+        "activeEdges": [
+          "e-vs1-t1",
+          "e-ve1-t1",
+          "e-ve1-t2"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "vs2",
+          "vs1",
+          "ve1",
+          "t1",
+          "t2"
+        ],
+        "activeEdges": [
+          "e-vs2-vs1",
+          "e-vs1-t1",
+          "e-ve1-t1",
+          "e-ve1-t2"
+        ],
+        "goodNodes": [
+          "vs2",
+          "vs1",
+          "ve1",
+          "t1",
+          "t2"
+        ]
+      },
+      "previewNote": "Rank 1 vertices added to the attractor.",
+      "revealNote": "Rank 2 vertex vs2 added via its transition to vs1: monotone expansion."
+    },
+    {
+      "label": "Lyapunov Rank",
+      "title": "Rank function as a strictly decreasing Lyapunov potential",
+      "exposition": "For any vertex \\(v \\in \\mathsf{Attr}_S(T)\\), define the rank \\(r(v) = \\min \\{k \\mid v \\in \\mathsf{Attr}_k(T)\\}\\). We construct the positional System strategy \\(\\sigma: V_S \\to V\\) by setting \\(\\sigma(v) = u\\) where \\((v, u) \\in E\\) and \\(r(u) < r(v)\\).",
+      "question": "How does the rank r(v) guarantee that the System reaches T in a finite number of steps?",
+      "choices": [
+        {
+          "text": "Along any play, \\(r(v)\\) strictly decreases at every System move and cannot increase at Environment moves, forcing arrival in \\(T\\) (where \\(r=0\\)) in at most \\(r(v)\\) steps.",
+          "correct": true,
+          "feedback": "Spot on. The integer rank is bounded below by 0. Because it decreases by at least 1 at every step along the strategy, no cycle can occur within the attractor, ensuring finite arrival."
+        },
+        {
+          "text": "The rank allows the play to cycle infinitely through System vertices of equal rank.",
+          "correct": false,
+          "causalFailure": "If play could cycle without decreasing rank, the System would fail the finite reachability objective, violating strategy correctness."
+        },
+        {
+          "text": "The rank increases monotonically until it exceeds the arena size.",
+          "correct": false,
+          "causalFailure": "A rank increasing indefinitely would represent moving further away from the target, not reaching it."
+        }
+      ],
+      "hint": "A strictly decreasing function on non-negative integers must reach 0 in finitely many steps.",
+      "formal": "\\(\\forall v \\in \\mathsf{Attr}_S(T) \\setminus T:\\; r(\\sigma(v)) \\le r(v) - 1\\) and \\(\\forall u \\in E(v \\in V_E):\\; r(u) \\le r(v) - 1\\). Hence \\(\\text{steps to } T \\le r(v)\\).",
+      "preview": {
+        "activeNodes": [
+          "vs2"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "vs2",
+          "vs1",
+          "t1"
+        ],
+        "activeEdges": [
+          "e-vs2-vs1",
+          "e-vs1-t1"
+        ],
+        "goodNodes": [
+          "vs2",
+          "vs1",
+          "t1"
+        ]
+      },
+      "previewNote": "System vertex vs2 at rank 2.",
+      "revealNote": "Following σ: vs2 (rank 2) → vs1 (rank 1) → t1 (rank 0). Strict rank descent."
+    },
+    {
+      "label": "Trap Duality",
+      "title": "Environment trapping strategy outside the attractor",
+      "exposition": "To complete the equivalence, we must prove that the System cannot win from any state in the complement \\(U = V \\setminus \\mathsf{Attr}_S(T)\\). We show that the Environment can trap the play in \\(U\\) forever.",
+      "question": "Why is the complement set U = V \\ Attr_S(T) a trap for the System?",
+      "choices": [
+        {
+          "text": "Because from any System state in \\(U\\), all outgoing edges lead back into \\(U\\); and from any Environment state in \\(U\\), there exists at least one edge staying in \\(U\\).",
+          "correct": true,
+          "feedback": "Precisely. If a System state in \\(U\\) had an edge into \\(\\mathsf{Attr}_S(T)\\), it would belong to \\(\\textit{Pre}_S(\\mathsf{Attr}_S(T)) \\subseteq \\mathsf{Attr}_S(T)\\), a contradiction. Similarly, if an Environment state in \\(U\\) had all edges into \\(\\mathsf{Attr}_S(T)\\), it would belong to \\(\\textit{Pre}_E(\\mathsf{Attr}_S(T))\\)."
+        },
+        {
+          "text": "Because vertices outside the attractor have no outgoing edges.",
+          "correct": false,
+          "causalFailure": "Game arenas are non-blocking; vertices in \\(U\\) have outgoing transitions, but the Environment can steer them within \\(U\\)."
+        },
+        {
+          "text": "Because the target set \\(T\\) is completely unreachable by any graph path from \\(U\\).",
+          "correct": false,
+          "causalFailure": "There may exist paths from \\(U\\) to \\(T\\), but the Environment has the power to avoid taking them."
+        }
+      ],
+      "hint": "What would happen if a vertex in U could force a move into Attr_S(T)? Would it have stayed in U?",
+      "formal": "\\(v \\in U \\cap V_S \\implies E(v) \\subseteq U\\); \\(v \\in U \\cap V_E \\implies E(v) \\cap U \\neq \\emptyset\\). Hence Environment forces play to stay in \\(U \\subseteq V \\setminus T\\).",
+      "preview": {
+        "activeNodes": [
+          "trap"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "trap"
+        ],
+        "activeEdges": [
+          "e-trap-loop"
+        ],
+        "badNodes": [
+          "trap"
+        ]
+      },
+      "previewNote": "State utrap outside the attractor.",
+      "revealNote": "Adversary traps the play inside U forever: System cannot force reachability."
+    }
+  ],
+  "previous": {
+    "label": "Büchi complementation",
+    "href": "/proofs/chapter-04/buchi-complementation.html"
+  },
+  "next": {
+    "label": "Parity game determinacy",
+    "href": "/proofs/chapter-05/parity-determinacy.html"
+  }
+},
+
+    "parity-determinacy": {
+  "slug": "parity-determinacy",
+  "chapter": 5,
+  "title": "Büchi–Landweber & positional determinacy of parity games",
+  "theorem": "Every parity game on a finite 2-player arena \\(G = (V_E, V_S, E, \\Omega)\\) is determined, and both players have positional (memoryless) winning strategies: \\(V = W_0 \\uplus W_1\\).",
+  "intro": "Parity games are the central model for reactive synthesis and modal mu-calculus model checking. Each vertex is colored with an integer priority. An infinite play is won by Player 0 (System) if the maximum priority visited infinitely often is even; otherwise Player 1 (Environment) wins. Büchi and Landweber (1969) proved determinacy, and Zielonka (1998) introduced an elegant constructive induction showing that winning strategies need zero memory.",
+  "application": "Solving parity games is the computational bottleneck of translating LTL specifications to deterministic parity automata and synthesizing reactive controllers. Because strategies are memoryless, synthesized controllers can be implemented as combinational circuits or finite lookup tables without tracking game history.",
+  "strategy": "Prove determinacy by Zielonka's induction on the number of distinct priorities \\(k = |\\Omega(V)|\\). Let \\(c = \\max \\Omega(V)\\) be the top priority. Without loss of generality, assume \\(c\\) is even (won by Player 0; the odd case is dual). Form the set \\(U = \\{v \\in V \\mid \\Omega(v) = c\\}\\) and compute the Player 0 attractor \\(A = \\mathsf{Attr}_0(U)\\). The subarena \\(G' = G \\setminus A\\) contains strictly fewer priorities (at most \\(k-1\\)). By the induction hypothesis, \\(G'\\) is determined with positional winning regions \\(W'_0, W'_1\\). If \\(W'_1 = \\emptyset\\), Player 0 wins the entire game \\(G\\) using the attractor strategy inside \\(A\\) and \\(\\tau'_0\\) inside \\(G'\\). If \\(W'_1 \\neq \\emptyset\\), compute \\(B = \\mathsf{Attr}_1(W'_1)\\) in the whole game. The subarena \\(G \\setminus B\\) is strictly smaller than \\(G\\), so by induction hypothesis it decomposes into winning regions \\(W''_0, W''_1\\). We then prove \\(W_0 = W''_0\\) and \\(W_1 = W''_1 \\cup B\\), combining memoryless strategies with zero memory overhead.",
+  "invariant": "\\(\\forall v \\in V,\\; v \\in W_0 \\lor v \\in W_1\\) and \\(\\sigma_i: V_i \\to V\\) depends solely on current vertex",
+  "synthesis": "Let \\(G=(V_E, V_S, E, \\Omega)\\) with \\(\\Omega: V \\to \\{0, \\dots, c\\}\\). The base case \\(k=1\\) is immediate: all vertices share priority \\(c\\); Player 0 wins everywhere if \\(c\\) is even, Player 1 if \\(c\\) is odd, both with arbitrary memoryless choices. For the induction step, assume \\(c = \\max \\Omega(V)\\) is even. Let \\(U = \\Omega^{-1}(c)\\) and \\(A = \\mathsf{Attr}_0(U)\\). The subarena \\(G' = G \\setminus A\\) is well-defined because Player 1 cannot escape \\(G'\\) into \\(A\\) (by definition of \\(\\textit{Pre}_0\\)). Since \\(G'\\) lacks priority \\(c\\), it has \\(\\le k-1\\) priorities. By induction hypothesis, \\(V(G') = W'_0 \\uplus W'_1\\) with positional strategies \\(\\tau'_0, \\tau'_1\\). Case 1: \\(W'_1 = \\emptyset\\). Player 0 wins everywhere on \\(G\\): on \\(G'\\), play \\(\\tau'_0\\); if the play ever leaves \\(G'\\) into \\(A\\), follow the attractor strategy to hit \\(U\\) (priority \\(c\\)). Either the play stays in \\(A\\) hitting \\(c\\) infinitely often, or it visits \\(G'\\) finitely/infinitely. In every case, the maximum infinitely recurring priority is \\(c\\) (even), so Player 0 wins. Case 2: \\(W'_1 \\neq \\emptyset\\). Compute \\(B = \\mathsf{Attr}_1(W'_1)\\) in \\(G\\). The subarena \\(G \\setminus B\\) is strictly smaller than \\(G\\) because \\(W'_1 \\subseteq B\\) is non-empty. By induction hypothesis, \\(G \\setminus B\\) has positional winning regions \\(W''_0, W''_1\\). Player 0 wins on \\(W''_0\\) using \\(\\tau''_0\\); Player 1 wins on \\(W''_1 \\cup B\\) using \\(\\tau''_1\\) on \\(W''_1\\), the attractor strategy to reach \\(W'_1\\) on \\(B \\setminus W'_1\\), and \\(\\tau'_1\\) on \\(W'_1\\). Since each piece is positional, the union strategy is positional.",
+  "diagram": {
+    "description": "Zielonka's recursive arena decomposition showing the top priority set U (even priority c), attractor A, and the inductive split of subarena G \\ A into W'0 and W'1.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Top Priority Set U (Priority c = max, even)",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Player 0 Attractor A = Attr₀(U)",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Residual Subarena G ∖ A (Strictly Fewer Priorities)",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "u_top",
+        "x": 500,
+        "y": 100,
+        "label": "U (Ω = c)",
+        "detail": "top priority (even)",
+        "shape": "circle",
+        "r": 52,
+        "accepting": true
+      },
+      {
+        "id": "a_node",
+        "x": 220,
+        "y": 260,
+        "label": "A ∖ U",
+        "detail": "attractor to U",
+        "shape": "rect",
+        "width": 140,
+        "height": 60
+      },
+      {
+        "id": "w0_sub",
+        "x": 320,
+        "y": 430,
+        "label": "W'₀",
+        "detail": "Player 0 win in G∖A",
+        "shape": "rect",
+        "width": 150,
+        "height": 64
+      },
+      {
+        "id": "w1_sub",
+        "x": 680,
+        "y": 430,
+        "label": "W'₁",
+        "detail": "Player 1 win in G∖A",
+        "shape": "rect",
+        "width": 150,
+        "height": 64
+      },
+      {
+        "id": "b_node",
+        "x": 820,
+        "y": 260,
+        "label": "B = Attr₁(W'₁)",
+        "detail": "Player 1 global trap",
+        "shape": "rect",
+        "width": 150,
+        "height": 60
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-a-u",
+        "from": "a_node",
+        "to": "u_top",
+        "label": "σ_attr",
+        "labelX": 320,
+        "labelY": 170
+      },
+      {
+        "id": "e-w0-a",
+        "from": "w0_sub",
+        "to": "a_node",
+        "label": "escape to A",
+        "labelX": 250,
+        "labelY": 350
+      },
+      {
+        "id": "e-w0-loop",
+        "from": "w0_sub",
+        "to": "w0_sub",
+        "label": "τ'₀ strategy",
+        "path": "M 245 440 C 180 490 280 520 310 460",
+        "labelX": 230,
+        "labelY": 505
+      },
+      {
+        "id": "e-w1-b",
+        "from": "w1_sub",
+        "to": "b_node",
+        "label": "attract to W'₁",
+        "labelX": 770,
+        "labelY": 350
+      },
+      {
+        "id": "e-u-w0",
+        "from": "u_top",
+        "to": "w0_sub",
+        "label": "re-enter G∖A",
+        "path": "M 480 145 C 430 260 380 340 345 400",
+        "labelX": 430,
+        "labelY": 280
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Zielonka induction: Case 1 (W'₁ = ∅ ⟹ W₀ = V) vs Case 2 (W'₁ ≠ ∅ ⟹ recurse on G ∖ B).",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Parity Objective",
+      "title": "The parity condition and maximum recurring priority",
+      "exposition": "In a parity game, an infinite play \\(\\pi = v_0 v_1 v_2 \\dots\\) produces a sequence of priorities \\(\\Omega(v_0) \\Omega(v_1) \\dots\\). The winner is determined by \\(\\max(\\mathrm{Inf}(\\pi))\\): Player 0 wins iff this maximum recurring priority is even. We examine why memoryless strategies suffice to enforce this condition.",
+      "question": "Which condition guarantees victory for Player 0 on an infinite play π?",
+      "choices": [
+        {
+          "text": "The highest priority occurring infinitely often in \\(\\pi\\) is an even integer: \\(\\max(\\mathrm{Inf}(\\Omega(\\pi))) \\equiv 0 \\pmod 2\\).",
+          "correct": true,
+          "feedback": "Correct. The parity condition looks exclusively at the asymptotic highest priority visited infinitely often; any finite prefix of priorities is irrelevant."
+        },
+        {
+          "text": "Player 0 must visit even priorities strictly more times than odd priorities along the play.",
+          "correct": false,
+          "causalFailure": "Parity does not count frequencies or averages; a single visit to an odd priority higher than all recurring even priorities wins for Player 1."
+        },
+        {
+          "text": "Every vertex visited along the play must have an even priority.",
+          "correct": false,
+          "causalFailure": "A play may traverse vertices with odd priorities arbitrarily often, provided that some strictly higher even priority is visited infinitely often."
+        }
+      ],
+      "hint": "Look at the definition of max(Inf(π)): it is the greatest color seen infinitely many times.",
+      "formal": "\\(\\text{Player 0 wins } \\pi \\iff \\max \\{ c \\mid \\forall i.\\, \\exists j > i.\\, \\Omega(v_j) = c \\} \\in 2\\mathbb{N}\\).",
+      "preview": {
+        "activeNodes": [
+          "u_top"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "u_top"
+        ],
+        "activeEdges": [],
+        "goodNodes": [
+          "u_top"
+        ]
+      },
+      "previewNote": "Top priority c = max Ω(V).",
+      "revealNote": "If c is even, infinitely recurring visits to U guarantee victory for Player 0."
+    },
+    {
+      "label": "Attractor Decomposition",
+      "title": "Isolating the maximal priority via attractor extraction",
+      "exposition": "Let \\(c = \\max \\Omega(V)\\) be even, and let \\(U = \\{v \\in V \\mid \\Omega(v) = c\\}\\). We compute \\(A = \\mathsf{Attr}_0(U)\\). In the residual subgame \\(G' = G \\setminus A\\), priority \\(c\\) does not appear at all, so \\(G'\\) has strictly fewer priorities than \\(G\\).",
+      "question": "Why can the induction hypothesis be safely applied to the subarena G' = G \\ A?",
+      "choices": [
+        {
+          "text": "Because \\(G'\\) contains at most \\(k-1\\) priorities, and Player 1 cannot force a move from \\(G'\\) into \\(A\\) (by definition of \\(\\textit{Pre}_0\\)).",
+          "correct": true,
+          "feedback": "Precisely. If Player 1 could force a move into \\(A\\), that vertex would have been added to \\(A\\) during the attractor computation. Hence \\(G'\\) is a closed subgame for Player 1 with fewer priorities."
+        },
+        {
+          "text": "Because \\(G'\\) contains no vertices belonging to Player 1.",
+          "correct": false,
+          "causalFailure": "\\(G'\\) contains both Player 0 and Player 1 vertices; it is a full 2-player game arena, just on a smaller vertex set with fewer colors."
+        },
+        {
+          "text": "Because the attractor \\(A\\) deletes all transitions between vertices in \\(G'\\).",
+          "correct": false,
+          "causalFailure": "Transitions internal to \\(G'\\) remain completely untouched."
+        }
+      ],
+      "hint": "What is the defining property of the vertices outside an attractor Attr_0(U)?",
+      "formal": "\\(\\Omega(G') \\subseteq \\Omega(V) \\setminus \\{c\\} \\implies |\\Omega(G')| \\le k-1\\). By induction hypothesis, \\(V(G') = W'_0 \\uplus W'_1\\).",
+      "preview": {
+        "activeNodes": [
+          "u_top",
+          "a_node"
+        ],
+        "activeEdges": [
+          "e-a-u"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "u_top",
+          "a_node",
+          "w0_sub",
+          "w1_sub"
+        ],
+        "activeEdges": [
+          "e-a-u"
+        ],
+        "goodNodes": [
+          "u_top",
+          "a_node"
+        ]
+      },
+      "previewNote": "Attractor A attracts to top priority U.",
+      "revealNote": "Residual subarena G' = G \\ A has strictly fewer priorities; inductive split into W'0 and W'1."
+    },
+    {
+      "label": "Zielonka Case 1",
+      "title": "Base case of the induction: W'1 is empty",
+      "exposition": "Suppose the inductive solution on \\(G'\\) yields \\(W'_1 = \\emptyset\\), meaning Player 0 wins everywhere on \\(G'\\) via positional strategy \\(\\tau'_0\\). We must show that Player 0 wins the entire original game \\(G\\).",
+      "question": "How does Player 0 combine strategies to win on all of G when W'1 = ∅?",
+      "choices": [
+        {
+          "text": "Play \\(\\tau'_0\\) inside \\(G'\\); if the play enters \\(A\\), play the attractor strategy to hit \\(U\\) (priority \\(c\\)). Either the play hits \\(c\\) infinitely often, or it stays in \\(G'\\) where Player 0 already wins.",
+          "correct": true,
+          "feedback": "Spot on. If play visits \\(A\\) infinitely often, it visits \\(U\\) infinitely often, so the highest recurring priority is \\(c\\) (even, winning for Player 0). If play visits \\(A\\) only finitely often, it eventually stays in \\(G'\\), where \\(\\tau'_0\\) guarantees victory."
+        },
+        {
+          "text": "Player 0 must immediately forfeit if the play ever leaves the attractor \\(A\\).",
+          "correct": false,
+          "causalFailure": "Leaving \\(A\\) enters \\(G'\\), which is completely won by Player 0; leaving \\(A\\) is completely safe."
+        },
+        {
+          "text": "Player 0 must restart the entire game from the initial state upon entering \\(A\\).",
+          "correct": false,
+          "causalFailure": "Games on graphs are played forward without rollbacks; the combination of positional strategies is static."
+        }
+      ],
+      "hint": "Consider the two possible asymptotic behaviors: either A is visited infinitely many times, or only finitely many times.",
+      "formal": "\\(W'_1 = \\emptyset \\implies W_0 = V(G)\\). Strategy: \\(\\sigma_0(v) = \\tau'_0(v)\\) for \\(v \\in G'\\), and \\(\\sigma_0(v) = \\sigma_{\\text{attr}}(v)\\) for \\(v \\in A\\).",
+      "preview": {
+        "activeNodes": [
+          "w0_sub",
+          "a_node",
+          "u_top"
+        ],
+        "activeEdges": [
+          "e-a-u"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "w0_sub",
+          "a_node",
+          "u_top"
+        ],
+        "activeEdges": [
+          "e-a-u",
+          "e-w0-a",
+          "e-u-w0",
+          "e-w0-loop"
+        ],
+        "goodNodes": [
+          "w0_sub",
+          "a_node",
+          "u_top"
+        ]
+      },
+      "previewNote": "W'1 is empty, so Player 0 controls all of G'.",
+      "revealNote": "Combining attractor moves with τ'0 wins everywhere: W0 = V."
+    },
+    {
+      "label": "Zielonka Case 2",
+      "title": "Inductive step: W'1 is non-empty and strategy fusion",
+      "exposition": "Now suppose \\(W'_1 \\neq \\emptyset\\). Player 1 has a winning region inside \\(G'\\). We compute Player 1's attractor \\(B = \\mathsf{Attr}_1(W'_1)\\) in the whole game \\(G\\). Because \\(W'_1 \\subseteq B\\) is non-empty, the arena \\(G \\setminus B\\) is strictly smaller than \\(G\\).",
+      "question": "Why does Player 1 win on all of B, and how does the recursion complete?",
+      "choices": [
+        {
+          "text": "Player 1 uses the attractor strategy to reach \\(W'_1\\), and then plays \\(\\tau'_1\\). Since Player 0 cannot escape \\(W'_1\\) into \\(G \\setminus B\\), Player 1 wins on \\(B\\); recursing on the smaller arena \\(G \\setminus B\\) yields \\(W_0 = W''_0\\) and \\(W_1 = W''_1 \\cup B\\).",
+          "correct": true,
+          "feedback": "Exactly. Player 1 guarantees reaching \\(W'_1\\), where the winning strategy \\(\\tau'_1\\) enforces victory without ever allowing Player 0 to hit the top priority \\(c\\). By induction on \\(G \\setminus B\\), both winning regions and positional strategies fuse cleanly."
+        },
+        {
+          "text": "Player 1 wins on \\(B\\) only if Player 0 makes a fatal mistake in vertex selection.",
+          "correct": false,
+          "causalFailure": "By definition of attractor, Player 1 wins against all possible counter-moves of Player 0; no mistake is needed."
+        },
+        {
+          "text": "The recursion fails because memory must be added to remember how many times B was entered.",
+          "correct": false,
+          "causalFailure": "The attractor strategy is positional, \\(\\tau'_1\\) is positional, and the subgame strategy \\(\\tau''_1\\) is positional; their disjoint union is strictly positional."
+        }
+      ],
+      "hint": "Remember that B is an attractor for Player 1: once inside, Player 1 forces arrival at W'1.",
+      "formal": "\\(B = \\mathsf{Attr}_1(W'_1)\\); by induction on \\(G \\setminus B\\), \\(V(G \\setminus B) = W''_0 \\uplus W''_1\\). Then \\(W_0 = W''_0\\) and \\(W_1 = W''_1 \\cup B\\). Both strategies are memoryless.",
+      "preview": {
+        "activeNodes": [
+          "w1_sub",
+          "b_node"
+        ],
+        "activeEdges": [
+          "e-w1-b"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "w1_sub",
+          "b_node"
+        ],
+        "activeEdges": [
+          "e-w1-b"
+        ],
+        "badNodes": [
+          "w1_sub",
+          "b_node"
+        ]
+      },
+      "previewNote": "Player 1 winning core W'1.",
+      "revealNote": "Player 1 expands to B = Attr1(W'1); recursive determinacy on G \\ B finishes the partition."
+    }
+  ],
+  "previous": {
+    "label": "Attractor correctness",
+    "href": "/proofs/chapter-05/attractor-correctness.html"
+  },
+  "next": {
+    "label": "Büchi S1S decidability",
+    "href": "/proofs/chapter-08/s1s-buchi.html"
+  }
+},
+
+    "s1s-buchi": {
+  "slug": "s1s-buchi",
+  "chapter": 8,
+  "title": "Büchi's S1S decidability theorem (1960)",
+  "theorem": "An \\(\\omega\\)-language \\(L \\subseteq \\Sigma^\\omega\\) is \\(\\omega\\)-regular (recognized by a non-deterministic Büchi automaton) if and only if it is definable in \\(\\mathrm{S1S}\\) (the monadic second-order logic of one successor: \\((\\mathbb{N}, <, +1, \\in)\\)). Consequently, \\(\\mathrm{S1S}\\) is decidable.",
+  "intro": "In 1960, J. Richard Büchi proved the profound equivalence between non-deterministic automata over infinite words and monadic second-order logic with one successor (S1S). This bridged declarative logic (describing properties of sequences) and operational automata (executing step-by-step state transitions), simultaneously solving the famous decision problem posed by Church for monadic arithmetic.",
+  "application": "S1S is the foundational logic for hardware specification, reactive synthesis, and temporal logics. Because every S1S formula compiles into an equivalent Büchi automaton, checking whether an S1S specification is satisfiable, valid, or realizable reduces to graph emptiness on the compiled automaton.",
+  "strategy": "Prove both directions constructively: \\((\\implies)\\) Given an NBA \\(\\mathcal{A} = (Q, \\Sigma, \\Delta, q_0, F)\\) with states \\(Q = \\{q_0, \\dots, q_{m-1}\\}\\), encode an accepting run into an S1S sentence using \\(m\\) monadic set variables \\(X_0, \\dots, X_{m-1}\\). Quantify \\(\\exists X_0 \\dots \\exists X_{m-1}\\) asserting that: (1) the sets partition \\(\\mathbb{N}\\) (at each time step the automaton is in exactly one state); (2) \\(0 \\in X_0\\) (initial state); (3) transitions respect \\(\\Delta\\) at each step \\(t \\to t+1\\); and (4) some state in \\(F\\) is visited infinitely often (\\(\\forall t.\\, \\exists t' > t.\\, \\bigvee_{q_f \\in F} t' \\in X_f\\)). \\((\\impliedby)\\) Given an S1S formula \\(\\Phi\\), translate it inductively into an NBA: atomic formulas (\\(x < y\\), \\(S(x, y)\\), \\(x \\in X\\)) compile into simple fixed-state NBAs; disjunction and conjunction compile into union and intersection of NBAs; negation \\(\\neg\\) compiles into Büchi complementation (Theorem 9); and existential quantification \\(\\exists X\\) compiles into projection (erasing the track for \\(X\\)). Conclude decidability by reducing validity of a sentence \\(\\Phi\\) to checking emptiness of \\(\\mathcal{A}_{\\neg\\Phi}\\).",
+  "invariant": "\\(\\forall w \\in \\Sigma^\\omega,\\; w \\models \\Phi \\iff w \\in L(\\mathcal{A}_\\Phi)\\)",
+  "synthesis": "Let \\(\\mathcal{A}=(Q,\\Sigma,\\Delta,q_0,F)\\) with \\(Q=\\{0,\\dots,m-1\\}\\). An accepting run \\(\\rho:\\mathbb{N}\\to Q\\) is uniquely represented by a partition of \\(\\mathbb{N}\\) into sets \\(X_0,\\dots,X_{m-1}\\) where \\(X_i=\\{t\\in\\mathbb{N}\\mid \\rho(t)=i\\}\\). The S1S sentence \\(\\Phi_\\mathcal{A}\\) asserts: \\(\\exists X_0\\dots\\exists X_{m-1}\\; \\bigl[\\forall t\\, \\bigvee_{i} (t\\in X_i \\land \\bigwedge_{j\\neq i} t\\notin X_j) \\land 0\\in X_0 \\land \\forall t\\, \\bigwedge_{a\\in\\Sigma} (P_a(t) \\to \\bigvee_{(i,a,j)\\in\\Delta} (t\\in X_i \\land t+1\\in X_j)) \\land \\forall t\\, \\exists t'>t\\, \\bigvee_{f\\in F} t'\\in X_f\\bigr]\\). Then \\(w\\models \\Phi_\\mathcal{A} \\iff w\\in L(\\mathcal{A})\\). Conversely, every S1S formula is built from atoms \\(x\\in P_a\\), \\(x\\in X\\), \\(x<y\\), \\(y=x+1\\) via \\(\\lor, \\neg, \\exists\\). Atomic formulas translate to finite-state automata reading tracks in \\(\\Sigma \\times \\{0,1\\}^k\\). Conjunction and disjunction translate to automaton product and union. Existential quantification \\(\\exists X\\) erases the corresponding boolean track from the alphabet, which preserves \\(\\omega\\)-regularity by non-deterministic guessing. Negation \\(\\neg\\Phi\\) translates to Büchi complementation, which preserves \\(\\omega\\)-regularity by Büchi's complementation theorem. For a closed sentence \\(\\Phi\\), \\(\\mathcal{A}_\\Phi\\) operates over the 1-letter alphabet \\(\\{0\\}\\); deciding \\(\\models \\Phi\\) reduces to checking \\(L(\\mathcal{A}_\\Phi) = \\{0\\}^\\omega \\iff L(\\mathcal{A}_{\\neg\\Phi}) = \\emptyset\\), which is decidable in linear time.",
+  "diagram": {
+    "description": "Translation bridge between S1S logical quantification and Büchi automaton operations (projection, complementation, and emptiness test).",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Logical Domain: S1S Formula Φ",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Automata Domain: Büchi Automaton Ⅎᵦ",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Decision Engine: Emptiness & Lasso Check",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "s1s_phi",
+        "x": 200,
+        "y": 100,
+        "label": "∃X Ψ(X)",
+        "detail": "S1S sentence",
+        "shape": "rect",
+        "width": 150,
+        "height": 60
+      },
+      {
+        "id": "s1s_atoms",
+        "x": 500,
+        "y": 100,
+        "label": "x < y, x ∈ X",
+        "detail": "atomic formulas",
+        "shape": "rect",
+        "width": 150,
+        "height": 60
+      },
+      {
+        "id": "s1s_neg",
+        "x": 800,
+        "y": 100,
+        "label": "¬ Φ",
+        "detail": "negation",
+        "shape": "rect",
+        "width": 140,
+        "height": 60
+      },
+      {
+        "id": "nba_atoms",
+        "x": 500,
+        "y": 260,
+        "label": "Ⅎ_atoms",
+        "detail": "atomic NBAs",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "nba_proj",
+        "x": 200,
+        "y": 260,
+        "label": "Projection π",
+        "detail": "erase track X",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "nba_comp",
+        "x": 800,
+        "y": 260,
+        "label": "Compl(Ⅎ)",
+        "detail": "Büchi complement",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "decider",
+        "x": 500,
+        "y": 430,
+        "label": "L(Ⅎ) ≠ ∅ ?",
+        "detail": "lasso cycle test",
+        "shape": "rect",
+        "width": 180,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-atom-trans",
+        "from": "s1s_atoms",
+        "to": "nba_atoms",
+        "label": "compile atom",
+        "labelX": 520,
+        "labelY": 180
+      },
+      {
+        "id": "e-phi-proj",
+        "from": "s1s_phi",
+        "to": "nba_proj",
+        "label": "∃X ↦ π",
+        "labelX": 220,
+        "labelY": 180
+      },
+      {
+        "id": "e-neg-comp",
+        "from": "s1s_neg",
+        "to": "nba_comp",
+        "label": "¬ ↦ compl",
+        "labelX": 820,
+        "labelY": 180
+      },
+      {
+        "id": "e-proj-decide",
+        "from": "nba_proj",
+        "to": "decider",
+        "label": "compiled Ⅎ",
+        "path": "M 240 290 C 320 370 410 410 440 425",
+        "labelX": 340,
+        "labelY": 370
+      },
+      {
+        "id": "e-atoms-decide",
+        "from": "nba_atoms",
+        "to": "decider",
+        "label": "product / union",
+        "labelX": 520,
+        "labelY": 350
+      },
+      {
+        "id": "e-comp-decide",
+        "from": "nba_comp",
+        "to": "decider",
+        "label": "closed sentence",
+        "path": "M 760 290 C 680 370 590 410 560 425",
+        "labelX": 680,
+        "labelY": 370
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "S1S is decidable: ⊨ Φ ⟺ L(Ⅎ_¬Φ) = ∅ (decidable in linear time on Ⅎ).",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Automaton to Logic",
+      "title": "Encoding an infinite accepting run into second-order variables",
+      "exposition": "Given an NBA \\(\\mathcal{A} = (Q, \\Sigma, \\Delta, q_0, F)\\) with \\(m\\) states \\(Q = \\{0, \\dots, m-1\\}\\), an accepting run \\(\\rho: \\mathbb{N} \\to Q\\) is an infinite sequence of states. We express the existence of such a run in S1S.",
+      "question": "How does S1S represent the run of an automaton over infinite positions?",
+      "choices": [
+        {
+          "text": "By existentially quantifying \\(m\\) second-order set variables \\(X_0, \\dots, X_{m-1}\\), where \\(t \\in X_i\\) asserts that the automaton is in state \\(i\\) at time step \\(t\\).",
+          "correct": true,
+          "feedback": "Correct. Monadic second-order variables represent subsets of \\(\\mathbb{N}\\). A collection of \\(m\\) disjoint subsets partitions the time steps into the exact sequence of states visited by the run."
+        },
+        {
+          "text": "By using a single first-order integer variable to store the infinite state sequence as an integer.",
+          "correct": false,
+          "causalFailure": "First-order variables in S1S quantify only individual positions (integers \\(t \\in \\mathbb{N}\\)), which cannot encode an entire infinite sequence."
+        },
+        {
+          "text": "By writing an infinite conjunction of propositional formulas for every position \\(t \\in \\mathbb{N}\\).",
+          "correct": false,
+          "causalFailure": "Formulas in S1S are finite syntactic expressions; infinite formulas are not allowed in first- or second-order logic."
+        }
+      ],
+      "hint": "Recall what monadic second-order logic allows you to quantify: sets of positions.",
+      "formal": "\\(\\exists X_0 \\dots \\exists X_{m-1} \\left[ \\text{Partition}(X) \\land 0 \\in X_{q_0} \\land \\text{Step}(X) \\land \\text{BüchiAccept}(X) \\right]\\).",
+      "preview": {
+        "activeNodes": [
+          "s1s_phi"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "s1s_phi",
+          "nba_proj"
+        ],
+        "activeEdges": [
+          "e-phi-proj"
+        ],
+        "goodNodes": [
+          "s1s_phi",
+          "nba_proj"
+        ]
+      },
+      "previewNote": "S1S sentence asserting existence of run.",
+      "revealNote": "Existential quantification over sets X₀..X_{m-1} faithfully mirrors NBA run branching."
+    },
+    {
+      "label": "Atomic Translation",
+      "title": "Translating atomic logic relations into elementary Büchi automata",
+      "exposition": "For the converse, we translate S1S formulas into automata. Formulas contain free first- and second-order variables. We represent a variable valuation as an infinite word over the expanded alphabet \\(\\Sigma \\times \\{0, 1\\}^k\\), where track \\(i\\) contains a 1 at position \\(t\\) iff \\(t \\in X_i\\).",
+      "question": "Why can the atomic relation x < y be recognized by a finite-state Büchi automaton?",
+      "choices": [
+        {
+          "text": "Because an automaton needs only 3 states: scanning zeros until the unique 1 for \\(x\\) is seen, verifying that the unique 1 for \\(y\\) occurs strictly later, and accepting.",
+          "correct": true,
+          "feedback": "Precisely. Checking \\(x < y\\) requires detecting the marker for \\(x\\) before the marker for \\(y\\). A simple 3-state deterministic automaton performs this verification effortlessly."
+        },
+        {
+          "text": "Because the relation \\(x < y\\) requires an unbounded pushdown stack to count the distance between \\(x\\) and \\(y\\).",
+          "correct": false,
+          "causalFailure": "The actual numerical distance between \\(x\\) and \\(y\\) is irrelevant; only the relative temporal order of their markers matters, which requires zero stack memory."
+        },
+        {
+          "text": "Because \\(x < y\\) is an axiom that does not require any automaton representation.",
+          "correct": false,
+          "causalFailure": "In an inductive translation, every atomic predicate must be represented by a concrete automaton reading the variable tracks."
+        }
+      ],
+      "hint": "Does checking whether x appears before y require counting the distance, or just remembering that x was already seen?",
+      "formal": "\\(\\mathcal{A}_{x < y}\\) has states \\(\\{q_{\\text{start}}, q_{\\text{saw\\_x}}, q_{\\text{accept}}\\}\\) and accepts track words having unique 1s with \\(1_x\\) strictly before \\(1_y\\).",
+      "preview": {
+        "activeNodes": [
+          "s1s_atoms"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "s1s_atoms",
+          "nba_atoms"
+        ],
+        "activeEdges": [
+          "e-atom-trans"
+        ],
+        "goodNodes": [
+          "s1s_atoms",
+          "nba_atoms"
+        ]
+      },
+      "previewNote": "S1S atomic formulas x < y and x ∈ X.",
+      "revealNote": "3-state Büchi automaton recognizes track word validations."
+    },
+    {
+      "label": "Inductive Connectives",
+      "title": "Logical connectives and quantifier projection",
+      "exposition": "We build automata for compound formulas \\(\\Phi_1 \\lor \\Phi_2\\), \\(\\neg\\Phi\\), and \\(\\exists X\\, \\Phi\\). We know from earlier chapters that Büchi automata are closed under union and complementation.",
+      "question": "Which automata operation corresponds to existential second-order quantification ∃X Φ?",
+      "choices": [
+        {
+          "text": "Alphabet projection: erasing the boolean track for \\(X\\) from the alphabet, transforming deterministic transitions into non-deterministic guesses of the erased track.",
+          "correct": true,
+          "feedback": "Spot on. If \\(\\mathcal{A}_\\Phi\\) operates over \\(\\Sigma \\times \\{0, 1\\}\\), erasing the \\(\\{0, 1\\}\\) track yields an automaton over \\(\\Sigma\\). A word \\(w\\) is accepted iff there exists a track assignment for \\(X\\) that was accepted by \\(\\mathcal{A}_\\Phi\\)."
+        },
+        {
+          "text": "State minimization: computing the Myhill–Nerode quotient to eliminate variable \\(X\\).",
+          "correct": false,
+          "causalFailure": "Minimization reduces redundant states for the same language, but does not eliminate an input variable track."
+        },
+        {
+          "text": "Kripke synchronization: intersecting the automaton with a universal model checker.",
+          "correct": false,
+          "causalFailure": "Kripke synchronization corresponds to conjunction with a system model, not existential projection."
+        }
+      ],
+      "hint": "Quantifying ∃X means: does there exist an assignment to track X making the rest accept?",
+      "formal": "\\(L(\\mathcal{A}_{\\exists X \\Phi}) = \\pi_\\Sigma(L(\\mathcal{A}_\\Phi))\\). Non-deterministic projection preserves \\(\\omega\\)-regularity.",
+      "preview": {
+        "activeNodes": [
+          "nba_proj"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "nba_proj",
+          "nba_comp",
+          "s1s_neg"
+        ],
+        "activeEdges": [
+          "e-neg-comp"
+        ],
+        "goodNodes": [
+          "nba_proj",
+          "nba_comp"
+        ]
+      },
+      "previewNote": "Track projection implements existential quantification.",
+      "revealNote": "Büchi complementation implements logical negation ¬: all connectives closed."
+    },
+    {
+      "label": "Decidability",
+      "title": "Decidability of S1S via Büchi emptiness",
+      "exposition": "Let \\(\\Phi\\) be a closed S1S sentence (no free variables). Following the inductive compilation, we construct an automaton \\(\\mathcal{A}_\\Phi\\) over the 1-letter alphabet \\(\\Sigma = \\{0\\}\\).",
+      "question": "How is the validity of the S1S sentence Φ decided via the compiled automaton?",
+      "choices": [
+        {
+          "text": "\\(\\Phi\\) is valid \\(\\iff L(\\mathcal{A}_{\\neg\\Phi}) = \\emptyset\\), which is decidable in linear time by searching for a reachable accepting cycle in the compiled automaton.",
+          "correct": true,
+          "feedback": "Precisely. A sentence is valid iff its negation has no models. Compiling \\(\\neg\\Phi\\) to \\(\\mathcal{A}_{\\neg\\Phi}\\) reduces the decision problem to Büchi emptiness, which runs in linear time \\(O(|Q| + |\\Delta|)\\) on the automaton."
+        },
+        {
+          "text": "By simulating the automaton on all infinitely many words of \\(\\{0\\}^\\omega\\) one by one.",
+          "correct": false,
+          "causalFailure": "Simulating infinitely many infinite words one by one is non-terminating and impossible."
+        },
+        {
+          "text": "By verifying that the automaton has no unreachable states.",
+          "correct": false,
+          "causalFailure": "Having unreachable states has nothing to do with whether the language contains words; emptiness requires checking reachable cycles through \\(F\\)."
+        }
+      ],
+      "hint": "Validity is equivalent to unsatisfiability of the negation. How do we test unsatisfiability in automata theory?",
+      "formal": "\\(\\mathbb{N} \\models \\Phi \\iff L(\\mathcal{A}_\\Phi) = \\Sigma^\\omega \\iff L(\\mathcal{A}_{\\neg\\Phi}) = \\emptyset\\). Decidable via Theorem 3.4.",
+      "preview": {
+        "activeNodes": [
+          "decider"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "decider",
+          "nba_comp"
+        ],
+        "activeEdges": [
+          "e-comp-decide"
+        ],
+        "goodNodes": [
+          "decider"
+        ]
+      },
+      "previewNote": "Compiled automaton for ¬Φ over 1-letter alphabet.",
+      "revealNote": "Büchi emptiness test decides truth of S1S sentence Φ: Church's problem solved."
+    }
+  ],
+  "previous": {
+    "label": "Parity game determinacy",
+    "href": "/proofs/chapter-05/parity-determinacy.html"
+  },
+  "next": {
+    "label": "McNaughton determinization",
+    "href": "/proofs/chapter-09/mcnaughton-determinization.html"
+  }
+},
+
+    "mcnaughton-determinization": {
+  "slug": "mcnaughton-determinization",
+  "chapter": 9,
+  "title": "McNaughton's determinization theorem (1966)",
+  "theorem": "Every non-deterministic Büchi automaton (NBA) \\(\\mathcal{A}\\) has an equivalent deterministic Muller automaton (DMA) \\(\\mathcal{D}_M\\) and an equivalent deterministic parity automaton (DPA) \\(\\mathcal{D}_P\\): \\(\\mathcal{L}(\\mathrm{NBA}) = \\mathcal{L}(\\mathrm{DMA}) = \\mathcal{L}(\\mathrm{DPA})\\).",
+  "intro": "For finite words, NFAs determinize into DFAs via the classical subset construction. For infinite words, this construction completely breaks down: deterministic Büchi automata (DBAs) are strictly weaker than NBAs (e.g. they cannot recognize (a+b)* b^ω). In 1966, Robert McNaughton solved this deep open problem by proving that determinism can be restored if one upgrades the acceptance condition to Muller or Parity conditions, tracked by structured breakpoint or Safra trees.",
+  "application": "McNaughton determinization is the vital cornerstone of reactive synthesis (Church's problem). To synthesize a controller from an LTL specification, one must determinize the automaton into a deterministic parity automaton (DPA), enabling game solving and strategy extraction without clairvoyant non-deterministic guessing.",
+  "strategy": "Step 1: Understand the failure of DBA determinization: in \\(L = (a+b)^* b^\\omega\\), after any finite sequence of \\(b\\)'s, a deterministic automaton cannot know if this is the definitive infinite suffix of \\(b\\)'s or if another \\(a\\) will appear; if it enters an accepting state, an adversary playing \\(a\\) catches it; if it never enters, \\(b^\\omega\\) is rejected. Step 2: Muller and Parity conditions: instead of checking \\(\\mathrm{Inf}(\\rho) \\cap F \\neq \\emptyset\\), Muller acceptance specifies a family of subsets \\(\\mathcal{F} \\subseteq 2^Q\\) and accepts iff \\(\\mathrm{Inf}(\\rho) \\in \\mathcal{F}\\). Parity acceptance assigns integer colors and checks the parity of the maximum color seen infinitely often. Step 3: Safra's tree construction: organize macro-states not as a flat subset, but as a tree of subsets with bounded height. A node spawns children to monitor new accepting paths; when a child's descendants cover all parent states, a breakpoint is reached and the node flashes a green signal (color emission). Step 4: Parity compaction: bounded nodes and names yield a deterministic automaton with \\(2^{O(n \\log n)}\\) states and \\(2n\\) parity colors, establishing full equivalence.",
+  "invariant": "\\(\\forall w \\in \\Sigma^\\omega,\\; \\text{Safra tree run emits even parity infinitely often} \\iff \\exists \\text{ accepting NBA run on } w\\)",
+  "synthesis": "Let \\(\\mathcal{A}=(Q,\\Sigma,\\Delta,q_0,F)\\) be an NBA with \\(|Q|=n\\). The language \\((a+b)^* b^\\omega\\) proves that deterministic Büchi automata are strictly less expressive than NBAs. McNaughton's theorem overcomes this by enriching the acceptance mechanism. Safra's determinization algorithm structures the deterministic macro-state as an ordered tree of subsets of \\(Q\\) whose nodes are labeled with unique names from \\(\\{1, \\dots, 2n\\}\\). At each step on symbol \\(a\\): (1) every node \\(v\\) updates its subset to \\(\\Delta(S_v, a)\\); (2) for every node \\(v\\), if \\(S_v \\cap F \\neq \\emptyset\\), a new rightmost child is spawned with subset \\(S_v \\cap F\\); (3) horizontal pruning: states appearing in multiple siblings are removed from right-hand siblings to maintain disjointness; (4) vertical collapse: if the union of children's subsets equals the parent's subset \\(S_v\\), all children are deleted and node \\(v\\) flashes a green success signal. The tree height is bounded by \\(n\\) and the number of nodes by \\(n\\). Assigning parity priorities based on the lowest flashed node name converts the Safra automaton into an equivalent Deterministic Parity Automaton with \\(2^{O(n \\log n)}\\) states, proving \\(\\mathcal{L}(\\mathrm{NBA}) = \\mathcal{L}(\\mathrm{DPA}) = \\mathcal{L}(\\mathrm{DMA})\\).",
+  "diagram": {
+    "description": "Safra tree node evolution showing subset tracking, child spawning on accepting states, horizontal pruning, and vertical collapse (green flash).",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Root Macro-State (All Active Runs)",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Safra Child Nodes (Monitoring Accepting Threads)",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Deterministic Parity Condition (Priority Emission)",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "root",
+        "x": 500,
+        "y": 100,
+        "label": "Root Node {q₀, q₁}",
+        "detail": "tracks all active threads",
+        "shape": "rect",
+        "width": 220,
+        "height": 60
+      },
+      {
+        "id": "child1",
+        "x": 300,
+        "y": 260,
+        "label": "Child 1 {q₁ ∈ F}",
+        "detail": "spawned on visit to F",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "child2",
+        "x": 700,
+        "y": 260,
+        "label": "Child 2 {q₂}",
+        "detail": "pruned disjoint subset",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "collapse",
+        "x": 500,
+        "y": 430,
+        "label": "Green Flash (Collapse)",
+        "detail": "children cover parent ⟹ even priority",
+        "shape": "rect",
+        "width": 280,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-root-c1",
+        "from": "root",
+        "to": "child1",
+        "label": "spawn on F",
+        "labelX": 360,
+        "labelY": 180
+      },
+      {
+        "id": "e-root-c2",
+        "from": "root",
+        "to": "child2",
+        "label": "subset split",
+        "labelX": 640,
+        "labelY": 180
+      },
+      {
+        "id": "e-c1-c2",
+        "from": "child1",
+        "to": "child2",
+        "label": "horizontal pruning",
+        "labelY": 240
+      },
+      {
+        "id": "e-c1-coll",
+        "from": "child1",
+        "to": "collapse",
+        "label": "cover parent",
+        "labelX": 370,
+        "labelY": 360
+      },
+      {
+        "id": "e-c2-coll",
+        "from": "child2",
+        "to": "collapse",
+        "label": "children union = parent",
+        "labelX": 630,
+        "labelY": 360
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Safra tree determinization produces an equivalent DPA with 2^{O(n log n)} states.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "DBA Incompleteness",
+      "title": "Why deterministic Büchi automata fail to recognize all omega-languages",
+      "exposition": "Consider the language \\(L = (a+b)^* b^\\omega\\) consisting of infinite words with only finitely many \\(a\\)'s. An NBA easily recognizes \\(L\\) by non-deterministically guessing the position of the last \\(a\\) and looping in an accepting state on \\(b\\). We analyze why a deterministic Büchi automaton cannot recognize \\(L\\).",
+      "question": "Why is the language L = (a+b)* b^ω impossible to recognize with a deterministic Büchi automaton?",
+      "choices": [
+        {
+          "text": "Because reading words \\(b^{n_1} a b^{n_2} a \\dots\\) forces a deterministic automaton to either visit an accepting state infinitely often on an infinite sequence of \\(a\\)'s, or never accept \\(b^\\omega\\).",
+          "correct": true,
+          "feedback": "Correct. If a DBA accepts \\(b^\\omega\\), it must visit \\(F\\) after some \\(b^{n_1}\\). Appending \\(a b^{n_2}\\) forces it to visit \\(F\\) again. Repeating this builds a word with infinitely many \\(a\\)'s that the DBA erroneously accepts."
+        },
+        {
+          "text": "Because Büchi automata cannot have transitions labeled with the letter b.",
+          "correct": false,
+          "causalFailure": "Automata alphabets routinely contain any finite set of symbols, including \\(b\\)."
+        },
+        {
+          "text": "Because (a+b)* b^ω is not an omega-regular language.",
+          "correct": false,
+          "causalFailure": "The language is completely \\(\\omega\\)-regular and accepted by a 2-state NBA; it simply cannot be recognized deterministically under Büchi acceptance."
+        }
+      ],
+      "hint": "Think about Landweber's lemma: if a DBA accepts, what happens when an adversary repeatedly extends prefixes after accepting visits?",
+      "formal": "\\(\\mathcal{L}(\\mathrm{DBA}) \\subsetneq \\mathcal{L}(\\mathrm{NBA})\\). Specifically, \\((a+b)^* b^\\omega \\in \\mathcal{L}(\\mathrm{NBA}) \\setminus \\mathcal{L}(\\mathrm{DBA})\\).",
+      "preview": {
+        "activeNodes": [
+          "root"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "root",
+          "child1"
+        ],
+        "activeEdges": [
+          "e-root-c1"
+        ]
+      },
+      "previewNote": "Deterministic tracking without guessing.",
+      "revealNote": "DBA trapped by adversary: richer acceptance condition required."
+    },
+    {
+      "label": "Acceptance Upgrade",
+      "title": "Muller and Parity conditions: observing the recurring set",
+      "exposition": "To restore determinism, McNaughton upgraded the acceptance condition from visiting \\(F\\) to observing the exact set of infinitely recurring states: \\(\\mathrm{Inf}(\\rho)\\). Muller acceptance defines a table \\(\\mathcal{F} \\subseteq 2^Q\\) of allowable recurring sets; Parity acceptance colors states and checks \\(\\max \\mathrm{Inf}(\\Omega(\\rho)) \\pmod 2 = 0\\).",
+      "question": "How does the Muller/Parity condition overcome the limitation of Büchi acceptance?",
+      "choices": [
+        {
+          "text": "By distinguishing between visiting a set of states and being trapped inside that exact set forever: it can accept runs that stay inside \\(\\{q_b\\}\\) while rejecting runs that also visit \\(q_a\\).",
+          "correct": true,
+          "feedback": "Spot on. A Muller automaton can specify that \\(\\{q_b\\}\\) is an accepting recurring set (\\(\\{q_b\\} \\in \\mathcal{F}\\)), while \\(\\{q_a, q_b\\} \\notin \\mathcal{F}\\). Thus visiting \\(q_a\\) infinitely often rejects, solving \\((a+b)^* b^\\omega\\)."
+        },
+        {
+          "text": "By converting the infinite word into a finite word using end-of-file delimiters.",
+          "correct": false,
+          "causalFailure": "Infinite words have no end-of-file markers; Muller conditions operate on the genuine infinite limit set \\(\\mathrm{Inf}(\\rho)\\)."
+        },
+        {
+          "text": "By replacing the deterministic state space with continuous real-valued coordinates.",
+          "correct": false,
+          "causalFailure": "Muller and Parity automata remain completely discrete, finite-state machines."
+        }
+      ],
+      "hint": "Look at the recurring set: Inf(ρ) = {qb} versus Inf(ρ) = {qa, qb}. Can Muller acceptance distinguish them?",
+      "formal": "\\(\\text{Muller: } \\mathrm{Inf}(\\rho) \\in \\mathcal{F}\\). For \\((a+b)^* b^\\omega\\), set \\(\\mathcal{F} = \\{ \\{q_b\\} \\}\\), rejecting \\(\\{q_a, q_b\\}\\).",
+      "preview": {
+        "activeNodes": [
+          "root",
+          "child1"
+        ],
+        "activeEdges": [
+          "e-root-c1"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "root",
+          "child1",
+          "child2"
+        ],
+        "activeEdges": [
+          "e-root-c1",
+          "e-root-c2",
+          "e-c1-c2"
+        ],
+        "goodNodes": [
+          "child1"
+        ]
+      },
+      "previewNote": "Tracking separate recurring threads.",
+      "revealNote": "Muller condition discriminates exact infinite sets: determinism becomes expressively complete."
+    },
+    {
+      "label": "Safra Trees",
+      "title": "Tree-structured macro-states and breakpoint detection",
+      "exposition": "Safra's algorithm maintains a tree of subsets. The root tracks all active runs. When states in a node \\(v\\) hit \\(F\\), a child is spawned to monitor whether those accepting threads can continue forever without dying. When the children's threads collectively cover the parent, a cycle of accepting visits has occurred.",
+      "question": "What happens during a vertical collapse in a Safra tree?",
+      "choices": [
+        {
+          "text": "If the union of children's subsets equals the parent's subset, all children are deleted and the parent flashes a success signal, certifying that all active paths traversed accepting states.",
+          "correct": true,
+          "feedback": "Precisely. If the children cover the parent, every thread currently alive has passed through an accepting state since the child was spawned. The children have fulfilled their mission, so they collapse, flashing a green breakpoint."
+        },
+        {
+          "text": "The parent node is deleted and the automaton resets to the initial state.",
+          "correct": false,
+          "causalFailure": "Deleting the parent would lose track of all active simulation paths; only the fulfilled children are collapsed into the parent."
+        },
+        {
+          "text": "The automaton branches into two parallel non-deterministic copies.",
+          "correct": false,
+          "causalFailure": "Safra's construction is strictly deterministic; no non-deterministic branching ever occurs."
+        }
+      ],
+      "hint": "Why did we create the children? To check if every path through the parent hit F. What does it mean when children cover the parent?",
+      "formal": "\\(\\bigcup_{c \\in \\text{children}(v)} S_c = S_v \\implies \\text{remove children}(v) \\land \\text{emit\\_breakpoint}(v)\\).",
+      "preview": {
+        "activeNodes": [
+          "child1",
+          "child2"
+        ],
+        "activeEdges": [
+          "e-c1-c2"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "collapse"
+        ],
+        "activeEdges": [
+          "e-c1-coll",
+          "e-c2-coll"
+        ],
+        "goodNodes": [
+          "collapse"
+        ]
+      },
+      "previewNote": "Children monitoring accepting branches.",
+      "revealNote": "Vertical collapse: union covers parent ⟹ green flash event emitted."
+    },
+    {
+      "label": "Determinization Theorem",
+      "title": "Full equivalence of NBA, DMA, and DPA",
+      "exposition": "By bounding the number of tree nodes by \\(n\\) and using names from \\(\\{1, \\dots, 2n\\}\\), the Safra tree automaton has at most \\(2^{O(n \\log n)}\\) states. Flashed node names directly define the priorities of a Deterministic Parity Automaton (DPA).",
+      "question": "What is the ultimate consequence of McNaughton's theorem for omega-automata theory?",
+      "choices": [
+        {
+          "text": "\\(\\mathcal{L}(\\mathrm{NBA}) = \\mathcal{L}(\\mathrm{DMA}) = \\mathcal{L}(\\mathrm{DPA})\\): every \\(\\omega\\)-regular language can be recognized deterministically, enabling game solving and reactive synthesis.",
+          "correct": true,
+          "feedback": "Spot on. While deterministic Büchi automata are incomplete, upgrading to Muller or Parity acceptance achieves 100% expressive equivalence with non-deterministic automata."
+        },
+        {
+          "text": "Non-deterministic Büchi automata are proven to be strictly more powerful than any deterministic automaton condition.",
+          "correct": false,
+          "causalFailure": "McNaughton proved the exact opposite: deterministic Muller and Parity automata are fully as expressive as NBAs."
+        },
+        {
+          "text": "Every Büchi automaton can be determinized with at most n states.",
+          "correct": false,
+          "causalFailure": "Determinization incurs an inevitable \\(2^{\\Omega(n \\log n)}\\) state blowup in the worst case."
+        }
+      ],
+      "hint": "Remember the three classes of automata: NBA, DMA, DPA. What is their relative expressive power?",
+      "formal": "\\(\\mathcal{L}(\\mathrm{NBA}) = \\mathcal{L}(\\mathrm{DMA}) = \\mathcal{L}(\\mathrm{DPA})\\). State blowup: \\(2^{O(n \\log n)}\\), priorities: \\(2n\\).",
+      "preview": {
+        "activeNodes": [
+          "root",
+          "collapse"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "root",
+          "child1",
+          "child2",
+          "collapse"
+        ],
+        "activeEdges": [
+          "e-root-c1",
+          "e-root-c2",
+          "e-c1-coll",
+          "e-c2-coll"
+        ],
+        "goodNodes": [
+          "collapse"
+        ]
+      },
+      "previewNote": "Safra tree with bounded names.",
+      "revealNote": "McNaughton equivalence established: Ⅎ(NBA) = Ⅎ(DMA) = Ⅎ(DPA)."
+    }
+  ],
+  "previous": {
+    "label": "Büchi S1S decidability",
+    "href": "/proofs/chapter-08/s1s-buchi.html"
+  },
+  "next": {
+    "label": "McNaughton–Papert theorem",
+    "href": "/proofs/chapter-09/mcnaughton-papert.html"
+  }
+},
+
+    "mcnaughton-papert": {
+  "slug": "mcnaughton-papert",
+  "chapter": 9,
+  "title": "McNaughton–Papert & Schützenberger theorem (1971)",
+  "theorem": "For every regular language \\(L \\subseteq \\Sigma^*\\), the following conditions are equivalent: (1) \\(L\\) is star-free (definable from letters via concatenation, boolean operations, and complementation, without Kleene star); (2) \\(L\\) is definable in first-order logic of linear order \\(\\mathrm{FO}[<]\\); (3) the syntactic monoid \\(M(L)\\) is aperiodic (counter-free: \\(\\exists n \\ge 1.\\, \\forall s \\in M(L),\\; s^{n+1} = s^n\\)).",
+  "intro": "The celebrated McNaughton–Papert (1971) and Schützenberger (1965) theorems form one of the deepest trilateral equivalences in theoretical computer science. They link formal language theory (star-free regular expressions), mathematical logic (first-order logic over words), and abstract algebra (aperiodic semigroups). The theorem precisely identifies what automata can do when they are stripped of the ability to count modulo an integer.",
+  "application": "This theorem is the bridge between Linear Temporal Logic (LTL) and automata. By Kamp's theorem, LTL has the exact expressive power of FO[<]. Hence, an automaton specification can be translated into an LTL formula if and only if its minimal DFA has an aperiodic syntactic monoid (no counting loops like (aa)*).",
+  "strategy": "Prove the triangular equivalence \\((1) \\iff (2) \\iff (3)\\). Step 1: Star-free expressions vs counting: express \\(\\Sigma^* = \\emptyset^c\\) and \\(a \\Sigma^* = a \\emptyset^c\\) without Kleene star, but show that \\((aa)^*\\) (even length) inherently requires counting modulo 2, making it non-star-free. Step 2: First-order logic \\(\\mathrm{FO}[<]\\) and Ehrenfeucht–Fraïssé games: prove that a sentence of quantifier depth \\(k\\) cannot distinguish between words of length \\(2^k\\) and \\(2^k + 1\\); hence \\(\\mathrm{FO}[<]\\) cannot express modulo counting. Step 3: Algebraic aperiodicity: define the syntactic monoid \\(M(L) = \\Sigma^* / \\equiv_L\\); show that if \\(M(L)\\) contains a non-trivial permutation group (e.g. an element satisfying \\(s^2 = 1 \\neq s\\)), the automaton counts mod 2; aperiodicity requires that for sufficiently large \\(n\\), \\(s^{n+1} = s^n\\) (all cycles are self-loops). Step 4: Synthesize the full equivalence: star-free compilation into FO[<] and aperiodic monoid decomposition (Krohn–Rhodes theorem).",
+  "invariant": "\\(L \\in \\text{Star-Free} \\iff L \\in \\mathrm{FO}[<] \\iff \\forall s \\in M(L),\\; \\exists n.\\; s^{n+1} = s^n\\)",
+  "synthesis": "Let \\(L\\subseteq \\Sigma^*\\). (1) \\(\\implies\\) (2): Every star-free expression is translated inductively into an \\(\\mathrm{FO}[<]\\) formula: letters \\(a\\) become \\(P_a(x)\\), concatenation \\(E_1 \\cdot E_2\\) becomes \\(\\exists y.\\, \\Phi_1^{< y} \\land \\Phi_2^{> y}\\), and complementation becomes logical negation \\(\\neg\\Phi\\). (2) \\(\\implies\\) (3): Let \\(\\Phi\\) be an \\(\\mathrm{FO}[<]\\) sentence with quantifier depth \\(k\\). By the Ehrenfeucht–Fraïssé theorem, Duplicator wins the \\(k\\)-pebble game on word pairs whose letter-neighborhoods match up to threshold \\(2^k\\). If \\(s \\in M(L)\\) induced a non-trivial group with identity \\(e\\) and generator \\(g \\neq e\\) such that \\(g^p = e\\) (\\(p \\ge 2\\)), Duplicator could not distinguish \\(g^{2^k}\\) from \\(g^{2^k + p}\\), forcing \\(g^{2^k} \\equiv_L g^{2^k + p}\\), which contradicts \\(g \\neq e\\). Hence \\(M(L)\\) contains no non-trivial subgroups, proving \\(\\exists n.\\, \\forall s \\in M(L),\\, s^{n+1} = s^n\\) (aperiodicity). (3) \\(\\implies\\) (1): Schützenberger's algebraic induction: every finite aperiodic monoid can be decomposed via wreath product into a cascade of two-state reset monoids (flip-flops) by the Krohn–Rhodes theorem. Each reset monoid corresponds to a star-free language, so the entire language \\(L\\) is star-free.",
+  "diagram": {
+    "description": "Trilateral equivalence between Star-Free regular expressions, First-Order Logic FO[<], and Aperiodic Syntactic Monoids.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Language Theory: Star-Free Expressions",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Logic: First-Order Logic FO[<]",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Algebra: Aperiodic Syntactic Monoid",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "starfree",
+        "x": 250,
+        "y": 100,
+        "label": "Star-Free RegExp",
+        "detail": "∅, a, ∪, ·, ¬ (no Kleene *)",
+        "shape": "rect",
+        "width": 220,
+        "height": 60
+      },
+      {
+        "id": "fol",
+        "x": 750,
+        "y": 100,
+        "label": "FO[<] Logic",
+        "detail": "quantifiers ∃x, ∀x over positions",
+        "shape": "rect",
+        "width": 220,
+        "height": 60
+      },
+      {
+        "id": "efgame",
+        "x": 750,
+        "y": 260,
+        "label": "EF Games (Depth k)",
+        "detail": "cannot count modulo p",
+        "shape": "circle",
+        "r": 52
+      },
+      {
+        "id": "monoid",
+        "x": 250,
+        "y": 430,
+        "label": "M(L) Aperiodic",
+        "detail": "s^{n+1} = s^n (counter-free)",
+        "shape": "rect",
+        "width": 220,
+        "height": 64
+      },
+      {
+        "id": "reset",
+        "x": 750,
+        "y": 430,
+        "label": "Reset Semigroups",
+        "detail": "cascade decomposition",
+        "shape": "rect",
+        "width": 200,
+        "height": 60,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-sf-fo",
+        "from": "starfree",
+        "to": "fol",
+        "label": "inductive syntax translation",
+        "labelY": 80
+      },
+      {
+        "id": "e-fo-ef",
+        "from": "fol",
+        "to": "efgame",
+        "label": "quantifier depth k",
+        "labelX": 770,
+        "labelY": 180
+      },
+      {
+        "id": "e-ef-mon",
+        "from": "efgame",
+        "to": "monoid",
+        "label": "Duplicator wins ⟹ no groups",
+        "path": "M 700 280 C 500 340 380 390 330 410",
+        "labelX": 520,
+        "labelY": 330
+      },
+      {
+        "id": "e-mon-res",
+        "from": "monoid",
+        "to": "reset",
+        "label": "Krohn–Rhodes decomposition",
+        "labelY": 410
+      },
+      {
+        "id": "e-res-sf",
+        "from": "reset",
+        "to": "starfree",
+        "label": "reconstruct star-free terms",
+        "path": "M 750 400 C 600 240 400 160 330 130",
+        "labelX": 530,
+        "labelY": 220
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "A regular language is LTL-definable ⟺ its minimal DFA contains no modulo-counting cycles.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Star-Free vs Star",
+      "title": "Star-free expressions: concatenation and complement without Kleene star",
+      "exposition": "A regular expression is star-free if it is constructed from the empty set and alphabet symbols using only concatenation, union, and complementation with respect to \\(\\Sigma^*\\) (denoted \\(\\sim E\\)). The universal language is star-free because \\(\\Sigma^* = \\sim\\emptyset\\). However, not all regular languages are star-free.",
+      "question": "Which of the following regular languages is NOT star-free?",
+      "choices": [
+        {
+          "text": "\\(L = (aa)^*\\): the language of words over \\(\\{a\\}\\) of even length.",
+          "correct": true,
+          "feedback": "Correct. Recognizing \\((aa)^*\\) requires checking that the length is \\(0 \\pmod 2\\). Counting modulo an integer cannot be expressed using only concatenation and complementation without the Kleene star."
+        },
+        {
+          "text": "\\(L = \\Sigma^* a \\Sigma^*\\): the language of words containing at least one 'a'.",
+          "correct": false,
+          "causalFailure": "This language is completely star-free: it can be written as \\((\\sim\\emptyset) \\cdot a \\cdot (\\sim\\emptyset)\\)."
+        },
+        {
+          "text": "\\(L = \\emptyset\\): the empty language.",
+          "correct": false,
+          "causalFailure": "The empty language \\(\\emptyset\\) is the base case of star-free expressions."
+        }
+      ],
+      "hint": "Which language requires keeping track of an arithmetic parity counter (mod 2)?",
+      "formal": "\\(\\Sigma^* = \\sim\\emptyset \\in \\text{Star-Free}\\), but \\((aa)^* \\notin \\text{Star-Free}\\) because it requires modulo counting.",
+      "preview": {
+        "activeNodes": [
+          "starfree"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "starfree",
+          "fol"
+        ],
+        "activeEdges": [
+          "e-sf-fo"
+        ],
+        "goodNodes": [
+          "starfree"
+        ]
+      },
+      "previewNote": "Star-free expressions: booleans and concatenations.",
+      "revealNote": "Every star-free expression maps directly to an FO[<] sentence."
+    },
+    {
+      "label": "FO[<] Limits",
+      "title": "First-Order Logic and Ehrenfeucht–Fraïssé indistinguishability",
+      "exposition": "In First-Order Logic \\(\\mathrm{FO}[<]\\), formulas quantify over word positions \\(x, y \\in \\{1, \\dots, |w|\\}\\) using order \\(x < y\\) and letter predicates \\(P_a(x)\\). The quantifier depth \\(k\\) measures formula complexity. By the Ehrenfeucht–Fraïssé theorem, Duplicator can match moves on long words.",
+      "question": "Why is First-Order Logic FO[<] unable to express the language (aa)*?",
+      "choices": [
+        {
+          "text": "Because for any quantifier depth \\(k\\), Duplicator wins the EF game between the word \\(a^{2^k}\\) (even) and \\(a^{2^k + 1}\\) (odd), proving no FO sentence can distinguish even and odd lengths.",
+          "correct": true,
+          "feedback": "Spot on. With only \\(k\\) pebbles, Spoiler cannot explore distances beyond \\(2^k\\). Two words longer than \\(2^k\\) whose letters are identical appear completely indistinguishable to \\(\\mathrm{FO}[<]\\)."
+        },
+        {
+          "text": "Because FO[<] does not have variables for letters.",
+          "correct": false,
+          "causalFailure": "FO[<] has unary predicates \\(P_a(x)\\) specifically for testing the letter at position \\(x\\)."
+        },
+        {
+          "text": "Because first-order logic cannot express the relation x < y.",
+          "correct": false,
+          "causalFailure": "The linear order predicate \\(<\\) is an explicit primitive of \\(\\mathrm{FO}[<]\\)."
+        }
+      ],
+      "hint": "Consider what happens in an Ehrenfeucht–Fraïssé game with k rounds when comparing a^{2^k} and a^{2^k+1}.",
+      "formal": "\\(a^{2^k} \\equiv_k a^{2^k + 1}\\). Since one word is in \\((aa)^*\\) and the other is not, \\((aa)^* \\notin \\mathrm{FO}[<]\\).",
+      "preview": {
+        "activeNodes": [
+          "fol",
+          "efgame"
+        ],
+        "activeEdges": [
+          "e-fo-ef"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "fol",
+          "efgame",
+          "monoid"
+        ],
+        "activeEdges": [
+          "e-fo-ef",
+          "e-ef-mon"
+        ],
+        "goodNodes": [
+          "fol",
+          "efgame"
+        ]
+      },
+      "previewNote": "Quantifier depth k bounds horizon.",
+      "revealNote": "EF game wins by Duplicator prove FO[<] cannot count modulo p."
+    },
+    {
+      "label": "Aperiodic Semigroups",
+      "title": "The algebraic characterization: aperiodicity of the syntactic monoid",
+      "exposition": "The syntactic monoid \\(M(L)\\) of a language is the quotient of \\(\\Sigma^*\\) by the two-sided Myhill congruence \\(u \\equiv_L v \\iff \\forall x, y.\\; xuy \\in L \\leftrightarrow xvy \\in L\\). A monoid is aperiodic (or counter-free) if it contains no non-trivial groups.",
+      "question": "What algebraic equation characterizes an aperiodic (counter-free) monoid?",
+      "choices": [
+        {
+          "text": "\\(\\exists n \\ge 1.\\, \\forall s \\in M(L),\\; s^{n+1} = s^n\\): every element eventually stabilizes under powers, meaning all cycles are self-loops.",
+          "correct": true,
+          "feedback": "Precisely. If an element satisfied \\(s^{n+p} = s^n\\) for \\(p \\ge 2\\), the set \\(\\{s^n, \\dots, s^{n+p-1}\\}\\) would form a non-trivial cyclic group of order \\(p\\), counting modulo \\(p\\). Aperiodicity forces \\(p=1\\)."
+        },
+        {
+          "text": "\\(\\forall s \\in M(L),\\; s^2 = 1\\): every element is its own inverse.",
+          "correct": false,
+          "causalFailure": "This defines a Boolean group (like \\(\\mathbb{Z}_2\\)), which is a non-trivial group that counts modulo 2!"
+        },
+        {
+          "text": "\\(M(L)\\) must have cardinality equal to 1.",
+          "correct": false,
+          "causalFailure": "A monoid with 1 element recognizes only \\(\\emptyset\\) and \\(\\Sigma^*\\); non-trivial star-free languages have monoids of arbitrary finite size."
+        }
+      ],
+      "hint": "What does it mean for an automaton not to count? In any cycle, repeating the loop must immediately stabilize.",
+      "formal": "M(L) \\text{ aperiodic} \\iff \\forall s \\in M(L),\\; \\exists n \\ge 1.\\; s^{n+1} = s^n \\iff M(L) \\text{ is group-free}.",
+      "preview": {
+        "activeNodes": [
+          "monoid"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "monoid",
+          "reset"
+        ],
+        "activeEdges": [
+          "e-mon-res"
+        ],
+        "goodNodes": [
+          "monoid",
+          "reset"
+        ]
+      },
+      "previewNote": "Syntactic monoid M(L).",
+      "revealNote": "s^{n+1} = s^n eliminates permutation groups: no modulo counting."
+    },
+    {
+      "label": "Trilateral Equivalence",
+      "title": "The synthesis: star-free = FO[<] = aperiodic monoids",
+      "exposition": "Schützenberger (1965) proved Star-Free = Aperiodic, and McNaughton–Papert (1971) proved Star-Free = FO[<]. Together, they establish that the three perspectives coincide completely.",
+      "question": "Why is the McNaughton–Papert theorem critical for LTL verification?",
+      "choices": [
+        {
+          "text": "Because Kamp's theorem equates LTL with FO[<], so an automaton specification can be verified with standard LTL model checking iff its transition monoid is aperiodic.",
+          "correct": true,
+          "feedback": "Spot on. LTL cannot express modulo properties like 'p holds at every even step'. By testing whether the minimal automaton is aperiodic (\\(s^{n+1} = s^n\\)), we can decide if a specification is expressible in LTL."
+        },
+        {
+          "text": "Because it proves that all regular languages can be implemented without memory.",
+          "correct": false,
+          "causalFailure": "Star-free languages require finite memory; they only forbid modulo counting."
+        },
+        {
+          "text": "Because it proves that first-order logic is undecidable on finite words.",
+          "correct": false,
+          "causalFailure": "FO[<] on finite words is completely decidable via compilation into DFAs."
+        }
+      ],
+      "hint": "Remember the connection between LTL and FO[<]: Kamp's theorem proves LTL = FO[<].",
+      "formal": "\\(\\text{Star-Free} = \\mathrm{FO}[<] = \\mathrm{LTL} = \\text{Aperiodic Monoids}\\). Modulo-free regularity completely characterized.",
+      "preview": {
+        "activeNodes": [
+          "starfree",
+          "fol",
+          "monoid"
+        ],
+        "activeEdges": [
+          "e-sf-fo",
+          "e-ef-mon"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "starfree",
+          "fol",
+          "efgame",
+          "monoid",
+          "reset"
+        ],
+        "activeEdges": [
+          "e-sf-fo",
+          "e-fo-ef",
+          "e-ef-mon",
+          "e-mon-res",
+          "e-res-sf"
+        ],
+        "goodNodes": [
+          "starfree",
+          "fol",
+          "monoid",
+          "reset"
+        ]
+      },
+      "previewNote": "Bridging syntax, logic, and algebra.",
+      "revealNote": "Trilateral equivalence closed: Star-Free ⟺ FO[<] ⟺ Aperiodic Monoids."
+    }
+  ],
+  "previous": {
+    "label": "McNaughton determinization",
+    "href": "/proofs/chapter-09/mcnaughton-determinization.html"
+  },
+  "next": {
+    "label": "Tree automata determinization",
+    "href": "/proofs/chapter-10/tree-automata-determinization.html"
+  }
+},
+
+    "tree-automata-determinization": {
+  "slug": "tree-automata-determinization",
+  "chapter": 10,
+  "title": "Bottom-up tree automata determinization",
+  "theorem": "Every non-deterministic finite tree automaton (NFTA) operating bottom-up on ranked trees has an equivalent deterministic finite tree automaton (DFTA): \\(\\mathcal{L}(\\mathrm{DFTA}) = \\mathcal{L}(\\mathrm{NFTA})\\). Conversely, deterministic top-down tree automata are strictly less expressive.",
+  "intro": "Finite tree automata process structured branching trees (terms) rather than flat linear words. While word automata can process strings left-to-right or right-to-left symmetrically, tree automata exhibit a fundamental structural asymmetry: trees converge from multiple leaves to a single root bottom-up, but diverge from a single root to multiple independent branches top-down. This theorem proves that bottom-up tree automata determinize completely via a generalized subset construction, whereas top-down determinism fails.",
+  "application": "Tree automata are the foundation of XML/JSON schema validation, program static analysis (abstract syntax trees), and compiler instruction selection. Decidability of emptiness and inclusion for bottom-up tree automata underpins program synthesis and type systems.",
+  "strategy": "Step 1: Formalize ranked alphabets \\(\\Sigma = \\bigcup_k \\Sigma_k\\) and transition rules: leaves \\(a \\in \\Sigma_0\\) map to state subsets \\(\\Delta(a) \\subseteq Q\\); internal nodes \\(\\sigma \\in \\Sigma_k\\) map tuples of child states to parent state subsets \\(\\Delta(\\sigma, q_1, \\dots, q_k) \\subseteq Q\\). Step 2: Formulate the bottom-up subset construction: the DFTA state space is \\(2^Q\\); for leaves, \\(\\delta_D(a) = \\Delta(a)\\); for internal nodes, evaluate the set of all possible parent states: \\(\\delta_D(\\sigma, S_1, \\dots, S_k) = \\bigcup_{q_1 \\in S_1, \\dots, q_k \\in S_k} \\Delta(\\sigma, q_1, \\dots, q_k)\\). Step 3: Prove by structural induction on tree height \\(h(t)\\) that the unique DFTA state reached at root \\(t\\) is precisely the set of all states reachable by the NFTA on \\(t\\). Step 4: Explain why top-down determinism fails: a deterministic top-down automaton reading \\(f(x, y)\\) must send fixed states \\((q_1, q_2)\\) to the children without knowing their contents; it cannot recognize languages like \\(\\{f(a, b), f(b, a)\\}\\) because path independence forces cross-combination products \\(\\{f(a, a), f(b, b)\\}\\).",
+  "invariant": "\\(\\forall \\text{ tree } t,\\; \\delta_D(t) = \\{q \\in Q \\mid t \\xrightarrow{*}_{\\text{NFTA}} q\\}\\)",
+  "synthesis": "Let \\(\\mathcal{A}=(Q, \\Sigma, \\Delta, F)\\) be an NFTA. Define the DFTA \\(\\mathcal{D}=(2^Q, \\Sigma, \\delta_D, F_D)\\) where \\(F_D = \\{S \\subseteq Q \\mid S \\cap F \\neq \\emptyset\\}\\). For leaves \\(a \\in \\Sigma_0\\), set \\(\\delta_D(a) = \\Delta(a)\\). For internal nodes \\(\\sigma \\in \\Sigma_k\\) with child subsets \\(S_1, \\dots, S_k \\in 2^Q\\), set \\(\\delta_D(\\sigma, S_1, \\dots, S_k) = \\bigcup_{q_1 \\in S_1, \\dots, q_k \\in S_k} \\Delta(\\sigma, q_1, \\dots, q_k)\\). We prove by structural induction on tree \\(t\\) that \\(\\delta_D(t) = \\{q \\in Q \\mid t \\to^* q\\}\\). Base case: \\(t = a \\in \\Sigma_0\\); then \\(\\delta_D(a) = \\Delta(a)\\), matching NFTA leaf evaluation. Inductive step: let \\(t = \\sigma(t_1, \\dots, t_k)\\). By induction hypothesis, each child tree \\(t_i\\) reaches \\(\\delta_D(t_i) = S_i = \\{q \\in Q \\mid t_i \\to^* q\\}\\). Then \\(t \\to^* q \\iff \\exists q_1 \\in S_1, \\dots, q_k \\in S_k\\) such that \\(q \\in \\Delta(\\sigma, q_1, \\dots, q_k) \\iff q \\in \\delta_D(\\sigma, S_1, \\dots, S_k)\\), completing the induction. Acceptance holds iff \\(\\delta_D(t) \\cap F \\neq \\emptyset \\iff \\delta_D(t) \\in F_D\\). For top-down automata, a deterministic transition \\(\\delta(q, f) = (q_1, q_2)\\) must independently accept left and right subtrees; hence if it accepts \\(f(a, b)\\) and \\(f(b, a)\\), it is forced to accept \\(f(a, a)\\) and \\(f(b, b)\\), proving top-down DTA are strictly weaker.",
+  "diagram": {
+    "description": "Bottom-up tree evaluation merging multiple child states at node f, compared with top-down path divergence.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Root Level: σ(t₁, t₂) Evaluation",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Internal Subtrees: State Subsets S₁, S₂",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Leaves: Atomic Constants a, b",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "leaf_a",
+        "x": 250,
+        "y": 430,
+        "label": "Leaf a",
+        "detail": "δ_D(a) = {qₐ}",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "leaf_b",
+        "x": 750,
+        "y": 430,
+        "label": "Leaf b",
+        "detail": "δ_D(b) = {qₑ}",
+        "shape": "circle",
+        "r": 48
+      },
+      {
+        "id": "sub1",
+        "x": 350,
+        "y": 260,
+        "label": "Subtree t₁",
+        "detail": "S₁ = {q₁, q₂}",
+        "shape": "rect",
+        "width": 150,
+        "height": 60
+      },
+      {
+        "id": "sub2",
+        "x": 650,
+        "y": 260,
+        "label": "Subtree t₂",
+        "detail": "S₂ = {q₃}",
+        "shape": "rect",
+        "width": 150,
+        "height": 60
+      },
+      {
+        "id": "root_f",
+        "x": 500,
+        "y": 100,
+        "label": "Root f(t₁, t₂)",
+        "detail": "δ_D(f, S₁, S₂) ⊆ 2^Q",
+        "shape": "rect",
+        "width": 220,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-a-sub1",
+        "from": "leaf_a",
+        "to": "sub1",
+        "label": "eval leaf",
+        "labelX": 280,
+        "labelY": 350
+      },
+      {
+        "id": "e-b-sub2",
+        "from": "leaf_b",
+        "to": "sub2",
+        "label": "eval leaf",
+        "labelX": 720,
+        "labelY": 350
+      },
+      {
+        "id": "e-sub1-root",
+        "from": "sub1",
+        "to": "root_f",
+        "label": "child 1 set",
+        "labelX": 410,
+        "labelY": 180
+      },
+      {
+        "id": "e-sub2-root",
+        "from": "sub2",
+        "to": "root_f",
+        "label": "child 2 set",
+        "labelX": 590,
+        "labelY": 180
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Bottom-up subset construction merges child sets: δ_D(f, S₁, S₂) = ∪ Δ(f, q₁, q₂).",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Ranked Trees",
+      "title": "Ranked alphabets and tree transition semantics",
+      "exposition": "In a ranked alphabet \\(\\Sigma\\), each symbol has a fixed arity \\(k \\ge 0\\). Nullary symbols (\\(k=0\\)) are leaves, and \\(k\\)-ary symbols (\\(k \\ge 1\\)) are internal nodes. In a non-deterministic bottom-up automaton, transitions assign a set of candidate states to leaves and to internal nodes given their child states.",
+      "question": "How does a non-deterministic tree automaton evaluate an internal node f(t_1, ..., t_k)?",
+      "choices": [
+        {
+          "text": "It takes candidate states \\(q_1, \\dots, q_k\\) reached by the child subtrees and transitions to any state in \\(\\Delta(f, q_1, \\dots, q_k)\\).",
+          "correct": true,
+          "feedback": "Correct. Evaluation proceeds bottom-up from the leaves to the root: each child subtree computes its set of reached states, and the parent symbol maps their combination into a set of parent states."
+        },
+        {
+          "text": "It computes the sum of the ASCII values of all letters in the subtrees.",
+          "correct": false,
+          "causalFailure": "Tree automata do not perform arithmetic summing; they compute state transitions based on tree syntax."
+        },
+        {
+          "text": "It processes the tree as a flattened text string from left to right.",
+          "correct": false,
+          "causalFailure": "Flattening destroys tree structure; tree automata process tree branches concurrently."
+        }
+      ],
+      "hint": "Think about structural induction: leaves are evaluated first, then internal nodes combine child states.",
+      "formal": "\\(\\Delta: \\Sigma_k \\times Q^k \\to 2^Q\\). Evaluation: \\(t = \\sigma(t_1, \\dots, t_k) \\to^* q \\iff \\exists q_i \\in \\text{Runs}(t_i).\\; q \\in \\Delta(\\sigma, q_1, \\dots, q_k)\\).",
+      "preview": {
+        "activeNodes": [
+          "leaf_a",
+          "leaf_b"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "leaf_a",
+          "leaf_b",
+          "sub1",
+          "sub2"
+        ],
+        "activeEdges": [
+          "e-a-sub1",
+          "e-b-sub2"
+        ],
+        "goodNodes": [
+          "leaf_a",
+          "leaf_b"
+        ]
+      },
+      "previewNote": "Leaves evaluated to initial states.",
+      "revealNote": "Subtrees compute sets of reached states S₁ and S₂."
+    },
+    {
+      "label": "Subset Construction",
+      "title": "Bottom-up subset construction over 2^Q",
+      "exposition": "To determinize the automaton, the DFTA operates over macro-states in \\(2^Q\\). We must define the deterministic transition function \\(\\delta_D\\) for internal nodes.",
+      "question": "How is the deterministic transition function delta_D defined for an internal node with child macro-states S_1, ..., S_k?",
+      "choices": [
+        {
+          "text": "\\(\\delta_D(\\sigma, S_1, \\dots, S_k) = \\bigcup_{q_1 \\in S_1, \\dots, q_k \\in S_k} \\Delta(\\sigma, q_1, \\dots, q_k)\\): the union over all combinations of child states.",
+          "correct": true,
+          "feedback": "Precisely. This exactly mirrors the word subset construction, generalized to \\(k\\)-ary tuples of states: it collects all parent states reachable by choosing any valid run on each child subtree."
+        },
+        {
+          "text": "\\(\\delta_D(\\sigma, S_1, \\dots, S_k) = S_1 \\cap S_2 \\cap \\dots \\cap S_k\\): the intersection of child states.",
+          "correct": false,
+          "causalFailure": "Intersection would require child subtrees to be in the exact same states, which is false for independent branches."
+        },
+        {
+          "text": "\\(\\delta_D(\\sigma, S_1, \\dots, S_k) = S_1 \\times S_2 \\times \\dots \\times S_k\\): the Cartesian product of states.",
+          "correct": false,
+          "causalFailure": "The state space of the DFTA is \\(2^Q\\), not an unbounded Cartesian product of sets."
+        }
+      ],
+      "hint": "How does the subset construction handle multiple independent choices in each branch? By taking the union over all tuples.",
+      "formal": "\\(\\delta_D(\\sigma, S_1, \\dots, S_k) = \\bigcup_{\\vec{q} \\in S_1 \\times \\dots \\times S_k} \\Delta(\\sigma, \\vec{q})\\). Result is a deterministic element of \\(2^Q\\).",
+      "preview": {
+        "activeNodes": [
+          "sub1",
+          "sub2"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "sub1",
+          "sub2",
+          "root_f"
+        ],
+        "activeEdges": [
+          "e-sub1-root",
+          "e-sub2-root"
+        ],
+        "goodNodes": [
+          "root_f"
+        ]
+      },
+      "previewNote": "Child state sets S₁ and S₂.",
+      "revealNote": "Root macro-state δ_D(f, S₁, S₂) deterministically computed via union over tuples."
+    },
+    {
+      "label": "Structural Induction",
+      "title": "Correctness by structural induction on tree height",
+      "exposition": "We verify the inductive invariant: for every finite tree \\(t\\), the state reached by \\(\\mathcal{D}\\) on \\(t\\) is precisely \\(\\delta_D(t) = \\{q \\in Q \\mid t \\to^* q\\}\\).",
+      "question": "Why does the inductive step hold for t = sigma(t_1, ..., t_k)?",
+      "choices": [
+        {
+          "text": "Because by induction hypothesis each child \\(t_i\\) reaches exactly the set \\(S_i\\) of NFTA-reachable states, and \\(\\delta_D\\) aggregates all possible parent transitions from those sets.",
+          "correct": true,
+          "feedback": "Spot on. A tree run is valid iff its subtree runs are valid and the root transition is valid. Since the induction hypothesis provides all valid child states, the union over \\(\\Delta\\) produces all valid root states."
+        },
+        {
+          "text": "Because trees are always complete balanced binary trees.",
+          "correct": false,
+          "causalFailure": "Structural induction applies to all trees of arbitrary shape, height, and branching degree."
+        },
+        {
+          "text": "Because non-deterministic tree automata have at most one run per tree.",
+          "correct": false,
+          "causalFailure": "NFTAs can have exponentially many runs on a single tree; the subset construction collapses them into one deterministic run."
+        }
+      ],
+      "hint": "Structural induction on trees: assume the property holds for all subtrees, then prove it for the parent.",
+      "formal": "\\(\\delta_D(t) = \\delta_D(\\sigma, \\delta_D(t_1), \\dots, \\delta_D(t_k)) = \\bigcup_{\\vec{q}} \\Delta(\\sigma, \\vec{q}) = \\{q \\mid t \\xrightarrow{*}_{\\text{NFTA}} q\\}\\).",
+      "preview": {
+        "activeNodes": [
+          "leaf_a",
+          "sub1"
+        ],
+        "activeEdges": [
+          "e-a-sub1"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "leaf_a",
+          "leaf_b",
+          "sub1",
+          "sub2",
+          "root_f"
+        ],
+        "activeEdges": [
+          "e-a-sub1",
+          "e-b-sub2",
+          "e-sub1-root",
+          "e-sub2-root"
+        ],
+        "goodNodes": [
+          "root_f"
+        ]
+      },
+      "previewNote": "Base case on leaves verified.",
+      "revealNote": "Inductive step complete on tree height: full equivalence Ⅎ(DFTA) = Ⅎ(NFTA)."
+    },
+    {
+      "label": "Top-Down Asymmetry",
+      "title": "The top-down deterministic limit: path independence",
+      "exposition": "In a top-down tree automaton, computation starts at the root and moves towards the leaves. A deterministic top-down transition must choose a fixed pair of successor states: \\(\\delta(q, f) = (q_1, q_2)\\). We examine why this strictly limits expressiveness.",
+      "question": "Why can a deterministic top-down tree automaton NOT recognize L = {f(a, b), f(b, a)}?",
+      "choices": [
+        {
+          "text": "Because it must send fixed states \\((q_1, q_2)\\) to left and right subtrees; accepting both \\(f(a,b)\\) and \\(f(b,a)\\) forces it to accept \\(f(a,a)\\) and \\(f(b,b)\\) as well.",
+          "correct": true,
+          "feedback": "Precisely. Top-down determinism causes path independence: the left branch has no knowledge of what the right branch is doing. To correlate branches, non-determinism is indispensable."
+        },
+        {
+          "text": "Because letters 'a' and 'b' cannot appear in the same tree language.",
+          "correct": false,
+          "causalFailure": "Any alphabet can contain multiple symbols; the failure is due to path decorrelation, not alphabet size."
+        },
+        {
+          "text": "Because top-down automata cannot read trees of depth 1.",
+          "correct": false,
+          "causalFailure": "Top-down automata easily read trees of depth 1; the issue is branch correlation."
+        }
+      ],
+      "hint": "If q_1 accepts both 'a' and 'b', and q_2 accepts both 'a' and 'b', what happens when you combine them?",
+      "formal": "\\(\\delta(q_0, f) = (q_1, q_2) \\implies L(f(t_1, t_2)) = L(q_1) \\times L(q_2)\\). Cross-product closure forces \\(f(a, a), f(b, b) \\in L\\).",
+      "preview": {
+        "activeNodes": [
+          "root_f"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "root_f",
+          "sub1",
+          "sub2"
+        ],
+        "activeEdges": [
+          "e-sub1-root",
+          "e-sub2-root"
+        ],
+        "badNodes": [
+          "sub1",
+          "sub2"
+        ]
+      },
+      "previewNote": "Top-down transition from root.",
+      "revealNote": "Path independence: deterministic top-down cannot correlate branches (Ⅎ(DTA_top) ⊊ Ⅎ(NFTA))."
+    }
+  ],
+  "previous": {
+    "label": "McNaughton–Papert theorem",
+    "href": "/proofs/chapter-09/mcnaughton-papert.html"
+  },
+  "next": {
+    "label": "Vardi–Wolper tableau",
+    "href": "/proofs/chapter-11/vardi-wolper-tableau.html"
+  }
+},
+
+    "vardi-wolper-tableau": {
+  "slug": "vardi-wolper-tableau",
+  "chapter": 11,
+  "title": "Vardi–Wolper tableau & fulfilling path theorem",
+  "theorem": "An LTL formula \\(\\phi\\) is satisfiable if and only if there exists a fulfilling path \\(\\pi = A_0 A_1 \\dots\\) in the tableau graph \\(T(\\phi)\\) of elementary sets (atoms) such that \\(\\phi \\in A_0\\).",
+  "intro": "The Vardi–Wolper construction (1986) is the classical algorithm bridging Linear Temporal Logic (LTL) and automata theory. By analyzing the subformulas of (phi) (the Fisher–Ladner closure), it constructs a finite graph whose vertices are maximal propositionally consistent sets of formulas called 'atoms'. The Fulfilling Path Theorem proves that satisfying models of an LTL formula correspond precisely to infinite paths that do not postpone temporal promises forever.",
+  "application": "This construction is the algorithmic foundation of LTL model checkers like SPIN. The tableau graph is translated directly into a Generalized Büchi Automaton (GBA) of size (2^{O(|phi|)}), which is then synchronized with the system model to detect violation cycles.",
+  "strategy": "Step 1: Define the closure \\(Cl(\\phi)\\) containing all subformulas and their negations, and define atoms as maximal subsets \\(A \\subseteq Cl(\\phi)\\) that are propositionally consistent: \\(\\psi \\in A \\iff \\neg\\psi \\notin A\\), \\(\\psi_1 \\land \\psi_2 \\in A \\iff \\psi_1 \\in A \\land \\psi_2 \\in A\\), and temporally consistent with expansion rules: \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in A \\iff \\beta \\in A \\lor (\\alpha \\in A \\land X(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A)\\). Step 2: Define directed transitions \\(A \\to B\\) in the tableau graph \\(T(\\phi)\\) requiring edge consistency: for all \\(X\\chi \\in Cl(\\phi)\\), \\(X\\chi \\in A \\iff \\chi \\in B\\). Step 3: Fulfilling paths: define a path \\(\\pi = A_0 A_1 \\dots\\) as fulfilling if for every promising formula \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in Cl(\\phi)\\), \\(\\pi\\) visits infinitely many atoms where \\(\\beta \\in A_j\\) or \\(\\neg(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A_j\\) (no infinite procrastination). Step 4: Prove equivalence by induction on formula length: given a fulfilling path, construct the model \\(\\sigma(i) = A_i \\cap AP\\) and prove by induction that \\(\\sigma, i \\models \\psi \\iff \\psi \\in A_i\\).",
+  "invariant": "\\(\\forall i \\in \\mathbb{N},\\; \\forall \\psi \\in Cl(\\phi),\\; \\sigma, i \\models \\psi \\iff \\psi \\in A_i\\)",
+  "synthesis": "Let \\(\\phi\\) be an LTL formula and \\(Cl(\\phi)\\) its closure. An atom is a maximal propositionally and temporally consistent subset of \\(Cl(\\phi)\\). The tableau graph \\(T(\\phi) = (V, E)\\) has atoms as vertices and edges \\((A, B) \\in E \\iff \\forall X\\chi \\in Cl(\\phi),\\, X\\chi \\in A \\leftrightarrow \\chi \\in B\\). A path \\(\\pi = A_0 A_1 \\dots\\) is fulfilling iff for every \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in Cl(\\phi)\\), \\(\\pi\\) contains infinitely many atoms fulfilling the promise (\\(\\beta \\in A_j \\lor \\neg(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A_j\\)). (\\(\\implies\\)) Given a model \\(\\sigma \\models \\phi\\), define \\(A_i = \\{\\chi \\in Cl(\\phi) \\mid \\sigma, i \\models \\chi\\}\\). By LTL semantics, each \\(A_i\\) is an atom, edges satisfy \\(X\\chi \\in A_i \\leftrightarrow \\chi \\in A_{i+1}\\), and promises are fulfilled because \\(\\sigma, i \\models \\alpha\\,\\mathsf{U}\\,\\beta\\) guarantees some \\(j \\ge i\\) where \\(\\sigma, j \\models \\beta\\). (\\(\\impliedby\\)) Given a fulfilling path \\(\\pi\\) with \\(\\phi \\in A_0\\), define the word \\(\\sigma\\) by \\(s_i = A_i \\cap AP\\). We prove \\(\\sigma, i \\models \\psi \\iff \\psi \\in A_i\\) by structural induction on \\(\\psi\\). For \\(X\\chi\\), \\(\\sigma, i \\models X\\chi \\iff \\sigma, i+1 \\models \\chi \\iff \\chi \\in A_{i+1} \\iff X\\chi \\in A_i\\). For \\(\\alpha\\,\\mathsf{U}\\,\\beta\\): if \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in A_i\\), fulfillment ensures a least \\(j \\ge i\\) with \\(\\beta \\in A_j\\); for all \\(k \\in [i, j-1]\\), \\(\\beta \\notin A_k\\), forcing \\(\\alpha \\in A_k\\) and \\(X(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A_k\\) by atom consistency, which propagates to \\(\\sigma, i \\models \\alpha\\,\\mathsf{U}\\,\\beta\\). If \\(\\alpha\\,\\mathsf{U}\\,\\beta \\notin A_i\\), \\(\\neg(\\alpha\\,\\mathsf{U}\\,\\beta)\\) propagates, preventing \\(\\beta\\) from ever being satisfied with preceding \\(\\alpha\\)'s. Thus \\(\\sigma \\models \\phi\\).",
+  "diagram": {
+    "description": "Vardi-Wolper tableau graph showing atoms (maximal consistent sets), temporal edge consistency, and promise fulfillment cycles.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Tableau Atoms: Maximal Consistent Subformula Sets",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Temporal Transitions: Xχ ∈ A ⇔ χ ∈ B",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Fulfilling Cycle: Promise α U β Discharged by β",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "a0",
+        "x": 200,
+        "y": 100,
+        "label": "Atom A₀ {φ, αUβ, X...}",
+        "detail": "initial atom",
+        "shape": "rect",
+        "width": 220,
+        "height": 60
+      },
+      {
+        "id": "a1",
+        "x": 500,
+        "y": 100,
+        "label": "Atom A₁ {α, X(αUβ)}",
+        "detail": "temporal propagation",
+        "shape": "rect",
+        "width": 220,
+        "height": 60
+      },
+      {
+        "id": "aj",
+        "x": 800,
+        "y": 100,
+        "label": "Atom Aⱼ {β ∈ Aⱼ}",
+        "detail": "promise fulfilled!",
+        "shape": "rect",
+        "width": 200,
+        "height": 60,
+        "accepting": true
+      },
+      {
+        "id": "cycle1",
+        "x": 650,
+        "y": 260,
+        "label": "Cycle Node C₁",
+        "detail": "recurring atom",
+        "shape": "rect",
+        "width": 160,
+        "height": 56
+      },
+      {
+        "id": "cycle2",
+        "x": 800,
+        "y": 430,
+        "label": "Fulfilling SCS",
+        "detail": "infinitely visits β",
+        "shape": "rect",
+        "width": 200,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-a0-a1",
+        "from": "a0",
+        "to": "a1",
+        "label": "edge consistency",
+        "labelY": 80
+      },
+      {
+        "id": "e-a1-aj",
+        "from": "a1",
+        "to": "aj",
+        "label": "finite postponement",
+        "labelY": 80
+      },
+      {
+        "id": "e-aj-c1",
+        "from": "aj",
+        "to": "cycle1",
+        "label": "recurrent path",
+        "labelX": 740,
+        "labelY": 180
+      },
+      {
+        "id": "e-c1-c2",
+        "from": "cycle1",
+        "to": "cycle2",
+        "label": "enter SCS",
+        "labelX": 740,
+        "labelY": 340
+      },
+      {
+        "id": "e-c2-aj",
+        "from": "cycle2",
+        "to": "aj",
+        "label": "close fulfilling cycle",
+        "path": "M 820 395 C 870 300 870 200 820 135",
+        "labelX": 890,
+        "labelY": 260
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Fulfilling Path Theorem: φ is satisfiable ⟺ T(φ) has a reachable fulfilling SCS.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Closure and Atoms",
+      "title": "Fisher–Ladner closure and maximal consistent atoms",
+      "exposition": "The closure \\(Cl(\\phi)\\) contains all subformulas of \\(\\phi\\) and their negations. An atom \\(A \\subseteq Cl(\\phi)\\) is a maximal subset that obeys boolean logic (e.g. \\(\\chi \\in A \\iff \\neg\\chi \\notin A\\)) and local temporal expansion rules: \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in A \\iff \\beta \\in A \\lor (\\alpha \\in A \\land X(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A)\\).",
+      "question": "Why must every atom satisfy the expansion rule for the Until operator?",
+      "choices": [
+        {
+          "text": "Because \\(\\alpha\\,\\mathsf{U}\\,\\beta\\) holds now iff either \\(\\beta\\) holds now, or \\(\\alpha\\) holds now and the Until formula holds at the next step: \\(\\alpha\\,\\mathsf{U}\\,\\beta \\equiv \\beta \\lor (\\alpha \\land X(\\alpha\\,\\mathsf{U}\\,\\beta))\\).",
+          "correct": true,
+          "feedback": "Correct. This is the fundamental fixpoint expansion of Until. Enforcing it in every atom guarantees that local step-by-step reasoning matches LTL semantics."
+        },
+        {
+          "text": "Because atoms are forbidden from containing the Next operator \\(X\\).",
+          "correct": false,
+          "causalFailure": "Atoms explicitly contain Next formulas \\(X\\chi\\) to communicate obligations across edges."
+        },
+        {
+          "text": "Because \\(\\alpha\\,\\mathsf{U}\\,\\beta\\) requires \\(\\alpha\\) and \\(\\beta\\) to be true simultaneously at all times.",
+          "correct": false,
+          "causalFailure": "Until requires \\(\\beta\\) to hold eventually, with \\(\\alpha\\) holding until then; they do not have to hold simultaneously forever."
+        }
+      ],
+      "hint": "Remember the recursive unwinding of Until: alpha U beta = beta OR (alpha AND X(alpha U beta)).",
+      "formal": "\\(\\text{Atom } A \\subseteq Cl(\\phi): \\alpha\\,\\mathsf{U}\\,\\beta \\in A \\iff \\beta \\in A \\lor (\\alpha \\in A \\land X(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A)\\). Number of atoms \\(\\le 2^{|\\phi|}\\).",
+      "preview": {
+        "activeNodes": [
+          "a0"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "a0",
+          "a1"
+        ],
+        "activeEdges": [
+          "e-a0-a1"
+        ],
+        "goodNodes": [
+          "a0",
+          "a1"
+        ]
+      },
+      "previewNote": "Atom A₀ containing initial formula φ.",
+      "revealNote": "Local expansion rule enforces X(αUβ) in atom when β is not yet satisfied."
+    },
+    {
+      "label": "Edge Consistency",
+      "title": "Temporal transitions across atoms in the tableau",
+      "exposition": "Transitions between atoms in the tableau graph \\(T(\\phi)\\) connect atom \\(A\\) to atom \\(B\\) if and only if the temporal promises made by Next formulas in \\(A\\) match the contents of \\(B\\).",
+      "question": "What is the exact condition for an edge (A, B) to exist in the tableau graph?",
+      "choices": [
+        {
+          "text": "For every Next formula \\(X\\chi \\in Cl(\\phi)\\): \\(X\\chi \\in A \\iff \\chi \\in B\\).",
+          "correct": true,
+          "feedback": "Precisely. If atom \\(A\\) asserts that \\(\\chi\\) must hold in the next state (\\(X\\chi \\in A\\)), atom \\(B\\) must contain \\(\\chi\\). Conversely, if \\(X\\chi \\notin A\\), atom \\(B\\) cannot contain \\(\\chi\\)."
+        },
+        {
+          "text": "Atom \\(A\\) and atom \\(B\\) must be completely identical sets of formulas.",
+          "correct": false,
+          "causalFailure": "Identical atoms would model only constant static worlds; systems evolve over time as formulas change truth values."
+        },
+        {
+          "text": "Atom \\(B\\) must contain strictly fewer formulas than atom \\(A\\).",
+          "correct": false,
+          "causalFailure": "Atoms are maximal consistent sets; by definition, every atom contains exactly half of the formulas in \\(Cl(\\phi)\\) (either \\(\\psi\\) or \\(\\neg\\psi\\))."
+        }
+      ],
+      "hint": "Next-time semantics: what does Xχ in the current state require of the successor state?",
+      "formal": "\\((A, B) \\in E \\iff \\forall X\\chi \\in Cl(\\phi),\\; X\\chi \\in A \\leftrightarrow \\chi \\in B\\).",
+      "preview": {
+        "activeNodes": [
+          "a0",
+          "a1"
+        ],
+        "activeEdges": [
+          "e-a0-a1"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "a0",
+          "a1",
+          "aj"
+        ],
+        "activeEdges": [
+          "e-a0-a1",
+          "e-a1-aj"
+        ],
+        "goodNodes": [
+          "aj"
+        ]
+      },
+      "previewNote": "Edge consistency propagates temporal commitments.",
+      "revealNote": "Transitions march forward until atom Aj fulfills the promise with β ∈ Aj."
+    },
+    {
+      "label": "Fulfilling Paths",
+      "title": "Promising formulas and the danger of infinite postponement",
+      "exposition": "Consider the formula \\(\\mathsf{F}\\,\\beta \\equiv \\top\\,\\mathsf{U}\\,\\beta\\). Local expansion allows an atom to contain \\(\\top \\land X(\\top\\,\\mathsf{U}\\,\\beta)\\). In a finite graph, an infinite path could loop forever on atoms asserting \\(X(\\top\\,\\mathsf{U}\\,\\beta)\\) while never visiting an atom containing \\(\\beta\\).",
+      "question": "How does the fulfilling path condition eliminate this unsound infinite postponement?",
+      "choices": [
+        {
+          "text": "By requiring that for every promising formula \\(\\alpha\\,\\mathsf{U}\\,\\beta \\in Cl(\\phi)\\), the path visits infinitely many atoms where \\(\\beta \\in A_j\\) (or where the Until formula was never requested).",
+          "correct": true,
+          "feedback": "Spot on. This is the fairness / Büchi condition of the tableau: a promise made cannot be postponed forever. Infinitely many visits to \\(\\beta\\) ensure that every pending Until is eventually discharged."
+        },
+        {
+          "text": "By deleting all cycles from the tableau graph to ensure paths are finite.",
+          "correct": false,
+          "causalFailure": "LTL models are infinite words; deleting cycles would make infinite runs impossible."
+        },
+        {
+          "text": "By requiring \\(\\beta\\) to be satisfied immediately at the very first step \\(A_0\\).",
+          "correct": false,
+          "causalFailure": "Until allows \\(\\beta\\) to occur at any finite future time \\(j \\ge 0\\); forcing \\(j=0\\) would restrict Until to trivial immediate satisfaction."
+        }
+      ],
+      "hint": "Until means eventually: you can postpone, but not infinitely many times without fulfilling.",
+      "formal": "\\(\\pi\\) is fulfilling \\(\\iff \\forall \\alpha\\,\\mathsf{U}\\,\\beta \\in Cl(\\phi),\\; \\mathrm{Inf}(\\pi) \\cap \\{A \\mid \\beta \\in A \\lor \\neg(\\alpha\\,\\mathsf{U}\\,\\beta) \\in A\\} \\neq \\emptyset\\).",
+      "preview": {
+        "activeNodes": [
+          "aj",
+          "cycle1"
+        ],
+        "activeEdges": [
+          "e-aj-c1"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "aj",
+          "cycle1",
+          "cycle2"
+        ],
+        "activeEdges": [
+          "e-aj-c1",
+          "e-c1-c2",
+          "e-c2-aj"
+        ],
+        "goodNodes": [
+          "aj",
+          "cycle2"
+        ]
+      },
+      "previewNote": "Cycle through atoms.",
+      "revealNote": "Fulfilling condition forces recurring visit to β: no infinite procrastination."
+    },
+    {
+      "label": "Model Induction",
+      "title": "Model construction by structural induction on formulas",
+      "exposition": "Given a fulfilling path \\(\\pi = A_0 A_1 \\dots\\) with \\(\\phi \\in A_0\\), we define the word \\(\\sigma\\) by setting atomic propositions \\(s_i = A_i \\cap AP\\). We prove by induction on the structure of subformulas that \\(\\sigma, i \\models \\psi \\iff \\psi \\in A_i\\).",
+      "question": "Why does the inductive step for Until hold when alpha U beta belongs to A_i?",
+      "choices": [
+        {
+          "text": "Because fulfillment ensures a smallest \\(j \\ge i\\) with \\(\\beta \\in A_j\\); for all intermediate steps \\(k \\in [i, j-1]\\), atom consistency forces \\(\\alpha \\in A_k\\), which matches the semantic definition of Until.",
+          "correct": true,
+          "feedback": "Precisely. If \\(\\beta\\) is not true at intermediate steps, the expansion rule \\(\\alpha\\,\\mathsf{U}\\,\\beta \\equiv \\beta \\lor (\\alpha \\land X(\\alpha\\,\\mathsf{U}\\,\\beta))\\) forces \\(\\alpha\\) and the Next obligation to hold. By induction hypothesis, \\(\\sigma, k \\models \\alpha\\) and \\(\\sigma, j \\models \\beta\\)."
+        },
+        {
+          "text": "Because Until formulas are automatically true in all states by definition of Kripke models.",
+          "correct": false,
+          "causalFailure": "Until formulas can be false; their truth value depends entirely on the sequence of truth values of \\(\\alpha\\) and \\(\\beta\\)."
+        },
+        {
+          "text": "Because the alphabet of the automaton is assumed to contain only truth values.",
+          "correct": false,
+          "causalFailure": "The alphabet is \\(2^{AP}\\); truth values are assigned according to atom membership."
+        }
+      ],
+      "hint": "Look at the segment [i, j-1]: what does the expansion rule force when beta is absent?",
+      "formal": "\\(\\beta \\in A_j \\implies \\sigma, j \\models \\beta\\); \\(\\forall k \\in [i, j-1],\\, \\alpha \\in A_k \\implies \\sigma, k \\models \\alpha\\). Hence \\(\\sigma, i \\models \\alpha\\,\\mathsf{U}\\,\\beta\\). \\(\\sigma \\models \\phi\\) established.",
+      "preview": {
+        "activeNodes": [
+          "a0",
+          "aj",
+          "cycle2"
+        ],
+        "activeEdges": [
+          "e-a0-a1",
+          "e-c2-aj"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "a0",
+          "a1",
+          "aj",
+          "cycle1",
+          "cycle2"
+        ],
+        "activeEdges": [
+          "e-a0-a1",
+          "e-a1-aj",
+          "e-aj-c1",
+          "e-c1-c2",
+          "e-c2-aj"
+        ],
+        "goodNodes": [
+          "a0",
+          "aj",
+          "cycle2"
+        ]
+      },
+      "previewNote": "Initial atom A₀ contains φ.",
+      "revealNote": "Fulfilling path theorem proved: φ satisfiable ⟺ σ ⊨ φ constructed."
+    }
+  ],
+  "previous": {
+    "label": "Tree automata determinization",
+    "href": "/proofs/chapter-10/tree-automata-determinization.html"
+  },
+  "next": {
+    "label": "Kamp's theorem",
+    "href": "/proofs/chapter-11/kamp-theorem.html"
+  }
+},
+
+    "kamp-theorem": {
+  "slug": "kamp-theorem",
+  "chapter": 11,
+  "title": "Kamp's expressive completeness theorem (1968)",
+  "theorem": "Over the Dedekind-complete linear time model \\((\\mathbb{N}, <)\\), Linear Temporal Logic with Until and Since (\\(\\mathrm{LTL}[\\mathsf{U}, \\mathsf{S}]\\)) has exactly the same expressive power as First-Order Logic of linear order (\\(\\mathrm{FO}[<]\\)): \\(\\mathcal{L}(\\mathrm{LTL}[\\mathsf{U}, \\mathsf{S}]) = \\mathcal{L}(\\mathrm{FO}[<])\\).",
+  "intro": "Hans Kamp's 1968 landmark theorem answered a fundamental question in philosophical and mathematical logic: can an implicit temporal tense logic without explicit position variables express every property definable by classical first-order logic with quantifiers and relational operators? Kamp proved that the two modalities 'Until' ((\\mathsf{U})) and 'Since' ((\\mathsf{S})) provide an expressively complete basis over continuous and discrete linear orders.",
+  "application": "Kamp's theorem justifies using LTL as the definitive specification language for reactive systems: engineers write concise, readable temporal formulas without having to manage bound position variables (e.g., \\(\\exists t_1 \\forall t_2 > t_1\\dots\\)), knowing that no first-order property of execution traces is sacrificed.",
+  "strategy": "Step 1: Embedding LTL into \\(\\mathrm{FO}[<]\\): prove by induction on formula structure that every LTL formula translates to an \\(\\mathrm{FO}[<]\\) formula with one free variable \\(t_0\\). Step 2: The expressive challenge: \\(\\mathrm{FO}[<]\\) can quantify arbitrary variables \\(x, y, z\\), reference multiple points simultaneously, and cross-compare intervals; how can variable-free modal operators match this? Step 3: Gabbay's Separation Property: on Dedekind-complete linear orders, every temporal formula can be separated into an equivalent boolean combination of pure present, pure past (involving only \\(\\mathsf{S}\\)), and pure future (involving only \\(\\mathsf{U}\\)) formulas without temporal nesting interference. Step 4: Initial equivalence on \\((\\mathbb{N}, <)\\): at the origin \\(t=0\\), there is no past, so past operators \\(\\mathsf{S}\\) evaluate to false; hence pure future \\(\\mathrm{LTL}[\\mathsf{U}]\\) is expressively complete for all first-order sentences evaluated at time 0.",
+  "invariant": "\\(\\forall \\varphi \\in \\mathrm{FO}[<] \\text{ with free variable } t_0,\\; \\exists \\psi \\in \\mathrm{LTL}[\\mathsf{U}, \\mathsf{S}] \\text{ such that } \\forall \\sigma, t:\\; \\sigma, t \\models \\psi \\iff \\sigma \\models \\varphi(t)\\)",
+  "synthesis": "The translation from \\(\\mathrm{LTL}[\\mathsf{U}, \\mathsf{S}]\\) to \\(\\mathrm{FO}[<]\\) is direct: atomic propositions \\(p\\) become \\(P_p(t_0)\\); boolean connectives commute; \\(\\mathsf{X}\\psi(t_0) \\equiv \\exists t\\, (t > t_0 \\land \\neg\\exists t'\\, (t_0 < t' < t) \\land \\psi^*(t))\\); and \\(\\psi_1\\,\\mathsf{U}\\,\\psi_2(t_0) \\equiv \\exists t_2 > t_0\\, (\\psi_2^*(t_2) \\land \\forall t\\, (t_0 < t < t_2 \\to \\psi_1^*(t)))\\). The converse is Kamp's theorem, established via Gabbay's separation theorem. A temporal formula is separated if it is a boolean combination of formulas that look only into the future (using \\(\\mathsf{U}\\)), only into the past (using \\(\\mathsf{S}\\)), or evaluate the present. Over \\((\\mathbb{N}, <)\\), every formula can be separated without introducing variables. When evaluating sentences at the origin \\(t=0\\), any formula with a past operator collapses to false because no positions precede 0. Thus, any \\(\\mathrm{FO}[<]\\) sentence specifying a set of infinite execution sequences is expressible in pure-future \\(\\mathrm{LTL}[\\mathsf{U}]\\), establishing \\(\\mathcal{L}(\\mathrm{LTL}) = \\mathcal{L}(\\mathrm{FO}[<])\\).",
+  "diagram": {
+    "description": "Kamp's expressive completeness: inductive translation from LTL to FO[<], and Gabbay's separation into pure past, present, and future.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "LTL Formula Space (Modal Operators: U, S, X)",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Gabbay Separation: Pure Past | Present | Pure Future",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "First-Order Logic FO[<] Over Time Positions",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "ltl_u",
+        "x": 250,
+        "y": 100,
+        "label": "ψ₁ U ψ₂",
+        "detail": "modal future operator",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "ltl_s",
+        "x": 750,
+        "y": 100,
+        "label": "ψ₁ S ψ₂",
+        "detail": "modal past operator",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "past_node",
+        "x": 200,
+        "y": 260,
+        "label": "Pure Past (⇐)",
+        "detail": "depends only on t < t₀",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "pres_node",
+        "x": 500,
+        "y": 260,
+        "label": "Present (t₀)",
+        "detail": "depends only on t = t₀",
+        "shape": "rect",
+        "width": 160,
+        "height": 60
+      },
+      {
+        "id": "fut_node",
+        "x": 800,
+        "y": 260,
+        "label": "Pure Future (⇒)",
+        "detail": "depends only on t > t₀",
+        "shape": "rect",
+        "width": 180,
+        "height": 60
+      },
+      {
+        "id": "fo_equiv",
+        "x": 500,
+        "y": 430,
+        "label": "∃t > t₀ ψ(t) ∧ ∀...",
+        "detail": "FO[<] exact equivalence",
+        "shape": "rect",
+        "width": 280,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-u-fut",
+        "from": "ltl_u",
+        "to": "fut_node",
+        "label": "future projection",
+        "labelX": 520,
+        "labelY": 170
+      },
+      {
+        "id": "e-s-past",
+        "from": "ltl_s",
+        "to": "past_node",
+        "label": "past projection",
+        "labelX": 470,
+        "labelY": 170
+      },
+      {
+        "id": "e-past-fo",
+        "from": "past_node",
+        "to": "fo_equiv",
+        "label": "translate past",
+        "labelX": 320,
+        "labelY": 360
+      },
+      {
+        "id": "e-pres-fo",
+        "from": "pres_node",
+        "to": "fo_equiv",
+        "label": "translate atom",
+        "labelX": 520,
+        "labelY": 350
+      },
+      {
+        "id": "e-fut-fo",
+        "from": "fut_node",
+        "to": "fo_equiv",
+        "label": "translate future",
+        "labelX": 680,
+        "labelY": 360
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Kamp's Theorem: LTL[U, S] ≡ FO[<]. At t = 0, pure-future LTL[U] ≡ FO[<].",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "LTL into FO[<]",
+      "title": "Embedding temporal operators into first-order order formulas",
+      "exposition": "We define the standard translation \\(ST_{t_0}(\\varphi)\\) which turns any LTL formula into an \\(\\mathrm{FO}[<]\\) formula with one free variable \\(t_0\\). Atomic proposition \\(p\\) translates to \\(P_p(t_0)\\).",
+      "question": "What is the correct first-order translation ST_{t_0}(psi_1 U psi_2) for the Until operator?",
+      "choices": [
+        {
+          "text": "\\(\\exists t_2 > t_0\\, \\bigl( ST_{t_2}(\\psi_2) \\land \\forall t\\, (t_0 < t < t_2 \\to ST_t(\\psi_1)) \\bigr)\\).",
+          "correct": true,
+          "feedback": "Correct. There exists a future point \\(t_2 > t_0\\) where \\(\\psi_2\\) holds, and for all intermediate points \\(t\\) strictly between \\(t_0\\) and \\(t_2\\), \\(\\psi_1\\) holds. This directly translates the temporal semantics into first-order logic."
+        },
+        {
+          "text": "\\(\\forall t_2 > t_0\\, \\bigl( ST_{t_2}(\\psi_2) \\lor ST_{t_0}(\\psi_1) \\bigr)\\).",
+          "correct": false,
+          "causalFailure": "Until requires an existential witness \\(t_2\\) for \\(\\psi_2\\), not a universal quantification over all future points."
+        },
+        {
+          "text": "\\(\\exists t_2 < t_0\\, ST_{t_2}(\\psi_2)\\).",
+          "correct": false,
+          "causalFailure": "\\(t_2 < t_0\\) looks into the past, which corresponds to the Since operator (\\(\\mathsf{S}\\)), not Until."
+        }
+      ],
+      "hint": "Remember the definition of Until: psi_2 must hold at some future time t_2, and psi_1 must hold at all intermediate times.",
+      "formal": "\\(ST_{t_0}(\\psi_1\\,\\mathsf{U}\\,\\psi_2) \\equiv \\exists t_2 > t_0 \\left[ ST_{t_2}(\\psi_2) \\land \\forall t\\, (t_0 < t < t_2 \\to ST_t(\\psi_1)) \\right]\\).",
+      "preview": {
+        "activeNodes": [
+          "ltl_u"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "ltl_u",
+          "fut_node",
+          "fo_equiv"
+        ],
+        "activeEdges": [
+          "e-u-fut",
+          "e-fut-fo"
+        ],
+        "goodNodes": [
+          "ltl_u",
+          "fo_equiv"
+        ]
+      },
+      "previewNote": "Modal formula ψ₁ U ψ₂.",
+      "revealNote": "Direct FO[<] translation using quantifiers ∃t₂ > t₀ and ∀t: LTL ⊆ FO[<]."
+    },
+    {
+      "label": "Expressive Challenge",
+      "title": "Why expressive completeness is non-trivial",
+      "exposition": "While embedding LTL into \\(\\mathrm{FO}[<]\\) takes a simple 5-line structural induction, proving the reverse direction (\\(\\mathrm{FO}[<] \\subseteq \\mathrm{LTL}\\)) is notoriously deep. First-order logic allows reusing variables, nesting quantifiers arbitrarily, and comparing disjoint intervals.",
+      "question": "Why was it initially surprising that variable-free LTL could express all FO[<] properties?",
+      "choices": [
+        {
+          "text": "Because \\(\\mathrm{FO}[<]\\) can reference an arbitrary number of time points simultaneously with independent variables, while LTL evaluates only at an implicit 'current' point without variables.",
+          "correct": true,
+          "feedback": "Spot on. In \\(\\mathrm{FO}[<]\\), one can write statements with 10 variables comparing pairs of intervals. Kamp proved that on linear orders, every such multi-variable relationship can be factored through local Until/Since modalities."
+        },
+        {
+          "text": "Because LTL is an undecidable logic.",
+          "correct": false,
+          "causalFailure": "LTL satisfiability and model checking are completely decidable (PSPACE-complete)."
+        },
+        {
+          "text": "Because first-order logic cannot express propositional conjunction.",
+          "correct": false,
+          "causalFailure": "First-order logic includes standard boolean conjunction \\(\\land\\) as a basic connective."
+        }
+      ],
+      "hint": "Think about the syntactic difference: FO[<] has explicit variable names (x, y, z...); LTL has zero variables.",
+      "formal": "\\(\\text{Challenge: eliminate unbounded bound variables } x_1, \\dots, x_k \\text{ in favor of modal operators } \\mathsf{U}, \\mathsf{S}\\).",
+      "preview": {
+        "activeNodes": [
+          "fo_equiv"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "fo_equiv",
+          "pres_node"
+        ],
+        "activeEdges": [
+          "e-pres-fo"
+        ]
+      },
+      "previewNote": "Arbitrary FO[<] formulas with complex variable scoping.",
+      "revealNote": "Kamp's objective: factor all multi-variable relations into temporal modalities."
+    },
+    {
+      "label": "Gabbay Separation",
+      "title": "Gabbay's separation theorem on linear orders",
+      "exposition": "Dov Gabbay established that Kamp's theorem holds because linear orders possess the Separation Property: every temporal formula can be decomposed into an equivalent boolean combination of terms, where each term refers purely to the past, purely to the present, or purely to the future.",
+      "question": "What does the separation of a formula into pure components achieve?",
+      "choices": [
+        {
+          "text": "It removes nested entanglements between past and future (e.g. \\(\\mathsf{F}(\\dots \\mathsf{P}\\dots)\\)), isolating future analysis from past history.",
+          "correct": true,
+          "feedback": "Precisely. Separation proves that you never need to look into the past from a point in the future; any such mixed claim can be rewritten into claims about the past and future evaluated independently from the present."
+        },
+        {
+          "text": "It proves that the formula evaluates to true at all time steps.",
+          "correct": false,
+          "causalFailure": "Separation is an equivalence-preserving normal form; it does not change the truth value of the formula."
+        },
+        {
+          "text": "It replaces all temporal operators with arithmetic addition.",
+          "correct": false,
+          "causalFailure": "Separation works entirely within temporal logic without arithmetic operators."
+        }
+      ],
+      "hint": "Separation disentangles past and future: a formula is separated if its terms look strictly one way.",
+      "formal": "\\(\\forall \\varphi \\in \\mathrm{LTL}[\\mathsf{U}, \\mathsf{S}],\\; \\varphi \\equiv \\bigvee_i \\left( \\text{Past}_i \\land \\text{Present}_i \\land \\text{Future}_i \\right)\\).",
+      "preview": {
+        "activeNodes": [
+          "past_node",
+          "pres_node",
+          "fut_node"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "past_node",
+          "pres_node",
+          "fut_node"
+        ],
+        "activeEdges": [
+          "e-s-past",
+          "e-u-fut"
+        ],
+        "goodNodes": [
+          "past_node",
+          "pres_node",
+          "fut_node"
+        ]
+      },
+      "previewNote": "Mixed temporal formulas.",
+      "revealNote": "Separation normal form: Pure Past (⇐) ∧ Present ∧ Pure Future (⇒)."
+    },
+    {
+      "label": "Origin Equivalence",
+      "title": "Initial validity and pure future completeness on (N, <)",
+      "exposition": "We now consider specifications evaluated at the initial time \\(t=0\\) of a reactive execution on \\((\\mathbb{N}, <)\\). At \\(t=0\\), the set of predecessors \\(\\{t \\in \\mathbb{N} \\mid t < 0\\}\\) is empty.",
+      "question": "Why does evaluating formulas at t=0 allow dropping the past operator Since (S)?",
+      "choices": [
+        {
+          "text": "Because at \\(t=0\\) there is no past, so any pure past formula evaluates to false; thus every FO[<] sentence at \\(t=0\\) is expressible in pure-future LTL[U].",
+          "correct": true,
+          "feedback": "Spot on. In the separated form, past conjuncts are either vacuously false (if they require a past witness) or trivially true. The entire sentence simplifies to a pure-future formula in \\(\\mathrm{LTL}[\\mathsf{U}]\\)."
+        },
+        {
+          "text": "Because time runs backwards on the natural numbers.",
+          "correct": false,
+          "causalFailure": "Time on \\((\\mathbb{N}, <)\\) flows forward: \\(0 < 1 < 2 < \\dots\\)."
+        },
+        {
+          "text": "Because Since is an abbreviation for Until.",
+          "correct": false,
+          "causalFailure": "Since and Until are dual directional operators; Since cannot be defined from Until on general intervals."
+        }
+      ],
+      "hint": "What is { t in N | t < 0 }? How does any formula requiring a past state evaluate at t = 0?",
+      "formal": "\\(\\forall \\varphi \\in \\mathrm{FO}[<],\\; (\\mathbb{N}, <, 0) \\models \\varphi \\iff (\\mathbb{N}, <, 0) \\models \\psi_{\\text{future}} \\in \\mathrm{LTL}[\\mathsf{U}]\\). Kamp's theorem complete.",
+      "preview": {
+        "activeNodes": [
+          "fo_equiv",
+          "fut_node"
+        ],
+        "activeEdges": [
+          "e-fut-fo"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "ltl_u",
+          "fut_node",
+          "fo_equiv"
+        ],
+        "activeEdges": [
+          "e-u-fut",
+          "e-fut-fo"
+        ],
+        "goodNodes": [
+          "ltl_u",
+          "fo_equiv"
+        ]
+      },
+      "previewNote": "Separated formula evaluated at t = 0.",
+      "revealNote": "Past vanishes at origin: pure-future LTL[U] is expressively complete for FO[<]."
+    }
+  ],
+  "previous": {
+    "label": "Vardi–Wolper tableau",
+    "href": "/proofs/chapter-11/vardi-wolper-tableau.html"
+  },
+  "next": {
+    "label": "LTL model checking",
+    "href": "/proofs/chapter-12/ltl-model-checking.html"
+  }
+},
+
+    "ltl-model-checking": {
+  "slug": "ltl-model-checking",
+  "chapter": 12,
+  "title": "Automata-theoretic LTL model checking",
+  "theorem": "Let \\(\\mathcal{M}\\) be a finite Kripke structure and \\(\\varphi\\) an LTL formula. Then \\(\\mathcal{M} \\models \\varphi \\iff L(\\mathcal{M}) \\subseteq L(\\varphi) \\iff L(\\mathcal{M}) \\cap L(\\neg\\varphi) = \\emptyset \\iff \\mathcal{M} \\otimes \\mathcal{A}_{\\neg\\varphi}\\) has no accepting run.",
+  "intro": "Automata-theoretic model checking solves the universal verification problem ('do all paths of the system satisfy (\\varphi)?') by converting it into an existential refutation problem ('does there exist a path violating (\\varphi)?'). By compiling the negated formula (\\neg\\varphi) into a Büchi automaton (\\mathcal{A}_{\\neg\\varphi}), the problem reduces to searching for an accepting lasso in the synchronous product automaton.",
+  "application": "This is the exact operational architecture implemented by industry-standard model checkers like SPIN, NuSMV, and Spot. If verification fails, the cycle detection produces an execution trace (counterexample) showing developers precisely where their system misbehaves.",
+  "strategy": "Step 1: Translate verification into language containment \\(L(\\mathcal{M}) \\subseteq L(\\varphi)\\), and rewrite it as emptiness of the intersection: \\(L(\\mathcal{M}) \\cap L(\\neg\\varphi) = \\emptyset\\). Step 2: Construct the synchronous product automaton \\(\\mathcal{P} = \\mathcal{M} \\otimes \\mathcal{A}_{\\neg\\varphi}\\), where states are pairs \\((s, q) \\in S \\times Q\\) and transitions synchronize the Kripke state transition with the automaton transition reading the proposition label \\(L(s)\\). Step 3: Projection lemma: prove that an accepting run in \\(\\mathcal{P}\\) projects directly to an infinite execution in \\(\\mathcal{M}\\) accepted by \\(\\mathcal{A}_{\\neg\\varphi}\\), witnessing \\(\\mathcal{M} \\not\\models \\varphi\\). Step 4: On-the-fly Nested Depth-First Search (NDFS): detect accepting lassos without constructing the full product upfront, solving model checking in time \\(O(|\\mathcal{M}| \\cdot 2^{O(|\\varphi|)})\\).",
+  "invariant": "\\(\\text{Accepting run in } \\mathcal{M} \\otimes \\mathcal{A}_{\\neg\\varphi} \\iff \\exists \\text{ path } \\pi \\text{ of } \\mathcal{M} \\text{ such that } \\pi \\models \\neg\\varphi\\)",
+  "synthesis": "Let \\(\\mathcal{M}=(S, S_0, R, L, AP)\\) and \\(\\mathcal{A}_{\\neg\\varphi}=(Q, 2^{AP}, \\Delta, Q_0, F)\\). The product automaton is \\(\\mathcal{P} = (S \\times Q, 2^{AP}, \\Delta_\\mathcal{P}, S_0 \\times Q_0, S \\times F)\\), where \\(((s, q), a, (s', q')) \\in \\Delta_\\mathcal{P} \\iff (s, s') \\in R \\land a = L(s) \\land q' \\in \\Delta(q, L(s))\\). Any accepting run in \\(\\mathcal{P}\\) visits \\(S \\times F\\) infinitely often. Projecting onto \\(S\\) yields an infinite path \\(\\pi = s_0 s_1 \\dots\\) of \\(\\mathcal{M}\\), and projecting onto \\(Q\\) yields an accepting run of \\(\\mathcal{A}_{\\neg\\varphi}\\) on \\(L(\\pi)\\). Thus \\(L(\\pi) \\in L(\\mathcal{A}_{\\neg\\varphi}) = L(\\neg\\varphi)\\), which proves \\(\\pi \\not\\models \\varphi\\) and hence \\(\\mathcal{M} \\not\\models \\varphi\\). Conversely, if \\(\\mathcal{M} \\not\\models \\varphi\\), there exists a path \\(\\pi\\) of \\(\\mathcal{M}\\) with \\(\\pi \\models \\neg\\varphi\\); then \\(L(\\pi)\\) is accepted by \\(\\mathcal{A}_{\\neg\\varphi}\\) via some run \\(\\rho\\). Pairing \\(\\pi\\) and \\(\\rho\\) produces an accepting run in \\(\\mathcal{P}\\). Emptiness of \\(\\mathcal{P}\\) is decided in linear time \\(O(|S\\times Q| + |\\Delta_\\mathcal{P}|)\\) via Courcoubetis et al.'s Nested DFS, which explores states on-the-fly using two interleaved DFS traversals (blue for reachability, red for cycle detection).",
+  "diagram": {
+    "description": "Automata-theoretic verification: synchronizing Kripke structure M with negated monitor A_{¬φ} into the product M ⊗ A_{¬φ}.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "System Model: Kripke Structure ℳ",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Violation Monitor: Büchi Automaton Ⅎ_¬φ",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Synchronous Product: ℳ ⊗ Ⅎ_¬φ (Counterexample Lasso)",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "m0",
+        "x": 250,
+        "y": 100,
+        "label": "s₀ {p}",
+        "detail": "Kripke initial",
+        "shape": "circle",
+        "r": 46
+      },
+      {
+        "id": "m1",
+        "x": 750,
+        "y": 100,
+        "label": "s₁ {¬p}",
+        "detail": "system state",
+        "shape": "circle",
+        "r": 46
+      },
+      {
+        "id": "a0",
+        "x": 250,
+        "y": 260,
+        "label": "q₀",
+        "detail": "monitor start",
+        "shape": "circle",
+        "r": 46
+      },
+      {
+        "id": "af",
+        "x": 750,
+        "y": 260,
+        "label": "q_f ∈ F",
+        "detail": "accepts violation",
+        "shape": "circle",
+        "r": 48,
+        "accepting": true
+      },
+      {
+        "id": "p0",
+        "x": 250,
+        "y": 430,
+        "label": "(s₀, q₀)",
+        "detail": "product initial",
+        "shape": "rect",
+        "width": 140,
+        "height": 56
+      },
+      {
+        "id": "pf",
+        "x": 650,
+        "y": 430,
+        "label": "(s₁, q_f)",
+        "detail": "accepting product",
+        "shape": "rect",
+        "width": 150,
+        "height": 56,
+        "accepting": true
+      },
+      {
+        "id": "ploop",
+        "x": 850,
+        "y": 430,
+        "label": "(s₀, q_f)",
+        "detail": "cycle return",
+        "shape": "rect",
+        "width": 140,
+        "height": 56
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-m0-m1",
+        "from": "m0",
+        "to": "m1",
+        "label": "trans R",
+        "labelY": 80
+      },
+      {
+        "id": "e-m1-m0",
+        "from": "m1",
+        "to": "m0",
+        "label": "trans R",
+        "path": "M 710 130 C 500 170 350 170 290 130",
+        "labelX": 500,
+        "labelY": 175
+      },
+      {
+        "id": "e-a0-af",
+        "from": "a0",
+        "to": "af",
+        "label": "read {¬p}",
+        "labelY": 240
+      },
+      {
+        "id": "e-af-af",
+        "from": "af",
+        "to": "af",
+        "label": "loop {¬p}",
+        "path": "M 785 235 C 850 200 850 320 785 285",
+        "labelX": 870,
+        "labelY": 260
+      },
+      {
+        "id": "e-p0-pf",
+        "from": "p0",
+        "to": "pf",
+        "label": "synch step",
+        "labelY": 410
+      },
+      {
+        "id": "e-pf-pl",
+        "from": "pf",
+        "to": "ploop",
+        "label": "stem to loop",
+        "labelY": 410
+      },
+      {
+        "id": "e-pl-pf",
+        "from": "ploop",
+        "to": "pf",
+        "label": "close lasso cycle",
+        "path": "M 810 465 C 750 510 700 510 660 465",
+        "labelX": 740,
+        "labelY": 510
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Lasso in ℳ ⊗ Ⅎ_¬φ projects to a concrete system execution violating φ.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Falsification Duality",
+      "title": "Universal verification transformed into existential falsification",
+      "exposition": "A system \\(\\mathcal{M}\\) satisfies a specification \\(\\varphi\\) if all possible infinite paths \\(\\pi \\in \\mathrm{Paths}(\\mathcal{M})\\) satisfy \\(\\varphi\\). Checking this directly requires testing every path. Model checking turns this universal question into an existential search for a violation.",
+      "question": "Which set-theoretic equivalence underpins automata-theoretic model checking?",
+      "choices": [
+        {
+          "text": "\\(\\mathcal{M} \\models \\varphi \\iff L(\\mathcal{M}) \\subseteq L(\\varphi) \\iff L(\\mathcal{M}) \\cap L(\\neg\\varphi) = \\emptyset\\).",
+          "correct": true,
+          "feedback": "Correct. All system behaviors satisfy \\(\\varphi\\) iff no system behavior satisfies \\(\\neg\\varphi\\). Finding a single path in the intersection disproves the specification."
+        },
+        {
+          "text": "\\(\\mathcal{M} \\models \\varphi \\iff L(\\mathcal{M}) = L(\\varphi)\\).",
+          "correct": false,
+          "causalFailure": "Equality is too strong: the system does not need to exhibit every possible behavior permitted by \\(\\varphi\\); it only needs to avoid forbidden behaviors (\\(L(\\mathcal{M}) \\subseteq L(\\varphi)\\))."
+        },
+        {
+          "text": "\\(\\mathcal{M} \\models \\varphi \\iff L(\\mathcal{M}) \\cup L(\\neg\\varphi) = \\Sigma^\\omega\\).",
+          "correct": false,
+          "causalFailure": "Union with \\(\\neg\\varphi\\) being universal does not guarantee containment; it holds trivially if \\(L(\\neg\\varphi)\\) is universal."
+        }
+      ],
+      "hint": "Remember the relation between subset containment A ⊆ B and intersection with the complement A ∩ B^c.",
+      "formal": "\\(\\mathcal{M} \\models \\varphi \\iff \\mathrm{Paths}(\\mathcal{M}) \\subseteq \\text{Models}(\\varphi) \\iff \\mathrm{Paths}(\\mathcal{M}) \\cap \\text{Models}(\\neg\\varphi) = \\emptyset\\).",
+      "preview": {
+        "activeNodes": [
+          "m0",
+          "a0"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "m0",
+          "m1",
+          "a0",
+          "af"
+        ],
+        "activeEdges": [
+          "e-m0-m1",
+          "e-a0-af"
+        ],
+        "goodNodes": [
+          "m0",
+          "a0"
+        ]
+      },
+      "previewNote": "Universal verification question.",
+      "revealNote": "Negation ¬φ targets bad paths: emptiness of intersection is the goal."
+    },
+    {
+      "label": "Synchronous Product",
+      "title": "Constructing the synchronous product automaton M (x) A_{¬φ}",
+      "exposition": "To compute the intersection \\(L(\\mathcal{M}) \\cap L(\\neg\\varphi)\\), we construct the synchronous product \\(\\mathcal{P} = \\mathcal{M} \\otimes \\mathcal{A}_{\\neg\\varphi}\\). A state in \\(\\mathcal{P}\\) is a pair \\((s, q)\\) containing the current Kripke state \\(s\\) and the current automaton state \\(q\\).",
+      "question": "How are transitions defined in the product automaton?",
+      "choices": [
+        {
+          "text": "\\((s, q) \\to (s', q')\\) exists in \\(\\mathcal{P}\\) iff \\((s, s') \\in R\\) is a valid system step and \\(q' \\in \\Delta(q, L(s))\\) is a valid automaton step reading the label of \\(s\\).",
+          "correct": true,
+          "feedback": "Precisely. The monitor \\(\\mathcal{A}_{\\neg\\varphi}\\) synchronously tracks the execution of \\(\\mathcal{M}\\): at each step, the automaton reads the atomic propositions currently active in the system state."
+        },
+        {
+          "text": "Transitions can be taken by the system and the automaton at completely independent asynchronous times.",
+          "correct": false,
+          "causalFailure": "Asynchronous execution would desynchronize the monitor from the state sequence it is supposed to inspect."
+        },
+        {
+          "text": "The product transition exists only when the Kripke state and the automaton state have the same name.",
+          "correct": false,
+          "causalFailure": "State names in \\(\\mathcal{M}\\) and \\(\\mathcal{A}_{\\neg\\varphi}\\) come from completely different sets; synchronization is governed by atomic proposition labels."
+        }
+      ],
+      "hint": "Synchronization means lock-step: when the system moves s -> s', the automaton reads the label L(s) and updates q -> q'.",
+      "formal": "\\(((s, q), (s', q')) \\in \\Delta_\\mathcal{P} \\iff (s, s') \\in R \\land q' \\in \\Delta(q, L(s))\\). Accepting states: \\(F_\\mathcal{P} = S \\times F\\).",
+      "preview": {
+        "activeNodes": [
+          "p0"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "p0",
+          "pf",
+          "ploop"
+        ],
+        "activeEdges": [
+          "e-p0-pf",
+          "e-pf-pl",
+          "e-pl-pf"
+        ],
+        "goodNodes": [
+          "p0",
+          "pf"
+        ]
+      },
+      "previewNote": "Initial product state (s₀, q₀).",
+      "revealNote": "Synchronous product edges track system transitions matching automaton labels."
+    },
+    {
+      "label": "Projection Lemma",
+      "title": "Accepting runs in the product witness counterexample executions",
+      "exposition": "We verify the correctness of the reduction: an accepting run in the product \\(\\mathcal{P}\\) exists if and only if the system violates the specification.",
+      "question": "What does an accepting run rho_P in the product automaton correspond to in the physical system?",
+      "choices": [
+        {
+          "text": "Its projection onto the system states yields an executable infinite path \\(\\pi\\) of \\(\\mathcal{M}\\) that satisfies \\(\\neg\\varphi\\), proving \\(\\mathcal{M} \\not\\models \\varphi\\).",
+          "correct": true,
+          "feedback": "Spot on. An accepting run in \\(\\mathcal{P}\\) visits \\(S \\times F\\) infinitely often, which means the automaton monitor accepted the execution trace. This provides an indisputable bug witness (counterexample)."
+        },
+        {
+          "text": "It proves that the system satisfies \\(\\varphi\\) on all execution branches.",
+          "correct": false,
+          "causalFailure": "An accepting run in the product accepts \\(\\neg\\varphi\\); this refutes \\(\\varphi\\) rather than proving it."
+        },
+        {
+          "text": "It indicates that the Kripke structure has deadlocks.",
+          "correct": false,
+          "causalFailure": "Deadlocks are states without outgoing transitions; accepting runs are infinite sequences of transitions."
+        }
+      ],
+      "hint": "Remember that the automaton is for the NEGATED formula ¬φ. Accepting ¬φ means finding a violation.",
+      "formal": "\\(\\rho_\\mathcal{P} = (s_0, q_0)(s_1, q_1)\\dots \\in \\text{Acc}(\\mathcal{P}) \\implies \\pi = s_0 s_1 \\dots \\in \\mathrm{Paths}(\\mathcal{M}) \\land L(\\pi) \\models \\neg\\varphi\\).",
+      "preview": {
+        "activeNodes": [
+          "pf",
+          "ploop"
+        ],
+        "activeEdges": [
+          "e-pf-pl",
+          "e-pl-pf"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "m0",
+          "m1",
+          "p0",
+          "pf",
+          "ploop"
+        ],
+        "activeEdges": [
+          "e-m0-m1",
+          "e-m1-m0",
+          "e-p0-pf",
+          "e-pf-pl",
+          "e-pl-pf"
+        ],
+        "badNodes": [
+          "pf",
+          "ploop"
+        ]
+      },
+      "previewNote": "Accepting cycle in product.",
+      "revealNote": "Projection to M provides concrete counterexample lasso: violation detected."
+    },
+    {
+      "label": "On-the-Fly NDFS",
+      "title": "Nested DFS complexity and memory efficiency",
+      "exposition": "Constructing the entire product \\(\\mathcal{M} \\otimes \\mathcal{A}_{\\neg\\varphi}\\) in memory is prohibitive for large systems. The Nested Depth-First Search (NDFS) algorithm searches for counterexample lassos on-the-fly.",
+      "question": "How does Nested DFS find an accepting lasso in linear time without building the full product?",
+      "choices": [
+        {
+          "text": "A primary DFS (blue) explores reachable states and, when backtracking from an accepting state, launches a nested DFS (red) to detect a cycle back to that accepting state.",
+          "correct": true,
+          "feedback": "Precisely. Blue DFS discovers reachable accepting states in post-order; red DFS immediately searches for a return cycle. Because each state is visited at most twice (once blue, once red), complexity is strictly linear in the product size."
+        },
+        {
+          "text": "It generates random paths until an accepting state is hit.",
+          "correct": false,
+          "causalFailure": "Random walk does not provide exhaustive verification or correctness guarantees."
+        },
+        {
+          "text": "It computes the transitive closure matrix of the product automaton.",
+          "correct": false,
+          "causalFailure": "Transitive closure requires cubic time \\(O(|V|^3)\\) and quadratic memory, leading to immediate state explosion."
+        }
+      ],
+      "hint": "Nested DFS uses two passes: one to find accepting states, and a nested one to detect return cycles.",
+      "formal": "\\(\\text{Complexity: } O(|\\mathcal{M}| \\cdot 2^{O(|\\varphi|)})\\) time and \\(O(|\\mathcal{M}| \\cdot 2^{O(|\\varphi|)})\\) space. Verified on-the-fly.",
+      "preview": {
+        "activeNodes": [
+          "p0",
+          "pf"
+        ],
+        "activeEdges": [
+          "e-p0-pf"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "p0",
+          "pf",
+          "ploop"
+        ],
+        "activeEdges": [
+          "e-p0-pf",
+          "e-pf-pl",
+          "e-pl-pf"
+        ],
+        "goodNodes": [
+          "p0"
+        ],
+        "badNodes": [
+          "pf",
+          "ploop"
+        ]
+      },
+      "previewNote": "Primary blue DFS reaches accepting product state.",
+      "revealNote": "Nested red DFS closes cycle: lasso found on-the-fly in linear time."
+    }
+  ],
+  "previous": {
+    "label": "Kamp's theorem",
+    "href": "/proofs/chapter-11/kamp-theorem.html"
+  },
+  "next": {
+    "label": "CTL fixed points",
+    "href": "/proofs/chapter-13/ctl-fixed-points.html"
+  }
+},
+
+    "ctl-fixed-points": {
+  "slug": "ctl-fixed-points",
+  "chapter": 13,
+  "title": "CTL fixed-point characterizations",
+  "theorem": "In CTL model checking over a finite Kripke structure \\(\\mathcal{M}=(S, R, L)\\), temporal operators are characterized as least (\\(\\mu\\)) and greatest (\\(\\nu\\)) fixed points of monotone predicate transformers: \\(\\llbracket \\mathsf{EF}\\,\\varphi \\rrbracket = \\mu Z.\\,(\\llbracket\\varphi\\rrbracket \\cup \\textit{Pre}_E(Z))\\) and \\(\\llbracket \\mathsf{EG}\\,\\varphi \\rrbracket = \\nu Z.\\,(\\llbracket\\varphi\\rrbracket \\cap \\textit{Pre}_E(Z))\\).",
+  "intro": "Branching-time logic CTL quantifies over paths branching from each state. Rather than searching graph paths individually, symbolic CTL model checking evaluates formulas by computing fixed points of set transformers over the power set lattice ((2^S, subseteq)). The Knaster–Tarski theorem guarantees that reachability operators ((\\mathsf{EF}, \\mathsf{AF}, \\mathsf{EU})) correspond to least fixed points, while safety/invariance operators ((\\mathsf{EG}, \\mathsf{AG})) correspond to greatest fixed points.",
+  "application": "This fixed-point characterization is the theoretical engine behind symbolic model checking with Binary Decision Diagrams (BDDs) and SAT-based model checkers. It allows evaluating properties over systems with (10^{20}) states without ever building explicit state graphs.",
+  "strategy": "Step 1: Set up the complete lattice \\((2^S, \\subseteq)\\) and prove that the existential predecessor transformer \\(\\textit{Pre}_E(Z) = \\{s \\in S \\mid \\exists s'.\\; (s, s') \\in R \\land s' \\in Z\\}\\) is monotonic. Step 2: Formulate \\(\\mathsf{EF}\\,\\varphi\\) as the least fixed point \\(\\mu Z.\\, \\tau_{\\mathsf{EF}}(Z)\\) with \\(\\tau_{\\mathsf{EF}}(Z) = \\llbracket\\varphi\\rrbracket \\cup \\textit{Pre}_E(Z)\\); show that the iteration starting from \\(Z_0 = \\emptyset\\) discovers states at distance \\(\\le k\\) from \\(\\llbracket\\varphi\\rrbracket\\). Step 3: Formulate \\(\\mathsf{EG}\\,\\varphi\\) as the greatest fixed point \\(\\nu Z.\\, \\tau_{\\mathsf{EG}}(Z)\\) with \\(\\tau_{\\mathsf{EG}}(Z) = \\llbracket\\varphi\\rrbracket \\cap \\textit{Pre}_E(Z)\\); show that the iteration starting from \\(Z_0 = S\\) prunes states from which no infinite \\(\\varphi\\)-path can continue. Step 4: Bound convergence at \\(\\le |S|\\) steps by finiteness of \\(S\\), and link to BDD operations.",
+  "invariant": "\\(\\text{For } \\mathsf{EF}: Z_k = \\{s \\mid \\text{dist}(s, \\llbracket\\varphi\\rrbracket) \\le k\\}\\). \\(\\text{For } \\mathsf{EG}: Z_k = \\{s \\mid \\exists \\text{ path of length } k \\text{ satisfying } \\varphi\\}\\)",
+  "synthesis": "Let \\(\\mathcal{M}=(S, R, L)\\) be a finite Kripke structure. The powerset \\(\\mathcal{P}(S)\\) ordered by \\(\\subseteq\\) is a complete lattice. The operator \\(\\tau_{\\mathsf{EF}}(Z) = \\llbracket\\varphi\\rrbracket \\cup \\textit{Pre}_E(Z)\\) is monotonic: \\(A \\subseteq B \\implies \\tau_{\\mathsf{EF}}(A) \\subseteq \\tau_{\\mathsf{EF}}(B)\\). By the Knaster–Tarski theorem, \\(\\tau_{\\mathsf{EF}}\\) possesses a unique least fixed point \\(\\mu Z.\\,\\tau_{\\mathsf{EF}}(Z) = \\bigcup_{k \\ge 0} \\tau_{\\mathsf{EF}}^k(\\emptyset)\\). By induction on \\(k\\), \\(\\tau_{\\mathsf{EF}}^k(\\emptyset)\\) contains all states that can reach \\(\\llbracket\\varphi\\rrbracket\\) in at most \\(k\\) steps; since \\(S\\) is finite, the sequence stabilizes at some \\(k^* \\le |S|\\), exactly equal to \\(\\llbracket\\mathsf{EF}\\,\\varphi\\rrbracket\\). Dually, \\(\\tau_{\\mathsf{EG}}(Z) = \\llbracket\\varphi\\rrbracket \\cap \\textit{Pre}_E(Z)\\) is monotonic; its unique greatest fixed point is \\(\\nu Z.\\,\\tau_{\\mathsf{EG}}(Z) = \\bigcap_{k \\ge 0} \\tau_{\\mathsf{EG}}^k(S)\\). By induction on \\(k\\), \\(\\tau_{\\mathsf{EG}}^k(S)\\) contains states from which there exists a path of length \\(k\\) entirely in \\(\\llbracket\\varphi\\rrbracket\\). Stabilization occurs at \\(k^* \\le |S|\\), where remaining states possess a cycle in \\(\\llbracket\\varphi\\rrbracket\\), proving equality with \\(\\llbracket\\mathsf{EG}\\,\\varphi\\rrbracket\\).",
+  "diagram": {
+    "description": "Fixed-point evaluation in the subset lattice: least fixed point expansion from empty set for EF versus greatest fixed point pruning from S for EG.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Least Fixed Point μZ (∅ ↗ Reachability EF)",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Greatest Fixed Point νZ (S ↘ Invariance EG)",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "State Lattice (2^S, ⊆): Convergence in ≤ |S| Iterations",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "phi_seed",
+        "x": 200,
+        "y": 100,
+        "label": "⟦φ⟧ (Seed)",
+        "detail": "base target",
+        "shape": "circle",
+        "r": 48,
+        "accepting": true
+      },
+      {
+        "id": "ef_step1",
+        "x": 450,
+        "y": 100,
+        "label": "Z₁ = ⟦φ⟧ ∪ Pre(Z₀)",
+        "detail": "distance ≤ 1",
+        "shape": "rect",
+        "width": 170,
+        "height": 56
+      },
+      {
+        "id": "ef_fix",
+        "x": 750,
+        "y": 100,
+        "label": "μZ.τ_EF (Fixed Point)",
+        "detail": "⟦EF φ⟧ computed",
+        "shape": "rect",
+        "width": 180,
+        "height": 60,
+        "accepting": true
+      },
+      {
+        "id": "eg_seed",
+        "x": 200,
+        "y": 260,
+        "label": "Z₀ = S",
+        "detail": "entire state space",
+        "shape": "rect",
+        "width": 150,
+        "height": 56
+      },
+      {
+        "id": "eg_prune",
+        "x": 450,
+        "y": 260,
+        "label": "Z₁ = ⟦φ⟧ ∩ Pre(S)",
+        "detail": "pruned dead ends",
+        "shape": "rect",
+        "width": 170,
+        "height": 56
+      },
+      {
+        "id": "eg_fix",
+        "x": 750,
+        "y": 260,
+        "label": "νZ.τ_EG (Fixed Point)",
+        "detail": "⟦EG φ⟧ cycle safe",
+        "shape": "rect",
+        "width": 180,
+        "height": 60,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-ef0-ef1",
+        "from": "phi_seed",
+        "to": "ef_step1",
+        "label": "τ_EF(∅)",
+        "labelY": 80
+      },
+      {
+        "id": "e-ef1-effix",
+        "from": "ef_step1",
+        "to": "ef_fix",
+        "label": "stabilize ≤ |S|",
+        "labelY": 80
+      },
+      {
+        "id": "e-eg0-eg1",
+        "from": "eg_seed",
+        "to": "eg_prune",
+        "label": "τ_EG(S)",
+        "labelY": 240
+      },
+      {
+        "id": "e-eg1-egfix",
+        "from": "eg_prune",
+        "to": "eg_fix",
+        "label": "prune transient",
+        "labelY": 240
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "Knaster–Tarski Theorem: μ expands from ∅; ν shrinks from S. Evaluated symbolically with BDDs.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Lattice Monotonicity",
+      "title": "Monotone predicate transformers on the powerset lattice",
+      "exposition": "Let \\(\\mathcal{M}=(S, R, L)\\) be a finite Kripke structure. The powerset \\(\\mathcal{P}(S) = 2^S\\) ordered by subset inclusion \\(\\subseteq\\) forms a complete lattice. The predecessor operator \\(\\textit{Pre}_E(Z) = \\{s \\in S \\mid \\exists s'.\\; (s, s') \\in R \\land s' \\in Z\\}\\) maps state sets to state sets.",
+      "question": "Why is the predecessor operator Pre_E monotonic on the lattice (2^S, ⊆)?",
+      "choices": [
+        {
+          "text": "Because if \\(A \\subseteq B\\), any state that has a successor in \\(A\\) automatically has that same successor in \\(B\\), ensuring \\(\\textit{Pre}_E(A) \\subseteq \\textit{Pre}_E(B)\\).",
+          "correct": true,
+          "feedback": "Correct. Monotonicity is preserved because expanding the target set can only add new qualifying states, never remove states that already qualified."
+        },
+        {
+          "text": "Because \\(\\textit{Pre}_E\\) inverts the subset ordering: \\(A \\subseteq B \\implies \\textit{Pre}_E(B) \\subseteq \\textit{Pre}_E(A)\\).",
+          "correct": false,
+          "causalFailure": "Inverting the order would make the operator antitone (like negation); \\(\\textit{Pre}_E\\) is strictly monotone."
+        },
+        {
+          "text": "Because \\(\\textit{Pre}_E(Z)\\) is always equal to the empty set.",
+          "correct": false,
+          "causalFailure": "\\(\\textit{Pre}_E(Z)\\) is non-empty whenever some state has transitions leading into \\(Z\\)."
+        }
+      ],
+      "hint": "If you enlarge the set of destinations B ⊇ A, does the set of states that can reach B get larger or smaller?",
+      "formal": "\\(A \\subseteq B \\implies \\textit{Pre}_E(A) \\subseteq \\textit{Pre}_E(B)\\). Monotonicity guarantees existence of fixed points via Knaster–Tarski.",
+      "preview": {
+        "activeNodes": [
+          "phi_seed"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "phi_seed",
+          "ef_step1"
+        ],
+        "activeEdges": [
+          "e-ef0-ef1"
+        ],
+        "goodNodes": [
+          "phi_seed",
+          "ef_step1"
+        ]
+      },
+      "previewNote": "Seed set of states.",
+      "revealNote": "Pre_E expansion is strictly monotone on the subset lattice."
+    },
+    {
+      "label": "Least Fixed Point (EF)",
+      "title": "Reachability as a least fixed point μ expanding from the empty set",
+      "exposition": "The CTL formula \\(\\mathsf{EF}\\,\\varphi\\) asserts that there exists a path reaching a state satisfying \\(\\varphi\\). We formulate this as the least fixed point of \\(\\tau_{\\mathsf{EF}}(Z) = \\llbracket\\varphi\\rrbracket \\cup \\textit{Pre}_E(Z)\\).",
+      "question": "Why does iterating tau_EF starting from the empty set Z_0 = ∅ compute the exact set of states satisfying EF φ?",
+      "choices": [
+        {
+          "text": "Because \\(Z_0 = \\emptyset\\), \\(Z_1 = \\llbracket\\varphi\\rrbracket\\) (distance 0), and each round adds states that can reach the previous set in one step, discovering all states at finite distance from \\(\\llbracket\\varphi\\rrbracket\\).",
+          "correct": true,
+          "feedback": "Spot on. By induction on \\(k\\), \\(\\tau_{\\mathsf{EF}}^k(\\emptyset)\\) contains states having a path of length \\(\\le k\\) to \\(\\llbracket\\varphi\\rrbracket\\). Finite reachability demands a finite path, which is precisely captured by the least fixed point."
+        },
+        {
+          "text": "Because starting from the empty set forces all states to be deleted.",
+          "correct": false,
+          "causalFailure": "Iterating \\(\\tau_{\\mathsf{EF}}\\) accumulates states monotonically; it never deletes anything."
+        },
+        {
+          "text": "Because \\(\\mathsf{EF}\\,\\varphi\\) requires \\(\\varphi\\) to hold in all reachable states simultaneously.",
+          "correct": false,
+          "causalFailure": "Holding in all reachable states is the universal invariant \\(\\mathsf{AG}\\,\\varphi\\), not existential reachability \\(\\mathsf{EF}\\,\\varphi\\)."
+        }
+      ],
+      "hint": "Think of backward BFS reachability: you start with target states, then add 1-step predecessors, then 2-step predecessors...",
+      "formal": "\\(\\llbracket \\mathsf{EF}\\,\\varphi \\rrbracket = \\mu Z.\\, (\\llbracket\\varphi\\rrbracket \\cup \\textit{Pre}_E(Z)) = \\bigcup_{k \\ge 0} \\tau_{\\mathsf{EF}}^k(\\emptyset)\\).",
+      "preview": {
+        "activeNodes": [
+          "phi_seed",
+          "ef_step1"
+        ],
+        "activeEdges": [
+          "e-ef0-ef1"
+        ]
+      },
+      "reveal": {
+        "activeNodes": [
+          "phi_seed",
+          "ef_step1",
+          "ef_fix"
+        ],
+        "activeEdges": [
+          "e-ef0-ef1",
+          "e-ef1-effix"
+        ],
+        "goodNodes": [
+          "ef_fix"
+        ]
+      },
+      "previewNote": "Z₁ contains states at distance ≤ 1.",
+      "revealNote": "Stabilization reaches least fixed point ⟦EF φ⟧: finite reachability proved."
+    },
+    {
+      "label": "Greatest Fixed Point (EG)",
+      "title": "Global safety as a greatest fixed point ν shrinking from S",
+      "exposition": "The CTL formula \\(\\mathsf{EG}\\,\\varphi\\) asserts that there exists an infinite path along which \\(\\varphi\\) holds globally at every step. We formulate this as the greatest fixed point of \\(\\tau_{\\mathsf{EG}}(Z) = \\llbracket\\varphi\\rrbracket \\cap \\textit{Pre}_E(Z)\\).",
+      "question": "Why must EG φ be computed as a greatest fixed point starting from Z_0 = S rather than the empty set?",
+      "choices": [
+        {
+          "text": "Because starting from \\(Z_0 = \\emptyset\\) would yield \\(\\tau_{\\mathsf{EG}}(\\emptyset) = \\llbracket\\varphi\\rrbracket \\cap \\emptyset = \\emptyset\\); starting from \\(S\\) systematically prunes states that cannot sustain an infinite path in \\(\\llbracket\\varphi\\rrbracket\\).",
+          "correct": true,
+          "feedback": "Precisely. If we started from \\(\\emptyset\\), the least fixed point of \\(\\tau_{\\mathsf{EG}}\\) would be trivially empty. Safety/invariance is about survival: start with all states, and iteratively remove states that hit dead-ends or non-\\(\\varphi\\) regions."
+        },
+        {
+          "text": "Because greatest fixed points cannot be evaluated on finite systems.",
+          "correct": false,
+          "causalFailure": "On finite systems, greatest fixed points stabilize in at most \\(|S|\\) iterations, just like least fixed points."
+        },
+        {
+          "text": "Because \\(\\mathsf{EG}\\,\\varphi\\) is the logical negation of \\(\\top\\).",
+          "correct": false,
+          "causalFailure": "\\(\\mathsf{EG}\\,\\varphi\\) is the negation of \\(\\mathsf{AF}\\,\\neg\\varphi\\), which is a meaningful temporal property."
+        }
+      ],
+      "hint": "What happens if you plug Z = ∅ into tau_EG(Z) = [[phi]] ∩ Pre(Z)? It gives ∅ immediately!",
+      "formal": "\\(\\llbracket \\mathsf{EG}\\,\\varphi \\rrbracket = \\nu Z.\\, (\\llbracket\\varphi\\rrbracket \\cap \\textit{Pre}_E(Z)) = \\bigcap_{k \\ge 0} \\tau_{\\mathsf{EG}}^k(S)\\).",
+      "preview": {
+        "activeNodes": [
+          "eg_seed"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "eg_seed",
+          "eg_prune",
+          "eg_fix"
+        ],
+        "activeEdges": [
+          "e-eg0-eg1",
+          "e-eg1-egfix"
+        ],
+        "goodNodes": [
+          "eg_fix"
+        ]
+      },
+      "previewNote": "Z₀ = S contains all candidate states.",
+      "revealNote": "Greatest fixed point prunes states lacking infinite φ-successors: ⟦EG φ⟧ established."
+    },
+    {
+      "label": "Symbolic BDDs",
+      "title": "Finite convergence and symbolic model checking",
+      "exposition": "Since the state space \\(S\\) is finite, any chain \\(Z_0 \\subseteq Z_1 \\subseteq \\dots\\) or \\(Z_0 \\supseteq Z_1 \\supseteq \\dots\\) must stabilize in at most \\(|S|\\) steps. In symbolic model checking, state sets are represented as Boolean characteristic functions encoded as Binary Decision Diagrams (BDDs).",
+      "question": "How do fixed-point characterizations enable symbolic verification of systems with 10^20 states?",
+      "choices": [
+        {
+          "text": "Because operations like intersection, union, and Pre_E are computed as polynomial-time Boolean operations on BDDs, avoiding explicit enumeration of individual states.",
+          "correct": true,
+          "feedback": "Spot on. A BDD of a few hundred nodes can represent sets of \\(10^{20}\\) states. Computing \\(\\textit{Pre}_E\\) reduces to relational product (\\(\\exists \\vec{s}'.\\, R(\\vec{s}, \\vec{s}') \\land Z(\\vec{s}')\\)), enabling fixed-point computation at massive scale."
+        },
+        {
+          "text": "Because BDDs compress the state space into a single integer.",
+          "correct": false,
+          "causalFailure": "BDDs are directed acyclic graphs representing Boolean formulas, not single integers."
+        },
+        {
+          "text": "Because symbolic model checking only checks the first 10 states of the system.",
+          "correct": false,
+          "causalFailure": "Symbolic model checking is completely exhaustive; it evaluates the property across all states simultaneously."
+        }
+      ],
+      "hint": "BDDs represent characteristic functions of sets symbolically, transforming graph reachability into Boolean manipulation.",
+      "formal": "\\(\\text{Convergence in } k^* \\le |S| \\text{ steps}\\). Symbolic step: \\(\\textit{Pre}_E(Z)(\\vec{s}) = \\exists \\vec{s}'.\\, (R(\\vec{s}, \\vec{s}') \\land Z(\\vec{s}'))\\).",
+      "preview": {
+        "activeNodes": [
+          "ef_fix",
+          "eg_fix"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "phi_seed",
+          "ef_step1",
+          "ef_fix",
+          "eg_seed",
+          "eg_prune",
+          "eg_fix"
+        ],
+        "activeEdges": [
+          "e-ef0-ef1",
+          "e-ef1-effix",
+          "e-eg0-eg1",
+          "e-eg1-egfix"
+        ],
+        "goodNodes": [
+          "ef_fix",
+          "eg_fix"
+        ]
+      },
+      "previewNote": "Fixed points stabilized.",
+      "revealNote": "Symbolic CTL model checking: fixpoint transformers computed directly on BDDs."
+    }
+  ],
+  "previous": {
+    "label": "LTL model checking",
+    "href": "/proofs/chapter-12/ltl-model-checking.html"
+  },
+  "next": {
+    "label": "Angluin L* learning",
+    "href": "/proofs/chapter-14/angluin-learning.html"
+  }
+},
+
+    "angluin-learning": {
+  "slug": "angluin-learning",
+  "chapter": 14,
+  "title": "Angluin's L* active learning algorithm correctness",
+  "theorem": "Given a Minimally Adequate Teacher (membership queries \\(\\mathrm{MQ}\\) and equivalence queries \\(\\mathrm{EQ}\\)), Angluin's \\(L^*\\) algorithm synthesizes the unique minimal DFA for a regular target language \\(L\\) in polynomial time: each closed and consistent observation table defines a candidate DFA, and each counterexample strictly increases the number of Myhill–Nerode states.",
+  "intro": "How can an algorithm discover the internal state machine of a black-box system knowing only its external input/output behavior? Dana Angluin's 1987 landmark (L^*) algorithm pioneered active grammatical inference. By organizing queries into an Observation Table ((S, E, T)), the learner systematically discovers the equivalence classes of the Myhill–Nerode relation, guaranteeing polynomial-time convergence to the minimal DFA.",
+  "application": "Active automata learning is the foundation of black-box software verification, network protocol reverse engineering (e.g. learning TLS/SSH state machines to find security flaws), and compositional assume-guarantee reasoning.",
+  "strategy": "Step 1: The Observation Table \\((S, E, T)\\): prefixes \\(S \\subseteq \\Sigma^*\\) represent candidate states, boundary prefixes \\(S \\cdot \\Sigma\\) represent transitions, suffixes \\(E \\subseteq \\Sigma^*\\) represent distinguishing experiments, and table entries \\(T(w, e) \\in \\{0, 1\\}\\) record membership queries (\\(w e \\in L\\)). Define row vectors \\(\\operatorname{row}(s) = \\lambda e \\in E.\\, T(s, e)\\). Step 2: Table properties: closedness (\\(\\forall t \\in S \\cdot \\Sigma.\\, \\exists s \\in S.\\, \\operatorname{row}(t) = \\operatorname{row}(s)\\) — every transition leads to a known state) and consistency (\\(\\forall s_1, s_2 \\in S.\\, \\operatorname{row}(s_1) = \\operatorname{row}(s_2) \\implies \\forall a \\in \\Sigma.\\, \\operatorname{row}(s_1 a) = \\operatorname{row}(s_2 a)\\) — identical states make identical moves). Step 3: Candidate DFA construction: states \\(Q = \\{\\operatorname{row}(s) \\mid s \\in S\\}\\), initial state \\(\\operatorname{row}(\\varepsilon)\\), transitions \\(\\delta(\\operatorname{row}(s), a) = \\operatorname{row}(s a)\\), and accepting states \\(F = \\{\\operatorname{row}(s) \\mid T(s, \\varepsilon) = 1\\}\\). Prove well-definedness from closedness and consistency. Step 4: Counterexample processing and convergence: if an equivalence query returns a counterexample \\(w\\), adding all prefixes of \\(w\\) to \\(S\\) exposes an inconsistency or new row; the number of distinct rows strictly increases, bounded by the Myhill–Nerode index \\(n\\).",
+  "invariant": "|\\{\\operatorname{row}(s) \\mid s \\in S\\}| \\le n \\text{ and each counterexample increases } |\\{\\operatorname{row}(s)\\}| \\text{ by at least 1}",
+  "synthesis": "Let \\(L \\subseteq \\Sigma^*\\) be a regular language with Myhill–Nerode index \\(n\\). The observation table \\((S, E, T)\\) has \\(S, E\\) finite prefix-closed subsets of \\(\\Sigma^*\\). If the table is closed and consistent, we define the candidate DFA \\(\\mathcal{M} = (Q, \\Sigma, \\delta, q_0, F)\\) with \\(Q = \\{\\operatorname{row}(s) \\mid s \\in S\\}\\), \\(q_0 = \\operatorname{row}(\\varepsilon)\\), \\(\\delta(\\operatorname{row}(s), a) = \\operatorname{row}(sa)\\), and \\(F = \\{\\operatorname{row}(s) \\mid T(s, \\varepsilon) = 1\\}\\). Closedness guarantees \\(\\operatorname{row}(sa)\\) exists in \\(Q\\); consistency guarantees \\(\\delta\\) is a well-defined function independent of the chosen prefix representative \\(s\\). By induction on \\(|u|\\), \\(\\widehat{\\delta}(q_0, u) = \\operatorname{row}(u)\\). If \\(\\mathcal{M}\\) is correct, the algorithm terminates with the minimal DFA. If an equivalence query returns counterexample \\(w \\in L \\oplus L(\\mathcal{M})\\), adding \\(w\\) and all its prefixes to \\(S\\) forces the discovery of at least one new distinct row vector. Since every distinct row vector corresponds to a distinct Myhill–Nerode equivalence class of \\(L\\), the number of rows \\(|Q|\\) cannot exceed \\(n\\). Thus \\(L^*\\) performs at most \\(n\\) equivalence queries and at most \\(O(|\\Sigma| \\cdot n^2 + n \\cdot m)\\) membership queries, where \\(m\\) is the maximum counterexample length.",
+  "diagram": {
+    "description": "Angluin's Observation Table (S, E, T) showing closedness check (S·Σ into S) and consistency check leading to the minimal DFA.",
+    "viewBox": [
+      0,
+      0,
+      1000,
+      520
+    ],
+    "lanes": [
+      {
+        "y": 160,
+        "label": "Prefix Space S (Candidate States)",
+        "labelX": 35,
+        "labelY": 45
+      },
+      {
+        "y": 340,
+        "label": "Boundary S · Σ (One-Step Lookahead)",
+        "labelX": 35,
+        "labelY": 220
+      },
+      {
+        "y": 490,
+        "label": "Synthesized Minimal DFA (Myhill–Nerode Classes)",
+        "labelX": 35,
+        "labelY": 390
+      }
+    ],
+    "nodes": [
+      {
+        "id": "row_eps",
+        "x": 200,
+        "y": 100,
+        "label": "row(ε) = [0, 1]",
+        "detail": "state [q₀]",
+        "shape": "rect",
+        "width": 170,
+        "height": 56
+      },
+      {
+        "id": "row_a",
+        "x": 500,
+        "y": 100,
+        "label": "row(a) = [1, 0]",
+        "detail": "state [q₁]",
+        "shape": "rect",
+        "width": 170,
+        "height": 56
+      },
+      {
+        "id": "row_b",
+        "x": 800,
+        "y": 100,
+        "label": "row(b) = [0, 0]",
+        "detail": "state [q_sink]",
+        "shape": "rect",
+        "width": 170,
+        "height": 56
+      },
+      {
+        "id": "row_aa",
+        "x": 350,
+        "y": 260,
+        "label": "row(aa) = row(ε)",
+        "detail": "closed: matches S",
+        "shape": "rect",
+        "width": 180,
+        "height": 56
+      },
+      {
+        "id": "row_ab",
+        "x": 650,
+        "y": 260,
+        "label": "row(ab) = row(b)",
+        "detail": "closed: matches S",
+        "shape": "rect",
+        "width": 180,
+        "height": 56
+      },
+      {
+        "id": "dfa_synth",
+        "x": 500,
+        "y": 430,
+        "label": "Minimal DFA ℳ (n states)",
+        "detail": "verified by Teacher",
+        "shape": "rect",
+        "width": 260,
+        "height": 64,
+        "accepting": true
+      }
+    ],
+    "edges": [
+      {
+        "id": "e-eps-a",
+        "from": "row_eps",
+        "to": "row_a",
+        "label": "read a",
+        "labelY": 80
+      },
+      {
+        "id": "e-a-aa",
+        "from": "row_a",
+        "to": "row_aa",
+        "label": "trans a",
+        "labelX": 410,
+        "labelY": 180
+      },
+      {
+        "id": "e-a-ab",
+        "from": "row_a",
+        "to": "row_ab",
+        "label": "trans b",
+        "labelX": 590,
+        "labelY": 180
+      },
+      {
+        "id": "e-aa-eps",
+        "from": "row_aa",
+        "to": "row_eps",
+        "label": "matches row(ε)",
+        "labelX": 260,
+        "labelY": 200
+      },
+      {
+        "id": "e-ab-b",
+        "from": "row_ab",
+        "to": "row_b",
+        "label": "matches row(b)",
+        "labelX": 740,
+        "labelY": 200
+      },
+      {
+        "id": "e-synth",
+        "from": "row_aa",
+        "to": "dfa_synth",
+        "label": "table closed & consistent",
+        "labelX": 410,
+        "labelY": 360
+      }
+    ],
+    "annotations": [
+      {
+        "x": 500,
+        "y": 505,
+        "text": "L* converges in ≤ n equivalence queries, producing the canonical minimal DFA.",
+        "anchor": "middle"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "label": "Observation Table",
+      "title": "Prefixes, distinguishing suffixes, and membership queries",
+      "exposition": "The learner maintains an observation table \\((S, E, T)\\) over alphabet \\(\\Sigma\\). \\(S \\subset \\Sigma^*\\) is a set of prefixes (representing states), and \\(E \\subset \\Sigma^*\\) is a set of suffixes (representing distinguishing experiments). For every \\(w \\in S \\cup (S \\cdot \\Sigma)\\) and \\(e \\in E\\), the entry \\(T(w, e) = 1\\) if \\(we \\in L\\), and \\(0\\) otherwise.",
+      "question": "What does the row vector row(s) = lambda e in E. T(s, e) characterize about prefix s?",
+      "choices": [
+        {
+          "text": "It summarizes the behavior of prefix \\(s\\) under all currently known test suffixes \\(E\\), approximating its Myhill–Nerode equivalence class.",
+          "correct": true,
+          "feedback": "Correct. Two prefixes \\(s_1, s_2\\) that have different row vectors are provably in different Myhill–Nerode equivalence classes, because some suffix in \\(E\\) distinguishes them."
+        },
+        {
+          "text": "It counts the number of letters in the string s.",
+          "correct": false,
+          "causalFailure": "The row vector records binary membership answers for suffixes, not string length."
+        },
+        {
+          "text": "It stores the IP address of the teacher.",
+          "correct": false,
+          "causalFailure": "The table stores formal language query results, completely unrelated to network addresses."
+        }
+      ],
+      "hint": "Remember Myhill–Nerode equivalence: s_1 ~ s_2 iff for all suffixes z, s_1 z in L <=> s_2 z in L. What does row(s) test?",
+      "formal": "\\(\\operatorname{row}(s) \\in \\{0, 1\\}^E\\). \\(\\operatorname{row}(s_1) \\neq \\operatorname{row}(s_2) \\implies s_1 \\not\\sim_L s_2\\).",
+      "preview": {
+        "activeNodes": [
+          "row_eps",
+          "row_a"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "row_eps",
+          "row_a",
+          "row_b"
+        ],
+        "activeEdges": [
+          "e-eps-a"
+        ],
+        "goodNodes": [
+          "row_eps",
+          "row_a",
+          "row_b"
+        ]
+      },
+      "previewNote": "Prefix rows in table.",
+      "revealNote": "Distinct row vectors correspond to provably distinct Myhill–Nerode states."
+    },
+    {
+      "label": "Closedness and Consistency",
+      "title": "Table closedness and consistency conditions",
+      "exposition": "Before synthesizing a candidate DFA, the learner must verify two structural conditions on the table. A table is closed if for every \\(t \\in S \\cdot \\Sigma\\), there exists \\(s \\in S\\) such that \\(\\operatorname{row}(t) = \\operatorname{row}(s)\\). A table is consistent if whenever \\(\\operatorname{row}(s_1) = \\operatorname{row}(s_2)\\), we have \\(\\operatorname{row}(s_1 a) = \\operatorname{row}(s_2 a)\\) for all \\(a \\in \\Sigma\\).",
+      "question": "What failure occurs in the candidate DFA if the table is NOT closed?",
+      "choices": [
+        {
+          "text": "A state \\(\\operatorname{row}(s)\\) would have a transition on letter \\(a\\) leading to an unknown row vector not present among the states \\(S\\).",
+          "correct": true,
+          "feedback": "Precisely. If \\(\\operatorname{row}(sa)\\) does not match any row in \\(S\\), the automaton has no state to transition into! Closedness ensures every transition lands on a known state."
+        },
+        {
+          "text": "The initial state of the DFA would be undefined.",
+          "correct": false,
+          "causalFailure": "The initial state is always \\(\\operatorname{row}(\\varepsilon)\\), which is in \\(S\\) from the very beginning."
+        },
+        {
+          "text": "The alphabet \\(\\Sigma\\) would become infinite.",
+          "correct": false,
+          "causalFailure": "The alphabet is fixed and finite; table properties do not change the alphabet."
+        }
+      ],
+      "hint": "Transitions are defined as delta(row(s), a) = row(sa). What if row(sa) is not in S?",
+      "formal": "\\(\\text{Closed: } \\forall t \\in S \\cdot \\Sigma.\\, \\exists s \\in S.\\, \\operatorname{row}(t) = \\operatorname{row}(s)\\). \\(\\text{Consistent: } \\operatorname{row}(s_1)=\\operatorname{row}(s_2) \\implies \\forall a.\\, \\operatorname{row}(s_1 a)=\\operatorname{row}(s_2 a)\\).",
+      "preview": {
+        "activeNodes": [
+          "row_aa",
+          "row_ab"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "row_aa",
+          "row_ab",
+          "row_eps",
+          "row_b"
+        ],
+        "activeEdges": [
+          "e-aa-eps",
+          "e-ab-b"
+        ],
+        "goodNodes": [
+          "row_aa",
+          "row_ab"
+        ]
+      },
+      "previewNote": "Boundary rows S · Σ checked.",
+      "revealNote": "Every boundary row matches a prefix row in S: table is closed."
+    },
+    {
+      "label": "Candidate DFA",
+      "title": "Synthesizing the canonical candidate DFA",
+      "exposition": "When the table is closed and consistent, we construct the candidate DFA \\(\\mathcal{M} = (Q, \\Sigma, \\delta, q_0, F)\\) by taking \\(Q = \\{\\operatorname{row}(s) \\mid s \\in S\\}\\), \\(q_0 = \\operatorname{row}(\\varepsilon)\\), \\(\\delta(\\operatorname{row}(s), a) = \\operatorname{row}(sa)\\), and \\(F = \\{\\operatorname{row}(s) \\mid T(s, \\varepsilon) = 1\\}\\).",
+      "question": "Why does consistency ensure that the transition function delta is well-defined?",
+      "choices": [
+        {
+          "text": "Because if two different prefixes \\(s_1, s_2\\) have the same row vector (\\(\\operatorname{row}(s_1) = \\operatorname{row}(s_2)\\)), consistency guarantees that \\(\\operatorname{row}(s_1 a) = \\operatorname{row}(s_2 a)\\), so the transition does not depend on the choice of prefix.",
+          "correct": true,
+          "feedback": "Spot on. In a quotient construction, well-definedness requires that equivalent inputs produce equivalent outputs. Consistency precisely prevents non-deterministic ambiguity in \\(\\delta\\)."
+        },
+        {
+          "text": "Because the candidate DFA has no loops.",
+          "correct": false,
+          "causalFailure": "Learned DFAs routinely contain loops and cycles."
+        },
+        {
+          "text": "Because consistency forces the automaton to have exactly 2 states.",
+          "correct": false,
+          "causalFailure": "The candidate DFA can have any finite number of states, bounded by the target language complexity."
+        }
+      ],
+      "hint": "What if two prefixes represent the same state, but moving by 'a' gives different results? That would make delta non-deterministic!",
+      "formal": "\\(\\delta(\\operatorname{row}(s), a) = \\operatorname{row}(sa)\\) is well-defined \\(\\iff \\text{table is consistent}\\). \\(\\widehat{\\delta}(q_0, u) = \\operatorname{row}(u)\\).",
+      "preview": {
+        "activeNodes": [
+          "dfa_synth"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "dfa_synth",
+          "row_eps",
+          "row_a",
+          "row_b"
+        ],
+        "activeEdges": [
+          "e-synth"
+        ],
+        "goodNodes": [
+          "dfa_synth"
+        ]
+      },
+      "previewNote": "Candidate DFA synthesized.",
+      "revealNote": "DFA successfully constructed from table rows: ready for Equivalence Query (EQ)."
+    },
+    {
+      "label": "Polynomial Convergence",
+      "title": "Counterexample processing and polynomial query complexity",
+      "exposition": "The learner presents the candidate DFA \\(\\mathcal{M}\\) to the Teacher via an Equivalence Query. If the Teacher confirms \\(\\mathcal{M}\\) is correct, the algorithm terminates. If not, the Teacher returns a counterexample string \\(w \\in L \\oplus L(\\mathcal{M})\\).",
+      "question": "How does processing counterexample w guarantee progress towards the target DFA?",
+      "choices": [
+        {
+          "text": "Adding \\(w\\) and all its prefixes to \\(S\\) exposes an inconsistency or adds a new distinct row vector; since \\(|Q| \\le n\\) (the Myhill–Nerode index), at most \\(n\\) counterexamples can ever be returned.",
+          "correct": true,
+          "feedback": "Precisely. Each counterexample witnesses an undiscovered distinction between states. Adding its prefixes increases the number of distinct row vectors by at least 1, strictly climbing the Myhill–Nerode hierarchy until convergence."
+        },
+        {
+          "text": "The counterexample deletes all previously learned states and restarts from scratch.",
+          "correct": false,
+          "causalFailure": "Angluin's algorithm never discards learned information; it monotonically expands the observation table."
+        },
+        {
+          "text": "The counterexample forces the teacher to change the target language.",
+          "correct": false,
+          "causalFailure": "The target language is fixed throughout the execution of the algorithm."
+        }
+      ],
+      "hint": "How many states can the minimal DFA have? What happens to the number of distinct rows when a counterexample is added?",
+      "formal": "\\(\\text{Max equivalence queries} \\le n\\). \\(\\text{Membership queries} = O(|\\Sigma| \\cdot n^2 + n \\cdot m)\\). Convergence to minimal DFA guaranteed in polynomial time.",
+      "preview": {
+        "activeNodes": [
+          "dfa_synth"
+        ],
+        "activeEdges": []
+      },
+      "reveal": {
+        "activeNodes": [
+          "row_eps",
+          "row_a",
+          "row_b",
+          "row_aa",
+          "row_ab",
+          "dfa_synth"
+        ],
+        "activeEdges": [
+          "e-eps-a",
+          "e-a-aa",
+          "e-a-ab",
+          "e-aa-eps",
+          "e-ab-b",
+          "e-synth"
+        ],
+        "goodNodes": [
+          "dfa_synth"
+        ]
+      },
+      "previewNote": "Equivalence query submitted.",
+      "revealNote": "Teacher confirms equivalence: unique minimal DFA learned in polynomial time."
+    }
+  ],
+  "previous": {
+    "label": "CTL fixed points",
+    "href": "/proofs/chapter-13/ctl-fixed-points.html"
+  },
+  "next": null
+}
   };
 })();

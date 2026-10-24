@@ -2,15 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://vvt.aliteia.com/proofs/index.html</loc>
+    <lastmod>2026-10-24T13:41:20.428Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-13/ctl-fixed-points.html</loc>
+    <lastmod>2026-10-24T13:41:20.427Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-11/vardi-wolper-tableau.html</loc>
+    <lastmod>2026-10-24T13:41:20.421Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-10/tree-automata-determinization.html</loc>
+    <lastmod>2026-10-24T13:41:20.421Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-09/mcnaughton-determinization.html</loc>
+    <lastmod>2026-10-24T13:41:20.421Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-05/parity-determinacy.html</loc>
+    <lastmod>2026-10-24T13:41:20.420Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-04/ramsey-decomposition.html</loc>
     <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/proofs/chapter-04/buchi-complementation.html</loc>
+    <loc>https://vvt.aliteia.com/proofs/chapter-03/omega-closure.html</loc>
     <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/proofs/chapter-03/buchi-expression-equivalence.html</loc>
-    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
+    <loc>https://vvt.aliteia.com/proofs/chapter-03/buchi-emptiness.html</loc>
+    <lastmod>2026-10-24T13:41:20.420Z</lastmod>
   </url>
   <url>
     <loc>https://vvt.aliteia.com/proofs/chapter-02/regular-closure.html</loc>
@@ -233,11 +257,35 @@
     <lastmod>2026-08-31T05:02:04.352Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/proofs/chapter-03/omega-closure.html</loc>
+    <loc>https://vvt.aliteia.com/proofs/chapter-03/buchi-expression-equivalence.html</loc>
+    <lastmod>2026-08-31T05:02:04.352Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-04/buchi-complementation.html</loc>
     <lastmod>2026-08-31T05:02:04.353Z</lastmod>
   </url>
   <url>
-    <loc>https://vvt.aliteia.com/proofs/chapter-04/ramsey-decomposition.html</loc>
-    <lastmod>2026-08-31T05:02:04.353Z</lastmod>
+    <loc>https://vvt.aliteia.com/proofs/chapter-05/attractor-correctness.html</loc>
+    <lastmod>2026-10-24T13:41:20.420Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-08/s1s-buchi.html</loc>
+    <lastmod>2026-10-24T13:41:20.420Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-09/mcnaughton-papert.html</loc>
+    <lastmod>2026-10-24T13:41:20.421Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-11/kamp-theorem.html</loc>
+    <lastmod>2026-10-24T13:41:20.421Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-12/ltl-model-checking.html</loc>
+    <lastmod>2026-10-24T13:41:20.427Z</lastmod>
+  </url>
+  <url>
+    <loc>https://vvt.aliteia.com/proofs/chapter-14/angluin-learning.html</loc>
+    <lastmod>2026-10-24T13:41:20.427Z</lastmod>
   </url>
 </urlset>

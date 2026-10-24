@@ -1,0 +1,13 @@
+---
+title: "Parity Game Positional Determinacy Proof Lab"
+pagetitle: "Parity Game Determinacy — Interactive Proof Lab"
+description: "An interactive proof of positional determinacy for parity games via Zielonka's algorithm."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="parity-determinacy"></div>
+<noscript>
+  <h1>Büchi–Landweber & positional determinacy of parity games</h1>
+  <p>Every finite parity game is determined with memoryless winning strategies. Zielonka's induction on priorities decomposes the arena using top-priority attractors, combining positional strategies without memory overhead.</p>
+</noscript>
+```

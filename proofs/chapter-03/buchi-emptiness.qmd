@@ -1,0 +1,13 @@
+---
+title: "Decidability of Büchi Emptiness Proof Lab"
+pagetitle: "Büchi Emptiness — Interactive Proof Lab"
+description: "An interactive proof of decidability for Büchi automaton emptiness via lasso witnesses."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="buchi-emptiness"></div>
+<noscript>
+  <h1>Decidability of Büchi emptiness</h1>
+  <p>A Büchi automaton accepts an infinite word iff there is an accepting state reachable from the initial state that belongs to a directed cycle. This reduces infinite-word emptiness to finite cycle detection, witnessed by an ultimately periodic lasso word u v^omega.</p>
+</noscript>
+```

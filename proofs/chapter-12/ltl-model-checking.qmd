@@ -1,0 +1,13 @@
+---
+title: "Automata-Theoretic LTL Model Checking Proof Lab"
+pagetitle: "LTL Model Checking — Interactive Proof Lab"
+description: "An interactive proof of the automata-theoretic model checking reduction and Nested DFS search."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="ltl-model-checking"></div>
+<noscript>
+  <h1>Automata-theoretic LTL model checking</h1>
+  <p>A Kripke structure satisfies an LTL formula iff the synchronous product with the negated formula monitor has no accepting run. Nested DFS detects counterexample lassos on-the-fly in linear time.</p>
+</noscript>
+```

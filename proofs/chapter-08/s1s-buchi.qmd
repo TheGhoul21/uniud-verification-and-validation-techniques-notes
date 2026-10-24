@@ -1,0 +1,13 @@
+---
+title: "Büchi's S1S Decidability Proof Lab"
+pagetitle: "Büchi's S1S Decidability — Interactive Proof Lab"
+description: "An interactive proof of the equivalence between S1S logic and non-deterministic Büchi automata."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="s1s-buchi"></div>
+<noscript>
+  <h1>Büchi's S1S decidability theorem (1960)</h1>
+  <p>An omega-language is omega-regular iff it is definable in monadic second-order logic S1S. Accepting runs translate to second-order existential quantifiers, while logical connectives translate to automata operations, proving S1S decidability.</p>
+</noscript>
+```

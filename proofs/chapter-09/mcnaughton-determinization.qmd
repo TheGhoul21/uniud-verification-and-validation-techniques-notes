@@ -1,0 +1,13 @@
+---
+title: "McNaughton's Determinization Proof Lab"
+pagetitle: "McNaughton Determinization — Interactive Proof Lab"
+description: "An interactive proof of McNaughton's theorem determinizing Büchi automata into Muller and Parity automata."
+---
+
+```{=html}
+<div class="proof-lab" data-proof-lab="mcnaughton-determinization"></div>
+<noscript>
+  <h1>McNaughton's determinization theorem (1966)</h1>
+  <p>Every non-deterministic Büchi automaton can be determinized into an equivalent deterministic Muller or Parity automaton. Safra trees structure macro-states into hierarchical threads, flashing green signals upon breakpoint completion.</p>
+</noscript>
+```
