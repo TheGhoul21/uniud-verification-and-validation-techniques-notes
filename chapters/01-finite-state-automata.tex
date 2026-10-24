@@ -813,13 +813,6 @@ could be simultaneously active, the DFA introduces one dedicated state.
 There is a price to pay in size, but not in expressive power --- the two
 classes of automata define exactly the same set of languages.
 
-\aside{This equivalence between DFA and NFA is specific to finite words.
-When we move to automata over infinite words in
-\cref{ch:omega-automata}, we will see that deterministic and
-non-deterministic variants are \emph{not} always equivalent: the
-acceptance condition matters, and for some conditions non-determinism
-genuinely adds expressive power.}
-
 \begin{figure}[ht]
 \centering
 \begin{tikzpicture}[
@@ -941,6 +934,12 @@ by some NFA.  We may therefore use DFA and NFA interchangeably when
 reasoning about regularity --- typically NFAs when designing an
 automaton, DFAs when we need a single run on each input, for example to
 complement the language by swapping accepting and non-accepting states.
+\aside{This equivalence between DFA and NFA is specific to finite words.
+When we move to automata over infinite words in
+\cref{ch:omega-automata}, we will see that deterministic and
+non-deterministic variants are \emph{not} always equivalent: the
+acceptance condition matters, and for some conditions non-determinism
+genuinely adds expressive power.}
 
 The class of regular languages is a \emph{strict} subset of all
 languages over $A$.  This boundary is exactly what the theory is
