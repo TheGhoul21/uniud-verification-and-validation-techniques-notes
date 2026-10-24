@@ -356,6 +356,10 @@
   outline-offset: 2px;
 }
 
+.proof-lab__choice mjx-container {
+  margin: 0 .15rem !important;
+}
+
 .proof-lab__hint {
   margin: .5rem 0 0;
   border-left: 3px solid var(--proof-violet);
@@ -389,39 +393,49 @@
 }
 
 .proof-lab__formal {
-  margin-top: .5rem;
-  border-top: 1px solid var(--proof-line);
-  padding-top: .4rem;
+  margin-top: .65rem;
+  border: 1px solid rgba(22, 123, 158, 0.22);
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: .6rem .8rem;
 }
 
 .proof-lab__formal summary {
   color: #167b9e;
-  font-size: .8rem;
+  font-size: .84rem;
   font-weight: 700;
   cursor: pointer;
+  outline: none;
+}
+
+.proof-lab__formal summary:hover {
+  color: #0e4e64;
 }
 
 .proof-lab__formal p {
-  margin: .35rem 0 0;
-  color: var(--proof-muted);
-  font-size: .82rem;
+  margin: .45rem 0 0;
+  color: #1e293b;
+  font-size: .86rem;
+  line-height: 1.55;
 }
 
 .proof-lab__invariant {
-  margin-top: .4rem;
-  border-left: 3px solid var(--proof-teal);
-  padding: .25rem 0 .25rem .6rem;
-  font-size: .76rem;
-  line-height: 1.4;
-  color: var(--proof-graphite);
+  margin-top: .6rem;
+  border-left: 4px solid var(--proof-teal);
+  background: #f0fdf4;
+  border-radius: 0 8px 8px 0;
+  padding: .5rem .75rem;
+  font-size: .84rem;
+  line-height: 1.5;
+  color: #164e63;
 }
 
 .proof-lab__invariant strong {
   display: block;
-  margin-bottom: .1rem;
+  margin-bottom: .2rem;
   color: var(--proof-teal);
-  font-size: .62rem;
-  letter-spacing: .07em;
+  font-size: .68rem;
+  letter-spacing: .08em;
   text-transform: uppercase;
 }
 

@@ -17,12 +17,12 @@
       slug: "subset-construction",
       chapter: 1,
       title: "Subset construction",
-      theorem: "For every NFA A there is a DFA D such that L(D) = L(A).",
-      intro: "An NFA may be in several states at once — it 'branches' on each input symbol. The DFA we build has no branches; instead, its current state is the full set of NFA states that are still possible. After reading the same prefix, the DFA state and the set of live NFA states are always equal.",
-      application: "Think of a spell-checker that must decide, character by character, whether the input could still be the word 'ab'. The NFA guesses freely; the DFA keeps track of every guess simultaneously.",
-      strategy: "Define the DFA state after a prefix to be the set of NFA states reachable after that prefix. Prove by induction on word length that DFA state = reachable NFA set. Then show that the DFA acceptance rule mirrors the NFA's.",
-      invariant: "After every prefix w, the DFA state equals the set of all NFA states reachable after reading w.",
-      synthesis: String.raw`Let \(A=(Q,\Sigma,\Delta,q_s,F)\) be an NFA and define \(D\) on the state space \(2^Q\). Its initial state is \(\{q_s\}\), its transition is \(\delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a)\), and a subset is final precisely when it intersects \(F\). An induction on \(|w|\) proves that the state reached by \(D\) after \(w\) is \(\operatorname{Reach}_A(w)\): the base case is \(\{q_s\}\), while the inductive step is exactly the union used in \(\delta_D\). Consequently, \(D\) accepts \(w\) iff \(\operatorname{Reach}_A(w)\cap F\neq\varnothing\), which holds iff \(A\) has an accepting run on \(w\). Therefore \(L(D)=L(A)\).`,
+      theorem: String.raw`For every NFA \(\mathcal{A} = (Q,\Sigma,\Delta,q_0,F)\) there exists a DFA \(\mathcal{D} = (2^Q,\Sigma,\delta_D,\{q_0\},F_D)\) such that \(L(\mathcal{D}) = L(\mathcal{A})\).`,
+      intro: "Non-deterministic finite automata (NFAs) allow concurrent execution paths by branching across multiple successor states. The subset construction proves that non-determinism does not expand the class of recognizable finite-word languages: by tracking the entire set of concurrently active NFA states in a single deterministic macro-state, a DFA can simulate all non-deterministic runs simultaneously.",
+      application: "In model checking and safety property verification, specifications often model non-deterministic environment actions. Compiling an NFA into a DFA produces an executable deterministic monitor capable of validating event sequences in real time without backtracking.",
+      strategy: "Formulate the inductive invariant that after reading any word w, the state reached by the DFA is precisely the set of states reachable in the NFA: \\(\\widehat{\\delta}_D(\\{q_0\\}, w) = \\widehat{\\Delta}(q_0, w)\\). Establish the base case at w = \\(\\varepsilon\\), prove the inductive step using the union transition \\(\\delta_D(S, a) = \\bigcup_{q \\in S} \\Delta(q, a)\\), and map acceptance via the existential condition \\(F_D = \\{S \\subseteq Q \\mid S \\cap F \\neq \\emptyset\\}\\).",
+      invariant: String.raw`\(\forall w \in \Sigma^*,\; \widehat{\delta}_D(\{q_0\}, w) = \widehat{\Delta}(q_0, w)\).`,
+      synthesis: String.raw`Let \(\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)\) be an NFA. Define the determinized automaton \(\mathcal{D}=(2^Q,\Sigma,\delta_D,\{q_0\},F_D)\) where \(\delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a)\) and \(F_D=\{S\subseteq Q\mid S\cap F\neq\emptyset\}\). By induction on \(|w|\), we establish the invariant \(\widehat{\delta}_D(\{q_0\},w)=\widehat{\Delta}(q_0,w)\). For \(w=\varepsilon\), \(\widehat{\delta}_D(\{q_0\},\varepsilon)=\{q_0\}=\widehat{\Delta}(q_0,\varepsilon)\). Assuming the claim for \(w\), reading \(a\in\Sigma\) yields \(\widehat{\delta}_D(\{q_0\},wa)=\delta_D(\widehat{\delta}_D(\{q_0\},w),a)=\bigcup_{q\in\widehat{\Delta}(q_0,w)}\Delta(q,a)=\widehat{\Delta}(q_0,wa)\), completing the induction. A word \(w\) is accepted by \(\mathcal{A}\) iff \(\widehat{\Delta}(q_0,w)\cap F\neq\emptyset\), which holds iff \(\widehat{\delta}_D(\{q_0\},w)\in F_D\), that is, iff \(w\in L(\mathcal{D})\). Thus \(L(\mathcal{D})=L(\mathcal{A})\).`,
       diagram: {
         description: "An NFA for words ending in 'a', next to its two-state subset DFA. The NFA has states qs (scanning) and qa (accept). The DFA has states S0={qs} and S1={qs,qa}.",
         viewBox: [0, 0, 1000, 520],
@@ -45,73 +45,125 @@
           E("dfa-b1", "s1", "s0", "b", { path: "M 650 438 C 560 505 425 505 335 438", labelX: 492, labelY: 490 })
         ],
         annotations: [
-          { x: 500, y: 240, text: "\u2195  same reachable set", anchor: "middle" }
+          { x: 500, y: 240, text: "\u2195  identical reachable configuration set", anchor: "middle" }
         ]
       },
       steps: [
         {
           label: "Base case",
-          title: "Start: before reading anything",
-          exposition: "Before we read any symbol, no transition has fired. The only active NFA state is q\u209B \u2014 the start state. So the DFA must start in S\u2080 = {q\u209B}. This is the base of our induction: after the empty prefix \u03b5, DFA state = {q\u209B} = reachable NFA states.",
-          question: "Before reading any symbol, what subset must the DFA store?",
-          choices: ["{q\u209B}", "{q\u2090}", "{q\u209B, q\u2090}"],
-          correct: 0,
-          hint: "No transition has been taken yet \u2014 which state is the NFA in?",
-          feedback: "Correct. Only q\u209B is reachable after \u03b5, so the DFA starts at S\u2080 = {q\u209B}.",
-          incorrect: "No symbol has been read yet, so only the initial NFA state is reachable.",
-          formal: String.raw`\(\operatorname{Reach}_A(\varepsilon)=\{q_s\}\), and the constructed DFA starts in the singleton \(\{q_s\}\). This establishes the invariant for the base case.`,
+          title: "Length |w| = 0: Initialization on the empty word \u03b5",
+          exposition: String.raw`Let \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) be an NFA without \(\varepsilon\)-transitions. We prove by induction on \(|w|\) that \(\widehat{\delta}_D(\{q_0\}, w) = \widehat{\Delta}(q_0, w)\). For \(w = \varepsilon\), zero transitions are executed. By formal definition of extended transition functions, \(\widehat{\Delta}(q_0, \varepsilon) = \{q_0\}\). Hence, setting the initial state of the DFA to the singleton \(S_0 = \{q_0\} \in 2^Q\) anchors the base case.`,
+          question: "Which formal condition must the initial DFA state satisfy to establish the inductive invariant at w = \u03b5?",
+          choices: [
+            {
+              text: String.raw`\(S_0 = \{q_0\}\), matching the base evaluation \(\widehat{\Delta}(q_0, \varepsilon) = \{q_0\}\).`,
+              correct: true,
+              feedback: String.raw`Correct. On the empty word \(\varepsilon\), the set of reachable NFA states is strictly the singleton \(\{q_0\}\); initializing \(\mathcal{D}\) to \(S_0 = \{q_0\}\) satisfies the inductive invariant.`
+            },
+            {
+              text: String.raw`\(S_0 = Q\), over-approximating reachable states to prevent missed runs.`,
+              correct: false,
+              causalFailure: String.raw`Starting in \(Q\) asserts that all states are reachable prior to consuming any input symbol, causing immediate over-approximation and accepting unauthorized words.`
+            },
+            {
+              text: String.raw`\(S_0 = \{q_0\} \cap F\), restricting the start state exclusively to accepting configurations.`,
+              correct: false,
+              causalFailure: String.raw`If \(q_0 \notin F\), this yields \(S_0 = \emptyset\), prematurely terminating all simulations and rejecting valid words.`
+            }
+          ],
+          hint: "Evaluate both extended transition functions \u03b4\u0302_D and \u0394\u0302 on the empty word \u03b5.",
+          formal: String.raw`\(\widehat{\Delta}(q_0,\varepsilon)=\{q_0\}\) and \(\widehat{\delta}_D(\{q_0\},\varepsilon)=\{q_0\}\), so the invariant \(\widehat{\delta}_D(\{q_0\},w)=\widehat{\Delta}(q_0,w)\) holds at \(|w|=0\).`,
           preview: V([], [], { dimNodes: ["qa", "s1"] }),
           reveal: V(["qs", "s0"], [], { dimNodes: ["qa", "s1"] }),
-          previewNote: "Only the initial states are active. q\u2090 and S\u2081 are not yet reachable.",
-          revealNote: "After \u03b5: NFA is in {q\u209B}, DFA is in S\u2080 = {q\u209B}. Invariant holds."
+          previewNote: "Prior to consuming input, only the start state qs is reachable in the NFA.",
+          revealNote: "At |w| = 0: NFA is in {qs}, DFA is in S0 = {qs}. Invariant holds."
         },
         {
           label: "Inductive step",
-          title: "Read 'a': collect all NFA successors",
-          exposition: "From q\u209B, reading 'a' can either stay in q\u209B (self-loop) or move to q\u2090. The NFA branches \u2014 both moves are valid. The DFA cannot choose one branch; it must remember both. So \u03b4_D(S\u2080, a) = \u0394(q\u209B, a) = {q\u209B, q\u2090} = S\u2081.",
-          question: "From S\u2080 = {q\u209B}, reading 'a', what does the DFA move to?",
-          choices: ["Only {q\u2090}", "The union {q\u209B, q\u2090}", "Only {q\u209B}"],
-          correct: 1,
-          hint: "Check every outgoing 'a' edge from q\u209B \u2014 collect all destinations.",
-          feedback: "Right. Both NFA successors of q\u209B on 'a' are q\u209B and q\u2090, so the DFA moves to S\u2081 = {q\u209B, q\u2090}.",
-          incorrect: "Choosing just one successor would forget a valid NFA run.",
-          formal: String.raw`\(\delta_D(S,a)=\bigcup_{q\in S}\Delta(q,a)\). Starting from \(\{q_s\}\) and reading \(a\): \(\Delta(q_s,a)=\{q_s,q_a\}\), so the DFA moves to \(S_1\).`,
+          title: "Symbol 'a': Simulating non-deterministic branching via set union",
+          exposition: String.raw`Suppose \(\widehat{\delta}_D(\{q_0\}, w) = \widehat{\Delta}(q_0, w) = S\) for some word \(w\). Appending symbol \(a \in \Sigma\) yields \(\widehat{\Delta}(q_0, wa) = \bigcup_{q \in S} \Delta(q, a)\). To maintain the invariant, the deterministic transition function must compute this exact union: \(\delta_D(S, a) = \bigcup_{q \in S} \Delta(q, a)\). From \(S_0 = \{q_s\}\), reading 'a' fires both the self-loop \(\Delta(q_s, a) \ni q_s\) and the forward branch \(\Delta(q_s, a) \ni q_a\), leading to \(S_1 = \{q_s, q_a\}\).`,
+          question: "Why must \u03b4_D(S, a) be defined as the set union \u22c3_{q \in S} \u0394(q, a) rather than selecting a single successor state?",
+          choices: [
+            {
+              text: String.raw`Because NFA acceptance is existential: pruning any successor branch risks discarding the unique path that eventually reaches an accepting state.`,
+              correct: true,
+              feedback: String.raw`Precisely. An NFA accepts if at least one run succeeds. Because the automaton cannot foresee future symbols, the DFA must track all viable successor states simultaneously.`
+            },
+            {
+              text: String.raw`Because computing the union ensures that the constructed DFA has at most |Q| states.`,
+              correct: false,
+              causalFailure: String.raw`The union over subsets operates on the power set \(2^Q\), which can grow exponentially up to \(2^{|Q|}\) states in the worst case.`
+            },
+            {
+              text: String.raw`Because the transition function of a DFA is mathematically required to be bijective.`,
+              correct: false,
+              causalFailure: String.raw`DFA transition functions are total functions \(\delta_D: 2^Q \times \Sigma \to 2^Q\); they are rarely injective or surjective.`
+            }
+          ],
+          hint: "Consider what happens if an arbitrary branch is pruned: could that branch have reached F?",
+          formal: String.raw`\(\widehat{\delta}_D(\{q_0\},wa) = \delta_D(S,a) = \bigcup_{q\in S}\Delta(q,a) = \widehat{\Delta}(q_0,wa)\), verifying the inductive step.`,
           preview: V(["qs", "s0"], [], { dimNodes: ["qa", "s1"] }),
           reveal: V(["qs", "qa", "s1"], ["nfa-loop", "nfa-a", "dfa-a"], { goodNodes: ["s1"] }),
-          previewNote: "From S\u2080, reading 'a' \u2014 both NFA branches fire.",
-          revealNote: "S\u2081 = {q\u209B, q\u2090} packs both branches. The DFA makes no choice."
+          previewNote: "From qs on 'a', the NFA branches concurrently into {qs, qa}.",
+          revealNote: "DFA state S1 = {qs, qa} encapsulates both branches simultaneously."
         },
         {
           label: "Inductive step",
-          title: "Read 'b': a dead branch disappears",
-          exposition: "From S\u2081 = {q\u209B, q\u2090}, reading 'b': q\u209B has a self-loop on 'b' (stays in q\u209B), but q\u2090 has no 'b' transition (it contributes \u2205). So the union is just {q\u209B} \u2014 the DFA returns to S\u2080. The accepted branch simply drops out.",
-          question: "From S\u2081 = {q\u209B, q\u2090}, reading 'b', what remains?",
-          choices: ["{q\u209B}", "{q\u2090}", "{q\u209B, q\u2090}"],
-          correct: 0,
-          hint: "q\u2090 has no outgoing 'b' arrow \u2014 it vanishes from the set.",
-          feedback: "Correct. \u0394(q\u209B, b) = {q\u209B} and \u0394(q\u2090, b) = \u2205, so the union is {q\u209B} \u2014 back to S\u2080.",
-          incorrect: "A state with no 'b' transition contributes \u2205 to the union.",
-          formal: String.raw`The union contains \(\Delta(q_s,b)=\{q_s\}\) and \(\Delta(q_a,b)=\varnothing\), hence the DFA moves to \(\{q_s\}=S_0\).`,
+          title: "Symbol 'b': Natural branch pruning via empty transitions",
+          exposition: String.raw`From \(S_1 = \{q_s, q_a\}\), reading symbol 'b' evaluates the union \(\delta_D(S_1, b) = \Delta(q_s, b) \cup \Delta(q_a, b)\). The scanning state continues via its loop \(\Delta(q_s, b) = \{q_s\}\), whereas state \(q_a\) has no outgoing 'b' transitions (\(\Delta(q_a, b) = \emptyset\)). Since \(\emptyset\) is the identity element of set union, \(\{q_s\} \cup \emptyset = \{q_s\} = S_0\). Dead branches are filtered out automatically without exceptional rules.`,
+          question: "How does the algebraic formulation \u03b4_D(S, a) = \u22c3_{q \in S} \u0394(q, a) handle states with no outgoing transitions on a symbol?",
+          choices: [
+            {
+              text: String.raw`Such states contribute the empty set \(\emptyset\) to the union, naturally pruning dead execution paths while preserving active ones.`,
+              correct: true,
+              feedback: String.raw`Correct. Since \(U \cup \emptyset = U\), non-viable branches drop out of the active subset without affecting surviving runs.`
+            },
+            {
+              text: String.raw`The presence of \(\emptyset\) forces the entire union to evaluate to \(\emptyset\), driving the DFA into a dead-end sink state.`,
+              correct: false,
+              causalFailure: String.raw`This confuses union (\(\cup\)) with intersection (\(\cap\)). The empty set does not annihilate non-empty components under union.`
+            },
+            {
+              text: String.raw`The DFA halts with an execution error because transition functions must be defined per individual state.`,
+              correct: false,
+              causalFailure: String.raw`In the subset construction, the DFA state space is \(2^Q\), and \(\delta_D\) is a completely defined total function on all subsets.`
+            }
+          ],
+          hint: "Recall the algebraic identity S \u222a \u2205 = S in set theory.",
+          formal: String.raw`\(\delta_D(S_1,b)=\Delta(q_s,b)\cup\Delta(q_a,b)=\{q_s\}\cup\varnothing=\{q_s\}=S_0\).`,
           preview: V(["qs", "qa", "s1"], [], {}),
           reveal: V(["qs", "s0"], ["nfa-loop", "dfa-b1"], { dimNodes: ["qa", "s1"] }),
-          previewNote: "From S\u2081, reading 'b' \u2014 only q\u209B has a 'b' edge.",
-          revealNote: "q\u2090 contributes nothing. The set shrinks back to S\u2080 = {q\u209B}."
+          previewNote: "From S1 on 'b': qs loops to qs, while qa has no transition on 'b'.",
+          revealNote: "The subset contracts back to S0 = {qs}. Invariant holds."
         },
         {
           label: "Acceptance",
-          title: "Accept when any NFA branch reaches a final state",
-          exposition: "An NFA accepts a word if at least one of its runs ends in a final state. The DFA subset S contains exactly the states reachable after the word. So: the DFA accepts S when S \u2229 F \u2260 \u2205 \u2014 at least one element of S is a final NFA state. S\u2081 = {q\u209B, q\u2090} contains q\u2090 \u2208 F, so S\u2081 is final. S\u2080 = {q\u209B} does not intersect F, so it is not.",
-          question: "When is a DFA subset state accepting?",
-          choices: ["When every member of the subset is final", "When at least one member is a final NFA state", "Only when it is a singleton final state"],
-          correct: 1,
-          hint: "The NFA accepts when one run succeeds \u2014 even if others don't.",
-          feedback: "Exactly. S \u2229 F \u2260 \u2205 transfers the NFA's existential condition to the DFA.",
-          incorrect: "Requiring every member would be too strict \u2014 the NFA needs just one successful run.",
-          formal: String.raw`\(w\in L(A)\) iff \(\operatorname{Reach}_A(w)\cap F\neq\varnothing\). By the invariant, \(\operatorname{Reach}_A(w)\) is the DFA state reached after \(w\), so \(w\in L(D)\) iff \(w\in L(A)\).`,
+          title: "Acceptance condition: Existential quantification over final states",
+          exposition: String.raw`By induction, \(\widehat{\delta}_D(\{q_0\}, w) = \widehat{\Delta}(q_0, w)\) holds for all \(w \in \Sigma^*\). An NFA accepts \(w\) if and only if \emph{at least one} run ends in an accepting state: \(\widehat{\Delta}(q_0, w) \cap F \neq \emptyset\). Substituting the invariant yields \(\widehat{\delta}_D(\{q_0\}, w) \cap F \neq \emptyset\). Therefore, defining the DFA final states as \(F_D = \{ S \subseteq Q \mid S \cap F \neq \emptyset \}\) ensures that \(\mathcal{D}\) accepts \(w\) if and only if \(\mathcal{A}\) accepts \(w\).`,
+          question: "Why must the accepting set of the DFA be defined as F_D = {S \u2286 Q | S \u2229 F \u2260 \u2205} rather than F_D = {S \u2286 Q | S \u2286 F}?",
+          choices: [
+            {
+              text: String.raw`Because NFA acceptance is existential: requiring \(S \subseteq F\) would erroneously reject words whenever an accepting branch coexists with a non-accepting branch.`,
+              correct: true,
+              feedback: String.raw`Exactly. In \(S_1 = \{q_s, q_a\}\), \(q_a \in F\) certifies acceptance even though \(q_s \notin F\). The subset condition \(S \subseteq F\) corresponds to universal acceptance, which is strictly stronger.`
+            },
+            {
+              text: String.raw`Because \(S \subseteq F\) is only well-defined when the alphabet \(\Sigma\) is unary.`,
+              correct: false,
+              causalFailure: String.raw`The subset condition \(S \subseteq F\) is well-defined for any alphabet; its flaw is semantic (it enforces universal acceptance rather than existential).`
+            },
+            {
+              text: String.raw`Because the Myhill-Nerode theorem requires every subset state to contain at least one non-accepting state.`,
+              correct: false,
+              causalFailure: String.raw`Myhill-Nerode states that equivalence classes of \(\sim_L\) form the minimal DFA; it places no constraint requiring non-final states in subsets.`
+            }
+          ],
+          hint: "Compare existential acceptance (\u2203 run ending in F) with universal acceptance (\u2200 runs ending in F).",
+          formal: String.raw`\(w\in L(\mathcal{A}) \iff \widehat{\Delta}(q_0,w)\cap F\neq\emptyset \iff \widehat{\delta}_D(\{q_0\},w)\in F_D \iff w\in L(\mathcal{D})\). Hence \(L(\mathcal{D})=L(\mathcal{A})\).`,
           preview: V(["qs", "qa", "s1"], [], {}),
           reveal: V(["qa", "s1"], [], { goodNodes: ["qa", "s1"], dimNodes: ["qs", "s0"] }),
-          previewNote: "S\u2081 still contains a non-final state (q\u209B). Does that matter?",
-          revealNote: "No. S\u2081 is accepting because q\u2090 \u2208 F is inside it. One is enough."
+          previewNote: "S1 = {qs, qa} contains both a non-final state (qs) and a final state (qa).",
+          revealNote: "Because S1 \u2229 F = {qa} \u2260 \u2205, S1 \u2208 F_D. Existential acceptance is preserved."
         }
       ],
       next: { label: "\u03b5-removal", href: "/proofs/chapter-02/epsilon-removal.html" }
@@ -121,12 +173,12 @@
       slug: "epsilon-removal",
       chapter: 2,
       title: "\u03b5-removal",
-      theorem: "Every \u03b5-NFA has an equivalent NFA without \u03b5-moves.",
-      intro: "An \u03b5-NFA can jump from state to state for free, without consuming any input symbol. We can fold all those free jumps into the ordinary transitions \u2014 turning each pattern of (free moves, one symbol, more free moves) into a single arrow.",
-      application: "Compiling the expression open(edit+save)*close naturally creates \u03b5-handoffs between sub-automata. \u03b5-removal packages those internal handoffs while keeping the visible event language identical.",
-      strategy: "For each state q, compute its \u03b5-closure ECl(q) \u2014 all states reachable from q using only \u03b5-moves. Then define each new transition as: close under \u03b5, take a symbol step, close under \u03b5 again. Prove by induction that this matches the original automaton on every nonempty word. Handle \u03b5 separately.",
-      invariant: "For every non-empty prefix w, the ordinary NFA and the \u03b5-NFA reach the same \u03b5-closed set of states.",
-      synthesis: String.raw`For each state \(q\), let \(\operatorname{ECl}(q)\) be its \(\varepsilon\)-closure and define \(\Delta'(q,a)=\operatorname{ECl}\!\left(\bigcup_{p\in\operatorname{ECl}(q)}\Delta(p,a)\right)\). Thus one transition of the new NFA represents every \(\varepsilon^*a\varepsilon^*\) fragment of the original \(\varepsilon\)-NFA. Induction on the length of every nonempty word shows that both machines reach the same \(\varepsilon\)-closed set after reading it. The empty word is the only exceptional case, because the new automaton cannot traverse an initial \(\varepsilon\)-path; declaring its initial state final exactly when \(\operatorname{ECl}(q_0)\cap F\neq\varnothing\) preserves that verdict. Hence the transformed NFA contains no \(\varepsilon\)-moves and recognizes the same language.`,
+      theorem: String.raw`For every \(\varepsilon\)-NFA \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) there exists an equivalent \(\varepsilon\)-free NFA \(\mathcal{A}' = (Q, \Sigma, \Delta', q_0, F')\) such that \(L(\mathcal{A}') = L(\mathcal{A})\).`,
+      intro: "Non-deterministic finite automata with \(\varepsilon\)-transitions (\(\varepsilon\)-NFAs) permit instantaneous state changes without consuming input symbols. While \(\varepsilon\)-transitions provide modularity in structural constructions (such as Thompson's synthesis of regular expressions), they do not extend the class of regular languages. By computing the reflexive-transitive \(\varepsilon\)-closure \(\operatorname{ECl}(q)\) for each state and collapsing all composite path patterns of the form \(\varepsilon^* a \varepsilon^*\) into atomic transitions, silent moves are eliminated without altering observable language behavior.",
+      application: "In compositional model checking, modular specifications are linked by \(\varepsilon\)-handoffs between component automata. Removing \(\varepsilon\)-moves produces a streamlined state space and prevents unobservable stuttering cycles during state-space exploration.",
+      strategy: String.raw`Define the \(\varepsilon\)-closure \(\operatorname{ECl}(S) = \{ p \in Q \mid \exists q \in S,\; q \xrightarrow{\varepsilon^*} p \}\). Define the \(\varepsilon\)-free transition relation as \(\Delta'(q, a) = \operatorname{ECl}(\bigcup_{p \in \operatorname{ECl}(q)} \Delta(p, a))\). Prove by induction on word length that for all non-empty words \(w \in \Sigma^+\), \(\widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\). Reconcile the empty word \(w = \varepsilon\) by setting \(F' = F \cup \{q_0\}\) iff \(\operatorname{ECl}(q_0) \cap F \neq \emptyset\).`,
+      invariant: String.raw`\(\forall w \in \Sigma^+,\; \widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\).`,
+      synthesis: String.raw`For each state \(q\), let \(\operatorname{ECl}(q)\) denote its reflexive-transitive \(\varepsilon\)-closure and define \(\Delta'(q,a)=\operatorname{ECl}\!\left(\bigcup_{p\in\operatorname{ECl}(q)}\Delta(p,a)\right)\). Thus one transition of the new NFA compresses every composite \(\varepsilon^*a\varepsilon^*\) execution segment. An induction on \(|w|\) for \(w\in\Sigma^+\) shows that \(\widehat{\Delta}'(q_0,w)=\operatorname{ECl}(\widehat{\Delta}(q_0,w))\). The empty word is a boundary case because \(\mathcal{A}'\) cannot take \(\varepsilon\)-transitions without consuming a symbol; setting \(F'=F\cup\{q_0\}\) iff \(\operatorname{ECl}(q_0)\cap F\neq\emptyset\) preserves acceptance of \(\varepsilon\). Hence \(L(\mathcal{A}')=L(\mathcal{A})\) with state space \(Q'=Q\).`,
       diagram: {
         description: "Top: \u03b5-NFA with q0 -a-> q1 -\u03b5-> r0 -b-> r1. Bottom: ordinary NFA where the \u03b5-jump from q1 to r0 is folded into the 'a' transition, giving two 'a'-arrows from q0.",
         viewBox: [0, 0, 1000, 550],
@@ -160,67 +212,119 @@
       steps: [
         {
           label: "Construction",
-          title: "Fold the free jump into the 'a' arrow",
-          exposition: "In the top automaton, reading 'a' from q\u2080 reaches q\u2081. Then q\u2081 \u2192\u03b5\u2192 r\u2080 is free \u2014 no symbol consumed. The ordinary NFA must do both in one step. So its 'a' transition from q\u2080 leads to {q\u2081, r\u2080}: the symbol step plus everything reachable for free afterwards.",
-          question: "After taking q\u2080 -a-> q\u2081, then using the free \u03b5-move, which set does the ordinary NFA store?",
-          choices: ["Only {q\u2081}", "{q\u2081, r\u2080}", "Only {r\u2080}"],
-          correct: 1,
-          hint: "Take \u03b5-closure after consuming 'a' \u2014 include every state reachable for free.",
-          feedback: "Correct. The 'a' transition in the new NFA reaches {q\u2081, r\u2080} \u2014 both the direct target and its \u03b5-closure.",
-          incorrect: "The transformed NFA must already include every state reachable for free after the symbol step.",
-          formal: String.raw`\(\Delta'(q,a)=\operatorname{ECl}\!\left(\bigcup_{p\in\operatorname{ECl}(q)}\Delta(p,a)\right)\). It compiles an \(\varepsilon^*a\varepsilon^*\) fragment into one \(a\)-transition.`,
+          title: "Synthesizing \u0394': Compiling \u03b5* a \u03b5* paths into atomic symbol transitions",
+          exposition: String.raw`In an \(\varepsilon\)-NFA, consuming symbol \(a\) from state \(q\) can involve a prefix sequence of \(\varepsilon\)-transitions, the symbol transition \(a\), and a suffix sequence of \(\varepsilon\)-transitions: \(q \xrightarrow{\varepsilon^*} p \xrightarrow{a} p' \xrightarrow{\varepsilon^*} r\). To execute this composite step in a single transition without \(\varepsilon\)-moves, we define \(\Delta'(q, a) = \operatorname{ECl}(\bigcup_{p \in \operatorname{ECl}(q)} \Delta(p, a))\). In the top machine, \(q_0 \xrightarrow{a} q_1 \xrightarrow{\varepsilon} r_0\); hence in \(\mathcal{A}'\), \(\Delta'(q_0, a) = \{q_1, r_0\}\).`,
+          question: "Why must the compiled transition \u0394'(q, a) apply \u03b5-closure both BEFORE and AFTER consuming symbol a?",
+          choices: [
+            {
+              text: String.raw`Because valid paths may traverse silent moves prior to reading \(a\) (reaching \(\operatorname{ECl}(q)\)) as well as after reading \(a\) (reaching \(\operatorname{ECl}(p')\)); omitting either closure loses valid execution runs.`,
+              correct: true,
+              feedback: String.raw`Precisely. Any path adhering to the regular pattern \(\varepsilon^* a \varepsilon^*\) is captured in one atomic \(a\)-step by taking the closure before and after the symbol transition.`
+            },
+            {
+              text: String.raw`Because applying \(\operatorname{ECl}\) twice is mathematically required to guarantee determinism in \(\mathcal{A}'\).`,
+              correct: false,
+              causalFailure: String.raw`The resulting automaton \(\mathcal{A}'\) is an NFA, not a DFA; it may retain non-deterministic branching across multiple successor states.`
+            },
+            {
+              text: String.raw`Because \(\varepsilon\)-closure is an anti-monotone operator that shrinks the reachable state set.`,
+              correct: false,
+              causalFailure: String.raw`The \(\varepsilon\)-closure is extensive (\(S \subseteq \operatorname{ECl}(S)\)) and monotone, expanding the state set rather than shrinking it.`
+            }
+          ],
+          hint: "Consider a general path of the form q -\u03b5*-> p -a-> p' -\u03b5*-> r. Which parts consume input?",
+          formal: String.raw`\(\Delta'(q,a)=\operatorname{ECl}\!\left(\bigcup_{p\in\operatorname{ECl}(q)}\Delta(p,a)\right)\). It maps every \(\varepsilon^*a\varepsilon^*\) execution segment into a single \(a\)-transition.`,
           preview: V(["q0", "q1", "r0"], ["a-top", "eps-top"], { dimNodes: ["r1", "q0p", "q1p", "r0p", "r1p"] }),
           reveal: V(["q0p", "q1p", "r0p"], ["a-q1", "a-r0"], { goodNodes: ["q1p", "r0p"], dimNodes: ["q0", "q1", "r0", "r1"] }),
-          previewNote: "The \u03b5-NFA reaches q\u2081 on 'a', then moves to r\u2080 for free.",
-          revealNote: "The new NFA reaches {q\u2081, r\u2080} in one 'a' step \u2014 both destinations stored."
+          previewNote: "The \u03b5-NFA reaches q1 on 'a', followed by an unobservable \u03b5-move to r0.",
+          revealNote: "The transformed NFA transitions directly from q0 to {q1, r0} on symbol 'a'."
         },
         {
           label: "Inductive step",
-          title: "Read 'b' from the already-closed set",
-          exposition: "After reading 'a', the active set {q\u2081, r\u2080} is already \u03b5-closed (no more free moves). Reading 'b' next: only r\u2080 has a 'b' arrow, leading to r\u2081. So both automata reach {r\u2081} after 'ab'. This restores closure for the next symbol \u2014 the inductive step works.",
-          question: "From {q\u2081, r\u2080}, reading 'b', which state(s) are reached?",
-          choices: ["{r\u2081} only", "{q\u2081, r\u2080}", "No state is reached"],
-          correct: 0,
-          hint: "Only r\u2080 has a 'b' arrow \u2014 check the top diagram.",
-          feedback: "Exactly. Both automata reach r\u2081 after 'ab'. The reachable sets are equal.",
-          incorrect: "Check which state in {q\u2081, r\u2080} actually has a 'b' transition.",
-          formal: String.raw`Because the active set is \(\varepsilon\)-closed, unioning \(\Delta'\) over it equals taking the original symbol successors and closing once more. Both machines reach \(\{r_1\}\) after \(ab\).`,
+          title: "Closure idempotence: Preserving \u03b5-invariance across concatenation",
+          exposition: String.raw`Assume by induction hypothesis that \(\widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\). When extending by symbol \(b\), the new states reached are \(\widehat{\Delta}'(q_0, wb) = \bigcup_{q \in \widehat{\Delta}'(q_0, w)} \Delta'(q, b)\). Because the active set is already \(\varepsilon\)-closed, the idempotence of the closure operator (\(\operatorname{ECl}(\operatorname{ECl}(S)) = \operatorname{ECl}(S)\)) guarantees that composing \(\Delta'\) over \(\widehat{\Delta}'(q_0, w)\) is identical to reading \(b\) in \(\mathcal{A}\) and taking the global \(\varepsilon\)-closure. From \(\{q_1, r_0\}\), reading 'b' hits \(r_1\).`,
+          question: "How does the algebraic idempotence \u2014 ECl(ECl(S)) = ECl(S) \u2014 maintain the inductive invariant when reading wb?",
+          choices: [
+            {
+              text: String.raw`Since the active set is already \(\varepsilon\)-closed, taking another closure before symbol \(b\) is redundant; the new transition directly generates \(\operatorname{ECl}(\widehat{\Delta}(q_0, wb))\).`,
+              correct: true,
+              feedback: String.raw`Correct. Idempotence ensures that the pre-closure step \(\operatorname{ECl}(q)\) inside \(\Delta'\) seamlessly absorbs the post-closure of the previous step without loss or distortion.`
+            },
+            {
+              text: String.raw`Idempotence forces the transition relation \(\Delta'\) to commute with Cartesian product.`,
+              correct: false,
+              causalFailure: String.raw`Idempotence refers strictly to closure repetition (\(f(f(x)) = f(x)\)); it has no bearing on Cartesian products or parallel composition.`
+            },
+            {
+              text: String.raw`It guarantees that the language recognized by \(\mathcal{A}'\) is star-free.`,
+              correct: false,
+              causalFailure: String.raw`The language remains general regular; it is not restricted to the star-free subclass.`
+            }
+          ],
+          hint: "Recall that a closure operator satisfies extensivity, monotonicity, and idempotence: ECl(ECl(X)) = ECl(X).",
+          formal: String.raw`\(\widehat{\Delta}'(q_0,wb)=\bigcup_{q\in\widehat{\Delta}'(q_0,w)}\Delta'(q,b)=\operatorname{ECl}(\widehat{\Delta}(q_0,wb))\), establishing the inductive step for all \(w\in\Sigma^+\).`,
           preview: V(["q1p", "r0p"], [], { dimNodes: ["q0p", "r1p"] }),
           reveal: V(["r1", "r1p"], ["b-top", "b-q1", "b-r0"], { goodNodes: ["r1", "r1p"], dimNodes: ["q0", "q1", "r0", "q0p", "q1p", "r0p"] }),
-          previewNote: "Active set after 'a': {q\u2081, r\u2080}. Now read 'b'.",
-          revealNote: "r\u2081 is reached in both automata. The inductive step works."
+          previewNote: "Current active set after 'a': {q1, r0}, which is already \u03b5-closed.",
+          revealNote: "On 'b', both machines reach {r1}, restoring \u03b5-closure for subsequent steps."
         },
         {
           label: "Boundary case",
-          title: "Handle \u03b5: the empty word",
-          exposition: "What if the \u03b5-NFA accepts the empty word \u03b5 by taking free \u03b5-moves from q\u2080 to a final state? The new NFA cannot follow any \u03b5-path before reading its first symbol. So we check: is any final state reachable from q\u2080 by \u03b5-moves only? If yes, declare q\u2080 final in the new NFA too.",
-          question: "When must q\u2080 be declared a final state in the new NFA?",
-          choices: ["Always", "Exactly when ECl(q\u2080) contains a final state", "Never"],
-          correct: 1,
-          hint: "The new NFA can't take \u03b5-moves before reading anything \u2014 so it needs a correction for the empty word.",
-          feedback: "Right. If ECl(q\u2080) \u2229 F \u2260 \u2205, the \u03b5-NFA accepts \u03b5 via a free path; we replicate that verdict by making q\u2080 final.",
-          incorrect: "The correction is needed only when \u03b5-moves from q\u2080 can actually reach a final state.",
-          formal: String.raw`Set \(F'=F\cup\{q_0\}\) iff \(\operatorname{ECl}(q_0)\cap F\neq\varnothing\). This is the only difference between the two automata on the word \(\varepsilon\).`,
+          title: "Length |w| = 0: Reconciling the empty word \u03b5",
+          exposition: String.raw`The inductive invariant \(\widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\) holds for all non-empty words \(w \in \Sigma^+\). However, on the empty word \(w = \varepsilon\), zero transitions are taken in \(\mathcal{A}'\), leaving the automaton strictly in its initial state \(q_0\). If the original \(\varepsilon\)-NFA accepts \(\varepsilon\) via a silent path \(q_0 \xrightarrow{\varepsilon^+} f \in F\), the new automaton cannot execute this silent path before reading input. To faithfully preserve acceptance of \(\varepsilon\), we declare \(q_0\) accepting in \(\mathcal{A}'\) if and only if \(\operatorname{ECl}(q_0) \cap F \neq \emptyset\).`,
+          question: "Under what exact formal condition must q_0 be included in the accepting set F' of the \u03b5-free automaton?",
+          choices: [
+            {
+              text: String.raw`If and only if \(\operatorname{ECl}(q_0) \cap F \neq \emptyset\), compensating for silent paths from \(q_0\) to final states on input \(\varepsilon\).`,
+              correct: true,
+              feedback: String.raw`Exactly. In \(\mathcal{A}'\), no \(\varepsilon\)-moves can be taken before reading a symbol. If \(\varepsilon \in L(\mathcal{A})\), \(q_0\) must be directly accepting to ensure \(\varepsilon \in L(\mathcal{A}')\).`
+            },
+            {
+              text: String.raw`Always, because initial states in \(\varepsilon\)-free NFAs must be final by convention.`,
+              correct: false,
+              causalFailure: String.raw`Making \(q_0\) unconditionally final would force \(\mathcal{A}'\) to accept \(\varepsilon\) even when \(\varepsilon \notin L(\mathcal{A})\), corrupting language fidelity.`
+            },
+            {
+              text: String.raw`Never, because final states can only be entered after consuming at least one alphabet symbol.`,
+              correct: false,
+              causalFailure: String.raw`If \(\varepsilon \in L(\mathcal{A})\), rejecting \(\varepsilon\) in \(\mathcal{A}'\) would break equivalence \(L(\mathcal{A}') = L(\mathcal{A})\).`
+            }
+          ],
+          hint: "Evaluate \u03b5 \u2208 L(A): an \u03b5-NFA accepts \u03b5 iff an accepting state is reachable via zero or more \u03b5-moves from q_0.",
+          formal: String.raw`Define \(F'=F\cup\{q_0\}\) if \(\operatorname{ECl}(q_0)\cap F\neq\emptyset\), and \(F'=F\) otherwise. Then \(\varepsilon\in L(\mathcal{A}')\iff\varepsilon\in L(\mathcal{A})\).`,
           preview: V(["q0", "q0p"], [], { dimNodes: ["q1", "r0", "r1", "q1p", "r0p", "r1p"] }),
           reveal: V(["q0", "q0p"], [], { goodNodes: ["q0p"], dimNodes: ["q1", "r0", "r1", "q1p", "r0p", "r1p"] }),
-          previewNote: "In this example, q\u2080 has no \u03b5-path to r\u2081 \u2014 so q\u2080 stays non-final.",
-          revealNote: "If ECl(q\u2080) did hit r\u2081, we would mark q\u2080 final in the new NFA."
+          previewNote: "In this instance, ECl(q0) = {q0} and q0 \u2209 F, so q0 remains non-final.",
+          revealNote: "If ECl(q0) intersected F, q0 would be added to F' to preserve \u03b5 acceptance."
         },
         {
           label: "Conclusion",
-          title: "The induction repeats for every symbol",
-          exposition: "After each constructed transition, the active set is again \u03b5-closed. That means the same argument applies to the next symbol. So by induction, after any non-empty word w, both automata are in the same \u03b5-closed set \u2014 and the \u03b5 correction handles \u03b5 itself. The two automata accept exactly the same language.",
-          question: "Why can the inductive argument be repeated for every next symbol?",
-          choices: ["Every active set is \u03b5-closed after each step", "The automaton is deterministic", "Every state is final"],
-          correct: 0,
-          hint: "Look at the closure applied after every new NFA transition.",
-          feedback: "Exactly. Each constructed transition ends in an \u03b5-closed set, ready for the next symbol.",
-          incorrect: "The proof does not require determinism or universal finality \u2014 just \u03b5-closure restoration.",
-          formal: String.raw`Induction on \(|w|\) shows equality of reachable \(\varepsilon\)-closed sets for all nonempty \(w\); the corrected \(F'\) handles \(\varepsilon\). Therefore the languages coincide.`,
+          title: "Language equivalence and complexity bounds",
+          exposition: String.raw`Combining the inductive equivalence for all \(w \in \Sigma^+\) with the boundary adjustment for \(w = \varepsilon\), we conclude that \(L(\mathcal{A}') = L(\mathcal{A})\). Notably, the state set of \(\mathcal{A}'\) is identical to that of \(\mathcal{A}\) (\(Q' = Q\)). Unlike determinization, \(\varepsilon\)-removal does not incur an exponential state blowup: it only increases transition density, yielding an equivalent \(\varepsilon\)-free NFA in polynomial time \(\mathcal{O}(|\Sigma| \cdot |Q|^3)\).`,
+          question: "What is the worst-case state complexity of eliminating \u03b5-transitions, and how does it compare to the subset construction?",
+          choices: [
+            {
+              text: String.raw`The state complexity is exactly \(|Q|\) (no new states are introduced), unlike the subset construction which can incur an exponential blowup of \(2^{|Q|}\).`,
+              correct: true,
+              feedback: String.raw`Correct. \(\varepsilon\)-removal preserves the state set \(Q'=Q\); only the transition relation \(\Delta'\) is enriched by transitivity, keeping state complexity linear.`
+            },
+            {
+              text: String.raw`The state complexity is \(\mathcal{O}(2^{|Q|})\) because all \(\varepsilon\)-closures must be stored as separate macro-states.`,
+              correct: false,
+              causalFailure: String.raw`\(\varepsilon\)-closures are used to compute the transition targets between existing states in \(Q\); they are not stored as macro-states in the automaton.`
+            },
+            {
+              text: String.raw`The state complexity is unbounded because removing \(\varepsilon\)-cycles requires state replication.`,
+              correct: false,
+              causalFailure: String.raw`\(\varepsilon\)-cycles are naturally collapsed by the equivalence classes of the \(\varepsilon\)-reachability pre-order; no state replication is necessary.`
+            }
+          ],
+          hint: "Check the state space Q' in the formal theorem statement: does Q' equal Q or 2^Q?",
+          formal: String.raw`\(|Q'| = |Q|\) and \(L(\mathcal{A}') = L(\mathcal{A})\). The construction preserves state cardinality and operates in polynomial time.`,
           preview: V(["q0", "q1", "r0", "r1"], ["a-top", "eps-top", "b-top"], { dimNodes: ["q0p", "q1p", "r0p", "r1p"] }),
           reveal: V(["q0p", "q1p", "r0p", "r1p"], ["a-q1", "a-r0", "b-q1", "b-r0"], { goodNodes: ["r1p"], dimNodes: ["q0", "q1", "r0", "r1"] }),
-          previewNote: "The \u03b5-NFA alternates symbol moves and free closures.",
-          revealNote: "Every such fragment has one ordinary transition with the same effect."
+          previewNote: "The \u03b5-NFA interleaves symbol transitions with silent \u03b5-moves.",
+          revealNote: "The resulting NFA recognizes the identical language without \u03b5-transitions."
         }
       ],
       previous: { label: "Subset construction", href: "/proofs/chapter-01/subset-construction.html" },
@@ -231,12 +335,12 @@
       slug: "kleene-equivalence",
       chapter: 2,
       title: "Kleene equivalence",
-      theorem: "A language is recognized by a finite automaton iff it is denoted by a regular expression.",
-      intro: "Regular expressions and finite automata describe exactly the same languages. The proof is constructive in both directions: every automaton can be compiled into a regular expression, and every regular expression can be compiled into an automaton.",
-      application: "The editor session language 'open (edit+save)* close' is a regular expression. The theorem guarantees that a finite DFA can enforce the same property \u2014 and vice versa.",
-      strategy: "Prove both directions constructively. Automaton to expression: use path equations indexed by allowed intermediate states (the R\u1d4f\u1d62\u2c7c recurrence). Expression to automaton: build an \u03b5-NFA by induction on expression syntax (Thompson's construction).",
-      invariant: "Every translation preserves exactly the language denoted or recognized by the current representation.",
-      synthesis: String.raw`For the automaton-to-expression direction, number the states \(q_1,\ldots,q_n\) and let \(R_{ij}^{(k)}\) denote the labels of paths from \(q_i\) to \(q_j\) whose intermediate states belong to \(\{q_1,\ldots,q_k\}\). The base expressions describe direct transitions and \(\varepsilon\) when \(i=j\). Splitting paths according to whether they use \(q_k\) yields \(R_{ij}^{(k)}=R_{ij}^{(k-1)}+R_{ik}^{(k-1)}(R_{kk}^{(k-1)})^*R_{kj}^{(k-1)}\), so the union of the expressions \(R_{if}^{(n)}\), from the initial state \(q_i\) to every final state \(q_f\), denotes the automaton language. Conversely, structural induction constructs an equivalent \(\varepsilon\)-NFA for every regular expression. Removing \(\varepsilon\)-moves and, if desired, determinizing preserves the language. Both directions therefore define exactly the regular languages.`,
+      theorem: String.raw`A formal language \(L \subseteq \Sigma^*\) is recognized by a finite automaton if and only if it is denoted by a regular expression: \(\mathcal{L}(\mathrm{FA}) = \mathcal{L}(\mathrm{RegExp})\).`,
+      intro: "Kleene's Theorem establishes the fundamental equivalence between operational state-transition models (finite automata) and denotational algebraic syntax (regular expressions). The equivalence is constructive in both directions: any finite automaton can be compiled into a regular expression via path expressions or state elimination, and any regular expression can be inductively compiled into an equivalent finite automaton via Thompson's structural construction.",
+      application: "In formal protocol specification and hardware verification, engineers define temporal patterns using declarative regular expressions (e.g. open(edit+save)*close). Kleene's theorem guarantees that these declarative expressions can be compiled into deterministic execution monitors with bounded memory.",
+      strategy: "Prove both directions constructively. Automaton \(\to\) Expression: formulate the McNaughton-Yamada path recurrence \(R_{ij}^{(k)} = R_{ij}^{(k-1)} \cup R_{ik}^{(k-1)}(R_{kk}^{(k-1)})^*R_{kj}^{(k-1)}\) indexed by permissible intermediate states. Expression \(\to\) Automaton: apply structural induction on expression syntax via Thompson's \(\varepsilon\)-NFA composition. Close the translation cycle via \(\varepsilon\)-removal and the subset construction.",
+      invariant: String.raw`Every transformation step preserves exact language denotation: \(L(\text{source}) = L(\text{target})\).`,
+      synthesis: String.raw`For the automaton-to-expression direction, order the states \(q_1,\ldots,q_n\) and let \(R_{ij}^{(k)}\) denote the regular expression for paths from \(q_i\) to \(q_j\) whose intermediate vertices belong to \(\{q_1,\ldots,q_k\}\). The base expressions \(R_{ij}^{(0)}\) account for atomic transitions (and \(\varepsilon\) if \(i=j\)). Partitioning paths by whether they traverse \(q_k\) yields the recurrence \(R_{ij}^{(k)}=R_{ij}^{(k-1)}\cup R_{ik}^{(k-1)}(R_{kk}^{(k-1)})^*R_{kj}^{(k-1)}\). Taking the union of \(R_{1f}^{(n)}\) over all \(q_f\in F\) produces an equivalent regular expression. Conversely, structural induction constructs an equivalent \(\varepsilon\)-NFA for every regular expression. Eliminating \(\varepsilon\)-moves and determinizing completes the equivalence cycle \(\mathcal{L}(\mathrm{RegExp}) = \mathcal{L}(\mathrm{DFA})\).`,
       diagram: {
         description: "A cycle of four representations: Regular expression (top), e-NFA (right), NFA (bottom), DFA (left). In the center, R^k_ij is the path-expression induction variable. Each arrow around the cycle is a language-preserving translation.",
         viewBox: [0, 0, 1000, 540],
@@ -262,67 +366,119 @@
       steps: [
         {
           label: "DFA \u2192 Regex",
-          title: "Index paths by how far they can wander",
-          exposition: "We want a regular expression for every DFA path. The trick: build it step by step, expanding which states are allowed as internal waypoints. Start with direct edges only (k=0). Then, one state at a time, allow paths that pass through state q\u1d4f. After allowing all n states, we have expressions for all paths.",
-          question: "What does the index k control in R\u1d4f\u1d62\u2c7c?",
-          choices: ["Which states may appear as internal waypoints on a path", "The length of the word being read", "How many final states the automaton has"],
-          correct: 0,
-          hint: "Think of k as a 'permission level': paths may use states q\u2081 through q\u1d4f in the middle.",
-          feedback: "Correct. k expands the allowed intermediate waypoints from none (k=0) to all n states.",
-          incorrect: "The index is about intermediate waypoints, not word length or final states.",
-          formal: String.raw`\(R_{ij}^{(k)}\) denotes all labels of paths from \(q_i\) to \(q_j\) whose intermediate states lie among \(q_1,\ldots,q_k\).`,
+          title: "Intermediate state indexing in path expressions",
+          exposition: String.raw`To extract a regular expression from a DFA with state set \(Q = \{q_1, \ldots, q_n\}\), we avoid cyclic loops by bounding the permissible intermediate states. Define \(R_{ij}^{(k)}\) as the set of labels of all paths from \(q_i\) to \(q_j\) whose internal vertices belong strictly to \(\{q_1, \ldots, q_k\}\). For \(k = 0\), paths contain no intermediate states (only direct edges, plus \(\varepsilon\) if \(i = j\)). When \(k = n\), all states are permitted as intermediate waypoints, yielding the complete path language.`,
+          question: "What precise structural constraint does the index k impose on the path language R_{ij}^{(k)}?",
+          choices: [
+            {
+              text: String.raw`Internal path vertices must belong to the subset \(\{q_1, \ldots, q_k\}\); the endpoints \(q_i\) and \(q_j\) are unrestricted.`,
+              correct: true,
+              feedback: String.raw`Correct. The index \(k\) acts as an internal state filter: only states with index \(\le k\) can be visited between departure from \(q_i\) and arrival at \(q_j\).`
+            },
+            {
+              text: String.raw`Paths must have length at most \(k\) transitions.`,
+              correct: false,
+              causalFailure: String.raw`The index \(k\) restricts state identities, not path length; paths in \(R_{ij}^{(k)}\) can be arbitrarily long due to loops among \(\{q_1, \ldots, q_k\}\).`
+            },
+            {
+              text: String.raw`The automaton must contain at most \(k\) accepting states.`,
+              correct: false,
+              causalFailure: String.raw`Path expressions are independent of final states; acceptance is applied only at the outer union \(\bigcup_{q_f \in F} R_{1f}^{(n)}\).`
+            }
+          ],
+          hint: "Distinguish between the endpoints q_i, q_j and the internal waypoints visited between them.",
+          formal: String.raw`\(R_{ij}^{(k)} = \{ w \in \Sigma^* \mid q_i \xrightarrow{w} q_j \text{ such that all internal states lie in } \{q_1,\ldots,q_k\} \}\).`,
           preview: V(["dfa"], [], { dimNodes: ["enfa", "nfa"] }),
           reveal: V(["dfa", "rk"], ["dfa-rk"], { goodNodes: ["rk"], dimNodes: ["enfa", "nfa"] }),
-          previewNote: "Start from the DFA. Paths may wander through any states.",
-          revealNote: "R\u1d4f\u1d62\u2c7c captures exactly those paths, indexed by allowed waypoints."
+          previewNote: "Start from the DFA. Arbitrary paths may contain complex cyclic loops.",
+          revealNote: "R_ij^(k) stratifies all paths by their permitted intermediate states."
         },
         {
           label: "DFA \u2192 Regex",
-          title: "Split: avoid q\u1d4f, or loop through it",
-          exposition: "When q\u1d4f becomes a new allowed waypoint, any path from q\u1d62 to q\u2c7c falls into one of two cases: (1) avoid q\u1d4f entirely, described by R\u1d62\u2c7c\u1d4f\u207b\u00b9; or (2) reach q\u1d4f, loop there zero or more times, then leave to q\u2c7c. Case (2) gives: R\u1d62\u1d4f\u1d4f\u207b\u00b9 \u00b7 (R\u1d4f\u1d4f\u1d4f\u207b\u00b9)* \u00b7 R\u1d4f\u2c7c\u1d4f\u207b\u00b9. Their union is the recurrence.",
-          question: "When q\u1d4f becomes available as a waypoint, how can a path from q\u1d62 to q\u2c7c use it?",
-          choices: ["Avoid q\u1d4f entirely, or enter it, loop zero or more times, then leave", "Visit q\u1d4f exactly once", "Only end at q\u1d4f"],
-          correct: 0,
-          hint: "The path can skip q\u1d4f entirely, or pass through it any number of times.",
-          feedback: "Exactly. The two cases give union, concatenation, and star \u2014 all three regex operators in one recurrence.",
-          incorrect: "The new state may be skipped or revisited any number of times.",
-          formal: String.raw`\(R_{ij}^{(k)}=R_{ij}^{(k-1)}+R_{ik}^{(k-1)}(R_{kk}^{(k-1)})^*R_{kj}^{(k-1)}\).`,
+          title: "The McNaughton-Yamada path recurrence",
+          exposition: String.raw`When allowing \(q_k\) as a new intermediate waypoint, any path from \(q_i\) to \(q_j\) with internal vertices in \(\{q_1, \ldots, q_k\}\) partitions into two disjoint cases: (1) paths that never visit \(q_k\) as an internal state, denoted by \(R_{ij}^{(k-1)}\); and (2) paths that visit \(q_k\) at least once: they travel from \(q_i\) to \(q_k\), loop on \(q_k\) zero or more times, and finally travel from \(q_k\) to \(q_j\), with all intermediate states in \(\{q_1, \ldots, q_{k-1}\}\). This yields the algebraic recurrence: \(R_{ij}^{(k)} = R_{ij}^{(k-1)} \cup R_{ik}^{(k-1)} (R_{kk}^{(k-1)})^* R_{kj}^{(k-1)}\).`,
+          question: "Why does the second term in the recurrence R_{ij}^{(k)} require the Kleene star (R_{kk}^{(k-1)})*?",
+          choices: [
+            {
+              text: String.raw`Because a path may revisit state \(q_k\) multiple times, executing an arbitrary number of intermediate loops before departing toward \(q_j\).`,
+              correct: true,
+              feedback: String.raw`Precisely. After reaching \(q_k\) for the first time, the run may return to \(q_k\) zero, one, or arbitrarily many times via intermediate states \(\{q_1, \ldots, q_{k-1}\}\), captured algebraically by \({}^*\).`
+            },
+            {
+              text: String.raw`Because regular expressions cannot represent concatenation without an enclosing star.`,
+              correct: false,
+              causalFailure: String.raw`Regular expressions support concatenation independently of star; the star operator specifically models unbounded self-loops.`
+            },
+            {
+              text: String.raw`Because state \(q_k\) is mathematically guaranteed to be an accepting state.`,
+              correct: false,
+              causalFailure: String.raw`State \(q_k\) is an arbitrary state in the elimination ordering; it need not belong to \(F\).`
+            }
+          ],
+          hint: "How many times can an execution path visit the newly permitted waypoint q_k?",
+          formal: String.raw`\(R_{ij}^{(k)}=R_{ij}^{(k-1)}\cup R_{ik}^{(k-1)}(R_{kk}^{(k-1)})^*R_{kj}^{(k-1)}\). The base cases are \(R_{ij}^{(0)}=\{a\in\Sigma\mid \delta(q_i,a)=q_j\}\cup(\{\varepsilon\}\text{ if }i=j\text{ else }\emptyset)\).`,
           preview: V(["rk"], [], { dimNodes: ["enfa", "nfa"] }),
           reveal: V(["rk", "regex"], ["rk-regex"], { goodNodes: ["regex"], dimNodes: ["enfa", "nfa"] }),
-          previewNote: "A path either avoids q\u1d4f or factors through it.",
-          revealNote: "The recurrence builds a regular expression from smaller ones."
+          previewNote: "Paths decompose into: avoiding q_k entirely, or entering q_k and looping.",
+          revealNote: "The recurrence synthesizes union, concatenation, and star algebraically."
         },
         {
           label: "Regex \u2192 Automaton",
-          title: "Build an automaton from expression structure",
-          exposition: "Going the other direction: a regular expression is built from atoms (single symbols) using union (+), concatenation, and star (*). Build a small automaton for each atom. Then wire them together using \u03b5-transitions: union adds a fork at the start; concatenation chains two automata; star adds a back-edge. The \u03b5-NFA mirrors the expression tree.",
-          question: "Which model lets us connect sub-automata without consuming any input?",
-          choices: ["A complete DFA", "An \u03b5-NFA", "A pushdown automaton"],
-          correct: 1,
-          hint: "We need free (\u03b5) transitions between sub-automata \u2014 no input consumed.",
-          feedback: "Right. Thompson's construction uses \u03b5-transitions to connect pieces, following the syntax tree.",
-          incorrect: "We need a finite-state model where pieces can be wired together for free (\u03b5).",
-          formal: String.raw`Structural induction builds \(\varepsilon\)-NFAs for symbols and combines them for \(+\), concatenation, and \(^*\) while preserving denotation.`,
+          title: "Thompson's structural induction on syntax trees",
+          exposition: String.raw`Conversely, given regular expression \(e\), we construct an equivalent \(\varepsilon\)-NFA by structural induction on its syntax tree. Atomic expressions (\(\emptyset, \varepsilon, a\)) map to elementary 2-state automata. Inductive operators (\(e_1 + e_2, e_1 \cdot e_2, e_1^*\)) compose sub-automata using \(\varepsilon\)-transitions. Thompson's construction maintains an essential structural invariant: every synthesized sub-automaton possesses exactly one initial state with zero incoming edges, and exactly one accepting state with zero outgoing edges.`,
+          question: "Which structural property guaranteed by Thompson's construction prevents cross-talk or unintended cycles when nesting sub-automata under concatenation and star?",
+          choices: [
+            {
+              text: String.raw`Every component automaton has a unique start state with in-degree 0 and a unique final state with out-degree 0.`,
+              correct: true,
+              feedback: String.raw`Exactly. Having a single entrance with in-degree 0 and a single exit with out-degree 0 ensures that adding \(\varepsilon\)-links for concatenation or loops cannot inadvertently re-enter internal states of component modules.`
+            },
+            {
+              text: String.raw`All constructed component automata are strictly deterministic and minimal.`,
+              correct: false,
+              causalFailure: String.raw`Thompson automata are highly non-deterministic with numerous \(\varepsilon\)-transitions, and are far from minimal.`
+            },
+            {
+              text: String.raw`Transitions are only permitted to connect states with monotonically increasing indices.`,
+              correct: false,
+              causalFailure: String.raw`Kleene star introduces backwards \(\varepsilon\)-transitions to enable looping, violating monotonic index ordering.`
+            }
+          ],
+          hint: "Consider why Thompson's construction adds dedicated new initial and final states for union and star.",
+          formal: String.raw`By structural induction, for every regular expression \(e\) there exists an \(\varepsilon\)-NFA \(\mathcal{A}_e\) with \(L(\mathcal{A}_e) = \mathcal{L}(e)\) satisfying the single-entry single-exit invariant.`,
           preview: V(["regex"], [], { dimNodes: ["dfa", "nfa"] }),
           reveal: V(["regex", "enfa"], ["regex-enfa"], { goodNodes: ["enfa"], dimNodes: ["dfa", "nfa"] }),
-          previewNote: "The expression tells us how its parts compose.",
-          revealNote: "The \u03b5-NFA mirrors that tree: atoms become states, operators become \u03b5-wiring."
+          previewNote: "A regular expression is a structured syntax tree of atoms and operators.",
+          revealNote: "Thompson's construction mirrors that tree using \u03b5-linked component blocks."
         },
         {
           label: "Equivalence",
-          title: "Both directions close the loop",
-          exposition: "We have two constructions: DFA \u2192 regex (via path equations) and regex \u2192 \u03b5-NFA \u2192 NFA \u2192 DFA (via Thompson + known conversions). Each step preserves the language. So the same language is expressible as a regex if and only if a finite automaton recognizes it. The cycle proves a full iff.",
-          question: "Why does this cycle prove iff (not just one direction)?",
-          choices: ["There is a language-preserving route in both directions", "Every automaton is smaller than the expression", "All automata are deterministic"],
-          correct: 0,
-          hint: "For iff, we need: regex \u2192 automaton and automaton \u2192 regex. Do both routes exist?",
-          feedback: "Exactly. Each direction has a constructive, language-preserving translation.",
-          incorrect: "Size and determinism are irrelevant; what matters is that both routes preserve the language.",
-          formal: String.raw`DFA \(\to\) regular expression proves every automaton language is denotable; regular expression \(\to\varepsilon\)-NFA \(\to\) NFA proves every denotation is recognizable.`,
+          title: "Closing the equivalence cycle: \u22c3 R_{1f}^{(n)} = L(A)",
+          exposition: String.raw`The two directions close a complete translation loop: \(\mathrm{RegExp} \xrightarrow{\text{Thompson}} \varepsilon\text{-NFA} \xrightarrow{\varepsilon\text{-elim}} \mathrm{NFA} \xrightarrow{\text{subset}} \mathrm{DFA} \xrightarrow{\text{Kleene}} \mathrm{RegExp}\). Since every intermediate representation preserves the recognized language, we conclude that the class of languages recognized by finite automata is identical to the class of languages denoted by regular expressions: \(\mathcal{L}(\mathrm{FA}) = \mathcal{L}(\mathrm{RegExp})\).`,
+          question: "Why does the closed cycle of language-preserving reductions prove logical equivalence (\u21d4) rather than a one-way inclusion?",
+          choices: [
+            {
+              text: String.raw`Because constructive translations exist in both directions: every automaton denotes a regular expression, and every regular expression compiles to an automaton.`,
+              correct: true,
+              feedback: String.raw`Correct. A translation \(\mathrm{DFA} \to \mathrm{RegExp}\) proves \(\mathcal{L}(\mathrm{DFA}) \subseteq \mathcal{L}(\mathrm{RegExp})\), while \(\mathrm{RegExp} \to \varepsilon\text{-NFA} \to \mathrm{DFA}\) proves \(\mathcal{L}(\mathrm{RegExp}) \subseteq \mathcal{L}(\mathrm{DFA})\), establishing exact equality.`
+            },
+            {
+              text: String.raw`Because regular expressions are isomorphic to context-free grammars in Greibach normal form.`,
+              correct: false,
+              causalFailure: String.raw`Context-free grammars strictly subsume regular expressions; they are not equivalent to finite automata.`
+            },
+            {
+              text: String.raw`Because the McNaughton-Yamada algorithm runs in linear time.`,
+              correct: false,
+              causalFailure: String.raw`McNaughton-Yamada can produce exponentially large expressions \(\mathcal{O}(4^n)\); computational complexity does not determine language equivalence.`
+            }
+          ],
+          hint: "To prove A = B, one must establish both inclusions: A \u2286 B and B \u2286 A.",
+          formal: String.raw`\(L(\mathcal{A})=\bigcup_{q_f\in F}R_{1f}^{(n)}\implies\mathcal{L}(\mathrm{DFA})\subseteq\mathcal{L}(\mathrm{RegExp})\), and Thompson's construction gives \(\mathcal{L}(\mathrm{RegExp})\subseteq\mathcal{L}(\mathrm{DFA})\). Hence \(\mathcal{L}(\mathrm{DFA})=\mathcal{L}(\mathrm{RegExp})\).`,
           preview: V(["regex", "enfa", "nfa", "dfa"], [], {}),
           reveal: V(["regex", "enfa", "nfa", "dfa"], ["regex-enfa", "enfa-nfa", "nfa-dfa", "dfa-regex"], { goodNodes: ["regex", "dfa"] }),
-          previewNote: "Four representations form a cycle.",
-          revealNote: "Every arrow preserves the language. The cycle closes both directions of the iff."
+          previewNote: "Four representations form a closed translational cycle.",
+          revealNote: "Every translation preserves language semantics: L(DFA) = L(RegExp)."
         }
       ],
       previous: { label: "\u03b5-removal", href: "/proofs/chapter-02/epsilon-removal.html" },
@@ -333,12 +489,12 @@
       slug: "regular-closure",
       chapter: 2,
       title: "Closure of regular languages",
-      theorem: "Regular languages are closed under union, concatenation, star, complement, and intersection.",
-      intro: "If L\u2081 and L\u2082 are regular, so are L\u2081 \u222a L\u2082, L\u2081L\u2082, L\u2081*, \u00acL\u2081, and L\u2081 \u2229 L\u2082. 'Closed' means the operation stays inside the class. For each operation there is a concrete automaton construction that proves it.",
-      application: "Intersect 'completed sessions' with 'at least one save' to get sessions that are both complete and non-trivial. Complement 'valid sessions' to get exactly the malformed ones. Both results stay regular.",
-      strategy: "For each operation, exhibit a finite automaton recognizing exactly the result. Union, concatenation, and star use \u03b5-NFA wiring. Complement uses DFA state swapping. Intersection uses a product automaton.",
-      invariant: "After each construction, the new automaton accepts exactly the result of applying the selected operation to the input regular language(s).",
-      synthesis: String.raw`Let \(L,L_1,L_2\) be regular. Union, concatenation, and star are regular because the corresponding regular-expression constructors preserve denotation, equivalently because \(\varepsilon\)-NFAs can implement initial choice, finite handoff, and restart. For complement, determinize and complete an automaton for \(L\); every word then has one total run, and replacing \(F\) by \(Q\setminus F\) reverses exactly its acceptance verdict. For intersection, the product automaton on \(Q_1\times Q_2\) advances both components on every symbol and accepts in \(F_1\times F_2\), hence recognizes precisely \(L_1\cap L_2\). Each operation therefore has a finite automaton recognizing its result, so the class of regular languages is closed under all five operations.`,
+      theorem: String.raw`The class of regular languages \(\mathrm{REG}\) is an effective Boolean algebra: it is closed under union (\(\cup\)), intersection (\(\cap\)), complementation (\(\complement\)), concatenation (\(\cdot\)), and Kleene star (\({}^*\)).`,
+      intro: "A language family is closed under an operation if applying that operation to languages within the family yields another language in the same family. For regular languages, closure is fully constructive: for every Boolean and regular operation, an explicit algorithm synthesizes a finite automaton recognizing the compound language directly from automata for the operands.",
+      application: "In model checking, safety verification reduces to language containment: a system model \(\mathcal{M}\) complies with specification \(\mathcal{S}\) iff \(\mathcal{L}(\mathcal{M}) \subseteq \mathcal{L}(\mathcal{S})\), which is algorithmically decidable by checking emptiness of the product \(\mathcal{L}(\mathcal{M}) \cap \overline{\mathcal{L}(\mathcal{S})} = \emptyset\).",
+      strategy: "For regular operations (\(\cup, \cdot, {}^*\)), construct compositional \(\varepsilon\)-NFAs via Thompson's synthesis. For complementation, determinize and complete the automaton so every word admits a unique total run, then invert final states: \(F' = Q \setminus F\). For intersection, construct the synchronous Cartesian product automaton on \(Q_1 \times Q_2\) with accepting set \(F_1 \times F_2\).",
+      invariant: String.raw`Every constructed automaton accepts exactly the language defined by the corresponding set-theoretic operation.`,
+      synthesis: String.raw`Let \(L_1, L_2\) be regular languages. Closure under union, concatenation, and star follows directly from regular expression syntax and Thompson's \(\varepsilon\)-NFA compilation. For complementation, determinize and complete a DFA for \(L_1\); since \(\delta\) is total and deterministic, every word \(w\in\Sigma^*\) induces a unique path ending in \(\widehat{\delta}(q_0, w)\). Replacing \(F\) by \(Q\setminus F\) inverts the acceptance verdict: \(w\in\Sigma^*\setminus L_1 \iff \widehat{\delta}(q_0, w)\in Q\setminus F\). For intersection, the synchronous product \(\mathcal{A}_1\times\mathcal{A}_2\) with state space \(Q_1\times Q_2\), transition \(\delta((p,q),a)=(\delta_1(p,a),\delta_2(q,a))\), and accepting set \(F_1\times F_2\) accepts \(w\) iff \(w\in L_1\cap L_2\). Thus \(\mathrm{REG}\) is closed under all five operations.`,
       diagram: {
         description: "REG at the center. Five arrows point outward to the five operations: union and concatenation and star (using e-NFA wiring), complement (using DFA swap), intersection (using product automaton). All stay inside REG.",
         viewBox: [0, 0, 1000, 560],
@@ -363,68 +519,120 @@
       },
       steps: [
         {
-          label: "Union, concat, star",
-          title: "Reuse what Kleene gives us for free",
-          exposition: "Union, concatenation, and star are already part of regular expression syntax. By Kleene equivalence they correspond directly to \u03b5-NFA constructions: union = initial \u03b5-choice; concatenation = \u03b5-handoff from one automaton to the next; star = \u03b5 back-edge to the start. No new ideas needed.",
-          question: "Which three operations are immediately handled by \u03b5-NFA wiring?",
-          choices: ["Union, concatenation, star", "Complement, intersection, reversal", "Only union"],
-          correct: 0,
-          hint: "These are exactly the three constructors of a regular expression.",
-          feedback: "Correct. Union, concatenation, and star already live inside regular expression syntax.",
-          incorrect: "Look at the three constructors built into regular expressions.",
-          formal: String.raw`Kleene equivalence turns expression constructors or \(\varepsilon\)-NFA wiring into finite automata for the resulting languages.`,
+          label: "Syntactic operations",
+          title: "Closure under union, concatenation, and Kleene star",
+          exposition: String.raw`The operations \(L_1 \cup L_2\), \(L_1 \cdot L_2\), and \(L_1^*\) correspond directly to the inductive constructors of regular expressions. By Kleene's theorem, if \(L_1 = \mathcal{L}(e_1)\) and \(L_2 = \mathcal{L}(e_2)\), then \(L_1 \cup L_2 = \mathcal{L}(e_1 + e_2)\), \(L_1 \cdot L_2 = \mathcal{L}(e_1 \cdot e_2)\), and \(L_1^* = \mathcal{L}(e_1^*)\). Operationally, Thompson's construction implements these operations by wiring sub-automata using \(\varepsilon\)-transitions without modifying internal state spaces.`,
+          question: "Why do the operations \u222a, \u22c5, and * preserve regularity without requiring determinization?",
+          choices: [
+            {
+              text: String.raw`Because they are primitive constructors of regular expressions; \(\varepsilon\)-NFAs implement initial choice (\(\cup\)), sequential handoff (\(\cdot\)), and restart loops (\({}^*\)) while remaining finite-state.`,
+              correct: true,
+              feedback: String.raw`Correct. Non-determinism allows combining existing automata via \(\varepsilon\)-transitions in linear time \(\mathcal{O}(|Q_1| + |Q_2|)\), directly certifying regularity.`
+            },
+            {
+              text: String.raw`Because all regular languages are finite sets, and operations on finite sets are trivially closed.`,
+              correct: false,
+              causalFailure: String.raw`Regular languages can be infinite (e.g. \(a^*\)); closure depends on finite-state recognizability, not set finiteness.`
+            },
+            {
+              text: String.raw`Because regular expressions commute with the subset construction operator.`,
+              correct: false,
+              causalFailure: String.raw`Regular expressions are syntactic terms; they do not commute with determinization algorithms.`
+            }
+          ],
+          hint: "Recall Thompson's synthesis: how are sub-automata wired together for e_1 + e_2, e_1 \u00b7 e_2, and e_1*?",
+          formal: String.raw`If \(L_1, L_2 \in \mathrm{REG}\), then \(e_1 + e_2, e_1 e_2, e_1^* \in \mathrm{RegExp}\), hence \(L_1 \cup L_2, L_1 L_2, L_1^* \in \mathrm{REG}\).`,
           preview: V(["reg"], [], { dimNodes: ["comp", "inter"] }),
           reveal: V(["reg", "union", "concat", "star"], ["e-union", "e-concat", "e-star"], { goodNodes: ["union", "concat", "star"], dimNodes: ["comp", "inter"] }),
           previewNote: "Three operations are inherited directly from regular expression syntax.",
-          revealNote: "Each construction stays inside REG."
+          revealNote: "Thompson wiring keeps all three constructions inside REG with linear state overhead."
         },
         {
-          label: "Complement",
-          title: "Swap final and non-final states \u2014 but only in a DFA",
-          exposition: "To complement L: we want an automaton accepting exactly the words L rejects. In a complete DFA, every word has exactly one run ending in exactly one state. Swapping F and Q\\F flips every verdict. But we need a complete DFA first \u2014 missing transitions mean some words have no run and no verdict to swap.",
-          question: "Before swapping final and non-final states for complement, what must we do?",
-          choices: ["Determinize and complete the automaton so every word has exactly one run", "Remove all cycles", "Make every state initial"],
-          correct: 0,
-          hint: "Every word needs exactly one complete run \u2014 otherwise swapping gives no verdict for some words.",
-          feedback: "Exactly. Completeness ensures every word has a run; determinism ensures it lands in exactly one state.",
-          incorrect: "Missing or nondeterministic transitions prevent a clean verdict swap.",
-          formal: String.raw`For a complete DFA, every word has one run ending in \(q\). Replacing \(F\) by \(Q\setminus F\) accepts exactly the words previously rejected.`,
+          label: "Complementation",
+          title: "Inverting acceptance: The necessity of completeness and determinism",
+          exposition: String.raw`To recognize \(\overline{L} = \Sigma^* \setminus L\), we invert the acceptance status of states: \(F' = Q \setminus F\). However, this swap is sound if and only if the automaton is BOTH deterministic AND complete (every state has exactly one outgoing transition per alphabet symbol). In an incomplete DFA, rejected words may lack a complete run and will still be rejected after swapping. In an NFA, a word may reach both accepting and non-accepting states simultaneously, so flipping states does not compute the complement.`,
+          question: "Why is state flipping (F' = Q \\ F) sound for complementation ONLY when the automaton is both deterministic and complete?",
+          choices: [
+            {
+              text: String.raw`Determinism guarantees that every word induces at most one run, while completeness guarantees that every word induces at least one run; together they ensure a unique run ending in \(\widehat{\delta}(q_0, w)\), so inverting \(F\) precisely inverts acceptance.`,
+              correct: true,
+              feedback: String.raw`Precisely. In an NFA, a word can have multiple runs, some ending in \(F\) and others in \(Q \setminus F\), so both the original and flipped machines would accept it. In an incomplete DFA, a missing transition discards words entirely.`
+            },
+            {
+              text: String.raw`Because non-deterministic automata cannot be complemented under any mathematical construction.`,
+              correct: false,
+              causalFailure: String.raw`NFAs can be complemented, but they must first be converted into complete DFAs via the subset construction before flipping final states.`
+            },
+            {
+              text: String.raw`Because inverting final states in an NFA would make the start state unreachable.`,
+              correct: false,
+              causalFailure: String.raw`Flipping final states alters only \(F\); it does not modify the transition graph or reachability from \(q_0\).`
+            }
+          ],
+          hint: "Consider what happens if a word has no run (incomplete) or multiple runs (non-deterministic).",
+          formal: String.raw`For a complete DFA \(\mathcal{A}\), \(\forall w\in\Sigma^*,\; \exists! q\in Q \text{ s.t. } \widehat{\delta}(q_0,w)=q\). Thus \(w\notin L(\mathcal{A}) \iff \widehat{\delta}(q_0,w)\in Q\setminus F\).`,
           preview: V(["reg", "comp"], [], { dimNodes: ["union", "concat", "star", "inter"] }),
           reveal: V(["reg", "comp"], ["e-comp"], { goodNodes: ["comp"], dimNodes: ["union", "concat", "star", "inter"] }),
-          previewNote: "Complement reverses the verdict \u2014 but only when each word has one verdict.",
-          revealNote: "A complete DFA gives every word exactly one run to flip."
+          previewNote: "Complementation inverts the verdict: w is accepted iff it was previously rejected.",
+          revealNote: "A complete DFA ensures every word has exactly one run to invert: F' = Q \\ F."
         },
         {
           label: "Intersection",
-          title: "Run both automata in parallel",
-          exposition: "To check L\u2081 \u2229 L\u2082, we track where automaton 1 is and where automaton 2 is \u2014 simultaneously, on the same input. The product automaton: state = pair (q\u2081, q\u2082); both components advance together. Accept when both are final: (q\u2081, q\u2082) \u2208 F\u2081 \u00d7 F\u2082.",
-          question: "What state space is needed to track two automata reading the same word?",
-          choices: ["Q\u2081 \u222a Q\u2082", "Q\u2081 \u00d7 Q\u2082", "2^(Q\u2081 \u2229 Q\u2082)"],
-          correct: 1,
-          hint: "We need to know the current state in automaton 1 AND the current state in automaton 2.",
-          feedback: "Right. The pair (q\u2081, q\u2082) tracks both simultaneously. Acceptance requires both to be final.",
-          incorrect: "A union conflates the two automata; we need ordered pairs of simultaneous states.",
-          formal: String.raw`The product transition advances both components on the same symbol and uses accepting set \(F_1\times F_2\).`,
+          title: "Synchronous parallel composition: The Cartesian product automaton",
+          exposition: String.raw`Given DFAs \(\mathcal{A}_1 = (Q_1, \Sigma, \delta_1, q_{0,1}, F_1)\) and \(\mathcal{A}_2 = (Q_2, \Sigma, \delta_2, q_{0,2}, F_2)\), we construct the synchronous product automaton \(\mathcal{A}_1 \times \mathcal{A}_2 = (Q_1 \times Q_2, \Sigma, \delta, (q_{0,1}, q_{0,2}), F_1 \times F_2)\). The transition function advances both components simultaneously on each symbol: \(\delta((p, q), a) = (\delta_1(p, a), \delta_2(q, a))\). By induction, \(\widehat{\delta}((q_{0,1}, q_{0,2}), w) = (\widehat{\delta}_1(q_{0,1}, w), \widehat{\delta}_2(q_{0,2}, w))\). Acceptance requires both components to land in final states: \((p, q) \in F_1 \times F_2\).`,
+          question: "Why does the synchronous product automaton use state space Q_1 \u00d7 Q_2 and final set F_1 \u00d7 F_2 to recognize L_1 \u2229 L_2?",
+          choices: [
+            {
+              text: String.raw`The pair \((p, q)\) maintains the exact instantaneous state of both machines after reading prefix \(w\); requiring both components to be final ensures \(w \in L_1\) and \(w \in L_2\).`,
+              correct: true,
+              feedback: String.raw`Correct. Synchronous product simulates parallel execution on identical input symbols, and the product of accepting sets enforces simultaneous acceptance.`
+            },
+            {
+              text: String.raw`Because the union of state sets \(Q_1 \cup Q_2\) would conflate states belonging to different automata.`,
+              correct: false,
+              causalFailure: String.raw`While \(Q_1 \cup Q_2\) is incorrect, the mathematical reason is that an ordered pair in \(Q_1 \times Q_2\) is required to track two independent configurations simultaneously.`
+            },
+            {
+              text: String.raw`Because De Morgan's laws do not apply to regular languages.`,
+              correct: false,
+              causalFailure: String.raw`De Morgan's laws hold for any Boolean algebra of sets: \(L_1 \cap L_2 = \overline{\overline{L_1} \cup \overline{L_2}}\).`
+            }
+          ],
+          hint: "Evaluate \u03b4\u0302((q_0,1, q_0,2), w): both components must accept the identical word w.",
+          formal: String.raw`\(\widehat{\delta}((q_{0,1},q_{0,2}),w)\in F_1\times F_2 \iff \widehat{\delta}_1(q_{0,1},w)\in F_1 \land \widehat{\delta}_2(q_{0,2},w)\in F_2 \iff w\in L_1\cap L_2\).`,
           preview: V(["reg", "inter"], [], { dimNodes: ["union", "concat", "star", "comp"] }),
           reveal: V(["reg", "inter"], ["e-inter"], { goodNodes: ["inter"], dimNodes: ["union", "concat", "star", "comp"] }),
-          previewNote: "Intersection requires both automata to accept on the same word.",
-          revealNote: "The product stores both states as one ordered pair."
+          previewNote: "Intersection requires both automata to accept on the identical input word.",
+          revealNote: "The Cartesian product Q1 \u00d7 Q2 tracks both state configurations synchronously."
         },
         {
-          label: "Closure",
-          title: "Closure means: a compiler exists for each operation",
-          exposition: "Saying 'regular languages are closed' is not just a set-theoretic claim. For each operation there is an algorithm that takes the input automata and builds an output automaton. This is what makes closure useful: compound specifications can be mechanically compiled, and decidability is preserved.",
-          question: "What does closure give us in verification?",
-          choices: ["A compiler for compound regular properties \u2014 build complex specs from simpler ones", "A proof that every language is regular", "A guarantee that the result is always a smaller automaton"],
-          correct: 0,
-          hint: "Closure means we can combine regular specifications and the result stays regular \u2014 still decidable.",
-          feedback: "Exactly. Compound specifications remain in the decidable finite-state world.",
-          incorrect: "Closure preserves membership in REG, not universality or compactness.",
-          formal: "Each listed operation has a language-preserving finite automaton construction, hence its result is regular.",
+          label: "Decision procedures",
+          title: "Verification implications: Decidability of inclusion and equivalence",
+          exposition: String.raw`The effective Boolean closure of \(\mathrm{REG}\) is the foundation of automated formal verification. Given two regular specifications \(L_1\) and \(L_2\), language containment \(L_1 \subseteq L_2\) holds if and only if \(L_1 \cap \overline{L_2} = \emptyset\). Since regular languages are effectively closed under complementation and intersection, we construct a DFA for \(L_1 \cap \overline{L_2}\) and test emptiness by reachability analysis in \(\mathcal{O}(|Q_1| \cdot 2^{|Q_2|})\). Similarly, language equivalence \(L_1 = L_2\) reduces to mutual containment.`,
+          question: "How does effective Boolean closure enable algorithmic decision procedures for language inclusion L_1 \u2286 L_2?",
+          choices: [
+            {
+              text: String.raw`By reducing containment to emptiness: \(L_1 \subseteq L_2 \iff L_1 \cap \overline{L_2} = \emptyset\); since \(\mathrm{REG}\) is closed under \(\complement\) and \(\cap\), the product DFA can be checked for reachability of final states.`,
+              correct: true,
+              feedback: String.raw`Exactly. Boolean closure allows compiling compound verification queries into single automata whose emptiness can be checked in linear time with respect to the transition graph.`
+            },
+            {
+              text: String.raw`By proving that all regular languages have identical minimal automata.`,
+              correct: false,
+              causalFailure: String.raw`Minimal automata are unique up to isomorphism for a single language, but different languages have different minimal automata.`
+            },
+            {
+              text: String.raw`By establishing that regular language inclusion is undecidable by Rice's theorem.`,
+              correct: false,
+              causalFailure: String.raw`Rice's theorem applies to Turing-complete systems; regular language inclusion is fully decidable.`
+            }
+          ],
+          hint: "Express L_1 \u2286 L_2 in terms of set operations and the empty set \u2205.",
+          formal: String.raw`\(L_1 \subseteq L_2 \iff L_1 \setminus L_2 = \emptyset \iff L_1 \cap \overline{L_2} = \emptyset\). Since \(\overline{L_2}\in\mathrm{REG}\) and \(\cap\) preserves regularity, emptiness is decidable via graph search.`,
           preview: V(["reg"], [], {}),
           reveal: V(["reg", "union", "concat", "star", "comp", "inter"], ["e-union", "e-concat", "e-star", "e-comp", "e-inter"], { goodNodes: ["reg"] }),
-          previewNote: "All five operations point outward from REG.",
-          revealNote: "Every arrow lands back inside REG."
+          previewNote: "All five operations map regular languages to regular languages.",
+          revealNote: "REG is an effective Boolean algebra with decidable emptiness, inclusion, and equivalence."
         }
       ],
       previous: { label: "Kleene equivalence", href: "/proofs/chapter-02/kleene-equivalence.html" },
@@ -435,12 +643,12 @@
       slug: "small-model-property",
       chapter: 2,
       title: "Small model property",
-      theorem: "If an n-state DFA accepts any word, it accepts one of length less than n.",
-      intro: "A shortest accepted word cannot revisit any state. If the run ever revisited a state, the section between the two visits forms a loop \u2014 and we could cut it out without breaking acceptance. So a shortest word has no repeated states, meaning its length is at most n\u22121.",
-      application: "If a session checker (n states) accepts some malformed trace, it must accept a short malformed trace \u2014 shorter than n steps. This gives a bounded counterexample to search for.",
-      strategy: "Choose a shortest accepted word z. Assume |z| \u2265 n for contradiction. Then its run has n+1 state visits, so by pigeonhole some state appears twice. Use determinism to cut the loop, finding a shorter accepted word \u2014 contradicting minimality.",
-      invariant: "The shortened run reaches the same final state as the original because it shares the same suffix after the repeated state.",
-      synthesis: String.raw`Assume \(L(A)\neq\varnothing\) and choose an accepted word \(z\) of minimum length. Write its run as \(p_0,p_1,\ldots,p_m\), where \(m=|z|\). If \(m\ge n\), the run contains at least \(n+1\) state occurrences but \(A\) has only \(n\) states, so \(p_i=p_j\) for some \(i<j\). Factor \(z=uvw\) with \(|u|=i\) and \(|uv|=j\). Since the run reaches the same state after \(u\) and \(uv\), determinism allows the suffix \(w\) to continue from either occurrence; hence \(uw\) is accepted. Because \(v\neq\varepsilon\), \(|uw|<|z|\), contradicting the minimality of \(z\). Therefore \(|z|<n\), so every nonempty DFA language has an accepted witness shorter than its number of states.`,
+      theorem: String.raw`If a DFA \(\mathcal{A} = (Q, \Sigma, \delta, q_0, F)\) with \(n = |Q|\) states accepts any word, it accepts at least one witness word \(z\) of bounded length: \(|z| < n\).`,
+      intro: "The Small Model Property establishes a fundamental finite-bound principle in formal verification: if a finite automaton accepts any words, it must accept a short witness whose length is strictly less than its state count. This property provides the computational basis for deciding automaton emptiness and constitutes the core combinatorial argument of the Pumping Lemma.",
+      application: "In model checking and bounded verification, searching for safety counterexamples (error traces) can be strictly bounded by the system's state space size: if an \(n\)-state concurrent model contains an error trajectory, there exists a minimal counterexample trace of length at most \(n-1\).",
+      strategy: "Proof by contradiction using Dirichlet's Pigeonhole Principle. Assume \(L(\mathcal{A}) \neq \emptyset\) and fix an accepted word \(z\) of minimal length. Assume \(|z| \ge n\). The run visits \(|z| + 1 \ge n + 1\) states, forcing a duplicate state \(p_i = p_j\) with \(i < j\). Factor \(z = uvw\) and splice out the loop factor \(v\); determinism ensures the shortened word \(uw\) is accepted, contradicting the minimality of \(z\).",
+      invariant: String.raw`The spliced run visits identical final states because determinism guarantees \(\widehat{\delta}(p_i, w) = \widehat{\delta}(p_j, w) \in F\).`,
+      synthesis: String.raw`Assume \(L(\mathcal{A})\neq\emptyset\) and select an accepted word \(z\in L(\mathcal{A})\) of minimum length \(m=|z|\). Its deterministic run is a sequence of \(m+1\) state visits \(p_0, p_1, \ldots, p_m\) with \(p_0=q_0\) and \(p_m\in F\). If \(m\ge n\), the pigeonhole principle guarantees indices \(0\le i < j \le n\) such that \(p_i=p_j\). Decompose \(z=uvw\) where \(|u|=i\), \(|v|=j-i\ge 1\), and \(|w|=m-j\). Because the automaton is deterministic, \(\widehat{\delta}(q_0, u)=p_i=p_j\) and \(\widehat{\delta}(p_j, w)=p_m\in F\). Consequently, the spliced word \(uw\) induces the run \(q_0 \xrightarrow{u} p_i \xrightarrow{w} p_m\), so \(uw\in L(\mathcal{A})\). But \(|uw|=|u|+|w|=m-|v|<m=|z|\), strictly contradicting the minimality of \(z\). Thus \(|z|<n\).`,
       diagram: {
         description: "A DFA run: p0 goes via u to pi. A non-empty loop v goes from pi through middle states to pj, where pj = pi (same state!). Then pj goes via w to pm (final). A shortcut arrow from pi directly to pm shows that 'uw' is a shorter accepted word.",
         viewBox: [0, 0, 1000, 520],
@@ -465,67 +673,119 @@
       steps: [
         {
           label: "Setup",
-          title: "Fix a shortest accepted word z",
-          exposition: "We want to prove that some accepted word is short. The cleanest way: reason about the shortest one. If the shortest accepted word z were too long, we would find a contradiction \u2014 a shorter accepted word. So we choose z with minimum length among all words in L(A).",
-          question: "Why do we choose z to be a shortest accepted word?",
-          choices: ["So that any shorter accepted word we find creates a contradiction", "So that the DFA becomes deterministic", "So that every state is visited"],
-          correct: 0,
-          hint: "We will try to shorten z. If we succeed, what does that contradict?",
-          feedback: "Correct. If we find a shorter accepted word, it contradicts the minimality of z \u2014 exactly the contradiction we need.",
-          incorrect: "The role of minimality is to create a contradiction when we find a shorter accepted word.",
-          formal: String.raw`Assume \(L(A)\neq\varnothing\) and choose \(z\) of minimum accepted length. Any strictly shorter accepted word contradicts this choice.`,
+          title: "Fixing a minimal witness word z \u2208 L(A)",
+          exposition: String.raw`To prove that every non-empty regular language contains a short word, we select a word \(z \in L(\mathcal{A})\) of minimal length: \(|z| = \min \{ |w| \mid w \in L(\mathcal{A}) \}\). The proof proceeds by contradiction: we hypothesize that \(|z| \ge n\), where \(n = |Q|\) is the number of states in \(\mathcal{A}\). If this assumption enables us to construct another accepted word strictly shorter than \(z\), minimality is contradicted, proving \(|z| < n\).`,
+          question: "What is the methodological purpose of assuming z is a word of MINIMUM length in L(A)?",
+          choices: [
+            {
+              text: String.raw`To set up a proof by contradiction: exhibiting any accepted word \(z'\) with \(|z'| < |z|\) refutes the assumption that \(|z| \ge n\).`,
+              correct: true,
+              feedback: String.raw`Correct. Choosing a minimal element is a standard extremum argument: if a long minimal word contains a cycle, deleting the cycle produces an even shorter accepted word, yielding an immediate contradiction.`
+            },
+            {
+              text: String.raw`Because minimal words in a regular language are guaranteed to be palindromes.`,
+              correct: false,
+              causalFailure: String.raw`Minimal words have no requirement of symmetry or palindromic structure; they simply minimize string length.`
+            },
+            {
+              text: String.raw`Because the transition function \(\delta\) is only defined for words of minimal length.`,
+              correct: false,
+              causalFailure: String.raw`Transition functions \(\widehat{\delta}\) are totally defined over all words in \(\Sigma^*\), regardless of length.`
+            }
+          ],
+          hint: "Consider what happens if you find another accepted word shorter than the shortest one.",
+          formal: String.raw`Assume \(L(\mathcal{A})\neq\emptyset\) and let \(z\in\arg\min_{w\in L(\mathcal{A})}|w|\). If \(|z|\ge n\), we derive \(z'\in L(\mathcal{A})\) with \(|z'|<|z|\), a contradiction.`,
           preview: V([], [], { dimNodes: ["mid"] }),
           reveal: V(["p0", "pi", "pj", "pm"], ["u", "w"], { goodNodes: ["pm"], dimNodes: ["mid"] }),
-          previewNote: "A shortest accepted run \u2014 we don't yet know if it has a repeated state.",
-          revealNote: "The final state p\u2098 is fixed. We must show the run cannot be too long."
+          previewNote: "A minimal accepted run p0 ... pm \u2014 we hypothesize m = |z| \u2265 n.",
+          revealNote: "Fixing the minimal witness: we will search for an internal state repetition."
         },
         {
           label: "Pigeonhole",
-          title: "A long run must repeat a state",
-          exposition: "A word of length m visits m+1 positions: before the first symbol, and after each of the m transitions. If m \u2265 n, we have m+1 \u2265 n+1 positions but only n distinct states \u2014 so two positions must hold the same state. That gives us p\u1d62 = p\u2c7c with i < j.",
-          question: "If |z| \u2265 n, how many state positions does the run visit?",
-          choices: ["At least n+1", "Exactly n", "At most n\u22121"],
-          correct: 0,
-          hint: "Count the initial state p\u2080, plus one state per symbol read.",
-          feedback: "Exactly. m symbols give m+1 positions. If m \u2265 n, pigeonhole forces a repeated state.",
-          incorrect: "Don't forget to count p\u2080 \u2014 the state before reading any symbol.",
-          formal: String.raw`A run of length \(m\) has \(m+1\) state occurrences. If \(m\ge n\), the pigeonhole principle gives equal states at two positions \(i<j\).`,
+          title: "Dirichlet's Principle: Forcing an internal state recurrence",
+          exposition: String.raw`Let \(m = |z|\). The deterministic run on \(z = a_1 a_2 \cdots a_m\) traverses a sequence of \(m + 1\) state configurations: \(p_0, p_1, \ldots, p_m\), where \(p_0 = q_0\) and \(p_k = \delta(p_{k-1}, a_k)\). If \(m \ge n\), the run visits at least \(n + 1\) states. By the Dirichlet Pigeonhole Principle, distributing \(n + 1\) visits into \(n\) available states forces at least one state to recur: there exist indices \(0 \le i < j \le n\) such that \(p_i = p_j\).`,
+          question: "Why does the condition |z| \u2265 n guarantee the existence of indices i < j with p_i = p_j?",
+          choices: [
+            {
+              text: String.raw`A word of length \(m\) visits \(m+1\) states (including \(p_0\)); if \(m \ge n\), there are at least \(n+1\) state visits among \(n\) distinct states in \(Q\), forcing a collision by pigeonhole.`,
+              correct: true,
+              feedback: String.raw`Exactly. Counting both endpoints of every step, \(m\) transitions visit \(m+1\) state positions. When \(m+1 > n\), at least two positions must share identical states.`
+            },
+            {
+              text: String.raw`Because the transition graph of every DFA is strongly connected.`,
+              correct: false,
+              causalFailure: String.raw`DFAs are not necessarily strongly connected; state repetition is forced purely by the length of the path exceeding the number of distinct vertices.`
+            },
+            {
+              text: String.raw`Because deterministic automata cannot visit more than \(n/2\) distinct states.`,
+              correct: false,
+              causalFailure: String.raw`A DFA can visit all \(n\) distinct states along an acyclic path of length \(n-1\).`
+            }
+          ],
+          hint: "Count the number of vertices on a path of length m: p_0, p_1, ..., p_m. How many items vs boxes?",
+          formal: String.raw`\(|\{p_0, p_1, \ldots, p_n\}| = n + 1 > |Q| = n \implies \exists i < j \le n \text{ such that } p_i = p_j\).`,
           preview: V(["p0", "pi", "pj", "pm"], ["u", "w"], { dimNodes: ["mid"] }),
           reveal: V(["pi", "pj", "mid"], ["v-in", "v-out"], { goodNodes: ["pi", "pj"], dimNodes: ["p0", "pm"] }),
-          previewNote: "n+1 positions in an n-state machine \u2014 one state must repeat.",
-          revealNote: "p\u1d62 = p\u2c7c: the repeated state encloses a non-empty loop v."
+          previewNote: "n+1 state visits distributed among n available states in Q.",
+          revealNote: "p_i = p_j: the run encloses a non-empty cyclic factor v = a_{i+1}...a_j with |v| \u2265 1."
         },
         {
-          label: "Loop deletion",
-          title: "Cut the loop: the run still accepts",
-          exposition: "We have p\u1d62 = p\u2c7c. The run reads u to reach p\u1d62, then v (the loop) to return to p\u2c7c = p\u1d62, then w to reach p\u2098 (final). Since p\u1d62 = p\u2c7c and the DFA is deterministic, we can skip v: start at p\u1d62, read w, and still reach p\u2098. The word uw is accepted and has length |u|+|w| < |u|+|v|+|w| = |z|.",
-          question: "After removing the loop v, what word does the shortcut accept?",
-          choices: ["uvw (original)", "uw (without the loop)", "vw (without the prefix)"],
-          correct: 1,
-          hint: "The shortcut goes from p\u1d62 directly to the suffix w \u2014 remove only the loop factor v.",
-          feedback: "Right. Because p\u1d62 = p\u2c7c, the suffix w can continue unchanged from p\u1d62. The word uw is accepted.",
-          incorrect: "The shortcut removes v and keeps both the prefix u and the accepting suffix w.",
-          formal: String.raw`Since \(q_0\xrightarrow{u}p_i=p_j\xrightarrow{w}p_m\), the word \(uw\) is accepted and \(|uw|<|uvw|\).`,
+          label: "Loop excision",
+          title: "Splicing out the loop factor: Preserving acceptance",
+          exposition: String.raw`Factor \(z = uvw\), where \(u = a_1 \cdots a_i\), \(v = a_{i+1} \cdots a_j\), and \(w = a_{j+1} \cdots a_m\). The factor \(v\) has length \(|v| = j - i \ge 1\). The run satisfies \(q_0 \xrightarrow{u} p_i \xrightarrow{v} p_j \xrightarrow{w} p_m \in F\). Since \(p_i = p_j\) and \(\mathcal{A}\) is deterministic, feeding suffix \(w\) from \(p_i\) produces the identical state trajectory as feeding \(w\) from \(p_j\): \(\widehat{\delta}(p_i, w) = \widehat{\delta}(p_j, w) = p_m \in F\). Therefore, the spliced word \(uw\) is accepted by \(\mathcal{A}\).`,
+          question: "Why is the shortened word uw guaranteed to be accepted by the DFA?",
+          choices: [
+            {
+              text: String.raw`Because \(p_i = p_j\), determinism guarantees that suffix \(w\) starting from \(p_i\) reaches the exact same final state \(p_m \in F\) as starting from \(p_j\).`,
+              correct: true,
+              feedback: String.raw`Correct. Determinism implies that the transition function is memoryless: future state trajectories depend solely on current state and input suffix, so bypassing the loop \(v\) still lands in \(p_m \in F\).`
+            },
+            {
+              text: String.raw`Because the loop factor \(v\) must have been the empty string \(\varepsilon\).`,
+              correct: false,
+              causalFailure: String.raw`The loop factor \(v\) satisfies \(|v| = j - i \ge 1\); it is strictly non-empty because \(i < j\).`
+            },
+            {
+              text: String.raw`Because regular languages are closed under arbitrary substring deletion.`,
+              correct: false,
+              causalFailure: String.raw`Regular languages are not closed under arbitrary substring deletion; excision is valid here specifically because the endpoints of \(v\) share the identical state \(p_i = p_j\).`
+            }
+          ],
+          hint: "Examine the path: q_0 -u-> p_i. Since p_i = p_j, can you apply -w-> directly?",
+          formal: String.raw`\(\widehat{\delta}(q_0, uw) = \widehat{\delta}(\widehat{\delta}(q_0, u), w) = \widehat{\delta}(p_i, w) = \widehat{\delta}(p_j, w) = p_m \in F \implies uw \in L(\mathcal{A})\).`,
           preview: V(["pi", "mid", "pj"], ["v-in", "v-out"], { dimNodes: ["p0", "pm"] }),
           reveal: V(["p0", "pi", "pm"], ["u", "shortcut"], { goodNodes: ["pm"], dimNodes: ["mid", "pj"] }),
-          previewNote: "The loop returns to exactly the same state p\u1d62.",
-          revealNote: "Removing it yields 'uw', still accepted, strictly shorter."
+          previewNote: "The cyclic factor v starts and ends at the identical state p_i.",
+          revealNote: "Excising v yields word uw \u2208 L(A) with length |uw| = |z| - |v| < |z|."
         },
         {
           label: "Conclusion",
-          title: "Conclude: no shortest word can be that long",
-          exposition: "We assumed |z| \u2265 n and derived a strictly shorter accepted word uw. But z was chosen as the shortest accepted word \u2014 contradiction. So our assumption must be false: the shortest accepted word has length less than n. If L(A) is nonempty, it contains an accepted word of length at most n\u22121.",
-          question: "Which assumption led to the contradiction?",
-          choices: ["|z| \u2265 n (the word is at least as long as the number of states)", "The DFA is complete", "z is accepted"],
-          correct: 0,
-          hint: "We showed |z| \u2265 n implies a shorter accepted word.",
-          feedback: "Exactly. The contradiction rules out |z| \u2265 n. So the shortest accepted word satisfies |z| < n.",
-          incorrect: "Acceptance and completeness remain; it is the assumption of excessive length that fails.",
-          formal: String.raw`If the minimal accepted word had length at least \(n\), loop deletion would produce a shorter accepted word. Therefore its length is less than \(n\).`,
+          title: "Contradiction and emptiness decidability",
+          exposition: String.raw`The spliced word \(uw\) is accepted by \(\mathcal{A}\), and its length satisfies \(|uw| = |u| + |w| = |z| - |v| < |z|\) because \(|v| \ge 1\). This strictly contradicts the choice of \(z\) as an accepted word of minimal length. Consequently, the initial hypothesis \(|z| \ge n\) must be false. We conclude that every non-empty regular language contains an accepted word of length at most \(n - 1\). This provides an algorithmic decision procedure: testing emptiness of \(\mathcal{A}\) requires checking reachability of \(F\) within depth \(n - 1\).`,
+          question: "What is the algorithmic significance of the bound |z| < n for verification algorithms?",
+          choices: [
+            {
+              text: String.raw`It guarantees that DFA emptiness is decidable in polynomial time: checking words up to length \(n-1\) (or running breadth-first search to depth \(n-1\)) is both necessary and sufficient.`,
+              correct: true,
+              feedback: String.raw`Precisely. If no final state is reached within \(n-1\) steps, the language is guaranteed to be empty, bounding reachability search to \(\mathcal{O}(|Q| + |\Delta|)\).`
+            },
+            {
+              text: String.raw`It proves that all regular languages have finite cardinality.`,
+              correct: false,
+              causalFailure: String.raw`The theorem bounds the shortest accepted word, not the total number of accepted words; a language with an accepted word of length \(< n\) can still contain infinitely many longer words.`
+            },
+            {
+              text: String.raw`It implies that any DFA can be minimized in \(\mathcal{O}(1)\) time.`,
+              correct: false,
+              causalFailure: String.raw`DFA minimization requires Hopcroft's algorithm (\(\mathcal{O}(n \log n)\)); the small model property bounds witness length, not minimization time.`
+            }
+          ],
+          hint: "If an error state is reachable, what is the maximum depth at which it can first appear?",
+          formal: String.raw`\(L(\mathcal{A})\neq\emptyset \iff \exists w\in L(\mathcal{A}) \text{ s.t. } |w|<|Q|\). Emptiness is decidable in linear time \(\mathcal{O}(|Q|+|\Delta|)\).`,
           preview: V(["p0", "pi", "pj", "pm"], ["u", "v-in", "v-out", "w"], {}),
           reveal: V(["p0", "pi", "pm"], ["u", "shortcut"], { goodNodes: ["p0", "pi", "pm"], dimNodes: ["mid", "pj"] }),
-          previewNote: "A repeated state certifies a removable loop.",
-          revealNote: "No shortest run can have a repeated state \u2014 so its length is < n."
+          previewNote: "A minimal accepted run cannot revisit any state.",
+          revealNote: "No state can repeat, so an acyclic witness path has at most n-1 edges: |z| < n."
         }
       ],
       previous: { label: "Closure of regular languages", href: "/proofs/chapter-02/regular-closure.html" },
@@ -536,12 +796,12 @@
       slug: "myhill-nerode",
       chapter: 2,
       title: "Myhill\u2013Nerode theorem",
-      theorem: "A language L is regular iff \u223cL has finitely many equivalence classes.",
-      intro: "Two words x and y are Nerode-equivalent (x \u223cL y) if every suffix z leads them to the same fate: xz \u2208 L iff yz \u2208 L. Intuitively, x and y have identical futures. The theorem says L is regular exactly when there are only finitely many such 'futures'.",
-      application: "For editor sessions, every prefix falls into one of four futures: (1) still before 'open', (2) currently open, (3) already closed, (4) malformed. Those four classes are exactly the four states of the minimal DFA.",
-      strategy: "Prove a cycle of three implications: a DFA gives finitely many state-classes; any finite compatible grouping refines \u223cL; the \u223cL classes build a DFA. Three implications close the cycle.",
-      invariant: "Words in one \u223cL class must always agree: appending the same suffix z, they both end up in L or both outside L.",
-      synthesis: String.raw`If \(L\) is recognized by a DFA \(A\), define \(x\sim_A y\) when \(\widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y)\). This relation has at most \(|Q|\) classes, is preserved by appending the same suffix, and never identifies an accepted word with a rejected one. Conversely, any finite-index right-invariant relation \(\sim\) compatible with \(L\) refines the canonical relation \(\sim_L\): from \(x\sim y\), right-invariance gives \(xz\sim yz\) for every \(z\), and compatibility gives \(xz\in L\) iff \(yz\in L\). Thus \(\sim_L\) also has finite index. Finally, if \(\sim_L\) has finite index, construct a DFA whose states are \(\Sigma^*/{\sim_L}\), with initial state \([\varepsilon]\), transition \(\delta([w],a)=[wa]\), and final classes \([w]\) with \(w\in L\). Right-invariance and compatibility make the construction well-defined, and the resulting DFA recognizes exactly \(L\).`,
+      theorem: String.raw`A formal language \(L \subseteq \Sigma^*\) is regular if and only if the Nerode right-congruence \(\sim_L\) has finite index: \(\operatorname{index}(\sim_L) < \infty\). Furthermore, \(\operatorname{index}(\sim_L)\) equals the number of states in the minimal DFA recognizing \(L\).`,
+      intro: "The Myhill-Nerode Theorem provides the fundamental structural and algebraic characterization of regular languages. It establishes that the minimal memory necessary to recognize a language \(L\) corresponds precisely to distinguishing future continuations: two words \(x, y \in \Sigma^*\) are Nerode-equivalent (\(x \sim_L y\)) iff \(\forall z \in \Sigma^*,\; xz \in L \iff yz \in L\). The language is regular iff \(\sim_L\) has finitely many equivalence classes, which form the states of the unique minimal DFA.",
+      application: "In formal verification and model checking, state-space minimization via bisimulation quotienting relies directly on the Myhill-Nerode theorem. It also provides the definitive mathematical technique for proving non-regularity by constructing an infinite set of pairwise distinguishable prefixes.",
+      strategy: "Prove the tripartite cycle of logical implications: (1) If \(L\) is regular, the state fibers of any recognizing DFA define a finite-index right-invariant equivalence compatible with \(L\). (2) Any such relation refines the canonical relation \(\sim_L\), forcing \(\operatorname{index}(\sim_L) < \infty\). (3) If \(\operatorname{index}(\sim_L) < \infty\), construct the canonical quotient DFA on \(\Sigma^*/{\sim_L}\) and prove well-definedness via right-invariance.",
+      invariant: String.raw`\(\forall x, y \in [w]_L,\; \forall z \in \Sigma^*,\; xz \in L \iff yz \in L\). Classes preserve future observational equivalence.`,
+      synthesis: String.raw`Let \(L\subseteq\Sigma^*\). (1) \(\implies\) (2): If \(L\) is recognized by a DFA \(\mathcal{A}=(Q,\Sigma,\delta,q_0,F)\), define \(x\sim_{\mathcal{A}} y \iff \widehat{\delta}(q_0, x)=\widehat{\delta}(q_0, y)\). This relation is right-invariant (\(x\sim_{\mathcal{A}} y \implies xz\sim_{\mathcal{A}} yz\)), compatible with \(L\) (\(x\in L \iff y\in L\)), and has \(\operatorname{index}(\sim_{\mathcal{A}})\le |Q|<\infty\). (2) \(\implies\) (3): Let \(\sim\) be any right-invariant, compatible relation of finite index. If \(x\sim y\), then \(\forall z\), \(xz\sim yz\) by right-invariance, so \(xz\in L\iff yz\in L\) by compatibility. Thus \(x\sim_L y\), meaning \(\sim\) refines \(\sim_L\) and \(\operatorname{index}(\sim_L)\le\operatorname{index}(\sim)<\infty\). (3) \(\implies\) (1): Construct \(\mathcal{A}_L=(\Sigma^*/{\sim_L}, \Sigma, \delta_L, [\varepsilon]_L, F_L)\) where \(\delta_L([w]_L, a)=[wa]_L\) and \(F_L=\{[w]_L\mid w\in L\}\). Right-invariance ensures \(\delta_L\) is well-defined; compatibility ensures \(F_L\) is well-defined. Induction confirms \(\widehat{\delta}_L([\varepsilon]_L, w)=[w]_L\), so \(L(\mathcal{A}_L)=L\).`,
       diagram: {
         description: "Three implications in a cycle: (1) Regular implies Finite relation (DFA creates state-classes); (2) Finite relation implies Finite ~L (the canonical relation has at most as many classes); (3) Finite ~L implies Regular (build quotient DFA). In the center: Sigma*/~L, the quotient construction.",
         viewBox: [0, 0, 1000, 540],
@@ -565,51 +825,90 @@
       steps: [
         {
           label: "(1) \u21d2 (2)",
-          title: "A DFA state is a finite memory class",
-          exposition: "Suppose a DFA A recognizes L. Two words x and y that lead to the same DFA state have identical futures: any suffix z produces the same transitions and the same verdict. So we group words by which DFA state they reach \u2014 that gives at most |Q| classes.",
-          question: "When should two words be grouped into the same DFA class?",
-          choices: ["When they reach the same DFA state after reading them from q\u2080", "When they have equal length", "When both contain the symbol 'a'"],
-          correct: 0,
-          hint: "The DFA's only memory is its current state \u2014 if two words leave the same state, the DFA cannot tell them apart.",
-          feedback: "Correct. Same state = same future behavior for any suffix. The DFA creates at most |Q| such classes.",
-          incorrect: "The DFA's stored memory is exactly its current state \u2014 that is what defines the class.",
-          formal: String.raw`Define \(x\sim_A y\) iff \(\widehat{\delta}(q_0,x)=\widehat{\delta}(q_0,y)\). It is right-invariant, compatible with \(L\), and has at most \(|Q|\) classes.`,
+          title: "State fibers: DFAs induce finite right-invariant congruences",
+          exposition: String.raw`Suppose \(L\) is recognized by a DFA \(\mathcal{A} = (Q, \Sigma, \delta, q_0, F)\). Define the relation \(\sim_{\mathcal{A}}\) on \(\Sigma^*\) by \(x \sim_{\mathcal{A}} y \iff \widehat{\delta}(q_0, x) = \widehat{\delta}(q_0, y)\). This partitions \(\Sigma^*\) into at most \(|Q|\) equivalence classes (the fibers of \(\widehat{\delta}(q_0, \cdot)\)). It is right-invariant because appending any suffix \(z\) gives \(\widehat{\delta}(q_0, xz) = \widehat{\delta}(\widehat{\delta}(q_0, x), z) = \widehat{\delta}(\widehat{\delta}(q_0, y), z) = \widehat{\delta}(q_0, yz)\). It is compatible with \(L\) because \(x \in L \iff \widehat{\delta}(q_0, x) \in F \iff \widehat{\delta}(q_0, y) \in F \iff y \in L\).`,
+          question: "Why does the relation x \u223c_A y \u21d4 \u03b4\u0302(q_0, x) = \u03b4\u0302(q_0, y) satisfy right-invariance: x \u223c_A y \u21d2 xz \u223c_A yz?",
+          choices: [
+            {
+              text: String.raw`Because the extended transition function is compositional: \(\widehat{\delta}(q_0, xz) = \widehat{\delta}(\widehat{\delta}(q_0, x), z)\); identical intermediate states guarantee identical future trajectories on any suffix \(z\).`,
+              correct: true,
+              feedback: String.raw`Correct. A DFA is memoryless beyond its current state: if two words reach identical states, appending identical suffixes executes identical transition sequences.`
+            },
+            {
+              text: String.raw`Because the transition function of a DFA must be an injective homomorphism.`,
+              correct: false,
+              causalFailure: String.raw`Transition functions are not injective; multiple distinct words frequently map to the same state (that is why equivalence classes exist).`
+            },
+            {
+              text: String.raw`Because right-invariance only holds when the language is prefix-free.`,
+              correct: false,
+              causalFailure: String.raw`Right-invariance holds for every DFA state relation on any language, regardless of prefix properties.`
+            }
+          ],
+          hint: "Evaluate \u03b4\u0302(q_0, xz) using the definition of extended transition functions: how does it depend on \u03b4\u0302(q_0, x)?",
+          formal: String.raw`\(x\sim_{\mathcal{A}} y \implies \widehat{\delta}(q_0,xz)=\widehat{\delta}(\widehat{\delta}(q_0,x),z)=\widehat{\delta}(\widehat{\delta}(q_0,y),z)=\widehat{\delta}(q_0,yz)\implies xz\sim_{\mathcal{A}} yz\). Also \(\operatorname{index}(\sim_{\mathcal{A}})\le |Q|<\infty\).`,
           preview: V(["regular"], [], { dimNodes: ["mn", "quotient"] }),
           reveal: V(["regular", "relation"], ["one-two"], { goodNodes: ["relation"], dimNodes: ["mn", "quotient"] }),
-          previewNote: "A DFA compresses every prefix into one of finitely many states.",
-          revealNote: "Those state-fibers are finite memory classes \u2014 relation (2) exists."
+          previewNote: "A DFA compresses infinitely many prefixes into at most |Q| state fibers.",
+          revealNote: "The state equivalence relation \u223c_A is right-invariant, compatible, and finite-index."
         },
         {
           label: "(2) \u21d2 (3)",
-          title: "Any valid grouping fits inside \u223cL",
-          exposition: "Suppose some finite grouping \u223c is compatible with L and right-invariant. If x \u223c y, then for any z: right-invariance gives xz \u223c yz, and compatibility gives xz \u2208 L iff yz \u2208 L. So x and y agree on all suffixes \u2014 that is exactly x \u223cL y. Every \u223c-class fits inside one \u223cL-class, so \u223cL has at most as many classes as \u223c \u2014 still finite.",
-          question: "If x \u223c y and \u223c is right-invariant and compatible, what follows?",
-          choices: ["x \u223cL y (they have the same future w.r.t. L)", "x and y are the same word", "Every suffix z is accepted"],
-          correct: 0,
-          hint: "Append any suffix z, use right-invariance to get xz \u223c yz, then use compatibility.",
-          feedback: "Exactly. Every valid finite grouping is at least as fine as \u223cL, so \u223cL itself must be finite.",
-          incorrect: "The conclusion is that x and y agree on all future acceptance \u2014 not that they are identical words.",
-          formal: String.raw`\(x\sim y\) implies \(xz\sim yz\) for every \(z\); compatibility gives \(xz\in L\) iff \(yz\in L\). Hence \(x\sim_L y\), so \(\sim\) refines \(\sim_L\).`,
+          title: "Refinement: The canonical relation \u223c_L is the coarsest grouping",
+          exposition: String.raw`Let \(\sim\) be any equivalence relation of finite index that is right-invariant and compatible with \(L\). Suppose \(x \sim y\). By right-invariance, \(xz \sim yz\) holds for every future continuation \(z \in \Sigma^*\). By compatibility with \(L\), \(xz \in L \iff yz \in L\). But this condition (\(\forall z,\; xz \in L \iff yz \in L\)) is the exact definition of the canonical Nerode relation \(x \sim_L y\). Thus \(x \sim y \implies x \sim_L y\), meaning \(\sim\) is a mathematical refinement of \(\sim_L\). Consequently, each \(\sim_L\)-class is a union of \(\sim\)-classes, proving \(\operatorname{index}(\sim_L) \le \operatorname{index}(\sim) < \infty\).`,
+          question: "Why does any finite-index right-invariant compatible relation \u223c necessarily refine \u223c_L (\u223c \u2286 \u223c_L)?",
+          choices: [
+            {
+              text: String.raw`Right-invariance propagates \(x \sim y\) to all suffixes (\(xz \sim yz\)), and compatibility ensures they share acceptance (\(xz \in L \iff yz \in L\)), which is precisely the definition of \(\sim_L\).`,
+              correct: true,
+              feedback: String.raw`Precisely. Any valid state grouping cannot separate words unless they have distinguishable futures. Therefore, \(\sim_L\) is the coarsest possible right-invariant compatible equivalence.`
+            },
+            {
+              text: String.raw`Because \(\sim_L\) is defined as the intersection of all equivalence relations on \(\Sigma^*\).`,
+              correct: false,
+              causalFailure: String.raw`\(\sim_L\) is not an intersection of all relations; it is defined specifically via distinguishing suffixes w.r.t. \(L\).`
+            },
+            {
+              text: String.raw`Because all equivalence relations of finite index are isomorphic to each other.`,
+              correct: false,
+              causalFailure: String.raw`Relations of identical or finite index can have entirely different partitions and structural properties.`
+            }
+          ],
+          hint: "Test the definition: to show x \u223c_L y, you must prove that for all z, xz \u2208 L \u21d4 yz \u2208 L.",
+          formal: String.raw`\(x\sim y \implies \forall z,\; xz\sim yz \implies \forall z,\; (xz\in L \iff yz\in L) \implies x\sim_L y\). Thus \(\sim\) refines \(\sim_L\) and \(\operatorname{index}(\sim_L)\le\operatorname{index}(\sim)<\infty\).`,
           preview: V(["relation"], [], { dimNodes: ["regular", "quotient"] }),
           reveal: V(["relation", "mn"], ["two-three"], { goodNodes: ["mn"], dimNodes: ["regular", "quotient"] }),
           previewNote: "A valid grouping cannot merge words with distinguishable futures.",
-          revealNote: "\u223cL is at most as fine as any valid grouping \u2014 it too must be finite."
+          revealNote: "\u223c_L is the coarsest valid congruence; its index is bounded by \operatorname{index}(\u223c) < \u221e."
         },
         {
           label: "(3) \u21d2 (1)",
-          title: "Finite \u223cL classes become DFA states",
-          exposition: "If \u223cL has finitely many classes, build a DFA: states = equivalence classes [w], initial state = [\u03b5], transition \u03b4([w], a) = [wa], final states = {[w] | w \u2208 L}. This works because right-invariance ensures [wa] doesn't depend on which word w we pick from [w].",
-          question: "Why is the transition \u03b4([w], a) = [wa] well-defined?",
-          choices: ["Because \u223cL is right-invariant: if w \u223cL w', then wa \u223cL w'a", "Because all words have finite length", "Because L is already regular"],
-          correct: 0,
-          hint: "Different words in the same class [w] must all lead to the same next class after reading 'a'.",
-          feedback: "Correct. Right-invariance guarantees that w \u223cL w' implies wa \u223cL w'a, so [wa] is the same regardless of representative.",
-          incorrect: "The proof is constructing regularity from \u223cL \u2014 it cannot assume regularity. Right-invariance is the key.",
-          formal: String.raw`Use states \(\Sigma^*/{\sim_L}\), start state \([\varepsilon]\), transition \([w]\mapsto[wa]\), and final classes \(\{[w]\mid w\in L\}\). Right-invariance and compatibility make both definitions well-defined.`,
+          title: "Quotient DFA: \u03a3* / \u223cL constitutes the minimal automaton",
+          exposition: String.raw`Assume \(\operatorname{index}(\sim_L) = k < \infty\). We construct the canonical quotient automaton \(\mathcal{A}_L = (Q_L, \Sigma, \delta_L, q_{0,L}, F_L)\) where: \(Q_L = \Sigma^*/{\sim_L}\); the initial state is \(q_{0,L} = [\varepsilon]_L\); \(\delta_L([w]_L, a) = [wa]_L\); and \(F_L = \{ [w]_L \mid w \in L \}\). Right-invariance ensures that \(\delta_L\) is well-defined: if \(w \sim_L w'\), then \(wa \sim_L w'a\), so \([wa]_L = [w'a]_L\) regardless of chosen representative. Compatibility ensures \(F_L\) is well-defined. Induction confirms \(\widehat{\delta}_L([\varepsilon]_L, w) = [w]_L\), proving \(w \in L(\mathcal{A}_L) \iff [w]_L \in F_L \iff w \in L\).`,
+          question: "Why is the transition function \u03b4_L([w]_L, a) = [wa]_L guaranteed to be mathematically well-defined?",
+          choices: [
+            {
+              text: String.raw`Because \(\sim_L\) is right-invariant: if \(w \sim_L w'\), then \(wa \sim_L w'a\), meaning \([wa]_L = [w'a]_L\) independently of which representative is selected from \([w]_L\).`,
+              correct: true,
+              feedback: String.raw`Correct. Well-definedness on quotient sets requires that the operation does not depend on representative choice: right-invariance (\(w \sim_L w' \implies wa \sim_L w'a\)) is precisely the algebraic condition ensuring this.`
+            },
+            {
+              text: String.raw`Because the language \(L\) is guaranteed to contain the empty word \(\varepsilon\).`,
+              correct: false,
+              causalFailure: String.raw`Whether \(\varepsilon \in L\) only affects whether \([\varepsilon]_L \in F_L\); it has no bearing on the well-definedness of transitions.`
+            },
+            {
+              text: String.raw`Because \(\delta_L\) is constructed using a topological sorting of the equivalence classes.`,
+              correct: false,
+              causalFailure: String.raw`Equivalence classes in automata frequently contain directed cycles; topological sorting is impossible in cyclic graphs.`
+            }
+          ],
+          hint: "Recall the definition of a well-defined function on equivalence classes: if [w] = [w'], must [wa] = [w'a]?",
+          formal: String.raw`\(w\sim_L w' \implies \forall z,\; (waz\in L \iff w'az\in L) \implies wa\sim_L w'a \implies [wa]_L=[w'a]_L\). Thus \(\delta_L\) is well-defined and \(|Q_L|=\operatorname{index}(\sim_L)\).`,
           preview: V(["mn"], [], { dimNodes: ["relation"] }),
           reveal: V(["mn", "quotient", "regular"], ["mn-quotient", "quotient-regular", "three-one"], { goodNodes: ["quotient", "regular"], dimNodes: ["relation"] }),
-          previewNote: "Finite future-behavior classes are exactly the candidate states.",
-          revealNote: "The quotient DFA is well-defined and recognizes L. The cycle closes."
+          previewNote: "Equivalence classes [w]_L of indistinguishable futures form the candidate state set.",
+          revealNote: "The quotient DFA is well-defined, minimal, and recognizes L. The cycle closes."
         }
       ],
       previous: { label: "Small model property", href: "/proofs/chapter-02/small-model-property.html" },
@@ -620,12 +919,12 @@
       slug: "omega-closure",
       chapter: 3,
       title: "Basic \u03c9-regular closure",
-      theorem: "\u03c9-regular languages are closed under \u03c9-power, finite-prefix concatenation, union, and intersection.",
-      intro: "B\u00fcchi automata accept infinite words by visiting an accepting state infinitely often. Combining two B\u00fcchi languages is trickier than the finite case: for intersection, the two automata may visit their accepting states at completely different times \u2014 we need to alternate the obligations.",
-      application: "Take U = {open} and V = (edit+save)*save. Then UV\u03c9 opens the editor once and then completes infinitely many save-terminated edit blocks \u2014 an infinite session property.",
-      strategy: "Reduce each operation to a B\u00fcchi construction. V\u03c9 and V\u00b7L use nondeterministic restarts or handoffs. Union uses an initial guess. Intersection uses a phase controller that alternates between the two acceptance conditions.",
-      invariant: "The constructed B\u00fcchi run visits its accepting marker infinitely often exactly when every required source obligation is fulfilled infinitely often.",
-      synthesis: String.raw`For \(V^\omega\), use an automaton for the finite, nonempty \(V\)-blocks and, whenever a block is completed, allow a nondeterministic restart through an accepting marker; visiting that marker infinitely often is equivalent to completing infinitely many consecutive \(V\)-blocks. For \(V\cdot L\), simulate \(V\) for a finite prefix and nondeterministically transfer to a B\u00fcchi automaton for \(L\) when a \(V\)-final state is reached. Union is obtained by an initial nondeterministic choice between the two B\u00fcchi automata. For intersection, the ordinary synchronous product is augmented with a finite phase component: phase one waits for \(F_1\), phase two waits for \(F_2\), and completing both phases visits an accepting marker before resetting. This marker recurs infinitely often iff both component runs visit their respective final sets infinitely often. Hence every listed operation preserves \(\omega\)-regularity.`,
+      theorem: String.raw`The class of \(\omega\)-regular languages is closed under \(\omega\)-power (\(V^\omega\)), finite-prefix concatenation (\(V \cdot L\)), union (\(L_1 \cup L_2\)), and intersection (\(L_1 \cap L_2\)).`,
+      intro: "Non-deterministic Büchi Automata (NBAs) process infinite words \(\alpha \in \Sigma^\omega\), accepting \(\alpha\) if there exists an infinite execution run \(\rho\) that visits the final state set \(F\) infinitely often: \(\operatorname{Inf}(\rho) \cap F \neq \emptyset\). While union and concatenation extend naturally from finite words via non-deterministic branching, intersection requires a new synchronization mechanism: the two component automata may fulfill their Büchi acceptance conditions at disjoint, desynchronized time steps.",
+      application: "In reactive system verification, liveness properties ('every request is eventually serviced') and fairness constraints ('a process is scheduled infinitely often') are combined via intersection. Büchi intersection allows forming the joint verification automaton \(\mathcal{M} \times \mathcal{A}_{\neg \varphi}\).",
+      strategy: "For \(V^\omega\) where \(V \subseteq \Sigma^+\) is regular, construct an automaton that non-deterministically restarts at \(q_0\) through an accepting marker whenever a \(V\)-final state is entered. For \(V \cdot L\) and \(L_1 \cup L_2\), use non-deterministic handoff and initial choice. For intersection \(L_1 \cap L_2\), augment the synchronous product with a 2-phase controller on \(Q_1 \times Q_2 \times \{1, 2\}\) that enforces alternating visits to \(F_1\) and \(F_2\).",
+      invariant: String.raw`The composite run visits accepting state \(Q_1 \times F_2 \times \{2\}\) infinitely often iff both component runs satisfy \(\operatorname{Inf}(\rho_1) \cap F_1 \neq \emptyset\) and \(\operatorname{Inf}(\rho_2) \cap F_2 \neq \emptyset\).`,
+      synthesis: String.raw`Let \(V\subseteq\Sigma^+\) and \(L, L_1, L_2\subseteq\Sigma^\omega\) be \(\omega\)-regular. For \(V^\omega\), add non-deterministic transitions from \(F_V\) back to \(q_{0,V}\) through a designated accepting marker; visiting this marker infinitely often certifies an infinite sequence of completed \(V\)-blocks. For \(V\cdot L\), simulate \(V\) and non-deterministically transition to an NBA for \(L\) when reaching \(F_V\). Union is an initial non-deterministic choice. For intersection, define \(\mathcal{A}_{1\cap 2}\) on \(Q_1\times Q_2\times\{1,2\}\). In phase 1, the machine waits for component 1 to hit \(F_1\), then switches to phase 2; in phase 2, it waits for component 2 to hit \(F_2\), transitions to the accepting set \(Q_1\times F_2\times\{2\}\), and resets to phase 1. The accepting set recurs infinitely often iff both runs visit their respective final sets infinitely often. Thus \(\omega\text{-}\mathrm{REG}\) is closed under all four operations.`,
       diagram: {
         description: "omega-REG at the center. Arrows point to V^omega (restart blocks), V*L (finite handoff), L1 union L2 (initial guess). Below: a phase controller cycling between 'wait F1' then accepting marker then 'wait F2' and back, for intersection.",
         viewBox: [0, 0, 1000, 560],
@@ -652,68 +951,121 @@
       },
       steps: [
         {
-          label: "V\u03c9",
-          title: "Turn infinitely many block completions into B\u00fcchi visits",
-          exposition: "A word belongs to V\u03c9 when it can be split into infinitely many consecutive non-empty blocks, each from V. The B\u00fcchi automaton simulates one V-block at a time. Whenever a V-final state is reached, it nondeterministically restarts through an accepting marker. Visiting that marker infinitely often = completing infinitely many V-blocks.",
-          question: "What state should the B\u00fcchi automaton revisit each time a V-block is completed?",
-          choices: ["The start state (through an accepting marker)", "A dead/sink state", "The previous input symbol"],
-          correct: 0,
-          hint: "Each block completion must be visible to the B\u00fcchi condition \u2014 what state makes that happen?",
-          feedback: "Correct. An accepting restart at q\u2080 marks one block completion. Infinitely many restarts = V\u03c9.",
-          incorrect: "The B\u00fcchi condition needs a state that is revisited once per completed block.",
-          formal: String.raw`Whenever a run of the \(V\)-automaton reaches a final state, add the nondeterministic option to restart at \(q_0\) through an accepting marker. Infinite visits to that marker correspond to infinitely many consecutive nonempty \(V\)-blocks.`,
+          label: "V\u03c9 power",
+          title: "Synthesizing V\u03c9: Translating block completions into recurrent B\u00fcchi visits",
+          exposition: String.raw`Let \(V \subseteq \Sigma^+\) be a regular language with \(V \cap \{\varepsilon\} = \emptyset\). An infinite word \(\alpha \in \Sigma^\omega\) belongs to \(V^\omega\) iff it can be factored into an infinite sequence of non-empty words: \(\alpha = v_1 v_2 v_3 \cdots\) where each \(v_i \in V\). The NBA simulates an NFA for \(V\). Whenever a final state \(f \in F_V\) is reached, the automaton non-deterministically branches back to the start state \(q_{0,V}\) through a designated accepting transition or marker. Visiting this marker infinitely often certifies that infinitely many complete, non-empty \(V\)-blocks have been consumed.`,
+          question: "Why must the block language V satisfy V \u2229 {\u03b5} = \u2205 (or have \u03b5 excluded) when defining V\u03c9?",
+          choices: [
+            {
+              text: String.raw`If \(\varepsilon \in V\), an NBA could execute an infinite loop of instantaneous \(\varepsilon\)-restarts without consuming any input symbols, falsely accepting words with finite progress.`,
+              correct: true,
+              feedback: String.raw`Precisely. If empty blocks were allowed, the Büchi condition could be satisfied by stuttering on \(\varepsilon\) at a single position, violating the requirement that an \(\omega\)-word must advance indefinitely.`
+            },
+            {
+              text: String.raw`Because the empty word cannot be recognized by any finite automaton.`,
+              correct: false,
+              causalFailure: String.raw`The empty word \(\varepsilon\) is regular and trivially recognized by making the initial state accepting.`
+            },
+            {
+              text: String.raw`Because \(\omega\)-power is only defined over finite alphabets containing at least two symbols.`,
+              correct: false,
+              causalFailure: String.raw`\(\omega\)-power is well-defined over unary alphabets (e.g. \(\{a\}^\omega = \{a^\omega\}\)).`
+            }
+          ],
+          hint: "What would happen if an automaton took infinitely many restart transitions without consuming any input letters?",
+          formal: String.raw`For \(V\subseteq\Sigma^+\), \(\alpha\in V^\omega \iff \alpha=v_1 v_2 \cdots\) with \(v_i\in V\). An NBA with restart transitions through \(F'=\{q_0\}\) accepts \(\alpha\) iff \(q_0\) is visited infinitely often.`
+          ,
           preview: V(["omega"], [], { dimNodes: ["phase1", "phase2", "accept"] }),
           reveal: V(["omega", "power"], ["power-e"], { goodNodes: ["power"], dimNodes: ["phase1", "phase2", "accept"] }),
-          previewNote: "V\u03c9 means: infinitely many finite blocks from V, concatenated.",
-          revealNote: "A recurring accepting restart marks each block completion."
+          previewNote: "V\u03c9 represents an infinite sequence of finite, non-empty blocks from V.",
+          revealNote: "Recurring visits to the accepting restart marker certify infinitely many completed blocks."
         },
         {
           label: "Concat and union",
-          title: "One finite nondeterministic choice at a boundary",
-          exposition: "V\u00b7L: the run must switch from V-mode to L-mode at some finite point. The automaton simulates V; when it reaches a V-final state, it nondeterministically jumps to the B\u00fcchi automaton for L. L\u2081 \u222a L\u2082: at the very start, the run nondeterministically commits to one component. Both use a single finite existential choice.",
-          question: "What do V\u00b7L and L\u2081 \u222a L\u2082 have in common?",
-          choices: ["Both require a single finite nondeterministic handoff or initial choice", "Both require a deterministic complement", "Both need an auxiliary stack"],
-          correct: 0,
-          hint: "Only one finite decision point separates the two modes.",
-          feedback: "Exactly. The run makes one existential choice, then runs inside one component.",
-          incorrect: "No unbounded memory is needed; a single finite existential choice is enough.",
-          formal: String.raw`For \(V\cdot L\), jump to the \(L\)-automaton when a \(V\)-prefix finishes. For union, a fresh start duplicates the outgoing choices of both components.`,
+          title: "Prefix concatenation V \u00b7 L and Union L_1 \u222a L_2",
+          exposition: String.raw`Concatenation of a regular finite-word language \(V \subseteq \Sigma^*\) with an \(\omega\)-regular language \(L \subseteq \Sigma^\omega\) requires a single existential transition point: the automaton runs in \(V\)-mode until non-deterministically deciding that the finite prefix has ended at state \(f \in F_V\), at which point it jumps to the initial state of the NBA for \(L\). Union \(L_1 \cup L_2\) similarly branches non-deterministically at \(t = 0\) to choose between simulating \(\mathcal{A}_1\) or \(\mathcal{A}_2\). In both cases, non-determinism resolves the finite existential boundary.`,
+          question: "Why do concatenation V \u00b7 L and union L_1 \u222a L_2 introduce zero synchronization difficulties compared to intersection?",
+          choices: [
+            {
+              text: String.raw`Both operations resolve their structural choice at a single finite instant (at \(t = 0\) for \(\cup\), and at the end of the \(V\)-prefix for \(\cdot\)), after which the automaton runs inside a single NBA without coordinating concurrent conditions.`,
+              correct: true,
+              feedback: String.raw`Correct. Union and concatenation require only a one-time existential routing step; once inside the target NBA, standard single-set Büchi acceptance governs the infinite run.`
+            },
+            {
+              text: String.raw`Because deterministic Büchi automata are closed under all Boolean operations.`,
+              correct: false,
+              causalFailure: String.raw`Deterministic Büchi Automata (DBAs) are strictly less expressive than NBAs and are NOT closed under union or complementation.`
+            },
+            {
+              text: String.raw`Because concatenation with an infinite word always yields an empty language.`,
+              correct: false,
+              causalFailure: String.raw`Concatenation \(V \cdot L\) produces non-empty \(\omega\)-words whenever \(V\) and \(L\) are non-empty.`
+            }
+          ],
+          hint: "How many times does the automaton need to decide between the two components in V \u00b7 L or L_1 \u222a L_2?",
+          formal: String.raw`Union uses a new start state branching into \(q_{0,1}\) and \(q_{0,2}\). Concatenation links \(F_V\) to \(q_{0,L}\) via \(\varepsilon\)-transitions. Both preserve \(\omega\)-regularity.`,
           preview: V(["omega"], [], { dimNodes: ["phase1", "phase2", "accept"] }),
           reveal: V(["omega", "concat", "union"], ["concat-e", "union-e"], { goodNodes: ["concat", "union"], dimNodes: ["phase1", "phase2", "accept"] }),
-          previewNote: "Two operations, one common idea: a nondeterministic boundary.",
-          revealNote: "Nondeterminism implements that existential choice."
+          previewNote: "Both operations use a single non-deterministic boundary choice.",
+          revealNote: "After the finite boundary, execution proceeds under standard Büchi semantics."
         },
         {
-          label: "Intersection (problem)",
-          title: "Why simultaneous final states fail for B\u00fcchi",
-          exposition: "For finite automata, F\u2081\u00d7F\u2082 works perfectly. For B\u00fcchi it fails. Consider: automaton 1 visits F\u2081 on even steps, automaton 2 visits F\u2082 on odd steps. Both fulfill their condition infinitely often \u2014 but they are never simultaneously final. F\u2081\u00d7F\u2082 would accept no run at all.",
-          question: "Why is the accepting set F\u2081\u00d7F\u2082 too strict for B\u00fcchi intersection?",
-          choices: ["The two automata may visit their final sets at different times \u2014 never simultaneously", "The product automaton is infinite", "B\u00fcchi automata have no final states"],
-          correct: 0,
-          hint: "Imagine one automaton accepting on even steps and the other on odd steps \u2014 does F\u2081\u00d7F\u2082 ever trigger?",
-          feedback: "Correct. Both obligations can recur forever without ever happening at the same step.",
-          incorrect: "The issue is timing: both may recur, just never at the same position.",
-          formal: String.raw`B\u00fcchi acceptance requires visits to each of \(F_1\) and \(F_2\) infinitely often, not visits to \(F_1\times F_2\) at common instants.`,
+          label: "Intersection anomaly",
+          title: "The desynchronization anomaly: Why F_1 \u00d7 F_2 fails for B\u00fcchi intersection",
+          exposition: String.raw`In finite automata, the product automaton accepts in \(F_1 \times F_2\). For Büchi automata, setting \(F' = F_1 \times F_2\) is fundamentally flawed. Consider two NBAs on \(\Sigma^\omega\): \(\mathcal{A}_1\) visits \(F_1\) on every even position (\(t \in \{0, 2, 4, \dots\}\)), while \(\mathcal{A}_2\) visits \(F_2\) on every odd position (\(t \in \{1, 3, 5, \dots\}\)). Both individual runs satisfy the Büchi acceptance condition: \(\operatorname{Inf}(\rho_1) \cap F_1 \neq \emptyset\) and \(\operatorname{Inf}(\rho_2) \cap F_2 \neq \emptyset\). However, they NEVER enter final states at the same time: \((p_t, q_t) \notin F_1 \times F_2\) for all \(t\). A naive Cartesian product would reject this valid word.`,
+          question: "Why is the naive acceptance condition F' = F_1 \u00d7 F_2 unsound for B\u00fcchi intersection?",
+          choices: [
+            {
+              text: String.raw`Büchi acceptance requires that visits to \(F_1\) and \(F_2\) recur infinitely often individually; requiring simultaneous visits (\(F_1 \times F_2\)) erroneously rejects runs whose accepting visits are interleaved or desynchronized.`,
+              correct: true,
+              feedback: String.raw`Exactly. Two liveness properties may be satisfied asynchronously; forcing them to occur at identical time steps conflates asynchronous recurrence with synchronous lock-step coincidence.`
+            },
+            {
+              text: String.raw`Because Cartesian products of finite sets can produce infinite state spaces.`,
+              correct: false,
+              causalFailure: String.raw`The Cartesian product of two finite sets \(Q_1 \times Q_2\) is strictly finite: \(|Q_1 \times Q_2| = |Q_1| \cdot |Q_2|\).`
+            },
+            {
+              text: String.raw`Because Büchi automata cannot have more than one final state.`,
+              correct: false,
+              causalFailure: String.raw`Büchi automata can have arbitrarily many final states in \(F \subseteq Q\).`
+            }
+          ],
+          hint: "Consider: does 'infinitely often p' AND 'infinitely often q' imply 'infinitely often (p AND q simultaneously)'?",
+          formal: String.raw`\(\operatorname{Inf}(\rho_1)\cap F_1\neq\emptyset \land \operatorname{Inf}(\rho_2)\cap F_2\neq\emptyset \;\not\implies\; \operatorname{Inf}((\rho_1,\rho_2))\cap(F_1\times F_2)\neq\emptyset\). Synchronous coincidence is too strict.`,
           preview: V(["phase1", "phase2"], [], { dimNodes: ["power", "concat", "union"] }),
           reveal: V(["phase1", "phase2"], [], { badNodes: ["accept"], dimNodes: ["power", "concat", "union"] }),
-          previewNote: "Both automata must accept infinitely often \u2014 but not necessarily together.",
-          revealNote: "Simultaneous finality may never occur even when both conditions recur."
+          previewNote: "Component runs may satisfy their Büchi conditions at alternating, desynchronized steps.",
+          revealNote: "Simultaneous F1 \u00d7 F2 acceptance fails to detect asynchronously recurring visits."
         },
         {
-          label: "Intersection (fix)",
-          title: "Alternate the obligations with a phase bit",
-          exposition: "The fix: a phase controller. Phase 1 waits for F\u2081. When F\u2081 is hit, switch to phase 2, wait for F\u2082. When F\u2082 is hit, mark one complete cycle (the B\u00fcchi accepting state), and reset to phase 1. If both obligations recur infinitely often, the cycle completes infinitely often.",
-          question: "When does the product mark one accepting cycle as complete?",
-          choices: ["After visiting F\u2081 and then F\u2082 (in that order)", "After visiting either F\u2081 or F\u2082 once", "At every transition step"],
-          correct: 0,
-          hint: "The phase controller must witness both obligations in sequence before resetting.",
-          feedback: "Exactly. Infinitely many completed phases means both F\u2081 and F\u2082 recur infinitely often.",
-          incorrect: "One complete round must witness both F\u2081 and F\u2082 \u2014 not just one.",
-          formal: String.raw`The phase component waits for \(F_1\), then \(F_2\), then emits an accepting marker and resets. Marker recurrence is equivalent to both obligations recurring.`,
+          label: "Phase controller",
+          title: "The 2-track alternating phase controller for B\u00fcchi intersection",
+          exposition: String.raw`To solve the desynchronization problem, we augment the product state space with a discrete phase bit: \(Q' = Q_1 \times Q_2 \times \{1, 2\}\). The initial state is \((q_{0,1}, q_{0,2}, 1)\). In phase 1, the automaton waits for component 1 to enter a final state \(p \in F_1\); upon doing so, it transitions to phase 2. In phase 2, it waits for component 2 to enter a final state \(q \in F_2\); upon doing so, it visits the designated accepting set \(F' = Q_1 \times F_2 \times \{2\}\) and resets back to phase 1. Visiting \(F'\) infinitely often guarantees that an infinite sequence of completed phase 1 \(\to\) phase 2 rounds occurred, which is mathematically equivalent to both \(F_1\) and \(F_2\) recurring infinitely often.`,
+          question: "Why does infinite recurrence of the phase-2 accepting marker prove that both component conditions recur infinitely often?",
+          choices: [
+            {
+              text: String.raw`Because resetting the phase controller requires witnessing a visit to \(F_1\) (to advance from phase 1 to 2) followed by a visit to \(F_2\) (to complete phase 2 and trigger the marker); repeating this cycle infinitely often certifies infinite visits to both.`,
+              correct: true,
+              feedback: String.raw`Correct. The phase controller acts as a two-stage sequential latch: completing a cycle requires discharging the first liveness obligation, then discharging the second. Thus marker recurrence \(\iff\) both obligations recur.`
+            },
+            {
+              text: String.raw`Because phase 2 can only be entered if the input word is periodic.`,
+              correct: false,
+              causalFailure: String.raw`The phase controller operates on arbitrary \(\omega\)-words, periodic or non-periodic.`
+            },
+            {
+              text: String.raw`Because the phase controller determinizes the resulting product automaton.`,
+              correct: false,
+              causalFailure: String.raw`The product of two NBAs remains non-deterministic; the phase bit merely coordinates the acceptance condition.`
+            }
+          ],
+          hint: "Trace the phase transitions: 1 -[hit F1]-> 2 -[hit F2]-> 1. Can you visit F' without visiting F1 first?",
+          formal: String.raw`Define \(F'=Q_1\times F_2\times\{2\}\). A run \(\rho\) visits \(F'\) infinitely often \(\iff\) \(\operatorname{Inf}(\rho_1)\cap F_1\neq\emptyset\) and \(\operatorname{Inf}(\rho_2)\cap F_2\neq\emptyset\). Hence \(L(\mathcal{A}_{1\cap 2})=L_1\cap L_2\).`,
           preview: V(["phase1"], [], { dimNodes: ["power", "concat", "union"] }),
           reveal: V(["phase1", "accept", "phase2"], ["f1", "f2", "reset"], { goodNodes: ["accept"], dimNodes: ["power", "concat", "union"] }),
-          previewNote: "Phase 1: wait until F\u2081 is hit.",
-          revealNote: "After F\u2081 \u2192 phase 2 \u2192 wait F\u2082 \u2192 mark cycle \u2192 restart. Infinitely often = both recur."
+          previewNote: "Phase 1 tracks progress toward F1; upon arrival, it hands off to Phase 2.",
+          revealNote: "Phase 2 waits for F2, marks cycle completion in F', and resets. Alternation captures intersection."
         }
       ],
       previous: { label: "Myhill\u2013Nerode", href: "/proofs/chapter-02/myhill-nerode.html" },
@@ -724,12 +1076,12 @@
       slug: "buchi-expression-equivalence",
       chapter: 3,
       title: "B\u00fcchi\u2013expression equivalence",
-      theorem: "A language of infinite words is B\u00fcchi-recognizable iff it is denoted by an \u03c9-regular expression.",
-      intro: "An \u03c9-regular expression is a finite union of terms UV\u03c9 \u2014 one finite prefix U, then infinitely many repetitions of V. Every accepting B\u00fcchi run, after some prefix, revisits some final state f infinitely often. That creates a lasso: prefix \u2192 reach f \u2192 loop back to f \u2192 loop \u2192 \u2026",
-      application: "For editor sessions: U = {open} is the finite setup. V = (edit+save)*save is one operation block ending in save. The term UV\u03c9 means: open the editor, then complete infinitely many save-terminated blocks.",
-      strategy: "Expression \u2192 automaton: compile UV\u03c9 by simulating U, then repeatedly completing V-blocks marked by an accepting restart. Automaton \u2192 expression: every accepting run revisits some fixed f \u2208 F infinitely often (pigeonhole), giving a lasso UV\u03c9 per final state f.",
-      invariant: "Every displayed finite block labels a real path with the stated endpoints; concatenating the blocks yields one infinite run.",
-      synthesis: String.raw`Every \(\omega\)-regular expression is a finite union of terms \(UV^\omega\) with regular \(U\) and \(V\subseteq\Sigma^+\). For one term, a B\u00fcchi automaton first simulates an automaton for \(U\), nondeterministically transfers to an automaton for \(V\), and visits an accepting restart marker whenever a \(V\)-block is completed; the marker recurs exactly for words in \(UV^\omega\). Conversely, let \(\mathcal{A}\) be a B\u00fcchi automaton and let \(W_{s,s'}\) be the regular language of finite labels taking \(s\) to \(s'\). Every accepting run visits some fixed \(f\in F\) infinitely often. Cutting at successive \(f\)-visits yields a prefix in \(W_{q_0,f}\) followed by infinitely many nonempty blocks in \(W_{f,f}\setminus\{\varepsilon\}\). Therefore \(L(\mathcal{A})=\bigcup_{f\in F}W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega\), a finite \(\omega\)-regular expression.`,
+      theorem: String.raw`An \(\omega\)-language \(L \subseteq \Sigma^\omega\) is recognized by a Non-deterministic Büchi Automaton (NBA) if and only if it is denoted by an \(\omega\)-regular expression of the form \(\bigcup_{i=1}^k U_i V_i^\omega\), where \(U_i, V_i \subseteq \Sigma^*\) are regular languages with \(V_i \cap \{\varepsilon\} = \emptyset\).`,
+      intro: "Büchi's Theorem on \(\omega\)-Regular Expressions characterizes the operational power of Büchi automata via algebraic syntax. It proves that every Büchi-recognizable language corresponds to a finite union of terms \(U V^\omega\) (a finite regular prefix \(U\) followed by an infinite concatenation of non-empty regular blocks from \(V\)). The proof hinges on the geometric 'lasso' decomposition of accepting runs: any infinite run visiting a finite set \(F\) infinitely often must revisit some designated state \(f \in F\) repeatedly.",
+      application: "In model checking with LTL (Linear Temporal Logic), system counterexamples are reported as lasso executions: an initialization trace followed by an infinitely repeating loop. Nested Depth-First Search (NDFS) and Tarjan's SCC algorithm detect accepting Büchi runs by searching for these exact lasso structures.",
+      strategy: "Direction 1 (Expression \(\to\) NBA): Compile each term \(U V^\omega\) by composing an NFA for \(U\) with an accepting restart loop for \(V^\omega\), and take the initial union across all terms. Direction 2 (NBA \(\to\) Expression): Given NBA \(\mathcal{A}\), every accepting run \(\rho\) satisfies \(\operatorname{Inf}(\rho) \cap F \neq \emptyset\). By Dirichlet's Principle, at least one state \(f \in F\) is visited infinitely often. Decompose the run into a prefix in \(W_{q_0, f}\) and infinite non-empty loops in \(W_{f, f} \setminus \{\varepsilon\}\). Unioning across all \(f \in F\) completes the equivalence.",
+      invariant: String.raw`Every accepting run decomposes into \(q_0 \xrightarrow{u} f \xrightarrow{v_1} f \xrightarrow{v_2} f \cdots\) with \(u \in W_{q_0, f}\) and \(v_i \in W_{f, f} \setminus \{\varepsilon\}\).`,
+      synthesis: String.raw`Every \(\omega\)-regular expression is a finite union of terms \(UV^\omega\) with regular \(U\) and \(V\subseteq\Sigma^+\). For one term, an NBA simulates \(U\), non-deterministically switches to \(V\), and restarts \(V\) through an accepting marker upon reaching \(F_V\); this marker recurs infinitely often iff the input word lies in \(UV^\omega\). Conversely, let \(\mathcal{A}\) be an NBA. Let \(W_{s,s'}\) denote the regular language of finite words driving \(\mathcal{A}\) from state \(s\) to \(s'\). Every accepting run visits \(F\) infinitely often; since \(F\) is finite, there exists at least one recurrent state \(f\in F\) visited infinitely often. Slicing the run at successive occurrences of \(f\) yields a prefix in \(W_{q_0,f}\) followed by an infinite sequence of non-empty loop factors in \(W_{f,f}\setminus\{\varepsilon\}\). Hence \(L(\mathcal{A})=\bigcup_{f\in F}W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega\), an \(\omega\)-regular expression.`,
       diagram: {
         description: "Left: expression term UV^omega. Center: a run starting at q0, reaching recurrent final state f (via prefix u), then looping back to f via v1, v2, v3,... forever. Top center: the union over f in F collects one term per possible recurrent final state.",
         viewBox: [0, 0, 1000, 540],
@@ -757,67 +1109,119 @@
       steps: [
         {
           label: "Expr \u2192 Automaton",
-          title: "Compile UV\u03c9: one prefix, infinitely many blocks",
-          exposition: "A term UV\u03c9 says: read a finite word from U, then read infinitely many words from V (each non-empty). The automaton: simulate U, then nondeterministically jump to simulating V. Whenever a V-block is completed (a V-final state is reached), restart V and mark the restart as an accepting event. Infinitely many marked restarts = UV\u03c9 accepted.",
-          question: "After the U-prefix is completed, what must the automaton keep doing?",
-          choices: ["Complete infinitely many V-blocks, marking each one", "Stop immediately after one V-block", "Read just one V-block and halt"],
-          correct: 0,
-          hint: "The exponent \u03c9 means an infinite, never-ending sequence of V-blocks.",
-          feedback: "Correct. Each V-block completion triggers a marked restart. Infinitely many restarts = B\u00fcchi acceptance.",
-          incorrect: "The infinite suffix requires recurring completions, not a single one.",
-          formal: String.raw`Simulate an automaton for \(U\), switch to one for \(V\), and restart \(V\) through an accepting marker after every completed nonempty block.`,
+          title: "Compiling UV\u03c9: Prefix simulation followed by recurrent block completions",
+          exposition: String.raw`A term \(U V^\omega\) represents all words \(\alpha \in \Sigma^\omega\) that can be factored as \(\alpha = u v_1 v_2 v_3 \cdots\) where \(u \in U\) and each \(v_i \in V \subseteq \Sigma^+\). To construct an equivalent NBA, we simulate an NFA for \(U\) until reaching a state in \(F_U\), then non-deterministically transition to an NBA for \(V^\omega\). The \(V^\omega\) automaton runs an NFA for \(V\), restarting at \(q_{0,V}\) through a designated accepting marker state whenever a state in \(F_V\) is visited. An infinite run visits this marker infinitely often iff it consumes infinitely many non-empty \(V\)-blocks.`,
+          question: "How does the NBA construction ensure that words in UV\u03c9 satisfy the B\u00fcchi acceptance condition \u221e-often?",
+          choices: [
+            {
+              text: String.raw`Each completion of a \(V\)-block passes through an accepting restart marker; completing infinitely many consecutive \(V\)-blocks forces the marker to be visited infinitely often.`,
+              correct: true,
+              feedback: String.raw`Correct. The accepting state is placed on the block-boundary reset transitions: visiting the marker infinitely often certifies an infinite sequence of completed \(V\)-blocks.`
+            },
+            {
+              text: String.raw`By requiring every state in the \(U\)-automaton to be accepting.`,
+              correct: false,
+              causalFailure: String.raw`States in \(U\) are traversed only during the finite prefix phase; making them accepting would not capture infinite liveness and could accept words with finite \(U\)-prefixes that halt.`
+            },
+            {
+              text: String.raw`By determinizing the \(V\)-automaton using the subset construction.`,
+              correct: false,
+              causalFailure: String.raw`Determinization is not necessary and does not generally work for Büchi automata (DBAs are strictly less expressive than NBAs).`
+            }
+          ],
+          hint: "Where must the accepting marker be located to certify an infinite progression of V-blocks?",
+          formal: String.raw`An NBA for \(UV^\omega\) chains \(\mathcal{A}_U\) to an accepting restart loop on \(\mathcal{A}_V\). The Büchi acceptance condition \(\operatorname{Inf}(\rho)\cap F\neq\emptyset\) captures \(\alpha\in UV^\omega\).`,
           preview: V(["expr"], [], { dimNodes: ["union", "loop1", "loop2"] }),
           reveal: V(["expr", "q0", "f", "loop1"], ["expr-run", "prefix", "loop-in", "loop-out"], { goodNodes: ["f"], dimNodes: ["union", "loop2"] }),
-          previewNote: "UV\u03c9: a finite prefix phase, then an infinite loop phase.",
-          revealNote: "The B\u00fcchi run marks each completed V-block. The lasso emerges."
+          previewNote: "UV\u03c9: a finite prefix phase U, then an infinite recurring loop phase V.",
+          revealNote: "The NBA marks each completed V-block; infinite recurrence yields Büchi acceptance."
         },
         {
           label: "Automaton \u2192 Expr",
-          title: "An accepting run must revisit some fixed f",
-          exposition: "Take any B\u00fcchi-accepting run: it visits F infinitely often. But F is a finite set. By pigeonhole: infinitely many visits to a finite set means at least one element is visited infinitely often. Fix that element as f.",
-          question: "Why must an accepting B\u00fcchi run revisit some fixed f \u2208 F infinitely often?",
-          choices: ["F is finite \u2014 infinitely many visits to finitely many states forces a repetition", "The alphabet is unary", "The run is deterministic"],
-          correct: 0,
-          hint: "Distribute infinitely many visits across finitely many states. What happens?",
-          feedback: "Exactly. Pigeonhole: at least one state in F must absorb infinitely many visits.",
-          incorrect: "The argument uses finiteness of F, not alphabet size or determinism.",
-          formal: String.raw`A B\u00fcchi-accepting run visits \(F\) infinitely often. Since \(F\) is finite, at least one \(f\in F\) occurs infinitely often.`,
+          title: "Dirichlet's Principle: Isolating a recurrent final state f \u2208 F",
+          exposition: String.raw`Let \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) be an NBA and let \(\rho \in Q^\omega\) be an accepting run on \(\alpha \in L(\mathcal{A})\). By definition of Büchi acceptance, the set of states occurring infinitely often in \(\rho\), denoted \(\operatorname{Inf}(\rho)\), intersects \(F\): \(\operatorname{Inf}(\rho) \cap F \neq \emptyset\). Because the set of final states \(F\) is finite, Dirichlet's Pigeonhole Principle guarantees that at least one individual state \(f \in F\) must appear infinitely often along \(\rho\). We fix this recurrent state \(f\).`,
+          question: "Why does the finiteness of F guarantee the existence of a single state f \u2208 F visited infinitely often?",
+          choices: [
+            {
+              text: String.raw`An infinite sequence of visits distributed across a finite set \(F\) must assign infinitely many visits to at least one element of \(F\) by Dirichlet's Pigeonhole Principle.`,
+              correct: true,
+              feedback: String.raw`Exactly. If every state in \(F\) were visited only finitely many times, the total number of visits to \(F\) would be finite, directly contradicting Büchi acceptance.`
+            },
+            {
+              text: String.raw`Because every Büchi automaton is restricted to having exactly one final state: \(|F| = 1\).`,
+              correct: false,
+              causalFailure: String.raw`Büchi automata can have arbitrarily large final sets \(F \subseteq Q\); the argument holds for any finite cardinality \(|F|\).`
+            },
+            {
+              text: String.raw`Because the transition graph of the automaton is topologically ordered.`,
+              correct: false,
+              causalFailure: String.raw`Topological ordering exists only in acyclic graphs; accepting Büchi runs inherently require directed cycles to visit states infinitely often.`
+            }
+          ],
+          hint: "If each state f \u2208 F occurred only a finite number of times c_f, what would be the sum \u2211 c_f?",
+          formal: String.raw`\(\operatorname{Inf}(\rho)\cap F\neq\emptyset \land |F|<\infty \implies \exists f\in F \text{ s.t. } f\in\operatorname{Inf}(\rho)\). At least one specific final state recurs forever.`,
           preview: V(["q0", "f"], ["prefix"], { dimNodes: ["expr", "union", "loop1", "loop2"] }),
           reveal: V(["f"], [], { goodNodes: ["f"], dimNodes: ["expr", "union", "q0", "loop1", "loop2"] }),
-          previewNote: "The run visits F many times \u2014 maybe different final states each time.",
-          revealNote: "One particular f \u2208 F must appear infinitely often."
+          previewNote: "The run visits F infinitely many times across potentially several states.",
+          revealNote: "By pigeonhole, at least one designated state f \u2208 F recurs infinitely often."
         },
         {
-          label: "Automaton \u2192 Expr",
-          title: "Cut the run into a prefix and infinite loops at f",
-          exposition: "Once f is fixed, dissect the infinite run. The first segment goes from q\u2080 to f: its word u belongs to Wq\u2080,f. Each subsequent return from f back to f is a loop: word v\u2099 \u2208 Wf,f. Each v\u2099 must be non-empty \u2014 otherwise the run would never advance along the infinite word.",
-          question: "Why must we exclude \u03b5 from the loop language Wf,f?",
-          choices: ["Each loop must consume at least one symbol to advance the infinite word", "\u03b5 is not regular", "The prefix already uses \u03b5"],
-          correct: 0,
-          hint: "What would happen if some loop consumed zero symbols? Would the run ever advance?",
-          feedback: "Correct. An \u03b5-loop would return to f without reading anything \u2014 the run would never proceed.",
-          incorrect: "\u03b5 is regular, but empty loops would stall the infinite-word progress.",
-          formal: String.raw`The prefix lies in \(W_{q_0,f}\), and every later segment lies in \(W_{f,f}\setminus\{\varepsilon\}\); their concatenation lies in \(W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega\).`,
+          label: "Lasso decomposition",
+          title: "Slicing the run: The lasso factorisation W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9",
+          exposition: String.raw`Having isolated a recurrent final state \(f \in F\), we slice the infinite run \(\rho\) at its successive occurrences: \(q_0 \xrightarrow{u} f \xrightarrow{v_1} f \xrightarrow{v_2} f \xrightarrow{v_3} \cdots\). The prefix \(u\) drives the automaton from \(q_0\) to its first visit to \(f\), belonging to the regular path language \(W_{q_0, f}\). Each subsequent segment \(v_k\) loops from \(f\) back to \(f\), belonging to \(W_{f, f}\). To guarantee that the run makes strict progress along the infinite word \(\alpha\), each loop factor must consume at least one symbol: \(v_k \in W_{f, f} \setminus \{\varepsilon\}\).`,
+          question: "Why must the loop language explicitly exclude the empty word: W_{f, f} \\ {\u03b5}?",
+          choices: [
+            {
+              text: String.raw`Because each loop factor \(v_k\) must consume at least one symbol (\(|v_k| \ge 1\)) to advance along the infinite word; otherwise, an infinite sequence of \(\varepsilon\)-loops would stall progress.`,
+              correct: true,
+              feedback: String.raw`Precisely. An infinite run on word \(\alpha \in \Sigma^\omega\) must consume infinitely many input letters; allowing \(v_k = \varepsilon\) would allow stuttering infinitely often at a finite prefix.`
+            },
+            {
+              text: String.raw`Because the empty word \(\varepsilon\) is not a regular language.`,
+              correct: false,
+              causalFailure: String.raw`The singleton language \(\{\varepsilon\}\) is regular; it is excluded here strictly for dynamic progress reasons.`
+            },
+            {
+              text: String.raw`Because state \(f\) cannot have an outgoing transition on any symbol.`,
+              correct: false,
+              causalFailure: String.raw`State \(f\) must have outgoing transitions to enable looping back to \(f\).`
+            }
+          ],
+          hint: "What happens to the word length |v_1 v_2 ... v_k| if the factors v_k consume zero symbols?",
+          formal: String.raw`\(u \in W_{q_0, f}\) and \(\forall k \ge 1,\; v_k \in W_{f, f} \setminus \{\varepsilon\} \implies \alpha = u v_1 v_2 \cdots \in W_{q_0, f}(W_{f, f}\setminus\{\varepsilon\})^\omega\).`,
           preview: V(["q0", "f"], ["prefix"], { dimNodes: ["expr", "union"] }),
           reveal: V(["q0", "f", "loop1", "loop2"], ["prefix", "loop-in", "loop-out", "repeat"], { goodNodes: ["f"], dimNodes: ["expr", "union"] }),
-          previewNote: "After the prefix, mark each return to f as a loop.",
-          revealNote: "Prefix \u2208 Wq\u2080,f and loops \u2208 Wf,f\\{\u03b5}. The lasso is complete."
+          previewNote: "Slice the run: one prefix to reach f, followed by recurrent cycles at f.",
+          revealNote: "Lasso structure: u \u2208 W_{q0, f} followed by infinite non-empty loops v_k \u2208 W_{f, f} \\ {\u03b5}."
         },
         {
-          label: "Equality",
-          title: "Union over all final states covers every run",
-          exposition: "Different accepting runs may revisit different final states. But F is finite, so there are only |F| possible choices of recurrent f. Taking one term Wq\u2080,f \u00b7 (Wf,f\\{\u03b5})\u03c9 for each f \u2208 F and taking their union gives an \u03c9-regular expression covering all accepting runs.",
-          question: "Why is the finite union \u22c3\u1D69\u2208F Wq\u2080,f (Wf,f\\{\u03b5})\u03c9 still \u03c9-regular?",
-          choices: ["Because there are finitely many final states, and each term Wq\u2080,f (Wf,f\\{\u03b5})\u03c9 is \u03c9-regular", "Because every loop has length one", "Because the automaton has only one run"],
-          correct: 0,
-          hint: "The expression contributes one term per f \u2208 F. How many terms are there?",
-          feedback: "Exactly. A finite union of \u03c9-regular terms is \u03c9-regular.",
-          incorrect: "Loop lengths may vary; what matters is the finite number of candidate final states.",
-          formal: String.raw`\(L(A)=\bigcup_{f\in F}W_{q_0,f}(W_{f,f}\setminus\{\varepsilon\})^\omega\). Both inclusions follow by cutting or concatenating paths.`,
+          label: "Finite union",
+          title: "Covering all runs: L(A) = \u22c3_{f \in F} W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9",
+          exposition: String.raw`Different accepting runs of \(\mathcal{A}\) may recur on different final states in \(F\). However, because \(F\) is finite, there are at most \(|F|\) candidate recurrent states. Taking the union of the lasso terms across all \(f \in F\) covers every conceivable accepting run: \(L(\mathcal{A}) = \bigcup_{f \in F} W_{q_0, f} (W_{f, f} \setminus \{\varepsilon\})^\omega\). By Kleene's theorem, each path language \(W_{q_0, f}\) and \(W_{f, f}\) is regular. Thus, \(L(\mathcal{A})\) is expressible as a finite union of \(\omega\)-regular terms, closing the equivalence.`,
+          question: "Why does the expression \u22c3_{f \in F} W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9 qualify as an \u03c9-regular expression?",
+          choices: [
+            {
+              text: String.raw`By Kleene's theorem, each path language \(W_{s, s'}\) is regular on finite words; since \(F\) is a finite set, the union is finite, yielding a valid \(\omega\)-regular expression.`,
+              correct: true,
+              feedback: String.raw`Correct. Each term \(U_f V_f^\omega\) comprises regular languages \(U_f = W_{q_0, f}\) and \(V_f = W_{f, f} \setminus \{\varepsilon\}\), and a finite union of such terms is by definition \(\omega\)-regular.`
+            },
+            {
+              text: String.raw`Because every \(\omega\)-regular expression must contain at least \(2^{|Q|}\) terms.`,
+              correct: false,
+              causalFailure: String.raw`The expression contains at most \(|F| \le |Q|\) terms; exponential blowup is avoided here.`
+            },
+            {
+              text: String.raw`Because the union operator over infinite words is only defined when \(F\) is a singleton.`,
+              correct: false,
+              causalFailure: String.raw`Set union over \(\Sigma^\omega\) is defined for any indexing set, finite or infinite.`
+            }
+          ],
+          hint: "Check the definition of an \u03c9-regular expression: a finite union of terms U_i V_i^\u03c9 with regular U_i, V_i.",
+          formal: String.raw`\(L(\mathcal{A}) = \bigcup_{f\in F} W_{q_0, f} (W_{f, f} \setminus \{\varepsilon\})^\omega\). Both inclusions hold, proving \(\mathcal{L}(\mathrm{NBA}) = \mathcal{L}(\omega\text{-}\mathrm{RegExp})\).`,
           preview: V(["f", "union"], ["run-union"], { dimNodes: ["loop1", "loop2"] }),
           reveal: V(["union", "expr"], ["union-expr"], { goodNodes: ["union", "expr"], dimNodes: ["q0", "f", "loop1", "loop2"] }),
-          previewNote: "Each recurrent final state contributes one expression term.",
-          revealNote: "The finite union covers all accepting runs. The equality holds."
+          previewNote: "Each recurrent final state f \u2208 F contributes one term to the global expression.",
+          revealNote: "The finite union over F covers all accepting runs: L(A) is an \u03c9-regular expression."
         }
       ],
       previous: { label: "\u03c9-regular closure", href: "/proofs/chapter-03/omega-closure.html" },
@@ -1073,12 +1477,12 @@
       slug: "buchi-complementation",
       chapter: 4,
       title: "B\u00fcchi complementation",
-      theorem: "The complement of every \u03c9-regular language is \u03c9-regular.",
-      intro: "We cannot simply swap final and non-final states: B\u00fcchi acceptance depends on infinitely many visits, so a swap does not flip the language cleanly. Instead, the proof classifies all finite blocks with the relation \u2248\uD835\uDC9C, groups all infinite words into finitely many product classes UV\u03c9, and shows each class is entirely accepted or entirely rejected.",
-      application: "The complement of 'save infinitely often' is 'save only finitely often'. The proof provides a B\u00fcchi automaton for the complement by collecting exactly the rejected product classes.",
-      strategy: "Define a finite congruence on finite words capturing all automaton-observable behavior. Use it to decompose every infinite word into a class product UV\u03c9. Show each product is saturated (all-or-nothing). Collect rejected products \u2014 their finite union is \u03c9-regular.",
-      invariant: "Every classified product UV\u03c9 lies wholly on one side of L, and the classified products together cover every \u03c9-word.",
-      synthesis: String.raw`Fix a B\u00fcchi automaton \(\mathcal A\) for \(L\) and classify finite words using the relation \(\approx_{\mathcal A}\): words are equivalent when they induce the same state-to-state reachability and agree on whether an accepting state can be visited along each segment. This finite-index congruence has regular classes. Suitable pairs of classes \(U,V\) determine products \(UV^\omega\). Saturation shows that if one member of such a product has an accepting run, then equivalent block replacements preserve its boundary states and accepting visits, so every member is accepted; otherwise the entire product is disjoint from \(L\). The Ramsey decomposition places every infinite word in at least one product \(UV^\omega\), and only finitely many pairs of classes exist. Therefore \(\Sigma^\omega\setminus L\) is exactly the finite union of all products disjoint from \(L\). Each product is \(\omega\)-regular because \(U\) and \(V\) are regular, and finite union preserves \(\omega\)-regularity.`,
+      theorem: String.raw`The complement \(\Sigma^\omega \setminus L\) of every Büchi-recognizable language \(L \subseteq \Sigma^\omega\) is Büchi-recognizable.`,
+      intro: "Complementation of Büchi automata is one of the foundational results of automata theory over infinite words. Because Non-deterministic Büchi Automata (NBAs) strictly exceed Deterministic Büchi Automata (DBAs) in expressive power, complementation cannot be achieved by determinizing and swapping accepting states. Instead, Büchi's 1962 proof classifies finite words using a finite-index transition congruence \(\approx_{\mathcal{A}}\), partitions the infinite universe \(\Sigma^\omega\) into saturated product sets \(U V^\omega\), and constructs the complement as a finite union of rejected products.",
+      application: "In temporal logic model checking, verifying whether a concurrent system satisfies a temporal specification \(\varphi\) requires constructing an automaton for the negated property \(\neg \varphi\). Büchi complementation guarantees that the negation of any \(\omega\)-regular specification remains algorithmically verifiable.",
+      strategy: "Define the transition profile congruence \(\approx_{\mathcal{A}}\) on \(\Sigma^*\) tracking state reachability and acceptance visits. Form class products \(U V^\omega\) with idempotent factors \(V \cdot V \subseteq V\). Prove saturation: each product \(U V^\omega\) is either entirely contained in \(L(\mathcal{A})\) or entirely disjoint from \(L(\mathcal{A})\). Apply the Ramsey decomposition to prove universal coverage: \(\Sigma^\omega = \bigcup U V^\omega\). Deduce that \(\Sigma^\omega \setminus L(\mathcal{A}) = \bigcup \{ U V^\omega \mid U V^\omega \cap L(\mathcal{A}) = \emptyset \}\), which is \(\omega\)-regular as a finite union of \(\omega\)-regular terms.",
+      invariant: String.raw`Every class product \(U V^\omega\) is saturated with respect to \(L(\mathcal{A})\), and the finite family of products covers \(\Sigma^\omega\).`,
+      synthesis: String.raw`Fix an NBA \(\mathcal{A}=(Q,\Sigma,\Delta,q_0,F)\) recognizing \(L\). Define the relation \(\approx_{\mathcal{A}}\) on \(\Sigma^*\) by \(u\approx_{\mathcal{A}} v\) iff for all \(p,q\in Q\): (1) there is a path \(p\xrightarrow{u} q \iff p\xrightarrow{v} q\), and (2) there is a path \(p\xrightarrow{u} q\) visiting \(F\) iff there is a path \(p\xrightarrow{v} q\) visiting \(F\). This relation is a congruence of finite index \(\le 3^{|Q|^2}\). For class pairs \((U,V)\) with \(V\cdot V\subseteq V\), saturation proves that either \(UV^\omega \subseteq L\) or \(UV^\omega \cap L = \emptyset\). By Ramsey's theorem, every \(\alpha\in\Sigma^\omega\) belongs to at least one such product \(UV^\omega\). Therefore \(\Sigma^\omega\setminus L = \bigcup \{ UV^\omega \mid UV^\omega \cap L = \emptyset \}\). Since each \(U,V\) is regular, each \(UV^\omega\) is \(\omega\)-regular, and the finite union is \(\omega\)-regular.`,
       diagram: {
         description: "Left: the classes of the relation \u2248\uD835\uDC9C generate pairs (U,V) forming class products UV^omega and U'V'^omega. Each product is saturated: it lies either in the accepted language or in its complement. The rejected products are collected into a finite union, which is omega-regular.",
         viewBox: [0, 0, 1000, 560],
@@ -1106,67 +1510,119 @@
       steps: [
         {
           label: "Abstraction",
-          title: "Classify finite blocks by what the automaton sees",
-          exposition: "To handle all infinite words uniformly, we use the relation \u2248\uD835\uDC9C. Two words are \u2248\uD835\uDC9C-equivalent if they agree on which pairs of states (p,q) are connected and whether a final state F is visited along the way. This captures all behavior the B\u00fcchi automaton can observe and gives finitely many classes.",
-          question: "What must two \u2248\uD835\uDC9C-equivalent words agree on?",
-          choices: ["Which states are reachable from which, and whether any final state F is visited", "Only their length", "Only their last symbol"],
-          correct: 0,
-          hint: "Replacing one block with another must preserve the ability to stitch an accepting run at the same boundary states.",
-          feedback: "Correct. The relation \u2248\uD835\uDC9C captures reachability between boundary states and the presence of any F-visit.",
-          incorrect: "Length or last symbol alone cannot capture arbitrary automaton behavior.",
-          formal: String.raw`For every Büchi automaton \(\mathcal A\), the relation \(\approx_{\mathcal A}\) is a congruence of finite index that saturates \(L(\mathcal A)\).`,
+          title: "The profile congruence \u2248_A: Capturing reachability and acceptance visits",
+          exposition: String.raw`To analyze all infinite words uniformly, we classify finite words by the state transitions they induce in \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\). Define the relation \(\approx_{\mathcal{A}}\) on \(\Sigma^*\) by setting \(u \approx_{\mathcal{A}} v\) iff for every pair of states \(p, q \in Q\): (1) \(\mathcal{A}\) has a path \(p \xrightarrow{u} q \iff p \xrightarrow{v} q\), and (2) \(\mathcal{A}\) has a path \(p \xrightarrow{u} q\) that visits \(F \iff\) it has a path \(p \xrightarrow{v} q\) that visits \(F\). Each word is characterized by a transition matrix of size \(|Q| \times |Q|\) over the semiring \(\{0, 1, 2\}\) (no path, path without \(F\), path with \(F\)). This relation is a congruence of finite index at most \(3^{|Q|^2}\).`,
+          question: "Why must the congruence \u2248_A track BOTH state reachability AND intermediate visits to F?",
+          choices: [
+            {
+              text: String.raw`Because Büchi acceptance requires visiting \(F\) infinitely often; tracking reachability alone cannot determine whether looping between boundary states witnesses accepting states.`,
+              correct: true,
+              feedback: String.raw`Correct. Two words might connect the same boundary states \(p \to q\), but if one visits \(F\) and the other avoids \(F\), an infinite concatenation could accept with the former and reject with the latter.`
+            },
+            {
+              text: String.raw`Because tracking \(F\)-visits is required to make the transition relation deterministic.`,
+              correct: false,
+              causalFailure: String.raw`The automaton \(\mathcal{A}\) is non-deterministic; the congruence \(\approx_{\mathcal{A}}\) abstracts transition behaviors without modifying automaton determinism.`
+            },
+            {
+              text: String.raw`Because words that visit \(F\) must have strictly greater length than words that do not.`,
+              correct: false,
+              causalFailure: String.raw`Word length is completely decoupled from \(F\)-visitation; an atomic transition of length 1 can visit \(F\), while a long path of length 100 may avoid \(F\).`
+            }
+          ],
+          hint: "Consider what determines Büchi acceptance: boundary state matching vs recurrent visits to F.",
+          formal: String.raw`\(u\approx_{\mathcal{A}} v \iff \forall p,q\in Q,\; (p\xrightarrow{u} q \iff p\xrightarrow{v} q) \land (p\xrightarrow{u}_F q \iff p\xrightarrow{v}_F q)\). The index satisfies \(\operatorname{index}(\approx_{\mathcal{A}})\le 3^{|Q|^2}\).`,
           preview: V(["profiles"], [], { dimNodes: ["language", "complement", "union"] }),
           reveal: V(["profiles", "product1", "product2"], ["profiles-p1", "profiles-p2"], { goodNodes: ["profiles"], dimNodes: ["language", "complement", "union"] }),
-          previewNote: "The automaton can observe only finitely many block behaviors.",
-          revealNote: "Each pair of \u2248\uD835\uDC9C-classes generates a class product UV\u03c9."
+          previewNote: "The automaton can observe only finitely many profile matrices over Q \u00d7 Q.",
+          revealNote: "Each pair of \u2248_A classes (U, V) with V \u00b7 V \u2286 V generates a class product UV\u03c9."
         },
         {
           label: "Saturation",
-          title: "Each product is all-or-nothing",
-          exposition: "A class product UV\u03c9 allows swapping any U-block for another in the same \u2248\uD835\uDC9C-class, and any V-block similarly. If one word in UV\u03c9 has an accepting run, we can replace its factors block by block using \u2248\uD835\uDC9C-equivalent words \u2014 and the run still accepts, because boundary states and F-visits are preserved. So the whole product is either fully accepted or fully rejected.",
-          question: "If one word in UV\u03c9 is accepted, what does saturation tell us?",
-          choices: ["Every word in UV\u03c9 is accepted", "Exactly one word is accepted", "No other product matters"],
-          correct: 0,
-          hint: "Swap each finite block for an \u2248\uD835\uDC9C-equivalent one \u2014 what happens to acceptance?",
-          feedback: "Exactly. \u2248\uD835\uDC9C-equivalent swaps maintain boundary states and F-visits, so any member can be turned into an accepted run.",
-          incorrect: "Saturation means the entire product is uniform \u2014 not just some special member.",
-          formal: String.raw`Equivalent prefix blocks preserve the first boundary state; equivalent loop blocks preserve every later boundary and each accepting visit.`,
+          title: "Saturation: Class products UV\u03c9 are strictly all-or-nothing",
+          exposition: String.raw`Let \(U, V \in \Sigma^* / {\approx_{\mathcal{A}}}\) with \(V \cdot V \subseteq V\). A class product \(U V^\omega\) contains all words of the form \(u v_1 v_2 v_3 \cdots\) where \(u \in U\) and each \(v_k \in V\). Saturation states that \(U V^\omega\) cannot be partially accepted: either \(U V^\omega \subseteq L(\mathcal{A})\) or \(U V^\omega \cap L(\mathcal{A}) = \emptyset\). Indeed, if one word \(\alpha \in U V^\omega\) admits an accepting run, replacing its blocks \(u, v_1, v_2, \ldots\) with any other elements \(u', v_1', v_2', \ldots\) from the same \(\approx_{\mathcal{A}}\)-classes preserves boundary states and \(F\)-visits, yielding an accepting run on \(\alpha'\).`,
+          question: "If one word \u03b1 \u2208 UV\u03c9 is accepted by A, why does saturation force EVERY word in UV\u03c9 to be accepted?",
+          choices: [
+            {
+              text: String.raw`Because all words in \(U\) share identical transition profiles, and all words in \(V\) share identical profiles; replacing blocks preserves boundary state connections and \(F\)-visitations along the infinite run.`,
+              correct: true,
+              feedback: String.raw`Exactly. The congruence \(\approx_{\mathcal{A}}\) preserves all observations observable by \(\mathcal{A}\); since every \(v_k' \in V\) replicates the exact state reachability and \(F\)-witnesses of \(v_k\), acceptance is invariant under block substitution.`
+            },
+            {
+              text: String.raw`Because every class product \(U V^\omega\) contains exactly one unique infinite word.`,
+              correct: false,
+              causalFailure: String.raw`Class products \(U V^\omega\) are uncountably infinite sets of \(\omega\)-words whenever \(V\) contains multiple elements.`
+            },
+            {
+              text: String.raw`Because saturation implies that the automaton \(\mathcal{A}\) accepts all infinite words \(\Sigma^\omega\).`,
+              correct: false,
+              causalFailure: String.raw`Saturation is local to each product \(U V^\omega\); it asserts that each product is wholly inside or wholly outside \(L(\mathcal{A})\), not that \(L(\mathcal{A}) = \Sigma^\omega\).`
+            }
+          ],
+          hint: "What happens to the accepting run \u03c1 when you substitute block v_k with another word from the same \u2248_A-class?",
+          formal: String.raw`\(\forall \alpha, \alpha' \in UV^\omega,\; \alpha\in L(\mathcal{A}) \iff \alpha'\in L(\mathcal{A})\). Hence \(UV^\omega \subseteq L(\mathcal{A})\) or \(UV^\omega \cap L(\mathcal{A}) = \emptyset\).`,
           preview: V(["product1"], [], { dimNodes: ["profiles", "union"] }),
           reveal: V(["product1", "language"], ["p1-l"], { goodNodes: ["product1", "language"], dimNodes: ["profiles", "union"] }),
-          previewNote: "Start from one accepted member of a class product.",
-          revealNote: "\u2248\uD835\uDC9C-equivalent swaps accept every member. The product is saturated."
+          previewNote: "Start from an accepted word in class product UV\u03c9.",
+          revealNote: "By profile substitution, all words in UV\u03c9 are accepted. The product is saturated."
         },
         {
           label: "Coverage",
-          title: "Every infinite word belongs to some product",
-          exposition: "We have finitely many saturated products \u2014 but do they cover all infinite words? Yes. The Ramsey decomposition first defines when two positions merge. Finite index yields infinitely many positions in one merge class and a prefix in U followed by a suffix in the vectorial closure of V; a second subsequence extraction turns that suffix into consecutive V-blocks. Thus \u03b1 \u2208 UV\u03c9, with V\u00b7V \u2286 V.",
-          question: "What does the Ramsey decomposition give for an arbitrary infinite word \u03b1?",
-          choices: ["A prefix class U and a repeating class V such that \u03b1 \u2208 UV\u03c9", "A deterministic B\u00fcchi run", "A finite truncation of \u03b1"],
-          correct: 0,
-          hint: "The decomposition groups the infinitely many factors into one repeating \u2248\uD835\uDC9C-class after a prefix.",
-          feedback: "Correct. Every \u03c9-word belongs to at least one class product UV\u03c9.",
-          incorrect: "The proof covers all \u03c9-words by class products, not by determinizing.",
-          formal: String.raw`The merge relation first yields \(\alpha\in U\overrightarrow V\). Thinning the positions again yields \(\alpha\in UV^\omega\), with \(V\cdot V\subseteq V\).`,
+          title: "Universal coverage via the Ramsey decomposition theorem",
+          exposition: String.raw`Having established that each class product \(U V^\omega\) is saturated, we must prove that these products cover the entire space \(\Sigma^\omega\). This is precisely the guarantee of the Ramsey Decomposition Theorem: for every finite-index congruence \(\approx\) on \(\Sigma^*\) and every infinite word \(\alpha \in \Sigma^\omega\), there exist equivalence classes \(U, V \in \Sigma^* / \approx\) such that \(V \cdot V \subseteq V\) and \(\alpha \in U V^\omega\). Therefore, the family of saturated class products forms a total covering: \(\Sigma^\omega = \bigcup \{ U V^\omega \mid U, V \in \Sigma^* / {\approx_{\mathcal{A}}},\; V \cdot V \subseteq V \}\).`,
+          question: "What essential guarantee does the Ramsey decomposition theorem provide for B\u00fcchi complementation?",
+          choices: [
+            {
+              text: String.raw`Every infinite word \(\alpha \in \Sigma^\omega\) belongs to at least one product \(U V^\omega\) with \(V \cdot V \subseteq V\), ensuring that classifying products leaves no infinite words unclassified.`,
+              correct: true,
+              feedback: String.raw`Correct. Ramsey's theorem guarantees total coverage: every \(\alpha \in \Sigma^\omega\) is captured by some idempotent class product \(U V^\omega\), leaving zero gaps in \(\Sigma^\omega\).`
+            },
+            {
+              text: String.raw`It guarantees that all Büchi automata can be complemented in polynomial time.`,
+              correct: false,
+              causalFailure: String.raw`Büchi complementation has an exponential lower bound \(2^{\Omega(n \log n)}\); Ramsey's theorem provides structural coverage, not polynomial complexity.`
+            },
+            {
+              text: String.raw`It proves that every \(\omega\)-word is ultimately periodic.`,
+              correct: false,
+              causalFailure: String.raw`Arbitrary \(\omega\)-words need not be periodic; Ramsey decomposition proves they factor into class products of equivalent blocks, not identical letters.`
+            }
+          ],
+          hint: "Does \u22c3 UV\u03c9 cover ALL words in \u03a3\u03c9, or only periodic words?",
+          formal: String.raw`\(\forall \alpha \in \Sigma^\omega,\; \exists U, V \in \Sigma^* / {\approx_{\mathcal{A}}} \text{ s.t. } V\cdot V\subseteq V \land \alpha \in UV^\omega \implies \Sigma^\omega = \bigcup UV^\omega\).`,
           preview: V(["product1", "product2"], [], { dimNodes: ["profiles", "union"] }),
           reveal: V(["product1", "product2", "language", "complement"], ["p1-l", "p2-c"], { goodNodes: ["language", "complement"], dimNodes: ["profiles", "union"] }),
-          previewNote: "Finitely many products must cover all infinite words.",
-          revealNote: "Each covered product is saturated \u2014 wholly in L or wholly outside L."
+          previewNote: "Does the collection of class products cover every infinite word?",
+          revealNote: "Yes: by Ramsey's theorem, every \u03b1 \u2208 \u03a3\u03c9 lies in some saturated product UV\u03c9."
         },
         {
           label: "Complement",
-          title: "Collect the rejected products \u2014 that is the complement",
-          exposition: "Every infinite word belongs to some product, and each product is saturated. So \u00acL(\uD835\uDC9C) is exactly the union of all products wholly outside L. There are finitely many such products (finitely many class pairs (U,V)). Each product UV\u03c9 is \u03c9-regular. A finite union of \u03c9-regular languages is \u03c9-regular.",
-          question: "Why is the complement \u00acL(\uD835\uDC9C) still \u03c9-regular?",
-          choices: ["There are finitely many rejected products, each of the form UV\u03c9, which is \u03c9-regular", "Complementation was already assumed", "Every product is finite"],
-          correct: 0,
-          hint: "Count the rejected products, check what form they take, then use closure under finite union.",
-          feedback: "Exactly. The complement is a finite union of \u03c9-regular class products.",
-          incorrect: "Assuming complementation would be circular; and the products contain infinite words.",
-          formal: String.raw`\(\Sigma^\omega\setminus L=\bigcup\{UV^\omega\mid UV^\omega\cap L=\varnothing\}\). Regular \(U,V\) make each term \(\omega\)-regular; finite union preserves \(\omega\)-regularity.`,
+          title: "Synthesizing the complement as a finite union of rejected products",
+          exposition: String.raw`Since the saturated products cover \(\Sigma^\omega\), and each product is wholly contained in \(L(\mathcal{A})\) or wholly disjoint from \(L(\mathcal{A})\), the complement \(\Sigma^\omega \setminus L(\mathcal{A})\) is precisely the union of all products disjoint from \(L(\mathcal{A})\): \(\Sigma^\omega \setminus L(\mathcal{A}) = \bigcup \{ U V^\omega \mid U V^\omega \cap L(\mathcal{A}) = \emptyset \}\). Because \(\approx_{\mathcal{A}}\) has finite index, there are only finitely many pairs \((U, V)\). By Myhill-Nerode, each class \(U, V\) is regular, so each term \(U V^\omega\) is \(\omega\)-regular. Since \(\omega\)-regular languages are closed under finite union, \(\Sigma^\omega \setminus L(\mathcal{A})\) is \(\omega\)-regular.`,
+          question: "Why is the complement \u03a3\u03c9 \\ L(A) guaranteed to be \u03c9-regular?",
+          choices: [
+            {
+              text: String.raw`It is a finite union of terms of the form \(U V^\omega\), where each \(U, V\) is regular, and \(\omega\)-regular languages are closed under finite union.`,
+              correct: true,
+              feedback: String.raw`Precisely. Finitely many class pairs \((U, V)\) produce finitely many rejected products; each \(U V^\omega\) is \(\omega\)-regular, and finite union preserves \(\omega\)-regularity.`
+            },
+            {
+              text: String.raw`Because every non-deterministic Büchi automaton can be complemented by flipping final states.`,
+              correct: false,
+              causalFailure: String.raw`Flipping final states fails for NBAs because runs are non-deterministic and acceptance is based on infinite recurrence.`
+            },
+            {
+              text: String.raw`Because the complement of any language over an infinite alphabet is trivially empty.`,
+              correct: false,
+              causalFailure: String.raw`The alphabet \(\Sigma\) is finite, and the complement language is generally non-empty.`
+            }
+          ],
+          hint: "Count the number of rejected terms: is it finite? What form does each term take?",
+          formal: String.raw`\(\Sigma^\omega\setminus L(\mathcal{A}) = \bigcup \{ UV^\omega \mid UV^\omega \cap L(\mathcal{A}) = \emptyset \}\). Finitely many pairs \((U, V)\) ensure the union is \(\omega\)-regular.`,
           preview: V(["complement"], [], { dimNodes: ["profiles", "language"] }),
           reveal: V(["complement", "union"], ["c-union"], { goodNodes: ["complement", "union"], dimNodes: ["profiles", "language", "product1", "product2"] }),
-          previewNote: "The complement consists exactly of the products disjoint from L.",
-          revealNote: "A finite union of \u03c9-regular products is \u03c9-regular. Done."
+          previewNote: "The complement consists of all class products wholly outside L(A).",
+          revealNote: "A finite union of \u03c9-regular class products is \u03c9-regular: complementation is closed."
         }
       ],
       previous: { label: "Ramsey decomposition", href: "/proofs/chapter-04/ramsey-decomposition.html" }

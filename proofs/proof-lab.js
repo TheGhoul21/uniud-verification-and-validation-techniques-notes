@@ -331,7 +331,7 @@
     ctxBack.textContent = "← Previous step";
     const readyBtn = element("button", "proof-lab__button proof-lab__button--primary");
     readyBtn.type = "button";
-    readyBtn.textContent = "Show question →";
+    readyBtn.textContent = "Examine Invariant Challenge →";
     ctxActions.append(ctxBack, readyBtn);
     ctxPhase.append(stepTitle, exposition, ctxActions);
 
@@ -344,7 +344,7 @@
     const qActions = element("div", "proof-lab__actions");
     const qBack = element("button", "proof-lab__button proof-lab__button--back");
     qBack.type = "button";
-    qBack.textContent = "← Re-read";
+    qBack.textContent = "← Return to Exposition";
     const hintButton = element("button", "proof-lab__button");
     hintButton.type = "button";
     hintButton.textContent = "Hint";
@@ -356,9 +356,10 @@
     const feedback = element("p", "proof-lab__feedback");
     feedback.setAttribute("aria-live", "polite");
     const formal = element("details", "proof-lab__formal");
-    formal.append(element("summary", "", "Why this step is valid"), element("p"));
+    formal.open = true;
+    formal.append(element("summary", "", "Formal Derivation & Proof Mechanics"), element("p"));
     const invariant = element("div", "proof-lab__invariant");
-    invariant.append(element("strong", "", "Persistent invariant"), element("span", "", config.invariant));
+    invariant.append(element("strong", "", "Persistent Inductive Invariant"), element("span", "", config.invariant));
     const rActions = element("div", "proof-lab__actions");
     const tryAgainBtn = element("button", "proof-lab__button proof-lab__button--back");
     tryAgainBtn.type = "button";
@@ -474,7 +475,7 @@
       // Topbar
       stepLabel.textContent = step.label;
       stepCounter.textContent = `${stepIndex + 1} / ${config.steps.length}`;
-      phaseBadge.textContent = phase === "context" ? "Read" : phase === "question" ? "Answer" : "Result";
+      phaseBadge.textContent = phase === "context" ? "Exposition & Setup" : phase === "question" ? "Verification Challenge" : "Formal Derivation";
       [...progress.children].forEach((dot, i) => {
         dot.className = i < stepIndex ? "is-done" : i === stepIndex ? "is-current" : "";
       });
@@ -487,6 +488,9 @@
 
       // Question phase content
       setMathText(question, step.question);
+      if (window.MathJax && typeof window.MathJax.typesetClear === "function") {
+        window.MathJax.typesetClear([...choices.children]);
+      }
       choices.replaceChildren();
       step.choices.forEach((choice, index) => {
         const button = element("button", "proof-lab__choice", choiceText(choice));
@@ -509,12 +513,21 @@
         feedback.classList.toggle("is-error", !solved);
       }
       setMathText(formal.lastElementChild, step.formal);
-      tryAgainBtn.textContent = solved ? "← Back" : "← Try again";
+      tryAgainBtn.textContent = solved ? "← Review Challenge" : "← Try Another Argument";
       nextBtn.disabled = !solved;
-      nextBtn.textContent = stepIndex === config.steps.length - 1 ? "Restart from step 1" : "Next step →";
+      nextBtn.textContent = stepIndex === config.steps.length - 1 ? "Restart Proof from Step 1" : "Proceed to Next Step →";
 
       // MathJax
-      queueMathTypeset([exposition, question, feedback, hint, formal.lastElementChild]);
+      queueMathTypeset([
+        exposition,
+        question,
+        feedback,
+        hint,
+        formal.lastElementChild,
+        invariant.lastElementChild,
+        canvasNote,
+        ...choices.children
+      ]);
 
       // Scroll body to top on phase change
       body.scrollTo({ top: 0, behavior: "instant" });
