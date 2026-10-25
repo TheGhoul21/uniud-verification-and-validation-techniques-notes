@@ -622,31 +622,26 @@
 
 % --- direct link from a theorem to its interactive Proof Lab ---
 \newmdenv[
-  skipabove=\medskipamount,
-  skipbelow=\bigskipamount,
-  backgroundcolor=accent!4,
+  skipabove=4pt,
+  skipbelow=10pt,
   topline=false,
   rightline=false,
   bottomline=false,
   leftline=true,
-  linewidth=3pt,
-  linecolor=accent,
-  innertopmargin=8pt,
-  innerbottommargin=8pt,
-  innerleftmargin=11pt,
-  innerrightmargin=11pt,
+  linewidth=1.5pt,
+  linecolor=accent!80!graphite,
+  innertopmargin=3pt,
+  innerbottommargin=3pt,
+  innerleftmargin=9pt,
+  innerrightmargin=6pt,
 ]{prooflablinkframe}
 \newcommand{\prooflablink}[2]{%
-  \Needspace{4\baselineskip}%
   \begin{prooflablinkframe}%
-  \noindent{\small\sffamily\bfseries\color{accent!75!black}%
-    Interactive proof lab\enspace\(\longrightarrow\)\enspace%
-    \href{https://vvt.aliteia.com/#1}{Open the guided proof}}%
-  \par\vspace{3pt}%
-  {\small\sffamily #2}%
-  \par\vspace{2pt}%
-  {\scriptsize\sffamily\color{graphite!65}%
-    \href{https://vvt.aliteia.com/#1}{vvt.aliteia.com/#1}}%
+  \noindent{\footnotesize\sffamily%
+    \textbf{\color{accent!85!black}\(\triangleright\)\enspace Interactive proof lab:}\enspace%
+    \href{https://vvt.aliteia.com/#1}{\color{accent!75!black}\underline{Open the guided proof}}\enspace%
+    \textemdash\enspace#2\enspace%
+    {\scriptsize\color{graphite!55}(\href{https://vvt.aliteia.com/#1}{vvt.aliteia.com/#1})}}%
   \end{prooflablinkframe}%
 }
 

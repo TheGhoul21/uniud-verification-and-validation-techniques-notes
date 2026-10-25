@@ -105,9 +105,8 @@ This is the same language recognized by the DFA in
 \cref{fig:even-a-dfa}.  The expression describes the structure of the
 word; the automaton describes how to scan it.
 
-\begin{runningexample}{the editor language as an expression}
-For the document editor of \cref{ex:editor-session-dfa}, the complete
-finite-session language has the restricted regular expression
+\paragraph{Running example: the editor language as an expression.}
+To see how this works in our software monitor (\cref{ex:editor-session-dfa}), the complete finite-session language can be written directly as the restricted regular expression
 \[
   r_{\mathrm{session}}
   =
@@ -115,11 +114,7 @@ finite-session language has the restricted regular expression
   (\texttt{edit}+\texttt{save})^*\,
   \texttt{close}.
 \]
-The three parts have direct operational meanings: enter the editor once,
-perform an arbitrary finite sequence of allowed operations, then close.
-The DFA and the expression describe the same set of traces at different
-levels of abstraction.  Kleene's theorem will formalize that equivalence.
-\end{runningexample}
+Intuitively, the three parts reflect the operational lifecycle of a document session: enter the editor once, perform an arbitrary finite sequence of allowed editing or saving actions, and finally close the file. In other words, the DFA and the regular expression describe the exact same set of execution traces at different levels of abstraction: the automaton specifies an operational state machine, whereas the expression provides a declarative specification. Kleene's theorem will soon formalize that these two viewpoints always coincide.
 
 The restricted syntax is not the only option.  A more liberal variant
 admits Boolean operations directly inside expressions.
@@ -147,23 +142,12 @@ contains no occurrence of Kleene star.  It may use union, concatenation,
 complement, and intersection freely, but repetition is forbidden.
 \end{definition}
 
-\begin{formaldetails}[Expressive power of the three classes]
-The three syntactic classes---restricted, general, and star-free---are
-not equally expressive.  General expressions add no power over
-restricted ones: once we can translate expressions to automata, closure
-under intersection and complement (\cref{sec:regular-closure}) lets us
-compile the Boolean operators away and return to a restricted expression.
-This is exactly \cref{cor:regex-classes}.
+\paragraph{Expressive power of the three classes.}
+The three syntactic classes---restricted, general, and star-free---are not equally expressive, and understanding their boundaries clarifies what each feature contributes.
 
-Removing star, however, does cost expressive power.  Star-free
-expressions define a \emph{strictly smaller} class: the language of
-words with an even number of $a$'s (\cref{ex:regex-even-a}) is regular
-but cannot be described without star.  By Sch\"utzenberger's theorem
-(see \cref{ch:deterministic-automata-star-free}), the star-free
-languages are exactly the \emph{aperiodic} regular languages---and,
-when logic enters the course, they reappear as the finite-word shadow of
-first-order definability.
-\end{formaldetails}
+First, general expressions add no real expressive power over restricted ones: once we can translate expressions into automata, closure under intersection and complement (\cref{sec:regular-closure}) allows us to compile the Boolean operators away and return to an equivalent restricted expression (as formalized in \cref{cor:regex-classes}). In other words, Boolean operations are a syntactic convenience, not a semantic upgrade.
+
+Removing the Kleene star, however, comes at a genuine cost. Star-free expressions define a \emph{strictly smaller} class of languages: for instance, the language of words with an even number of $a$'s (\cref{ex:regex-even-a}) is regular, but cannot be described without the repetition power of star. Intuitively, star allows counting modulo a constant, whereas star-free expressions can only test finite combinations of patterns. By Sch\"utzenberger's theorem (see \cref{ch:deterministic-automata-star-free}), the star-free languages are precisely the \emph{aperiodic} regular languages---a family that will reappear later in the course as the exact expressiveness boundary of first-order logic over words.
 
 \subsection{The \texorpdfstring{$\varepsilon$}{ε}-NFA Model}
 \label{subsec:epsilon-nfa}
@@ -243,53 +227,27 @@ monotone operator $X\mapsto\{q\}\cup\bigcup_{p\in X}\Delta(p,\varepsilon)$.
 This is the same fixpoint flavour that will return, scaled up, in the
 symbolic reachability algorithms of \cref{subsec:reachability-fixpoint}.
 
-\begin{formaldetails}[Least fixpoint: what it means and how to compute it]
-The $\varepsilon$-closure is defined by a self-referential condition---a
-state belongs to $\mathsf{ECl}(q)$ if it is reachable from other states
-that are already in $\mathsf{ECl}(q)$---so we need a principled way to
-solve it.  The answer is to start small and expand until nothing new can
-be added.
+\paragraph{Algorithmic view: computing the $\varepsilon$-closure as a least fixpoint.}
+The $\varepsilon$-closure is defined by an inherently inductive, self-referential condition: a state belongs to $\mathsf{ECl}(q)$ if it is reachable from states that are already known to be in $\mathsf{ECl}(q)$. To compute this mechanically, we need a principled algorithmic scheme: we start with the minimal candidate set and expand iteratively until no new states can be reached.
 
-\medskip
-\noindent\textit{How the iteration works.}
-Begin with $\{q\}$, then repeatedly ask: can we reach any new state from
-the current set by taking one $\varepsilon$-step?  If yes, add it and
-ask again; if no, stop.  Written out:
+\medskip\noindent
+\textit{How the iteration works.}
+Begin with the base state $\{q\}$, and repeatedly ask: can we reach any new state from the current set by following a single $\varepsilon$-edge? If yes, add it and repeat; if no, terminate. Formally, this yields an ascending sequence of sets:
 \[
   X_0 = \{q\},\qquad
   X_{i+1} = X_i\cup\bigcup_{p\in X_i}\Delta(p,\varepsilon).
 \]
-Since we only ever add states and $Q$ is finite, the sequence
-$X_0\subseteq X_1\subseteq\cdots$ must eventually stabilise: some step
-$k\le|Q|$ produces $X_{k+1}=X_k$.  That stable set is $\mathsf{ECl}(q)$.
-A set where re-applying the expansion leaves it unchanged is called a
-\textbf{fixpoint}.
+Since we only ever accumulate states and the state set $Q$ is finite, the sequence $X_0\subseteq X_1\subseteq\cdots$ must eventually stabilize: at some finite step $k\le|Q|$, we reach $X_{k+1}=X_k$. That stable set is precisely $\mathsf{ECl}(q)$. In mathematics, any set where re-applying the expansion operator leaves the set unchanged is called a \textbf{fixpoint}.
 
-\medskip
-\noindent\textit{Why \emph{least}?}
-There are many fixpoints.  The entire state set $Q$ is one: following
-$\varepsilon$-edges from every state can never escape $Q$.  But $Q$
-overapproximates wildly---it claims every state is
-$\varepsilon$-reachable from $q$, which is almost never true.
+\medskip\noindent
+\textit{Why \emph{least}?}
+Why do we specify the \emph{least} fixpoint? Because there are typically many different sets closed under $\varepsilon$-moves. For example, the entire state set $Q$ is always a trivial fixpoint: following $\varepsilon$-edges from any state can never leave $Q$. But $Q$ overapproximates wildly---it asserts that every state in the machine is reachable silently from $q$, which is almost never true.
 
-The iteration above is disciplined: it starts with only $q$ and admits
-a state only when an $\varepsilon$-path from $q$ genuinely forces it in.
-Any other fixpoint must contain $q$ and must be closed under
-$\varepsilon$-moves, so it must include everything our iteration
-accumulated.  Our answer is therefore the \textbf{least}
-(i.e.\ smallest by $\subseteq$) fixpoint of the expansion operator---the
-tightest correct answer, denoted $\mu X.\,F(X)$ in the fixpoint calculus.
+The iterative algorithm above is disciplined: it begins strictly with $\{q\}$ and admits a state only when a real $\varepsilon$-path from $q$ genuinely forces it in. Any other fixpoint must contain $q$ and must be closed under $\varepsilon$-moves, and therefore must contain everything our iteration accumulated. Our result is thus the \textbf{least} (smallest by set inclusion $\subseteq$) fixpoint of the monotone operator---the unique, tightest correct answer, denoted $\mu X.\,F(X)$ in fixpoint calculi.
 
-\medskip
-\noindent\textit{Connection to global reachability.}
-The same pattern reappears in \cref{subsec:reachability-fixpoint}:
-$\mathsf{Post}(X)$ plays the role of
-$\bigcup_{p\in X}\Delta(p,\varepsilon)$, the initial state $q_0$ plays
-the role of $q$, and the iteration $R_{i+1}=R_i\cup\mathsf{Post}(R_i)$
-converges to the full reachable set $R^*$.  Computing $\mathsf{ECl}(q)$
-is therefore a miniature instance of that global reachability algorithm,
-narrowed to $\varepsilon$-labelled edges alone.
-\end{formaldetails}
+\medskip\noindent
+\textit{Connection to global reachability.}
+This fixpoint pattern is not an ad-hoc trick for $\varepsilon$-moves; it is the universal algorithmic engine of formal verification. Exactly the same pattern will return in \cref{subsec:reachability-fixpoint} for testing automaton emptiness: the post-image operator $\mathsf{Post}(X)$ replaces $\Delta(\cdot,\varepsilon)$, the initial state $q_0$ replaces $q$, and the iteration $R_{i+1}=R_i\cup\mathsf{Post}(R_i)$ computes the full reachable state space $R^*$. Computing $\mathsf{ECl}(q)$ is therefore a miniature preview of symbolic model checking, specialized to silent transitions.
 
 With the closure in hand we can define how an $\varepsilon$-NFA reads a
 whole word.  The pattern is: take all free moves, read one real symbol,
@@ -391,13 +349,14 @@ $\widehat{\Delta}(\{q_0\},ab)\cap F
 so $ab$ is accepted.
 \end{example}
 
-\begin{catalyst}{Why introduce $\varepsilon$-transitions?}
-If the target model is an ordinary NFA, introducing
-$\varepsilon$-transitions may seem unnecessary.  Their purpose is
-modularity: they make constructions such as concatenation and Kleene
-star local and uniform.  Once the components have been assembled, a
-mechanical transformation removes the free moves.
-\end{catalyst}
+\paragraph{Why introduce $\varepsilon$-transitions?}
+At this point, a natural question arises: if our ultimate destination is an ordinary automaton without silent steps (such as a standard NFA or DFA), why bother introducing $\varepsilon$-transitions in the first place? Why invent non-deterministic ``silent moves'' that consume no input symbols, only to develop additional mathematical machinery such as fixpoints and closures to manage them?
+
+The answer lies in \emph{modularity and compositional elegance}. When designing algorithms that compile regular expressions into automata (such as Thompson's syntax-directed construction in \cref{subsec:kleene-theorem}), combining two independent automata via concatenation, union, or Kleene star is remarkably simple if we can connect them with $\varepsilon$-moves. We do not need to recompute or rewire any existing transitions: we simply add silent transitions that glue the exit states of one sub-automaton to the entry states of the next.
+
+In other words, $\varepsilon$-transitions serve as a flexible intermediate notation---a high-level syntactic glue for assembling complex machines from simple parts. Intuitively, this can be understood as writing high-level code with intermediate abstractions: we use $\varepsilon$-moves while designing the structure, but we do not need to execute them at runtime. Once the compound machine is assembled, a purely mechanical transformation can ``short-circuit'' and compile away every silent chain directly into ordinary symbol transitions. 
+
+Operationally, this means that allowing silent moves grants us great convenience during construction, but costs us nothing in expressive power: every language accepted by an $\varepsilon$-NFA can be recognized by an ordinary NFA without $\varepsilon$-transitions. The following theorem formalizes this exact equivalence and provides the elimination procedure.
 
 \Needspace{18\baselineskip}
 \begin{theorem}[$\varepsilon$-removal]
@@ -488,11 +447,8 @@ why the empty word requires a separate final-state correction.}
   }
 \end{walkthrough}
 
-\begin{takeaway}
-$\varepsilon$-transitions provide a convenient intermediate syntax for
-composing automata, but they do not increase expressive power.  The
-closure construction compiles them into ordinary symbol transitions.
-\end{takeaway}
+\medskip\noindent
+In summary, $\varepsilon$-transitions provide a convenient and modular intermediate syntax for composing automata, but they do not increase expressive power. The closure construction compiles them directly into ordinary symbol transitions, establishing that $\varepsilon$-NFAs and ordinary NFAs characterize exactly the same class of languages.
 
 \begin{figure}[ht]
 \centering
@@ -533,38 +489,22 @@ transition targets.}
 \subsection{Kleene's Theorem}
 \label{subsec:kleene-theorem}
 
-With $\varepsilon$-NFAs as a flexible intermediate model, we can equate
-the syntactic and operational views of regularity.  The proof has two
-halves, and each half should be read as an algorithm: one eliminates
-automaton states until only an expression remains; the other wires an
-automaton out of expression syntax.
+With $\varepsilon$-NFAs as a flexible intermediate model, we are now ready to establish the foundational result of finite-state theory: the exact equivalence between regular expressions (the declarative, syntactic view) and finite automata (the operational, algorithmic view). 
 
-\begin{runningexample}{semantic example and calculation microscope}
-The editor language \(r_{\mathrm{session}}\) is the semantic thread:
-Kleene's theorem guarantees that its four-phase DFA and its expression
-are interchangeable specifications.  For the line-by-line
-state-elimination calculation, however, we keep the smaller two-state
-parity DFA of \cref{ex:even-a-dfa} in view.  Rename its even and odd
-states \(q_1\) and \(q_2\); its language is already described by
-\(b^*(ab^*ab^*)^*\).  The small graph keeps the algebra readable, while
-the editor explains what the translation means for a software monitor.
-\end{runningexample}
-
-\begin{proofmap}{The equivalence cycle}
-This theorem completes the cycle of formalisms.  We already know how to
-go from NFAs to DFAs (\cref{thm:subset-construction}) and from
-$\varepsilon$-NFAs to NFAs (\cref{thm:epsilon-removal}).
-
-To close the loop, this proof provides the two missing links:
+Kleene's theorem asserts that both formalisms characterize precisely the same class of languages. Crucially, the proof is not merely an abstract existential claim---it provides two constructive compilation algorithms that close the circle of regular formalisms:
 \begin{enumerate}[nosep]
-  \item \textbf{DFA $\to$ restricted expression:} a state-elimination
-  dynamic-programming algorithm;
-  \item \textbf{restricted expression $\to$ $\varepsilon$-NFA:} a
-  syntax-directed composition known as Thompson's construction.
+  \item \textbf{DFA $\to$ restricted expression:} a dynamic-programming state-elimination algorithm that extracts path expressions from the state graph;
+  \item \textbf{restricted expression $\to$ $\varepsilon$-NFA:} a recursive, syntax-directed construction (known as \emph{Thompson's construction}) that wires sub-automata together using $\varepsilon$-moves.
 \end{enumerate}
-Together, these algorithms let us translate effectively between all
-three automaton models and restricted regular expressions.
-\end{proofmap}
+Together with determinization (the subset construction of \cref{thm:subset-construction}) and $\varepsilon$-removal (\cref{thm:epsilon-removal}), these two translations allow us to convert effectively between all three automaton models and regular expressions.
+
+\paragraph{Pedagogical strategy and running examples.}
+To make the mechanics of the proof transparent without losing sight of practical verification, we follow the argument at two complementary levels of abstraction:
+\begin{itemize}[nosep]
+  \item \emph{The semantic thread (high-level view):} The document editor language $r_{\mathrm{session}}$ (\cref{ex:editor-session-dfa}) illustrates what the theorem guarantees for a real software monitor: the 4-phase DFA and the regular expression $\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}$ are interchangeable specifications of the same property.
+  \item \emph{The calculation microscope (algebraic view):} Tracing state elimination on a 4-state automaton, however, produces large, cluttered formulas. We therefore carry out the algebraic step-by-step recurrence on the compact 2-state parity DFA of \cref{ex:even-a-dfa} (renaming its even and odd states $q_1$ and $q_2$). The 2-state machine keeps every algebraic step readable and verifiable by hand.
+\end{itemize}
+With this roadmap in place, we state the equivalence theorem formally.
 
 \Needspace{18\baselineskip}
 \begin{theorem}[Kleene equivalence]
@@ -906,51 +846,21 @@ determinize, and obtain a DFA.  Hence every regular expression denotes
 an automaton-recognizable language.
 \end{walkthrough}
 
-\begin{takeaway}
-Kleene's theorem identifies the algebraic and operational views of
-finite-state behaviour.  State elimination converts every finite
-automaton into a restricted regular expression, while Thompson's
-construction converts every such expression into an automaton.  The
-two representations therefore have exactly the same expressive power.
-\end{takeaway}
+\medskip\noindent
+In summary, Kleene's theorem fundamentally unifies the algebraic and operational perspectives on finite-state behaviour. State elimination compiles any finite automaton into an equivalent regular expression, while Thompson's construction compiles any expression into an automaton. Operationally, this means that regular expressions and finite automata are interchangeable: we are free to write specifications in whichever syntax is most natural, and compile them automatically into automata suitable for algorithmic verification.
 
-\begin{formaldetails}[Same construction, read from the goal backward]
-The automaton-to-expression half above builds $R_{i,j}^k$ upward from
-$k=0$ and only at the very end assembles
-$L(\mathcal{A})=\bigcup_{q_j\in F}R_{1,j}^n$.  It is worth re-running the
-same steps starting from that target, because the target is exactly what
-forces every design choice on the way there.
+\paragraph{Alternative perspective: deriving the construction backward from the goal.}
+The automaton-to-expression half above built the path expressions $R_{i,j}^k$ upward from $k=0$ and only at the very end assembled $L(\mathcal{A})=\bigcup_{q_j\in F}R_{1,j}^n$. It is pedagogically illuminating to re-examine the same steps starting directly from that target, because the target is exactly what forces every design choice on the way there.
 
-We want a regular expression for $L(\mathcal{A})$, i.e.\ for the words
-that take $q_1$ to some $q_j\in F$ with no restriction on which states a
-run may pass through.  "No restriction on intermediate states" is not,
-by itself, something we can peel apart by induction---there is nothing
-smaller to induct on.  So we ask: what is the smallest change that turns
-this into an inductive problem?  Answer: index the restriction by a
-number $k$ that says how many of the states $q_1,\ldots,q_k$ may appear
-in the middle of a run.  $R_{i,j}^0$ (no state allowed) is then something
-we already know how to write down, a single symbol or $\varepsilon$; and
-$R_{i,j}^n$ (every state allowed, hence no real restriction) is exactly
-the object the goal asks for.  The parameter $k$ is not part of the
-question we started with---it is the bookkeeping device the goal forces
-us to invent so that a recursion from $0$ to $n$ becomes possible at all.
+We want a regular expression for $L(\mathcal{A})$, i.e.\ for the words that take $q_1$ to some $q_j\in F$ with no restriction on which states a run may pass through. ``No restriction on intermediate states'' is not, by itself, something we can peel apart by induction---there is nothing smaller to induct on. So we ask: what is the smallest change that turns this into an inductive problem? Answer: index the restriction by a number $k$ that says how many of the states $q_1,\ldots,q_k$ may appear in the middle of a run. $R_{i,j}^0$ (no intermediate state allowed) is then something we already know how to write down, a single symbol or $\varepsilon$; and $R_{i,j}^n$ (every state allowed, hence no real restriction) is exactly the object the goal asks for. The parameter $k$ is not part of the question we started with---it is the bookkeeping device the goal forces us to invent so that a recursion from $0$ to $n$ becomes possible at all.
 
-Once $k$ is in place, the recurrence follows from asking one question at
-each step: what changes when $q_k$ becomes an allowed intermediate stop
-that was not allowed at stage $k-1$?  A run either still avoids $q_k$
-entirely, which is the case already covered by $R_{i,j}^{k-1}$, or it
-visits $q_k$ at least once, in which case splitting at every visit gives
-an entry leg, any finite number of $q_k$-to-$q_k$ loops, and an exit leg.
-This is exactly
-$R_{i,j}^k=R_{i,j}^{k-1}+R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1}$,
+Once $k$ is in place, the recurrence follows from asking one question at each step: what changes when $q_k$ becomes an allowed intermediate stop that was not allowed at stage $k-1$? A run either still avoids $q_k$ entirely, which is the case already covered by $R_{i,j}^{k-1}$, or it visits $q_k$ at least once, in which case splitting at every visit gives an entry leg, any finite number of $q_k$-to-$q_k$ loops, and an exit leg. This is exactly
+\[
+  R_{i,j}^k=R_{i,j}^{k-1}+R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1},
+\]
 the same formula as before.
 
-So both readings pass through the identical sequence of definitions and
-land on the identical recurrence; what differs is only which question
-motivates $k$ first. This second entry point is useful if the step "why
-introduce $k$ at all" felt unmotivated on a first pass---it is a second
-way in, not a competing proof.
-\end{formaldetails}
+So both readings pass through the identical sequence of definitions and land on the identical recurrence; what differs is only which question motivates $k$ first. This second entry point is useful if the step ``why introduce $k$ at all'' felt unmotivated on a first pass---it is a second way in, not a competing proof.
 
 A useful consequence of \cref{thm:kleene}, combined with the closure
 constructions we are about to develop in \cref{sec:regular-closure}, is
@@ -994,46 +904,34 @@ concatenation, Kleene star, complementation, and intersection.
 Treat each closure property as a concrete compiler and inspect the
 conditions needed by complementation and intersection.}
 
-\begin{runningexample}{composing editor requirements}
-Let \(L_{\mathrm{session}}\) be the well-formed session language and let
+\paragraph{Operational meaning: composing editor requirements.}
+In software verification, closure properties are not just theoretical curiosities---they are the algebraic engine that lets us combine independent requirements. For example, in our document editor monitor, let $L_{\mathrm{session}}$ be the language of well-formed sessions, and let
 \[
   L_{\mathrm{saved}}
   =\Sigma_{\mathrm{edit}}^*\,
    \texttt{save}\,
    \Sigma_{\mathrm{edit}}^*
 \]
-contain the traces with at least one save.  Closure under intersection
-gives a monitor for well-formed sessions that save at least once:
-\(L_{\mathrm{session}}\cap L_{\mathrm{saved}}\).  Closure under
-complement gives the malformed-session language
-\(\overline{L_{\mathrm{session}}}\).  These are direct applications of
-the product and final-state-swap constructions below.
-\end{runningexample}
+be the language of all traces containing at least one save operation. Closure under intersection allows us to construct a monitor for sessions that are both well-formed and saved: $L_{\mathrm{session}}\cap L_{\mathrm{saved}}$. Similarly, closure under complement allows us to construct a monitor that flags malformed or illegal sessions: $\overline{L_{\mathrm{session}}}$. 
 
-Union, concatenation, and star follow directly from regular expressions
-or $\varepsilon$-NFA constructions.  Complementation and intersection
-are more important for verification, so we spell them out.
+Union, concatenation, and star follow directly from regular expressions and Thompson's construction. Complementation and intersection, however, are subtler and require dedicated algorithmic constructions on automata.
 
 \subsection{Complementation}
 \label{subsec:finite-complementation}
 
-If $A=(Q,\Sigma,\delta,q_0,F)$ is a complete DFA, its complement is
+If $A=(Q,\Sigma,\delta,q_0,F)$ is a complete DFA, its complement automaton is
 \[
   \overline{A}=(Q,\Sigma,\delta,q_0,Q\setminus F).
 \]
-The same run is used; only the final verdict changes.
+Because the transition structure is unchanged, the run of $\overline{A}$ on any input word $w$ is identical to the run of $A$; only the final acceptance verdict is flipped.
 
-\begin{observation}
-\label{obs:complete-deterministic-complement}
-The simple final-state swap works only for complete deterministic
-automata.  Non-determinism and missing transitions both break the
-argument.
-\end{observation}
-
-For an NFA, one accepting branch is enough to accept a word.  Swapping
-final and non-final states would not turn ``there exists an accepting
-branch'' into ``all branches reject''.  The standard route is therefore:
-determinize, complete, then swap final states.
+\paragraph{Why complementation requires determinism and completeness.}
+It is tempting to imagine that swapping final and non-final states is a universal recipe for complementation. However, \emph{the simple state swap works if and only if the automaton is both deterministic and complete}:
+\begin{itemize}[nosep]
+  \item \textbf{Non-determinism breaks the swap:} In an NFA, a word is accepted if \emph{there exists} at least one accepting branch. Swapping final and non-final states does not enforce that all branches reject; it merely makes non-final branches accepting. An alternative path can easily accept a word that should have been rejected.
+  \item \textbf{Incompleteness breaks the swap:} If a state lacks a transition for some symbol $a$, a run reading $a$ becomes stuck and rejects. If we swap final states without first adding a sink state, the missing transition still drops the run, meaning the word is still rejected!
+\end{itemize}
+Therefore, the universal procedure for complementing an arbitrary automaton is: \emph{determinize first, ensure completeness by adding a dead/sink state if necessary, and only then invert the final states}. The following example illustrates the failure of naive swapping on an NFA concretely.
 
 \begin{example}[Why swapping fails for NFAs]
 \label{ex:complement-nfa-failure}
@@ -1322,23 +1220,14 @@ minimal accepted word has length $m<n$.
 \label{fig:small-model-loop-removal}
 \end{figure}
 
-\begin{formaldetails}[Connection with the pumping lemma]
-This proof is the pumping-lemma idea in its shortest-witness form.  Once
-an accepting run repeats a state, the repeated segment is a loop:
+\paragraph{Connection with the pumping lemma.}
+This proof is the classic pumping-lemma argument in its shortest-witness form. Once an accepting run repeats a state ($p_i = p_j$), the segment between the two occurrences forms a closed directed loop:
 \[
   q_0 \tto{u} p_i
       \tto{v} p_i
       \tto{w} p_m.
 \]
-Because the loop starts and ends in the same state, the automaton can
-traverse it any finite number of times:
-\[
-  uv^t w\in L(A)\qquad\text{for every }t\ge 0.
-\]
-The usual pumping lemma emphasizes all choices of $t$.  The small-model
-property uses only the case $t=0$: remove the loop and obtain the
-shorter accepted word $uw$.
-\end{formaldetails}
+Because the loop starts and terminates in the exact same state, the automaton can traverse it any arbitrary number of times: $u v^t w \in L(A)$ for every $t \ge 0$. While the traditional pumping lemma emphasizes the ability to ``pump'' the word for $t \ge 1$ to prove non-regularity, the small-model property uses the case $t = 0$: we ``pump down'', bypassing the loop entirely to extract the strictly shorter accepted witness $uw$.
 
 \subsection{Reachability as a Fixpoint}
 \label{subsec:reachability-fixpoint}
@@ -1356,39 +1245,31 @@ a set $R^*$.  The language is non-empty exactly when
 This fixpoint view is the finite-state ancestor of the symbolic
 preimage/fixpoint algorithms used later for CTL and planning.
 
-The other problems reduce to emptiness by using closure.
+\paragraph{Reducing verification questions to emptiness.}
+Once we have an efficient decision procedure for emptiness, all other standard decision problems reduce to emptiness by leveraging the closure operations we developed in \cref{sec:regular-closure}:
+\begin{itemize}
+  \item \textbf{Universality:} A language covers all possible words if and only if its complement contains no words at all:
+  \[
+    L(A)=\Sigma^*
+    \quad\Longleftrightarrow\quad
+    L(\overline{A})=\emptyset.
+  \]
+  \item \textbf{Inclusion (Verification):} Checking whether an implementation $A_1$ satisfies a specification $A_2$ means verifying that no behaviour of $A_1$ violates $A_2$. In other words, there must be no counterexample word in $L(A_1)\setminus L(A_2)$:
+  \[
+    L(A_1)\subseteq L(A_2)
+    \quad\Longleftrightarrow\quad
+    L(A_1)\cap \overline{L(A_2)}=\emptyset.
+  \]
+  Operationally, we construct the product automaton $A_1\times\overline{A_2}$ and test it for reachability of accepting states. If the intersection is non-empty, any path from the initial state to an accepting state yields a concrete counterexample trace demonstrating precisely how the implementation violates the specification.
+  \item \textbf{Equivalence:} Two systems exhibit identical behaviour if and only if each includes the other:
+  \[
+    L(A_1)=L(A_2)
+    \quad\Longleftrightarrow\quad
+    L(A_1)\subseteq L(A_2)\quad\text{and}\quad L(A_2)\subseteq L(A_1).
+  \]
+\end{itemize}
 
-\begin{formaldetails}[Reductions]
-\[
-  L(A)=\Sigma^*
-  \quad\Longleftrightarrow\quad
-  L(\overline{A})=\emptyset.
-\]
-\[
-  L(A_1)\subseteq L(A_2)
-  \quad\Longleftrightarrow\quad
-  L(A_1)\cap \overline{L(A_2)}=\emptyset.
-\]
-\[
-  L(A_1)=L(A_2)
-  \quad\Longleftrightarrow\quad
-  L(A_1)\subseteq L(A_2)\text{ and }L(A_2)\subseteq L(A_1).
-\]
-\end{formaldetails}
-
-For universality, we build the complement and ask whether any rejected
-word exists.  For inclusion, we search for a counterexample:
-\[
-  w\in L(A_1)\setminus L(A_2).
-\]
-If the intersection $L(A_1)\cap\overline{L(A_2)}$ is empty, then no such
-counterexample exists.  Equivalence is just two inclusions, because two
-sets are equal precisely when neither contains an element missing from
-the other.
-
-This is the finite-word prototype of model checking.  The system
-automaton describes possible behaviours; the specification automaton
-describes allowed behaviours.  Verification asks for language inclusion.
+This reduction is the finite-word prototype of automated model checking: the system automaton $A_1$ models all possible system executions; the specification automaton $A_2$ defines all allowable executions; and verification reduces to testing emptiness of $A_1\times\overline{A_2}$.
 For the running editor, an implementation model might generate several
 kinds of completed sessions, while \(L_{\mathrm{session}}\) specifies
 their required order.  Any word accepted by the model but rejected by
@@ -1411,19 +1292,17 @@ language is, but not what finite memory would recognize it while the
 word is being read.  How do we know whether a finite-state description
 is even possible?  And if it is, what is the smallest one?
 
-\begin{runningexample}{future behaviour in the editor monitor}
-The prefixes of an editor trace fall into four semantically different
-families: no event has occurred yet; the editor is currently open; the
-session has closed correctly; or an ordering error has already occurred.
-Prefixes inside one family admit exactly the same successful
-continuations.  For example,
-\(\texttt{open}\ \texttt{edit}\) and
-\(\texttt{open}\ \texttt{save}\) can both be completed by
-\texttt{close}; a malformed prefix can never be repaired.  These four
-future behaviours are precisely the four states of
-\cref{ex:editor-session-dfa}.  Myhill--Nerode turns this observation into
-the canonical minimal DFA.
-\end{runningexample}
+\paragraph{Intuition from the editor monitor: futures and prefixes.}
+To build intuition before introducing formal equivalence relations, consider our running document editor monitor (\cref{ex:editor-session-dfa}). Any execution prefix observed so far falls into one of four semantically distinct families:
+\begin{enumerate}[nosep]
+  \item \emph{Initial state:} No event has occurred yet (the empty prefix $\varepsilon$).
+  \item \emph{Open session:} The editor is currently open and accepting edits or saves (e.g., $\texttt{open}$, $\texttt{open}\ \texttt{edit}$, $\texttt{open}\ \texttt{save}$).
+  \item \emph{Closed session:} The session has successfully terminated (e.g., $\texttt{open}\ \texttt{close}$).
+  \item \emph{Error / Sink:} An illegal event order occurred (e.g., $\texttt{edit}$ before $\texttt{open}$, or $\texttt{close}$ when not open).
+\end{enumerate}
+Notice the fundamental phenomenon: any two prefixes inside the same family admit \emph{the exact same set of valid future continuations}. For instance, both $\texttt{open}\ \texttt{edit}$ and $\texttt{open}\ \texttt{save}$ can be successfully completed by the future suffix $\texttt{close}$. Conversely, an erroneous prefix can never be repaired by any future continuation. 
+
+In other words, from the perspective of future acceptance, the automaton does not need to remember the entire past trace; it only needs to remember which of the four families the prefix belongs to. These four distinct ``future behaviours'' correspond precisely to the four states of the minimal DFA. The Myhill--Nerode theorem formalizes this exact intuition for every regular language.
 
 \begin{example}[A predicate is not yet an automaton]
 \label{ex:predicate-versus-automaton}
@@ -1742,12 +1621,8 @@ Let $A$ be any DFA recognizing $L$. If two words reach the same state
 in $A$, they are equivalent under $\sim_{\mathcal{A}}$, which implies they are $\sim_L$-equivalent by the (2) $\implies$ (3) step of the previous proof. Therefore a single state of $A$ can represent only one Myhill--Nerode class. Since every class is reached by some word, $A$ must have at least as many states as there are $\sim_L$-classes. 
 \end{proof}
 
-\begin{takeaway}
-The Myhill--Nerode relation removes exactly the distinctions between
-prefixes that no continuation can observe.  Its equivalence classes are
-therefore precisely the states of the minimal DFA, making that automaton
-canonical up to renaming of states.
-\end{takeaway}
+\medskip\noindent
+In summary, the Myhill--Nerode theorem provides both a fundamental characterization and a constructive synthesis tool: it removes exactly those distinctions between past prefixes that no future continuation can observe. In other words, its equivalence classes represent the optimal, coarsest memory state that any recognizer must maintain, establishing that the quotient DFA $A_L$ is the unique minimal deterministic automaton for $L$ up to isomorphism.
 
 \section*{Notation Recap}
 \addcontentsline{toc}{section}{Notation Recap}
