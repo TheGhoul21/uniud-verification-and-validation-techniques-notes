@@ -76,44 +76,38 @@ the following chapters.
 
 \constructionpipeline{2}
 
-\begin{runningexample}{an editor that remains active}
-The finite editor session from \cref{ex:editor-session-dfa} ended with
-\texttt{close}.  We now model an editor that is opened once and then remains
-active, observing events from
-\[
-  \Sigma_{\mathrm{edit}}
-  =\{\texttt{open},\texttt{edit},\texttt{save},\texttt{idle}\}.
-\]
-Let $U=\{\texttt{open}\}$ and
-$V=(\texttt{edit}+\texttt{idle}+\texttt{save})^*\texttt{save}$.
-The language $UV^\omega$ contains exactly the well-formed infinite traces
-that start by opening the editor and then save infinitely often.  A trace such
-as
-\[
-  \texttt{open}\ \texttt{save}\,
-  (\texttt{edit}\ \texttt{idle})^\omega
-\]
-is a counterexample: it has one successful save, but saving eventually
-disappears.  This distinction between ``once'' and ``recurringly'' will remain
-the semantic thread through the chapter.
-\end{runningexample}
-
 
 % ============================================================
 \section{Infinite Words}
 \label{sec:omega-words}
 % ============================================================
 
-Consider the document editor from the running example.
-One possible execution is
+In \cref{ch:regular-decision}, our analysis of systems was restricted to
+finite execution traces.  For instance, the document editor session in
+\cref{ex:editor-session-dfa} concluded with an explicit terminating event
+\texttt{close}.  However, the majority of critical software systems---operating
+systems, network routers, embedded control loops, reactive microservices, and
+interactive applications---are not intended to terminate after computing a
+result.  Instead, they are designed to run indefinitely, maintaining an ongoing
+interaction with their operational environment.
+
+To model such ongoing reactive executions, we consider an editor that is opened
+once and subsequently remains active forever, generating an unending sequence of
+events over the alphabet
+\[
+  \Sigma_{\mathrm{edit}}
+  =\{\texttt{open},\texttt{edit},\texttt{save},\texttt{idle}\}.
+\]
+One possible execution of this active editor is
 \[
   \texttt{open}\ \texttt{edit}\ \texttt{save}\ \texttt{idle}\
   \texttt{edit}\ \texttt{save}\cdots .
 \]
-The dots are not an omitted ending.  They are part of the model: the
-component is expected to keep receiving inputs and producing observations
-forever.  This is why we need words with positions $0,1,2,\ldots$ rather
-than words with a last symbol.
+The trailing dots are not an ellipsis omitting an eventual termination, nor are
+they shorthand for a long finite string.  They are a primary feature of the
+system model: the component is expected to keep receiving user commands and
+producing observations forever.  This requires words indexed by the natural
+numbers $0,1,2,\ldots$ rather than words endowed with a final position.
 
 \begin{definition}[$\omega$-word]
 \label{def:omega-word}
@@ -172,6 +166,31 @@ is the set of infinite concatenations of blocks from $W$.
 Usually we assume $\varepsilon\notin W$ when using $W^\omega$, because
 empty blocks do not help construct an infinite word and can obscure the
 intended decomposition.
+
+\paragraph{Running example: recurring saves in the active editor.}
+With the $\omega$-power defined, we can now express the intended infinite
+behaviour of our active editor.  Let
+\[
+  U = \{\texttt{open}\} \quad\text{and}\quad
+  V = (\texttt{edit}+\texttt{idle}+\texttt{save})^*\texttt{save}.
+\]
+The concatenated language $UV^\omega$ contains exactly the well-formed infinite
+traces that start by opening the editor and subsequently save infinitely often.
+In other words, every block drawn from $V$ culminates in a \texttt{save}, ensuring
+that no matter how far along the execution we look, another save is guaranteed
+to occur in the future.
+
+By contrast, consider the trace
+\[
+  \beta = \texttt{open}\ \texttt{save}\,(\texttt{edit}\ \texttt{idle})^\omega.
+\]
+This trace satisfies the initial opening protocol and performs one successful
+save, but from that point onward it alternates strictly between editing and
+idling.  Because saving eventually vanishes forever, $\beta \notin UV^\omega$.
+This fundamental distinction between an event occurring \emph{eventually} (or
+finitely many times) and occurring \emph{recurringly} (infinitely often) is the
+central semantic thread through the chapter, and it motivates the precise
+position-based quantifiers introduced next.
 
 The vectorial closure, which we define at the end of this section, will
 ask whether infinitely many finite \emph{prefixes} of $\alpha$ belong to $W$.
@@ -682,13 +701,13 @@ states infinitely often, so in product constructions we must ensure that
 both automata satisfy their B\"uchi conditions, not just that both
 components are accepting at the same single time.
 
-\begin{formaldetails}[Constructions]
-All the proofs are constructive and avoid $\varepsilon$-transitions.
+\begin{proof}
+All four constructions are constructive and avoid $\varepsilon$-transitions.
 Property~(1) is given in full because it establishes the common
 block-restart mechanism; the remaining constructions reuse that mechanism
 or standard product constructions.
 
-\textbf{Property (1) --- $\omega$-power $V^\omega$ (full construction).}
+\paragraph{Property (1) --- $\omega$-power ($V^\omega$, full construction).}
 The main difficulty is not recognising one block from $V$---the
 finite-word automaton $\mathcal{A}$ already does that.  We must make the
 boundary between consecutive blocks visible to the B\"uchi acceptance
@@ -719,8 +738,8 @@ $q_0$ incoming transitions, but that costs nothing: should a later
 construction need an incoming-free initial state, apply the $q_0'$ trick
 once more.)
 
-\textbf{Property (2) --- concatenation $V\cdot L$ (sketch).}  Take a
-finite-word automaton for $V$ and a B\"uchi automaton for $L$, with
+\paragraph{Property (2) --- Concatenation ($V\cdot L$, sketch).}
+Take a finite-word automaton for $V$ and a B\"uchi automaton for $L$, with
 disjoint state sets.  Run the first and, on finishing a prefix in $V$,
 hand control to the second.  Without $\varepsilon$-moves, inspect every
 transition $p\tto{a}p_f$ of the $V$-automaton that enters an
@@ -731,17 +750,17 @@ only reads the finite prefix and then defers.  If $\varepsilon\in V$,
 also duplicate the outgoing transitions of $q_0^L$ at the combined
 initial state, allowing the $L$-phase to begin on the first input symbol.
 
-\textbf{Property (3) --- union $L_1\cup L_2$ (sketch).}  Run B\"uchi
-automata for $L_1$ and $L_2$ side by side and add a new initial state
+\paragraph{Property (3) --- Union ($L_1\cup L_2$, sketch).}
+Run B\"uchi automata for $L_1$ and $L_2$ side by side and add a new initial state
 whose outgoing transitions duplicate those of both original initial
 states.  A run guesses, at the first step, which automaton will accept
 and commits to it.  This guess makes the construction inherently
 nondeterministic, even when both inputs are deterministic.
 
-\textbf{Property (3) --- intersection $L_1\cap L_2$ (full construction).}
-    Suppose $L_1$ is recognised by
-    $\mathcal{A}_1=(Q_1,\Sigma_1,\Delta_1,q_1,F_1)$ and $L_2$ by
-    $\mathcal{A}_2=(Q_2,\Sigma_2,\Delta_2,q_2,F_2)$.  The naive product with
+\paragraph{Property (3, cont.) --- Intersection ($L_1\cap L_2$, Thomas alternating product).}
+Suppose $L_1$ is recognised by
+$\mathcal{A}_1=(Q_1,\Sigma_1,\Delta_1,q_1,F_1)$ and $L_2$ by
+$\mathcal{A}_2=(Q_2,\Sigma_2,\Delta_2,q_2,F_2)$.  The naive product with
     accepting set $F_1\times F_2$ is too strict: one run may visit $F_1$
     only at even steps while the other visits $F_2$ only at odd steps, so
     they never land in $F_1\times F_2$ together even though each meets its
@@ -777,7 +796,24 @@ nondeterministic, even when both inputs are deterministic.
     in the first two components, some $F_1$-state occurs infinitely often
     \emph{and} some $F_2$-state occurs infinitely often---precisely the
     B\"uchi condition of the intersection.
-\end{formaldetails}
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  phase/.style={draw, rounded corners=3pt, minimum width=25mm, minimum height=10mm, align=center},
+  arr/.style={-Stealth, thick},
+]
+  \node[phase, fill=orange!10] (p1) {phase 1\\wait for $F_1$};
+  \node[phase, fill=teal!10, right=32mm of p1] (p2) {phase 2\\wait for $F_2$};
+  \draw[arr, bend left=18] (p1) to node[above] {hit $F_1$} (p2);
+  \draw[arr, bend left=18] (p2) to node[below] {hit $F_2$} (p1);
+  \node[below=10mm of p1, xshift=28mm, font=\small, align=center]
+    {The product accepts only if both phases are completed infinitely often.};
+\end{tikzpicture}
+\caption{Asynchronous B\"uchi intersection handled by alternating obligations (Thomas product).}
+\label{fig:buchi-intersection-phases}
+\end{figure}
 
 \begin{corollary}[Vectorial closure of a regular language]
 \label{cor:regular-vectorial-closure}
@@ -793,28 +829,6 @@ visits an accepting state infinitely often exactly when infinitely many
 prefixes of its input belong to $W$.  Thus its language is
 $\overrightarrow{W}$.
 \end{proof}
-
-\Cref{fig:buchi-intersection-phases} depicts only the control idea of the
-intersection product.  The actual product also carries the two automaton
-states; the phase records which acceptance obligation is currently being
-checked.
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  phase/.style={draw, rounded corners=3pt, minimum width=25mm, minimum height=10mm, align=center},
-  arr/.style={-Stealth, thick},
-]
-  \node[phase, fill=orange!10] (p1) {phase 1\\wait for $F_1$};
-  \node[phase, fill=teal!10, right=32mm of p1] (p2) {phase 2\\wait for $F_2$};
-  \draw[arr, bend left=18] (p1) to node[above] {hit $F_1$} (p2);
-  \draw[arr, bend left=18] (p2) to node[below] {hit $F_2$} (p1);
-  \node[below=10mm of p1, xshift=28mm, font=\small, align=center]
-    {The product accepts only if both phases are completed infinitely often.};
-\end{tikzpicture}
-\caption{Asynchronous B\"uchi intersection is handled by alternating obligations.}
-\label{fig:buchi-intersection-phases}
-\end{figure}
 
 \begin{definition}[$\omega$-regular expression]
 \label{def:omega-regular-expression}
@@ -1033,6 +1047,8 @@ for a B\"uchi automaton $A=(Q,\Sigma,\Delta,q_0,F)$,
   \end{aligned}
 \]
 \end{theorem}
+\prooflablink{proofs/chapter-03/buchi-emptiness.html}{%
+Reduce infinite-word acceptance to reachable cycles through $F$ (the lasso witness $u\cdot v^\omega$).}
 
 \begin{proof}
 If an accepting state $f$ is reachable and lies on a cycle, follow the
