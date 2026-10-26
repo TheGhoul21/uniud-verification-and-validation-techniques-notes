@@ -41,7 +41,7 @@ website:
     palette: dark
     policy-url: "/privacy-policy.html"
   page-footer:
-    center: "[Privacy & Cookies](/privacy-policy.html)"
+    center: "[Privacy & Cookies](/privacy-policy.html) · [Contatti](/contact.html)"
   navbar:
     left:
       - text: Home
@@ -54,6 +54,8 @@ website:
         href: notebooks/index.qmd
       - text: Presentazioni
         href: presentazioni/index.qmd
+      - text: Contatti
+        href: contact.qmd
 
 format:
   html:

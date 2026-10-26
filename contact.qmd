@@ -1,0 +1,25 @@
+---
+title: "Contatti"
+pagetitle: "Contatti & Feedback — Verification and Validation Techniques"
+description: "Invia un messaggio, segnala un refuso o poni una domanda sulle dispense di Verification and Validation Techniques."
+format:
+  html:
+    toc: false
+---
+
+```{=html}
+<div class="contact-wrap">
+  <div class="chapter-label">Feedback &amp; Segnalazioni</div>
+  <h1 class="contact-title">Contatti</h1>
+  <p class="contact-intro">
+    Hai trovato un refuso nelle dispense, una svista nelle formule, un problema in un notebook interattivo o hai una domanda sul materiale del corso?
+    Compila il form sottostante per inviare un messaggio sicuro e diretto.
+  </p>
+
+  <div class="contact-card">
+    <!-- Tally Form Embed -->
+    <iframe data-tally-src="https://tally.so/embed/kbb9Br?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="320" frameborder="0" marginheight="0" marginwidth="0" title="Modulo di Contatto"></iframe>
+    <script>var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w,s.onload=v,s.onerror=v,d.body.appendChild(s);}</script>
+  </div>
+</div>
+```

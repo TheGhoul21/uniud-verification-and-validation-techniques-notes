@@ -231,7 +231,7 @@ successivi.
    letteralmente rintracciabile in L01--L03. È tecnicamente corretta e serve da
    raccordo, ma può essere rimossa se si desidera una politica di aderenza
    esclusivamente letterale alle tre lezioni.
-2. `.claude/workflows/style-guide-audit-ch7.js` usa intervalli di riga fissi.
+2. Gli intervalli di riga per l'audit delle sezioni sono fissi.
    Sono stati sincronizzati con le intestazioni attuali e coprono senza buchi
    le righe 1--2344; dovranno essere aggiornati di nuovo dopo futuri
    spostamenti strutturali nel capitolo.
