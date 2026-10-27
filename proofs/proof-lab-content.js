@@ -51,7 +51,7 @@
       steps: [
         {
           label: "Base case",
-          title: String.raw`Length |w| = 0: Initialization on the empty word \u03b5`,
+          title: "Length |w| = 0: Initialization on the empty word ε",
           exposition: String.raw`Let \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) be an NFA without \(\varepsilon\)-transitions. We prove by induction on \(|w|\) that \(\widehat{\delta}_D(\{q_0\}, w) = \widehat{\Delta}(q_0, w)\). For \(w = \varepsilon\), zero transitions are executed. By formal definition of extended transition functions, \(\widehat{\Delta}(q_0, \varepsilon) = \{q_0\}\). Hence, setting the initial state of the DFA to the singleton \(S_0 = \{q_0\} \in 2^Q\) anchors the base case.`,
           question: "Which formal condition must the initial DFA state satisfy to establish the inductive invariant at w = \u03b5?",
           choices: [
@@ -172,7 +172,7 @@
     "epsilon-removal": {
       slug: "epsilon-removal",
       chapter: 2,
-      title: String.raw`\u03b5-removal`,
+      title: "ε-removal",
       theorem: String.raw`For every \(\varepsilon\)-NFA \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) there exists an equivalent \(\varepsilon\)-free NFA \(\mathcal{A}' = (Q, \Sigma, \Delta', q_0, F')\) such that \(L(\mathcal{A}') = L(\mathcal{A})\).`,
       intro: String.raw`Non-deterministic finite automata with \(\varepsilon\)-transitions (\(\varepsilon\)-NFAs) permit instantaneous state changes without consuming input symbols. While \(\varepsilon\)-transitions provide modularity in structural constructions (such as Thompson's synthesis of regular expressions), they do not extend the class of regular languages. By computing the reflexive-transitive \(\varepsilon\)-closure \(\operatorname{ECl}(q)\) for each state and collapsing all composite path patterns of the form \(\varepsilon^* a \varepsilon^*\) into atomic transitions, silent moves are eliminated without altering observable language behavior.`,
       application: String.raw`In compositional model checking, modular specifications are linked by \(\varepsilon\)-handoffs between component automata. Removing \(\varepsilon\)-moves produces a streamlined state space and prevents unobservable stuttering cycles during state-space exploration.`,
@@ -212,7 +212,7 @@
       steps: [
         {
           label: "Construction",
-          title: String.raw`Synthesizing \u0394': Compiling \u03b5* a \u03b5* paths into atomic symbol transitions`,
+          title: "Synthesizing Δ': Compiling ε* a ε* paths into atomic symbol transitions",
           exposition: String.raw`In an \(\varepsilon\)-NFA, consuming symbol \(a\) from state \(q\) can involve a prefix sequence of \(\varepsilon\)-transitions, the symbol transition \(a\), and a suffix sequence of \(\varepsilon\)-transitions: \(q \xrightarrow{\varepsilon^*} p \xrightarrow{a} p' \xrightarrow{\varepsilon^*} r\). To execute this composite step in a single transition without \(\varepsilon\)-moves, we define \(\Delta'(q, a) = \operatorname{ECl}(\bigcup_{p \in \operatorname{ECl}(q)} \Delta(p, a))\). In the top machine, \(q_0 \xrightarrow{a} q_1 \xrightarrow{\varepsilon} r_0\); hence in \(\mathcal{A}'\), \(\Delta'(q_0, a) = \{q_1, r_0\}\).`,
           question: "Why must the compiled transition \u0394'(q, a) apply \u03b5-closure both BEFORE and AFTER consuming symbol a?",
           choices: [
@@ -241,7 +241,7 @@
         },
         {
           label: "Inductive step",
-          title: String.raw`Closure idempotence: Preserving \u03b5-invariance across concatenation`,
+          title: "Closure idempotence: Preserving ε-invariance across concatenation",
           exposition: String.raw`Assume by induction hypothesis that \(\widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\). When extending by symbol \(b\), the new states reached are \(\widehat{\Delta}'(q_0, wb) = \bigcup_{q \in \widehat{\Delta}'(q_0, w)} \Delta'(q, b)\). Because the active set is already \(\varepsilon\)-closed, the idempotence of the closure operator (\(\operatorname{ECl}(\operatorname{ECl}(S)) = \operatorname{ECl}(S)\)) guarantees that composing \(\Delta'\) over \(\widehat{\Delta}'(q_0, w)\) is identical to reading \(b\) in \(\mathcal{A}\) and taking the global \(\varepsilon\)-closure. From \(\{q_1, r_0\}\), reading 'b' hits \(r_1\).`,
           question: "How does the algebraic idempotence \u2014 ECl(ECl(S)) = ECl(S) \u2014 maintain the inductive invariant when reading wb?",
           choices: [
@@ -270,7 +270,7 @@
         },
         {
           label: "Boundary case",
-          title: String.raw`Length |w| = 0: Reconciling the empty word \u03b5`,
+          title: "Length |w| = 0: Reconciling the empty word ε",
           exposition: String.raw`The inductive invariant \(\widehat{\Delta}'(q_0, w) = \operatorname{ECl}(\widehat{\Delta}(q_0, w))\) holds for all non-empty words \(w \in \Sigma^+\). However, on the empty word \(w = \varepsilon\), zero transitions are taken in \(\mathcal{A}'\), leaving the automaton strictly in its initial state \(q_0\). If the original \(\varepsilon\)-NFA accepts \(\varepsilon\) via a silent path \(q_0 \xrightarrow{\varepsilon^+} f \in F\), the new automaton cannot execute this silent path before reading input. To faithfully preserve acceptance of \(\varepsilon\), we declare \(q_0\) accepting in \(\mathcal{A}'\) if and only if \(\operatorname{ECl}(q_0) \cap F \neq \emptyset\).`,
           question: "Under what exact formal condition must q_0 be included in the accepting set F' of the \u03b5-free automaton?",
           choices: [
@@ -453,7 +453,7 @@
         },
         {
           label: "Equivalence",
-          title: String.raw`Closing the equivalence cycle: \u22c3 R_{1f}^{(n)} = L(A)`,
+          title: "Closing the equivalence cycle: ⋃ R_{1f}^{(n)} = L(A)",
           exposition: String.raw`The two directions close a complete translation loop: \(\mathrm{RegExp} \xrightarrow{\text{Thompson}} \varepsilon\text{-NFA} \xrightarrow{\varepsilon\text{-elim}} \mathrm{NFA} \xrightarrow{\text{subset}} \mathrm{DFA} \xrightarrow{\text{Kleene}} \mathrm{RegExp}\). Since every intermediate representation preserves the recognized language, we conclude that the class of languages recognized by finite automata is identical to the class of languages denoted by regular expressions: \(\mathcal{L}(\mathrm{FA}) = \mathcal{L}(\mathrm{RegExp})\).`,
           question: "Why does the closed cycle of language-preserving reductions prove logical equivalence (\u21d4) rather than a one-way inclusion?",
           choices: [
@@ -673,7 +673,7 @@
       steps: [
         {
           label: "Setup",
-          title: String.raw`Fixing a minimal witness word z \u2208 L(A)`,
+          title: "Fixing a minimal witness word z ∈ L(A)",
           exposition: String.raw`To prove that every non-empty regular language contains a short word, we select a word \(z \in L(\mathcal{A})\) of minimal length: \(|z| = \min \{ |w| \mid w \in L(\mathcal{A}) \}\). The proof proceeds by contradiction: we hypothesize that \(|z| \ge n\), where \(n = |Q|\) is the number of states in \(\mathcal{A}\). If this assumption enables us to construct another accepted word strictly shorter than \(z\), minimality is contradicted, proving \(|z| < n\).`,
           question: "What is the methodological purpose of assuming z is a word of MINIMUM length in L(A)?",
           choices: [
@@ -795,7 +795,7 @@
     "myhill-nerode": {
       slug: "myhill-nerode",
       chapter: 2,
-      title: String.raw`Myhill\u2013Nerode theorem`,
+      title: "Myhill–Nerode theorem",
       theorem: String.raw`A formal language \(L \subseteq \Sigma^*\) is regular if and only if the Nerode right-congruence \(\sim_L\) has finite index: \(\operatorname{index}(\sim_L) < \infty\). Furthermore, \(\operatorname{index}(\sim_L)\) equals the number of states in the minimal DFA recognizing \(L\).`,
       intro: String.raw`The Myhill-Nerode Theorem provides the fundamental structural and algebraic characterization of regular languages. It establishes that the minimal memory necessary to recognize a language \(L\) corresponds precisely to distinguishing future continuations: two words \(x, y \in \Sigma^*\) are Nerode-equivalent (\(x \sim_L y\)) iff \(\forall z \in \Sigma^*,\; xz \in L \iff yz \in L\). The language is regular iff \(\sim_L\) has finitely many equivalence classes, which form the states of the unique minimal DFA.`,
       application: "In formal verification and model checking, state-space minimization via bisimulation quotienting relies directly on the Myhill-Nerode theorem. It also provides the definitive mathematical technique for proving non-regularity by constructing an infinite set of pairwise distinguishable prefixes.",
@@ -854,7 +854,7 @@
         },
         {
           label: "(2) \u21d2 (3)",
-          title: String.raw`Refinement: The canonical relation \u223c_L is the coarsest grouping`,
+          title: "Refinement: The canonical relation ∼_L is the coarsest grouping",
           exposition: String.raw`Let \(\sim\) be any equivalence relation of finite index that is right-invariant and compatible with \(L\). Suppose \(x \sim y\). By right-invariance, \(xz \sim yz\) holds for every future continuation \(z \in \Sigma^*\). By compatibility with \(L\), \(xz \in L \iff yz \in L\). But this condition (\(\forall z,\; xz \in L \iff yz \in L\)) is the exact definition of the canonical Nerode relation \(x \sim_L y\). Thus \(x \sim y \implies x \sim_L y\), meaning \(\sim\) is a mathematical refinement of \(\sim_L\). Consequently, each \(\sim_L\)-class is a union of \(\sim\)-classes, proving \(\operatorname{index}(\sim_L) \le \operatorname{index}(\sim) < \infty\).`,
           question: "Why does any finite-index right-invariant compatible relation \u223c necessarily refine \u223c_L (\u223c \u2286 \u223c_L)?",
           choices: [
@@ -883,7 +883,7 @@
         },
         {
           label: "(3) \u21d2 (1)",
-          title: String.raw`Quotient DFA: \u03a3* / \u223cL constitutes the minimal automaton`,
+          title: "Quotient DFA: Σ* / ∼L constitutes the minimal automaton",
           exposition: String.raw`Assume \(\operatorname{index}(\sim_L) = k < \infty\). We construct the canonical quotient automaton \(\mathcal{A}_L = (Q_L, \Sigma, \delta_L, q_{0,L}, F_L)\) where: \(Q_L = \Sigma^*/{\sim_L}\); the initial state is \(q_{0,L} = [\varepsilon]_L\); \(\delta_L([w]_L, a) = [wa]_L\); and \(F_L = \{ [w]_L \mid w \in L \}\). Right-invariance ensures that \(\delta_L\) is well-defined: if \(w \sim_L w'\), then \(wa \sim_L w'a\), so \([wa]_L = [w'a]_L\) regardless of chosen representative. Compatibility ensures \(F_L\) is well-defined. Induction confirms \(\widehat{\delta}_L([\varepsilon]_L, w) = [w]_L\), proving \(w \in L(\mathcal{A}_L) \iff [w]_L \in F_L \iff w \in L\).`,
           question: "Why is the transition function \u03b4_L([w]_L, a) = [wa]_L guaranteed to be mathematically well-defined?",
           choices: [
@@ -918,7 +918,7 @@
     "omega-closure": {
       slug: "omega-closure",
       chapter: 3,
-      title: String.raw`Basic \u03c9-regular closure`,
+      title: "Basic ω-regular closure",
       theorem: String.raw`The class of \(\omega\)-regular languages is closed under \(\omega\)-power (\(V^\omega\)), finite-prefix concatenation (\(V \cdot L\)), union (\(L_1 \cup L_2\)), and intersection (\(L_1 \cap L_2\)).`,
       intro: String.raw`Non-deterministic Büchi Automata (NBAs) process infinite words \(\alpha \in \Sigma^\omega\), accepting \(\alpha\) if there exists an infinite execution run \(\rho\) that visits the final state set \(F\) infinitely often: \(\operatorname{Inf}(\rho) \cap F \neq \emptyset\). While union and concatenation extend naturally from finite words via non-deterministic branching, intersection requires a new synchronization mechanism: the two component automata may fulfill their Büchi acceptance conditions at disjoint, desynchronized time steps.`,
       application: String.raw`In reactive system verification, liveness properties ('every request is eventually serviced') and fairness constraints ('a process is scheduled infinitely often') are combined via intersection. Büchi intersection allows forming the joint verification automaton \(\mathcal{M} \times \mathcal{A}_{\neg \varphi}\).`,
@@ -952,7 +952,7 @@
       steps: [
         {
           label: "V\u03c9 power",
-          title: String.raw`Synthesizing V\u03c9: Translating block completions into recurrent B\u00fcchi visits`,
+          title: "Synthesizing Vω: Translating block completions into recurrent Büchi visits",
           exposition: String.raw`Let \(V \subseteq \Sigma^+\) be a regular language with \(V \cap \{\varepsilon\} = \emptyset\). An infinite word \(\alpha \in \Sigma^\omega\) belongs to \(V^\omega\) iff it can be factored into an infinite sequence of non-empty words: \(\alpha = v_1 v_2 v_3 \cdots\) where each \(v_i \in V\). The NBA simulates an NFA for \(V\). Whenever a final state \(f \in F_V\) is reached, the automaton non-deterministically branches back to the start state \(q_{0,V}\) through a designated accepting transition or marker. Visiting this marker infinitely often certifies that infinitely many complete, non-empty \(V\)-blocks have been consumed.`,
           question: "Why must the block language V satisfy V \u2229 {\u03b5} = \u2205 (or have \u03b5 excluded) when defining V\u03c9?",
           choices: [
@@ -982,7 +982,7 @@
         },
         {
           label: "Concat and union",
-          title: String.raw`Prefix concatenation V \u00b7 L and Union L_1 \u222a L_2`,
+          title: "Prefix concatenation V · L and Union L_1 ∪ L_2",
           exposition: String.raw`Concatenation of a regular finite-word language \(V \subseteq \Sigma^*\) with an \(\omega\)-regular language \(L \subseteq \Sigma^\omega\) requires a single existential transition point: the automaton runs in \(V\)-mode until non-deterministically deciding that the finite prefix has ended at state \(f \in F_V\), at which point it jumps to the initial state of the NBA for \(L\). Union \(L_1 \cup L_2\) similarly branches non-deterministically at \(t = 0\) to choose between simulating \(\mathcal{A}_1\) or \(\mathcal{A}_2\). In both cases, non-determinism resolves the finite existential boundary.`,
           question: "Why do concatenation V \u00b7 L and union L_1 \u222a L_2 introduce zero synchronization difficulties compared to intersection?",
           choices: [
@@ -1011,7 +1011,7 @@
         },
         {
           label: "Intersection anomaly",
-          title: String.raw`The desynchronization anomaly: Why F_1 \u00d7 F_2 fails for B\u00fcchi intersection`,
+          title: "The desynchronization anomaly: Why F_1 × F_2 fails for Büchi intersection",
           exposition: String.raw`In finite automata, the product automaton accepts in \(F_1 \times F_2\). For Büchi automata, setting \(F' = F_1 \times F_2\) is fundamentally flawed. Consider two NBAs on \(\Sigma^\omega\): \(\mathcal{A}_1\) visits \(F_1\) on every even position (\(t \in \{0, 2, 4, \dots\}\)), while \(\mathcal{A}_2\) visits \(F_2\) on every odd position (\(t \in \{1, 3, 5, \dots\}\)). Both individual runs satisfy the Büchi acceptance condition: \(\operatorname{Inf}(\rho_1) \cap F_1 \neq \emptyset\) and \(\operatorname{Inf}(\rho_2) \cap F_2 \neq \emptyset\). However, they NEVER enter final states at the same time: \((p_t, q_t) \notin F_1 \times F_2\) for all \(t\). A naive Cartesian product would reject this valid word.`,
           question: "Why is the naive acceptance condition F' = F_1 \u00d7 F_2 unsound for B\u00fcchi intersection?",
           choices: [
@@ -1040,7 +1040,7 @@
         },
         {
           label: "Phase controller",
-          title: String.raw`The 2-track alternating phase controller for B\u00fcchi intersection`,
+          title: "The 2-track alternating phase controller for Büchi intersection",
           exposition: String.raw`To solve the desynchronization problem, we augment the product state space with a discrete phase bit: \(Q' = Q_1 \times Q_2 \times \{1, 2\}\). The initial state is \((q_{0,1}, q_{0,2}, 1)\). In phase 1, the automaton waits for component 1 to enter a final state \(p \in F_1\); upon doing so, it transitions to phase 2. In phase 2, it waits for component 2 to enter a final state \(q \in F_2\); upon doing so, it visits the designated accepting set \(F' = Q_1 \times F_2 \times \{2\}\) and resets back to phase 1. Visiting \(F'\) infinitely often guarantees that an infinite sequence of completed phase 1 \(\to\) phase 2 rounds occurred, which is mathematically equivalent to both \(F_1\) and \(F_2\) recurring infinitely often.`,
           question: "Why does infinite recurrence of the phase-2 accepting marker prove that both component conditions recur infinitely often?",
           choices: [
@@ -1075,7 +1075,7 @@
     "buchi-expression-equivalence": {
       slug: "buchi-expression-equivalence",
       chapter: 3,
-      title: String.raw`B\u00fcchi\u2013expression equivalence`,
+      title: "Büchi–expression equivalence",
       theorem: String.raw`An \(\omega\)-language \(L \subseteq \Sigma^\omega\) is recognized by a Non-deterministic Büchi Automaton (NBA) if and only if it is denoted by an \(\omega\)-regular expression of the form \(\bigcup_{i=1}^k U_i V_i^\omega\), where \(U_i, V_i \subseteq \Sigma^*\) are regular languages with \(V_i \cap \{\varepsilon\} = \emptyset\).`,
       intro: String.raw`Büchi's Theorem on \(\omega\)-Regular Expressions characterizes the operational power of Büchi automata via algebraic syntax. It proves that every Büchi-recognizable language corresponds to a finite union of terms \(U V^\omega\) (a finite regular prefix \(U\) followed by an infinite concatenation of non-empty regular blocks from \(V\)). The proof hinges on the geometric 'lasso' decomposition of accepting runs: any infinite run visiting a finite set \(F\) infinitely often must revisit some designated state \(f \in F\) repeatedly.`,
       application: "In model checking with LTL (Linear Temporal Logic), system counterexamples are reported as lasso executions: an initialization trace followed by an infinitely repeating loop. Nested Depth-First Search (NDFS) and Tarjan's SCC algorithm detect accepting Büchi runs by searching for these exact lasso structures.",
@@ -1109,7 +1109,7 @@
       steps: [
         {
           label: "Expr \u2192 Automaton",
-          title: String.raw`Compiling UV\u03c9: Prefix simulation followed by recurrent block completions`,
+          title: "Compiling UVω: Prefix simulation followed by recurrent block completions",
           exposition: String.raw`A term \(U V^\omega\) represents all words \(\alpha \in \Sigma^\omega\) that can be factored as \(\alpha = u v_1 v_2 v_3 \cdots\) where \(u \in U\) and each \(v_i \in V \subseteq \Sigma^+\). To construct an equivalent NBA, we simulate an NFA for \(U\) until reaching a state in \(F_U\), then non-deterministically transition to an NBA for \(V^\omega\). The \(V^\omega\) automaton runs an NFA for \(V\), restarting at \(q_{0,V}\) through a designated accepting marker state whenever a state in \(F_V\) is visited. An infinite run visits this marker infinitely often iff it consumes infinitely many non-empty \(V\)-blocks.`,
           question: "How does the NBA construction ensure that words in UV\u03c9 satisfy the B\u00fcchi acceptance condition \u221e-often?",
           choices: [
@@ -1138,7 +1138,7 @@
         },
         {
           label: "Automaton \u2192 Expr",
-          title: String.raw`Dirichlet's Principle: Isolating a recurrent final state f \u2208 F`,
+          title: "Dirichlet's Principle: Isolating a recurrent final state f ∈ F",
           exposition: String.raw`Let \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\) be an NBA and let \(\rho \in Q^\omega\) be an accepting run on \(\alpha \in L(\mathcal{A})\). By definition of Büchi acceptance, the set of states occurring infinitely often in \(\rho\), denoted \(\operatorname{Inf}(\rho)\), intersects \(F\): \(\operatorname{Inf}(\rho) \cap F \neq \emptyset\). Because the set of final states \(F\) is finite, Dirichlet's Pigeonhole Principle guarantees that at least one individual state \(f \in F\) must appear infinitely often along \(\rho\). We fix this recurrent state \(f\).`,
           question: "Why does the finiteness of F guarantee the existence of a single state f \u2208 F visited infinitely often?",
           choices: [
@@ -1167,7 +1167,7 @@
         },
         {
           label: "Lasso decomposition",
-          title: String.raw`Slicing the run: The lasso factorisation W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9`,
+          title: "Slicing the run: The lasso factorisation W_{q0, f} (W_{f, f} \\ {ε})ω",
           exposition: String.raw`Having isolated a recurrent final state \(f \in F\), we slice the infinite run \(\rho\) at its successive occurrences: \(q_0 \xrightarrow{u} f \xrightarrow{v_1} f \xrightarrow{v_2} f \xrightarrow{v_3} \cdots\). The prefix \(u\) drives the automaton from \(q_0\) to its first visit to \(f\), belonging to the regular path language \(W_{q_0, f}\). Each subsequent segment \(v_k\) loops from \(f\) back to \(f\), belonging to \(W_{f, f}\). To guarantee that the run makes strict progress along the infinite word \(\alpha\), each loop factor must consume at least one symbol: \(v_k \in W_{f, f} \setminus \{\varepsilon\}\).`,
           question: "Why must the loop language explicitly exclude the empty word: W_{f, f} \\ {\u03b5}?",
           choices: [
@@ -1196,7 +1196,7 @@
         },
         {
           label: "Finite union",
-          title: String.raw`Covering all runs: L(A) = \u22c3_{f \in F} W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9`,
+          title: "Covering all runs: L(A) = ⋃_{f ∈ F} W_{q0, f} (W_{f, f} \\ {ε})ω",
           exposition: String.raw`Different accepting runs of \(\mathcal{A}\) may recur on different final states in \(F\). However, because \(F\) is finite, there are at most \(|F|\) candidate recurrent states. Taking the union of the lasso terms across all \(f \in F\) covers every conceivable accepting run: \(L(\mathcal{A}) = \bigcup_{f \in F} W_{q_0, f} (W_{f, f} \setminus \{\varepsilon\})^\omega\). By Kleene's theorem, each path language \(W_{q_0, f}\) and \(W_{f, f}\) is regular. Thus, \(L(\mathcal{A})\) is expressible as a finite union of \(\omega\)-regular terms, closing the equivalence.`,
           question: "Why does the expression \u22c3_{f \in F} W_{q0, f} (W_{f, f} \\ {\u03b5})\u03c9 qualify as an \u03c9-regular expression?",
           choices: [
@@ -1232,10 +1232,10 @@
       slug: "ramsey-decomposition",
       chapter: 4,
       title: "Ramsey decomposition",
-      theorem: String.raw`Every \u03c9-word \u03b1 belongs to U\u00b7V\u03c9 for some \u2261-classes U,V of a finite-index congruence \u2261, with V\u00b7V\u2286V.`,
-      intro: String.raw`A generic \u03c9-word need not be periodic at all — it can have gaps that grow forever. Yet a finite-index congruence can still slice any such word into one finite prefix and infinitely many interchangeable repeating blocks. Two nested pigeonhole arguments, linked by a persistence property, do the slicing.`,
-      application: String.raw`Running example: the automaton has states s\u2080,s\u2081,s\u2082 (F={s\u2081}) and transitions s\u2080\u2013a\u2192s\u2081, s\u2081\u2013b\u2192s\u2082, s\u2082\u2013c\u2192s\u2082 (self-loop), s\u2082\u2013a\u2192s\u2081. The word \u03b1=abc\u00b7abcc\u00b7abccc\u22ef has ever-growing gaps of c's and is not ultimately periodic — yet every block abc\u207f produces the identical \u2248\u1d00-behaviour (reach s\u2082 from s\u2080 or s\u2082, visiting F, and die immediately from s\u2081), so \u03b1 decomposes as [\u03b5]\u00b7V\u03c9 for a single class V.`,
-      strategy: String.raw`Build a second finite-index equivalence, this time on the positions of \u03b1, by colouring pairs of positions with the \u2261-class of the segment between them. Pigeonhole gives an infinite pairwise-merging set of positions; persistence (congruence applied to a shared future suffix) lets that merge survive forever. A second, independent pigeonhole on cumulative-prefix classes gives infinitely many prefixes in one class V — not yet consecutive blocks. Persistence links the two arguments: it transfers V's class from a cumulative prefix onto the very next gap, turning the merely-infinite-prefixes claim into genuine consecutive V-blocks. One witnessed concatenation then transports, via congruence, to V\u00b7V\u2286V.`,
+      theorem: "Every ω-word α belongs to U·Vω for some ≡-classes U,V of a finite-index congruence ≡, with V·V⊆V.",
+      intro: "A generic ω-word need not be periodic at all — it can have gaps that grow forever. Yet a finite-index congruence can still slice any such word into one finite prefix and infinitely many interchangeable repeating blocks. Two nested pigeonhole arguments, linked by a persistence property, do the slicing.",
+      application: "Running example: the automaton has states s₀,s₁,s₂ (F={s₁}) and transitions s₀–a→s₁, s₁–b→s₂, s₂–c→s₂ (self-loop), s₂–a→s₁. The word α=abc·abcc·abccc⋯ has ever-growing gaps of c's and is not ultimately periodic — yet every block abcⁿ produces the identical ≈ᴀ-behaviour (reach s₂ from s₀ or s₂, visiting F, and die immediately from s₁), so α decomposes as [ε]·Vω for a single class V.",
+      strategy: "Build a second finite-index equivalence, this time on the positions of α, by colouring pairs of positions with the ≡-class of the segment between them. Pigeonhole gives an infinite pairwise-merging set of positions; persistence (congruence applied to a shared future suffix) lets that merge survive forever. A second, independent pigeonhole on cumulative-prefix classes gives infinitely many prefixes in one class V — not yet consecutive blocks. Persistence links the two arguments: it transfers V's class from a cumulative prefix onto the very next gap, turning the merely-infinite-prefixes claim into genuine consecutive V-blocks. One witnessed concatenation then transports, via congruence, to V·V⊆V.",
       invariant: "Step by step, more of the concrete α = abc·abcc·abccc⋯ is certified to lie in U·Vω: first the finitely many segment-classes exist, then infinitely many prefixes α(k₀,kᵢ) share one class V, then every consecutive gap α(kᵢ,kⱼ) also lies in V, and finally V·V ⊆ V — so the running example is provably U·Vω, not merely plausibly so.",
       synthesis: String.raw`Fix a finite-index congruence \(\equiv\) on \(\Sigma^*\) and an \(\omega\)-word \(\alpha\). Define \(k\mathbin{\overset{\sim}{=}}_\alpha k'\) when \(\alpha(k,m)\equiv\alpha(k',m)\) for some future position \(m\); this relation inherits finite index from \(\equiv\) via pigeonhole, and it is persistent: once two positions merge at some \(m\), congruence (\(x\equiv y\Rightarrow xz\equiv yz\)) keeps them merged at every later \(m'\). Pigeonhole on positions yields an infinite, pairwise-merging sequence \(k_0<k_1<k_2<\cdots\). Separately, pigeonhole on the \(\equiv\)-classes of the cumulative prefixes \(\alpha(k_0,k_i)\) yields infinitely many of them in one class \(V\), so \(\alpha\in U\overrightarrow V\) for \(U=[\alpha(0,k_0)]\) — real progress, but not yet consecutive blocks. Thinning the sequence once more so that \(k_0,\ldots,k_i\) all merge at \(k_{i+1}\) lets persistence transfer \(\alpha(k_0,k_{i+1})\in V\) onto the gap: \(\alpha(k_i,k_{i+1})\equiv\alpha(k_0,k_{i+1})\in V\). Every consecutive block is therefore in \(V\), so \(\alpha\in UV^\omega\). Finally, one witnessed pair \(a=\alpha(k_0,k_1)\), \(b=\alpha(k_1,k_2)\) with \(ab\in V\) transports, via congruence, to \(V\cdot V\subseteq V\): for arbitrary \(x,y\in V\), \(x\equiv a\) and \(y\equiv b\) give \(xy\equiv ab\in V\).`,
       diagram: {
@@ -1476,7 +1476,7 @@
     "buchi-complementation": {
       slug: "buchi-complementation",
       chapter: 4,
-      title: String.raw`B\u00fcchi complementation`,
+      title: "Büchi complementation",
       theorem: String.raw`The complement \(\Sigma^\omega \setminus L\) of every Büchi-recognizable language \(L \subseteq \Sigma^\omega\) is Büchi-recognizable.`,
       intro: String.raw`Complementation of Büchi automata is one of the foundational results of automata theory over infinite words. Because Non-deterministic Büchi Automata (NBAs) strictly exceed Deterministic Büchi Automata (DBAs) in expressive power, complementation cannot be achieved by determinizing and swapping accepting states. Instead, Büchi's 1962 proof classifies finite words using a finite-index transition congruence \(\approx_{\mathcal{A}}\), partitions the infinite universe \(\Sigma^\omega\) into saturated product sets \(U V^\omega\), and constructs the complement as a finite union of rejected products.`,
       application: String.raw`In temporal logic model checking, verifying whether a concurrent system satisfies a temporal specification \(\varphi\) requires constructing an automaton for the negated property \(\neg \varphi\). Büchi complementation guarantees that the negation of any \(\omega\)-regular specification remains algorithmically verifiable.`,
@@ -1510,7 +1510,7 @@
       steps: [
         {
           label: "Abstraction",
-          title: String.raw`The profile congruence \u2248_A: Capturing reachability and acceptance visits`,
+          title: "The profile congruence ≈_A: Capturing reachability and acceptance visits",
           exposition: String.raw`To analyze all infinite words uniformly, we classify finite words by the state transitions they induce in \(\mathcal{A} = (Q, \Sigma, \Delta, q_0, F)\). Define the relation \(\approx_{\mathcal{A}}\) on \(\Sigma^*\) by setting \(u \approx_{\mathcal{A}} v\) iff for every pair of states \(p, q \in Q\): (1) \(\mathcal{A}\) has a path \(p \xrightarrow{u} q \iff p \xrightarrow{v} q\), and (2) \(\mathcal{A}\) has a path \(p \xrightarrow{u} q\) that visits \(F \iff\) it has a path \(p \xrightarrow{v} q\) that visits \(F\). Each word is characterized by a transition matrix of size \(|Q| \times |Q|\) over the semiring \(\{0, 1, 2\}\) (no path, path without \(F\), path with \(F\)). This relation is a congruence of finite index at most \(3^{|Q|^2}\).`,
           question: "Why must the congruence \u2248_A track BOTH state reachability AND intermediate visits to F?",
           choices: [
@@ -1539,7 +1539,7 @@
         },
         {
           label: "Saturation",
-          title: String.raw`Saturation: Class products UV\u03c9 are strictly all-or-nothing`,
+          title: "Saturation: Class products UVω are strictly all-or-nothing",
           exposition: String.raw`Let \(U, V \in \Sigma^* / {\approx_{\mathcal{A}}}\) with \(V \cdot V \subseteq V\). A class product \(U V^\omega\) contains all words of the form \(u v_1 v_2 v_3 \cdots\) where \(u \in U\) and each \(v_k \in V\). Saturation states that \(U V^\omega\) cannot be partially accepted: either \(U V^\omega \subseteq L(\mathcal{A})\) or \(U V^\omega \cap L(\mathcal{A}) = \emptyset\). Indeed, if one word \(\alpha \in U V^\omega\) admits an accepting run, replacing its blocks \(u, v_1, v_2, \ldots\) with any other elements \(u', v_1', v_2', \ldots\) from the same \(\approx_{\mathcal{A}}\)-classes preserves boundary states and \(F\)-visits, yielding an accepting run on \(\alpha'\).`,
           question: "If one word \u03b1 \u2208 UV\u03c9 is accepted by A, why does saturation force EVERY word in UV\u03c9 to be accepted?",
           choices: [

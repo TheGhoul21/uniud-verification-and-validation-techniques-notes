@@ -917,6 +917,13 @@
     "text": "Chapter 1 · Finite-State Automata and Regular Languages\n      Explore the chapter as a radial hierarchy of sections, topics, and nested subtopics.\n    \n    4 sections · 12 topics\n  \n\n  \n    \n      Search chapter topics\n      \n      \n      \n    \n    \n      Reset\n      −\n      ◎\n      +\n    \n  \n\n  \n    \n      Click any branch to fold it · drag and zoom\n      \n    \n    \n      Chapter 1\n      Finite-State Automata and Regular Languages\n      Select a node to isolate its complete conceptual artery.\n      \n      \n\n      \n        How to read the map\n        \n          Chapter root\n        \n        \n          Sections form the main arteries\n        \n        \n          Outer nodes are individual topics\n        \n      \n    \n  \n\n  \n    \n    All mind maps\n    Chapter 2"
   },
   {
+    "objectID": "contact.html",
+    "href": "contact.html",
+    "title": "Contatti",
+    "section": "",
+    "text": "Feedback & Segnalazioni\n  Contatti\n  \n    Hai trovato un refuso nelle dispense, una svista nelle formule, un problema in un notebook interattivo o hai una domanda sul materiale del corso?\n    Compila il form sottostante per inviare un messaggio sicuro e diretto."
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Verification and Validation Techniques — UniUD",
@@ -1832,12 +1839,5 @@
     "title": "Angluin’s L* Active Learning Proof Lab",
     "section": "",
     "text": "Angluin's L* active learning algorithm correctness\n  Angluin's L* algorithm synthesizes the unique minimal DFA for a regular language using membership and equivalence queries. Closed and consistent observation tables define candidate DFAs, converging in polynomial queries."
-  },
-  {
-    "objectID": "contact.html",
-    "href": "contact.html",
-    "title": "Contatti",
-    "section": "",
-    "text": "Feedback & Segnalazioni\n  Contatti\n  \n    Hai trovato un refuso nelle dispense, una svista nelle formule, un problema in un notebook interattivo o hai una domanda sul materiale del corso?\n    Compila il form sottostante per inviare un messaggio sicuro e diretto."
   }
 ]
