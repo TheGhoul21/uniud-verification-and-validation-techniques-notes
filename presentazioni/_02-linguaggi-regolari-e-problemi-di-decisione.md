@@ -1,6 +1,6 @@
 ## Linguaggi regolari e problemi di decisione {#scena-01 .scrollable}
 
-<p class="scene-meta">01 / 43 · Cap. 2 · pp. 23-24</p>
+<p class="scene-meta">01 / 49 · Cap. 2 · pp. 23-24</p>
 
 **VVT · Lezione 2 · Capitolo 2**
 
@@ -10,7 +10,7 @@
 
 ## Richiamo: accettazione su parole finite {#scena-02 .scrollable}
 
-<p class="scene-meta">02 / 43 · Cap. 2 · introduzione, pp. 23-24</p>
+<p class="scene-meta">02 / 49 · Cap. 2 · introduzione, pp. 23-24</p>
 
 Un DFA ha una sola run; un NFA può averne più di una.
 
@@ -22,7 +22,7 @@ Useremo $\Sigma=\{0,1\}$. La parola vuota è $\varepsilon$; il complemento è se
 
 ## Sintassi delle espressioni regolari {#scena-03 .scrollable}
 
-<p class="scene-meta">03 / 43 · Cap. 2 · §2.1.1, pp. 24-25</p>
+<p class="scene-meta">03 / 49 · Cap. 2 · §2.1.1, pp. 24-25</p>
 
 Le espressioni **ristrette** partono da:
 
@@ -34,7 +34,7 @@ Il simbolo $+$ indica **unione**. La stella ha precedenza sulla concatenazione, 
 
 ## Semantica delle espressioni regolari {#scena-04 .scrollable}
 
-<p class="scene-meta">04 / 43 · Cap. 2 · §2.1.1, pp. 24-25</p>
+<p class="scene-meta">04 / 49 · Cap. 2 · §2.1.1, pp. 24-25</p>
 
 $$ L(\varnothing)=\varnothing,\quad L(\varepsilon)=\{\varepsilon\},\quad L(a)=\{a\} $$
 
@@ -46,7 +46,7 @@ $\varnothing$ non contiene parole; $\varepsilon$ descrive una parola di lunghezz
 
 ## Espressioni per suffisso e parità {#scena-05 .scrollable}
 
-<p class="scene-meta">05 / 43 · Cap. 2 · §2.1.1, p. 25</p>
+<p class="scene-meta">05 / 49 · Cap. 2 · §2.1.1, p. 25</p>
 
 $$ (0+1)^*01 $$
 
@@ -58,7 +58,7 @@ Descrive le parole con un numero pari di `1`: ogni blocco ripetuto contribuisce 
 
 ## Espressioni generali e star-free {#scena-06 .scrollable}
 
-<p class="scene-meta">06 / 43 · Cap. 2 · §2.1.1, pp. 25-26</p>
+<p class="scene-meta">06 / 49 · Cap. 2 · §2.1.1, pp. 25-26</p>
 
 Le espressioni **generali** aggiungono intersezione e complemento:
 
@@ -68,9 +68,30 @@ Le espressioni **star-free** ammettono questi operatori booleani, ma non la stel
 
 Star-free non significa linguaggio finito: $\overline{\varnothing}$ descrive $\Sigma^*$. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno.
 
-## Transizioni ε e composizione {#scena-07 .scrollable}
+## Teorema di Kleene: le due costruzioni {#scena-07 .scrollable}
 
-<p class="scene-meta">07 / 43 · Cap. 2 · §2.1.2, pp. 26-27</p>
+<p class="scene-meta">07 / 49 · Cap. 2 · §2.1.2, pp. 30-32</p>
+
+Un linguaggio su parole finite è riconosciuto da un automa finito **se e solo se** è descritto da un'espressione regolare ristretta.
+
+- **Espressione → automa:** costruzione strutturale di Thompson.
+- **Automa → espressione:** ricorrenza sui possibili stati intermedi.
+
+Entrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio.
+
+## La sfida della compilazione: le transizioni ε {#scena-08 .scrollable}
+
+<p class="scene-meta">08 / 49 · Cap. 2 · §2.1.2, pp. 26-27</p>
+
+**Dove siamo:** Abbiamo definito le espressioni regolari per specificare sequenze di eventi in modo dichiarativo.
+
+**Dove andiamo:** Vogliamo compilare qualsiasi espressione in un automa a stati finiti equivalente (la prima direzione di Kleene).
+
+**A cosa serve:** Per comporre modularmente gli automi (unione, concatenazione, stella), dobbiamo collegare frammenti indipendenti senza consumare simboli. Le **transizioni $\varepsilon$** sono il giunto essenziale per la costruzione di Thompson.
+
+## Transizioni ε e composizione {#scena-09 .scrollable}
+
+<p class="scene-meta">09 / 49 · Cap. 2 · §2.1.2, pp. 26-27</p>
 
 Una transizione $\varepsilon$ cambia stato **senza consumare simboli**. Non aggiunge un simbolo all'alfabeto.
 
@@ -80,9 +101,9 @@ Il doppio cerchio indica uno stato finale; la freccia esterna indica l'iniziale.
 
 ![Transizioni ε e composizione — figura 1](assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-07-22-1.png){.lesson-figure}
 
-## Chiusura ε come punto fisso {#scena-08 .scrollable}
+## Chiusura ε come punto fisso {#scena-10 .scrollable}
 
-<p class="scene-meta">08 / 43 · Cap. 2 · §2.1.2, p. 27</p>
+<p class="scene-meta">10 / 49 · Cap. 2 · §2.1.2, p. 27</p>
 
 $\operatorname{ECl}(S)$ contiene tutti gli stati raggiungibili da $S$ usando zero o più transizioni ε.
 
@@ -94,9 +115,9 @@ $$ \operatorname{ECl}(\{u\})=\{u,v\} $$
 
 Lo stato di partenza appartiene sempre alla propria chiusura.
 
-## Simulazione di un ε-NFA {#scena-09 .scrollable}
+## Simulazione di un ε-NFA {#scena-11 .scrollable}
 
-<p class="scene-meta">09 / 43 · Cap. 2 · §2.1.2, pp. 27-28</p>
+<p class="scene-meta">11 / 49 · Cap. 2 · §2.1.2, pp. 27-28</p>
 
 Prima di leggere e dopo ogni simbolo, calcoliamo la chiusura ε.
 
@@ -109,9 +130,9 @@ Il caso `ε` termina subito in `{s}` ed è rifiutato.
 
 ![Simulazione di un ε-NFA — figura 1](assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-09-27-1.png){.lesson-figure}
 
-## Eliminare le transizioni ε {#scena-10 .scrollable}
+## Eliminare le transizioni ε {#scena-12 .scrollable}
 
-<p class="scene-meta">10 / 43 · Cap. 2 · §2.1.2, pp. 29-30</p>
+<p class="scene-meta">12 / 49 · Cap. 2 · §2.1.2, pp. 29-30</p>
 
 Manteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:
 
@@ -121,9 +142,9 @@ Nell'esempio: $\Delta'(s,0)=\{u,v\}$ e $\Delta'(u,1)=\{f\}$.
 
 Il nuovo NFA legge solo simboli reali. Va controllata separatamente l'accettazione della parola vuota.
 
-## Eliminazione ε: il caso della parola vuota {#scena-11 .scrollable}
+## Eliminazione ε: il caso della parola vuota {#scena-13 .scrollable}
 
-<p class="scene-meta">11 / 43 · Cap. 2 · §2.1.2, pp. 29-30</p>
+<p class="scene-meta">13 / 49 · Cap. 2 · §2.1.2, pp. 29-30</p>
 
 Con la convenzione precedente manteniamo $F$, aggiungendo $q_0$ se la sua chiusura ε incontra $F$.
 
@@ -147,20 +168,9 @@ Finali dopo la rimozione: {f, i}
 0 accettata: False
 ```
 
-## Teorema di Kleene: le due costruzioni {#scena-12 .scrollable}
+## Thompson: casi base e invariante {#scena-14 .scrollable}
 
-<p class="scene-meta">12 / 43 · Cap. 2 · §2.1.3, pp. 30-32</p>
-
-Un linguaggio su parole finite è riconosciuto da un automa finito **se e solo se** è descritto da un'espressione regolare ristretta.
-
-- **Espressione → automa:** costruzione strutturale di Thompson.
-- **Automa → espressione:** ricorrenza sui possibili stati intermedi.
-
-Entrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio.
-
-## Thompson: casi base e invariante {#scena-13 .scrollable}
-
-<p class="scene-meta">13 / 43 · Cap. 2 · §2.1.3, pp. 34-35</p>
+<p class="scene-meta">14 / 49 · Cap. 2 · §2.1.3, pp. 34-35</p>
 
 Ogni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.
 
@@ -170,9 +180,9 @@ Ogni frammento ha un ingresso e una sola uscita accettante, inizialmente priva d
 
 I frammenti da comporre devono avere insiemi di stati disgiunti.
 
-## Thompson: unione, concatenazione e stella {#scena-14 .scrollable}
+## Thompson: unione, concatenazione e stella {#scena-15 .scrollable}
 
-<p class="scene-meta">14 / 43 · Cap. 2 · §2.1.3, pp. 34-35</p>
+<p class="scene-meta">15 / 49 · Cap. 2 · §2.1.3, pp. 34-35</p>
 
 **Unione $r+s$:** un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.
 
@@ -182,9 +192,9 @@ I frammenti da comporre devono avere insiemi di stati disgiunti.
 
 Il salto diretto ingresso → uscita realizza le zero ripetizioni.
 
-## Compilare un’espressione in Python {#scena-15 .scrollable}
+## Compilare un’espressione in Python {#scena-16 .scrollable}
 
-<p class="scene-meta">15 / 43 · Cap. 2 · §2.1.3, pp. 34-35</p>
+<p class="scene-meta">16 / 49 · Cap. 2 · §2.1.3, pp. 34-35</p>
 
 Compiliamo $r=(0+1)^*01$ e poi rimuoviamo ε e determinizziamo.
 
@@ -210,9 +220,19 @@ Stati DFA raggiungibili: 4
 255 parole confrontate con il predicato del suffisso.
 ```
 
-## Da automa a espressione: stati intermedi {#scena-16 .scrollable}
+## Dall’automa alla formula: estrarre la specifica {#scena-17 .scrollable}
 
-<p class="scene-meta">16 / 43 · Cap. 2 · §2.1.3, pp. 32-33</p>
+<p class="scene-meta">17 / 49 · Cap. 2 · §2.1.3, pp. 32-33</p>
+
+**Dove siamo:** Abbiamo completato la direzione Espressione → Automa: ogni formula diventa un automa finito determinizzabile.
+
+**Dove andiamo:** Ora affrontiamo la direzione opposta di Kleene: da un automa a stati finiti a un'espressione regolare.
+
+**A cosa serve:** Permette di estrarre una specifica sintattica compatta dal modello di un sistema reale, eliminando gli stati intermedi tramite programmazione dinamica.
+
+## Da automa a espressione: stati intermedi {#scena-18 .scrollable}
+
+<p class="scene-meta">18 / 49 · Cap. 2 · §2.1.3, pp. 32-33</p>
 
 Numeriamo gli stati $q_1,\ldots,q_n$.
 
@@ -222,9 +242,9 @@ Gli estremi non sono vincolati. Con $k=0$ sono ammessi solo archi diretti e il c
 
 Quindi $R_{ij}^{0}$ è l'unione delle etichette dirette, con ε aggiunta quando $i=j$.
 
-## Ricorrenza per la traduzione in espressione {#scena-17 .scrollable}
+## Ricorrenza per la traduzione in espressione {#scena-19 .scrollable}
 
-<p class="scene-meta">17 / 43 · Cap. 2 · §2.1.3, pp. 33-36</p>
+<p class="scene-meta">19 / 49 · Cap. 2 · §2.1.3, pp. 33-36</p>
 
 Sbloccando $q_k$ come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.
 
@@ -234,9 +254,9 @@ La stella rappresenta un numero finito qualsiasi di ritorni.
 
 Alla fine si uniscono $R_{1j}^{n}$ per tutti i finali $q_j$, assumendo $q_1$ iniziale.
 
-## Ricorrenza sul DFA della parità {#scena-18 .scrollable}
+## Ricorrenza sul DFA della parità {#scena-20 .scrollable}
 
-<p class="scene-meta">18 / 43 · Cap. 2 · §2.1.3, pp. 33-34</p>
+<p class="scene-meta">20 / 49 · Cap. 2 · §2.1.3, pp. 33-34</p>
 
 Nel DFA della parità di `1`, $q_1$ è pari e $q_2$ dispari. `0` conserva lo stato, `1` lo cambia.
 
@@ -248,9 +268,19 @@ $$ R_{22}^{1}=(\varepsilon+0)+1(\varepsilon+0)^*1 $$
 
 Sono inclusi `ε`, `0`, `11`, `101`; `00` richiede un passaggio intermedio per $q_2$ e non è ancora incluso.
 
-## Chiusure dei linguaggi regolari {#scena-19 .scrollable}
+## Comporre specifiche: chiusure booleane e prodotto {#scena-21 .scrollable}
 
-<p class="scene-meta">19 / 43 · Cap. 2 · §2.2, pp. 36-37</p>
+<p class="scene-meta">21 / 49 · Cap. 2 · §2.2, pp. 36-37</p>
+
+**Dove siamo:** Espressioni e automi sono formalismi equivalenti. Sappiamo compilare ed estrarre singole proprietà.
+
+**Dove andiamo:** Nei sistemi reali i requisiti sono compositi: vincoli multipli che devono valere insieme ($A \cap B$) o comportamenti vietati ($\overline C$).
+
+**A cosa serve:** Studiamo le **chiusure booleane**: il *complemento* (invertire i verdetti) e il *prodotto cartesiano* (far marciare due proprietà in parallelo).
+
+## Chiusure dei linguaggi regolari {#scena-22 .scrollable}
+
+<p class="scene-meta">22 / 49 · Cap. 2 · §2.2, pp. 36-37</p>
 
 Se $L_1$ e $L_2$ sono regolari sullo stesso alfabeto, sono regolari anche:
 
@@ -260,9 +290,9 @@ Unione, concatenazione e stella seguono dalle costruzioni già viste.
 
 Complemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo.
 
-## Complemento: serve un DFA completo {#scena-20 .scrollable}
+## Complemento: serve un DFA completo {#scena-23 .scrollable}
 
-<p class="scene-meta">20 / 43 · Cap. 2 · §2.2.1, pp. 37-38</p>
+<p class="scene-meta">23 / 49 · Cap. 2 · §2.2.1, pp. 37-38</p>
 
 Per un DFA completo basta sostituire $F$ con $Q\setminus F$.
 
@@ -272,9 +302,9 @@ Ogni parola ha esattamente una run completa: il suo verdetto viene invertito.
 
 Prima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti.
 
-## Perché lo scambio dei finali fallisce su un NFA {#scena-21 .scrollable}
+## Perché lo scambio dei finali fallisce su un NFA {#scena-24 .scrollable}
 
-<p class="scene-meta">21 / 43 · Cap. 2 · §2.2.1, pp. 37-38</p>
+<p class="scene-meta">24 / 49 · Cap. 2 · §2.2.1, pp. 37-38</p>
 
 Considera un NFA con iniziale `s`, finale `f`, e transizioni:
 
@@ -286,9 +316,9 @@ Accetta le parole che contengono `1`. Dopo lo scambio accetta ancora `1` tramite
 
 Procedura corretta: **determinizzare → completare → scambiare**.
 
-## Intersezione mediante prodotto {#scena-22 .scrollable}
+## Intersezione mediante prodotto {#scena-25 .scrollable}
 
-<p class="scene-meta">22 / 43 · Cap. 2 · §2.2.2, pp. 38-39</p>
+<p class="scene-meta">25 / 49 · Cap. 2 · §2.2.2, pp. 38-39</p>
 
 Lo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.
 
@@ -300,9 +330,9 @@ $$ F=F_1\times F_2 $$
 
 Entrambi i componenti devono accettare **al termine della stessa parola**.
 
-## Simulazione del prodotto {#scena-23 .scrollable}
+## Simulazione del prodotto {#scena-26 .scrollable}
 
-<p class="scene-meta">23 / 43 · Cap. 2 · §2.2.2, pp. 38-39</p>
+<p class="scene-meta">26 / 49 · Cap. 2 · §2.2.2, pp. 38-39</p>
 
 Primo componente: `1` se il prefisso termina con `1`, altrimenti `0`. Secondo: `0` se il numero di `1` è pari, `1` se dispari. Solo `(1,0)` è finale.
 
@@ -314,9 +344,9 @@ Primo componente: `1` se il prefisso termina con `1`, altrimenti `0`. Secondo: `
 
 ![Simulazione del prodotto — figura 1](assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-23-58-1.png){.lesson-figure}
 
-## Comporre requisiti per l’editor {#scena-24 .scrollable}
+## Comporre requisiti per l’editor {#scena-27 .scrollable}
 
-<p class="scene-meta">24 / 43 · Cap. 2 · §2.2, p. 37</p>
+<p class="scene-meta">27 / 49 · Cap. 2 · §2.2, p. 37</p>
 
 Riprendiamo l'alfabeto di eventi `apri`, `modifica`, `salva`, `chiudi`.
 
@@ -328,9 +358,21 @@ Il prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola p
 
 Questo requisito non impone di salvare ogni modifica.
 
-## Problemi di decisione su automi {#scena-25 .scrollable}
+## Dalla composizione alla verifica del software {#scena-28 .scrollable}
 
-<p class="scene-meta">25 / 43 · Cap. 2 · §2.3, pp. 39-40</p>
+<p class="scene-meta">28 / 49 · Cap. 2 · §2.3, pp. 39-40</p>
+
+**Dove siamo:** Sappiamo comporre sistema e vincoli tramite prodotto e complemento (come nell'editor).
+
+**Dove andiamo:** Vogliamo che un algoritmo verifichi automaticamente se tutti i comportamenti ammessi dal sistema rispettano la specifica: $L(\mathcal M) \subseteq L(\mathcal S)$.
+
+**A cosa serve:** Riduciamo la verifica a una ricerca di vuotezza su un automa prodotto:
+$$ L(\mathcal M) \cap \overline{L(\mathcal S)} = \varnothing $$
+Se l'intersezione non è vuota, qualunque parola accettata è un **controesempio eseguibile** (bug).
+
+## Problemi di decisione su automi {#scena-29 .scrollable}
+
+<p class="scene-meta">29 / 49 · Cap. 2 · §2.3, pp. 39-40</p>
 
 - **Appartenenza:** questa parola è accettata?
 - **Vuotezza:** esiste almeno una parola accettata?
@@ -340,9 +382,9 @@ Questo requisito non impone di salvare ogni modifica.
 
 L'appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall'iniziale.
 
-## Ricerca in ampiezza e parola testimone {#scena-26 .scrollable}
+## Ricerca in ampiezza e parola testimone {#scena-30 .scrollable}
 
-<p class="scene-meta">26 / 43 · Cap. 2 · §2.3, pp. 40-41</p>
+<p class="scene-meta">30 / 49 · Cap. 2 · §2.3, pp. 40-41</p>
 
 Una BFS esplora gli stati per distanza dall'iniziale. Memorizziamo, per ogni stato nuovo, predecessore e simbolo usato.
 
@@ -365,9 +407,9 @@ parità → ε
 Termina con 1 e non contiene 1 → linguaggio vuoto
 ```
 
-## Proprietà del testimone corto {#scena-27 .scrollable}
+## Proprietà del testimone corto {#scena-31 .scrollable}
 
-<p class="scene-meta">27 / 43 · Cap. 2 · §2.3, pp. 40-41</p>
+<p class="scene-meta">31 / 49 · Cap. 2 · §2.3, pp. 40-41</p>
 
 Un DFA con $n$ stati ha linguaggio non vuoto se e solo se accetta una parola $w$ con:
 
@@ -377,9 +419,9 @@ In una run accettante minima nessuno stato si ripete: il tratto fra due visite a
 
 Quindi la run contiene al massimo $n$ stati e la parola al massimo $n-1$ simboli.
 
-## Raggiungibilità come punto fisso {#scena-28 .scrollable}
+## Raggiungibilità come punto fisso {#scena-32 .scrollable}
 
-<p class="scene-meta">28 / 43 · Cap. 2 · §2.3.1, pp. 41-42</p>
+<p class="scene-meta">32 / 49 · Cap. 2 · §2.3.1, pp. 41-42</p>
 
 $\operatorname{Post}(R)$ contiene i successori in un passo degli stati in $R$.
 
@@ -389,9 +431,9 @@ $R_i$ raccoglie gli stati raggiungibili con parole di lunghezza **al massimo** $
 
 $$ L(\mathcal A)\ne\varnothing\quad\Longleftrightarrow\quad R^*\cap F\ne\varnothing $$
 
-## Esplorazione del punto fisso {#scena-29 .scrollable}
+## Esplorazione del punto fisso {#scena-33 .scrollable}
 
-<p class="scene-meta">29 / 43 · Cap. 2 · §2.3.1, pp. 41-42</p>
+<p class="scene-meta">33 / 49 · Cap. 2 · §2.3.1, pp. 41-42</p>
 
 Il DFA ricorda quanti `1` consecutivi chiudono il prefisso: `0`, `1`, `2`; `3` significa che `111` è già comparso e resta assorbente. Solo `3` è finale.
 
@@ -405,9 +447,9 @@ Prima di `3`, non avere ancora trovato un finale non prova la vuotezza.
 
 ![Esplorazione del punto fisso — figura 1](assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-29-72-1.png){.lesson-figure}
 
-## Riduzioni alla vuotezza {#scena-30 .scrollable}
+## Riduzioni alla vuotezza {#scena-34 .scrollable}
 
-<p class="scene-meta">30 / 43 · Cap. 2 · §2.3.1, p. 42</p>
+<p class="scene-meta">34 / 49 · Cap. 2 · §2.3.1, p. 42</p>
 
 Le chiusure trasformano le domande sui linguaggi in ricerca di testimoni:
 
@@ -419,9 +461,9 @@ L'equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una par
 
 Per l'inclusione, ogni parola del prodotto con il complemento è un **controesempio concreto**.
 
-## Inclusione e controesempio eseguibile {#scena-31 .scrollable}
+## Inclusione e controesempio eseguibile {#scena-35 .scrollable}
 
-<p class="scene-meta">31 / 43 · Cap. 2 · §2.3.1, p. 42</p>
+<p class="scene-meta">35 / 49 · Cap. 2 · §2.3.1, p. 42</p>
 
 Siano $L_E$ le parole che terminano con `1` e $L_C$ quelle che contengono `1`.
 
@@ -445,9 +487,9 @@ E ⊆ C → vera
 C ⊆ E → falsa, controesempio: 10
 ```
 
-## Costo delle procedure e rappresentazione {#scena-32 .scrollable}
+## Costo delle procedure e rappresentazione {#scena-36 .scrollable}
 
-<p class="scene-meta">32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42</p>
+<p class="scene-meta">36 / 49 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42</p>
 
 Su un grafo esplicito con $n$ stati e $m$ archi, la BFS costa $O(n+m)$.
 
@@ -457,9 +499,19 @@ Per gli NFA, complemento, inclusione ed equivalenza possono richiedere la determ
 
 «Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo.
 
-## Equivalenze, classi e indice {#scena-33 .scrollable}
+## La memoria minima: quanti stati servono davvero? {#scena-37 .scrollable}
 
-<p class="scene-meta">33 / 43 · Cap. 2 · §2.4, pp. 43-44</p>
+<p class="scene-meta">37 / 49 · Cap. 2 · §2.4, pp. 43-44</p>
+
+**Dove siamo:** La verifica si riduce a cammini su grafi, ma il prodotto e la determinizzazione fanno esplodere gli stati ($n_1 n_2$, $2^n$).
+
+**Dove andiamo:** Vogliamo determinare la taglia minima indispensabile di un automa per un dato linguaggio.
+
+**A cosa serve:** Uno stato deve solo riassumere il passato per decidere il futuro. Raggruppare i prefissi indistinguibili in classi di equivalenza produce il **DFA minimo canonico** (Myhill–Nerode) e svela i limiti della memoria finita.
+
+## Equivalenze, classi e indice {#scena-38 .scrollable}
+
+<p class="scene-meta">38 / 49 · Cap. 2 · §2.4, pp. 43-44</p>
 
 Una relazione di equivalenza è riflessiva, simmetrica e transitiva. Le sue classi formano una partizione: non si sovrappongono e coprono tutto l'insieme.
 
@@ -469,9 +521,9 @@ Esempio: raggruppare le parole per parità della lunghezza dà due classi.
 
 «Condividono un simbolo» non è transitiva: `0` condivide con `01`, `01` con `1`, ma `0` non condivide con `1`.
 
-## Invarianza a destra e compatibilità {#scena-34 .scrollable}
+## Invarianza a destra e compatibilità {#scena-39 .scrollable}
 
-<p class="scene-meta">34 / 43 · Cap. 2 · §2.4, pp. 44-46</p>
+<p class="scene-meta">39 / 49 · Cap. 2 · §2.4, pp. 44-46</p>
 
 Per rappresentare classi di prefissi come stati servono due proprietà.
 
@@ -483,9 +535,9 @@ $$ x\sim y\quad\Longrightarrow\quad xz\sim yz\quad\text{per ogni }z\in\Sigma^* $
 
 La prima rende coerenti le transizioni; la seconda rende coerente il verdetto.
 
-## Equivalenza di Myhill–Nerode {#scena-35 .scrollable}
+## Equivalenza di Myhill–Nerode {#scena-40 .scrollable}
 
-<p class="scene-meta">35 / 43 · Cap. 2 · §2.4, pp. 45-46</p>
+<p class="scene-meta">40 / 49 · Cap. 2 · §2.4, pp. 45-46</p>
 
 Due prefissi sono equivalenti per $L$ quando nessuna continuazione distingue i loro verdetti:
 
@@ -495,9 +547,9 @@ Per il linguaggio «termina con `1`», `01` e `11` sono equivalenti.
 
 `0` e `01` sono distinti: basta $z=\varepsilon$. Accettare o rifiutare entrambi **adesso** non garantisce invece che due prefissi siano equivalenti.
 
-## Confrontare i futuri di due prefissi {#scena-36 .scrollable}
+## Confrontare i futuri di due prefissi {#scena-41 .scrollable}
 
-<p class="scene-meta">36 / 43 · Cap. 2 · §2.4, pp. 45-46</p>
+<p class="scene-meta">41 / 49 · Cap. 2 · §2.4, pp. 45-46</p>
 
 Usiamo il linguaggio «numero pari di `1`».
 
@@ -509,9 +561,9 @@ Usiamo il linguaggio «numero pari di `1`».
 
 ![Confrontare i futuri di due prefissi — figura 1](assets/02-linguaggi-regolari-e-problemi-di-decisione/scena-36-88-1.png){.lesson-figure}
 
-## Teorema di Myhill–Nerode {#scena-37 .scrollable}
+## Teorema di Myhill–Nerode {#scena-42 .scrollable}
 
-<p class="scene-meta">37 / 43 · Cap. 2 · §2.4, pp. 45-47</p>
+<p class="scene-meta">42 / 49 · Cap. 2 · §2.4, pp. 45-47</p>
 
 Per $L\subseteq\Sigma^*$ sono equivalenti:
 
@@ -521,9 +573,9 @@ Per $L\subseteq\Sigma^*$ sono equivalenti:
 
 Un DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare.
 
-## Costruire il DFA delle classi {#scena-38 .scrollable}
+## Costruire il DFA delle classi {#scena-43 .scrollable}
 
-<p class="scene-meta">38 / 43 · Cap. 2 · §2.4, p. 47</p>
+<p class="scene-meta">43 / 49 · Cap. 2 · §2.4, p. 47</p>
 
 Se $\sim_L$ ha indice finito, usiamo le sue classi come stati.
 
@@ -535,9 +587,9 @@ L'invarianza a destra rende la transizione indipendente dal rappresentante. La c
 
 Dopo aver letto $w$, lo stato è $[w]$: il DFA riconosce esattamente $L$.
 
-## Minimalità del DFA delle classi {#scena-39 .scrollable}
+## Minimalità del DFA delle classi {#scena-44 .scrollable}
 
-<p class="scene-meta">39 / 43 · Cap. 2 · §2.4, pp. 47-48</p>
+<p class="scene-meta">44 / 49 · Cap. 2 · §2.4, pp. 47-48</p>
 
 Se due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per $L$ deve quindi portarli in stati diversi.
 
@@ -545,9 +597,9 @@ Ogni DFA per $L$ ha almeno tanti stati quante sono le classi di $\sim_L$. Il DFA
 
 Per «termina con `1`» ci sono due classi: prefissi che terminano con `1` e tutti gli altri, inclusa `ε`. Due stati sono necessari e sufficienti.
 
-## Non regolarità mediante prefissi distinguibili {#scena-40 .scrollable}
+## Non regolarità mediante prefissi distinguibili {#scena-45 .scrollable}
 
-<p class="scene-meta">40 / 43 · Cap. 2 · §2.4, p. 43 e applicazione del teorema, pp. 45-47</p>
+<p class="scene-meta">45 / 49 · Cap. 2 · §2.4, p. 43 e applicazione del teorema, pp. 45-47</p>
 
 Considera il linguaggio delle parole con tanti `0` quanti `1`.
 
@@ -559,9 +611,19 @@ $$ 0^n1^n\in L,\qquad 0^m1^n\notin L $$
 
 Esistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare.
 
-## Esercizi di autoverifica {#scena-41 .scrollable}
+## Verifica delle competenze ed esercizi guidati {#scena-46 .scrollable}
 
-<p class="scene-meta">41 / 43 · Cap. 2 · Esercizi, pp. 48-49</p>
+<p class="scene-meta">46 / 49 · Cap. 2 · Esercizi, pp. 48-49</p>
+
+**Dove siamo:** Abbiamo completato la teoria: equivalenza di Kleene, chiusure booleane, problemi di decisione e memoria minima.
+
+**Dove andiamo:** Mettiamo alla prova le definizioni e gli algoritmi con cinque quesiti concettuali e la verifica del codice.
+
+**A cosa serve:** Consolidare i criteri di applicabilità prima di passare nel capitolo 3 ai sistemi reattivi su parole infinite.
+
+## Esercizi di autoverifica {#scena-47 .scrollable}
+
+<p class="scene-meta">47 / 49 · Cap. 2 · Esercizi, pp. 48-49</p>
 
 1. Che linguaggi descrivono $\varnothing^*$ e $\varepsilon+01$?
 2. Due stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l'accettazione della parola vuota dopo la rimozione ε?
@@ -571,9 +633,9 @@ Esistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolar
 
 Spiega a voce le ragioni prima di passare alle soluzioni.
 
-## Soluzioni e verifica degli algoritmi {#scena-42 .scrollable}
+## Soluzioni e verifica degli algoritmi {#scena-48 .scrollable}
 
-<p class="scene-meta">42 / 43 · Cap. 2 · Esercizi, pp. 48-49</p>
+<p class="scene-meta">48 / 49 · Cap. 2 · Esercizi, pp. 48-49</p>
 
 1. $\varnothing^*$ descrive $\{\varepsilon\}$; $\varepsilon+01$ descrive $\{\varepsilon,01\}$.
 2. Con la nostra formula per $\Delta'$, rendiamo finale anche l'iniziale.
@@ -595,9 +657,9 @@ Verifica completata: 255 parole e 10 espressioni.
 BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.
 ```
 
-## Riepilogo e collegamento alla verifica {#scena-43 .scrollable}
+## Riepilogo e collegamento alla verifica {#scena-49 .scrollable}
 
-<p class="scene-meta">43 / 43 · Cap. 2 · Riepilogo, p. 48</p>
+<p class="scene-meta">49 / 49 · Cap. 2 · Riepilogo, p. 48</p>
 
 - Espressioni regolari e automi finiti descrivono gli stessi linguaggi.
 - Le transizioni ε rendono modulari le costruzioni e si possono eliminare.

@@ -149,20 +149,52 @@ First, general expressions add no real expressive power over restricted ones: on
 
 Removing the Kleene star, however, comes at a genuine cost. Star-free expressions define a \emph{strictly smaller} class of languages: for instance, the language of words with an even number of $a$'s (\cref{ex:regex-even-a}) is regular, but cannot be described without the repetition power of star. Intuitively, star allows counting modulo a constant, whereas star-free expressions can only test finite combinations of patterns. By Sch\"utzenberger's theorem (see \cref{ch:deterministic-automata-star-free}), the star-free languages are precisely the \emph{aperiodic} regular languages---a family that will reappear later in the course as the exact expressiveness boundary of first-order logic over words.
 
-\subsection{The \texorpdfstring{$\varepsilon$}{ε}-NFA Model}
+\subsection{The Equivalence Goal: Kleene's Theorem}
+\label{subsec:kleene-theorem}
+
+Having defined regular expressions, we arrive at the central question of finite-state language theory: what is the relationship between this declarative, expression-based syntax and the operational, state-based model of finite automata? The answer is given by the foundational result of the field: \emph{Kleene's theorem}.
+
+Kleene's theorem asserts that both formalisms characterize precisely the same class of languages. Crucially, the proof is not an abstract non-constructive existence claim; it provides two concrete algorithmic engines that close the circle of regular formalisms:
+\begin{enumerate}[nosep]
+  \item \textbf{The Compilation Engine (Expression $\to$ Automaton):} a recursive, syntax-directed procedure (known as \emph{Thompson's construction}) that compiles any regular expression into an equivalent automaton by assembling elementary sub-automata using silent transitions;
+  \item \textbf{The Extraction Engine (Automaton $\to$ Expression):} a dynamic-programming state-elimination algorithm that extracts path expressions from the state transition graph.
+\end{enumerate}
+Together with determinization (the subset construction of \cref{thm:subset-construction}) and $\varepsilon$-removal (\cref{thm:epsilon-removal}), these two translations establish that regular expressions, DFAs, NFAs, and $\varepsilon$-NFAs are all functionally interchangeable.
+
+\paragraph{Pedagogical strategy and running examples.}
+To make the mechanics of both translations transparent without losing sight of practical verification, we follow the argument at two complementary levels of abstraction:
+\begin{itemize}[nosep]
+  \item \emph{The semantic thread (high-level view):} The document editor language $r_{\mathrm{session}}$ (\cref{ex:editor-session-dfa}) illustrates what the theorem guarantees for a real software monitor: the 4-phase DFA and the regular expression $\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}$ are interchangeable specifications of the same property.
+  \item \emph{The calculation microscope (algebraic view):} Tracing state elimination on a 4-state automaton, however, produces large, cluttered formulas. We therefore carry out the algebraic step-by-step recurrence on the compact 2-state parity DFA of \cref{ex:even-a-dfa} (renaming its even and odd states $q_1$ and $q_2$). The 2-state machine keeps every algebraic step readable and verifiable by hand.
+\end{itemize}
+With this roadmap in place, we state the equivalence theorem formally before unpacking each of the two compilation engines in detail.
+
+\Needspace{18\baselineskip}
+\begin{theorem}[Kleene equivalence]
+\label{thm:kleene}
+Both translations are effective:
+\begin{enumerate}[nosep]
+  \item from every restricted regular expression $r$, one can construct
+  a finite automaton $A_r$ whose language is denoted by $r$;
+  \item from every finite automaton $A$, one can construct a restricted
+  regular expression $r_A$ that denotes $L(A)$.
+\end{enumerate}
+Equivalently, a language $L\subseteq\Sigma^*$ is recognized by a finite
+automaton if and only if it is denoted by a restricted regular
+expression.
+\end{theorem}
+\prooflablink{proofs/chapter-02/kleene-equivalence.html}{%
+Follow both constructive directions: Thompson's syntax-directed automaton construction
+and state elimination.}
+
+In the next two subsections, we develop the two algorithmic engines: first, the compilation direction from expressions to automata (\cref{subsec:epsilon-nfa}); second, the extraction direction from automata back to expressions (\cref{subsec:state-elimination}).
+
+\subsection{The Compilation Engine: \texorpdfstring{$\varepsilon$}{ε}-NFAs and Thompson's Construction}
 \label{subsec:epsilon-nfa}
 
-Before proving the equivalence between expressions and automata, we
-need a more flexible automaton model that lets us wire pieces together
-without consuming input.  The wiring device is the
-\emph{$\varepsilon$-move}: a transition that changes state while the
-reading head stays put.  Without it, building an automaton for the concatenation of two languages
-would require us to redesign the state spaces by hand---deciding which
-states of the first automaton should transfer control to the second, and
-carefully re-routing transitions so that the handoff happens at the right
-moment.  With $\varepsilon$-moves, we simply add a free edge from the
-accepting state of the first automaton to the initial state of the
-second, and let a later clean-up pass dissolve the free edges.
+To prove the first direction of \cref{thm:kleene}---compiling a regular expression $r$ into an automaton $A_r$---we face a structural challenge. A regular expression is defined recursively out of smaller sub-expressions via union ($r+s$), concatenation ($rs$), and Kleene star ($r^*$). To translate it inductively, we need to assemble the automata for the sub-expressions into an automaton for the compound expression.
+
+Doing this directly with standard DFAs or NFAs would require tedious manual rewiring: when concatenating two machines, we would have to inspect every transition leading to an accepting state of the first machine and duplicate transitions to the starting states of the second machine. To avoid this complexity, we introduce a flexible intermediate wiring device: the \emph{$\varepsilon$-transition} (silent step).
 
 \begin{example}[Wiring two automata with an $\varepsilon$-move]
 \label{ex:epsilon-nfa-preview}
@@ -352,7 +384,7 @@ so $ab$ is accepted.
 \paragraph{Why introduce $\varepsilon$-transitions?}
 At this point, a natural question arises: if our ultimate destination is an ordinary automaton without silent steps (such as a standard NFA or DFA), why bother introducing $\varepsilon$-transitions in the first place? Why invent non-deterministic ``silent moves'' that consume no input symbols, only to develop additional mathematical machinery such as fixpoints and closures to manage them?
 
-The answer lies in \emph{modularity and compositional elegance}. When designing algorithms that compile regular expressions into automata (such as Thompson's syntax-directed construction in \cref{subsec:kleene-theorem}), combining two independent automata via concatenation, union, or Kleene star is remarkably simple if we can connect them with $\varepsilon$-moves. We do not need to recompute or rewire any existing transitions: we simply add silent transitions that glue the exit states of one sub-automaton to the entry states of the next.
+The answer lies in \emph{modularity and compositional elegance}. When designing algorithms that compile regular expressions into automata (such as Thompson's syntax-directed construction developed immediately below), combining two independent automata via concatenation, union, or Kleene star is remarkably simple if we can connect them with $\varepsilon$-moves. We do not need to recompute or rewire any existing transitions: we simply add silent transitions that glue the exit states of one sub-automaton to the entry states of the next.
 
 In other words, $\varepsilon$-transitions serve as a flexible intermediate notation---a high-level syntactic glue for assembling complex machines from simple parts. Intuitively, this can be understood as writing high-level code with intermediate abstractions: we use $\varepsilon$-moves while designing the structure, but we do not need to execute them at runtime. Once the compound machine is assembled, a purely mechanical transformation can ``short-circuit'' and compile away every silent chain directly into ordinary symbol transitions. 
 
@@ -486,51 +518,123 @@ transition targets.}
 \label{fig:epsilon-removal-example}
 \end{figure}
 
-\subsection{Kleene's Theorem}
-\label{subsec:kleene-theorem}
+\paragraph{Thompson's syntax-directed construction.}
+With $\varepsilon$-moves and the $\varepsilon$-removal algorithm in place, we can now assemble an $\varepsilon$-NFA for any restricted regular expression by structural induction. This construction, due to Ken Thompson (1968), proceeds bottom-up along the abstract syntax tree of the expression.
 
-With $\varepsilon$-NFAs as a flexible intermediate model, we are now ready to establish the foundational result of finite-state theory: the exact equivalence between regular expressions (the declarative, syntactic view) and finite automata (the operational, algorithmic view). 
-
-Kleene's theorem asserts that both formalisms characterize precisely the same class of languages. Crucially, the proof is not merely an abstract existential claim---it provides two constructive compilation algorithms that close the circle of regular formalisms:
+To keep the wiring completely uniform and modular, every intermediate automaton is kept in a \textbf{normalized shape}:
 \begin{enumerate}[nosep]
-  \item \textbf{DFA $\to$ restricted expression:} a dynamic-programming state-elimination algorithm that extracts path expressions from the state graph;
-  \item \textbf{restricted expression $\to$ $\varepsilon$-NFA:} a recursive, syntax-directed construction (known as \emph{Thompson's construction}) that wires sub-automata together using $\varepsilon$-moves.
+  \item it has exactly one initial entry state with no incoming transitions;
+  \item it has exactly one accepting exit state with no outgoing transitions;
+  \item the entry and exit states are distinct.
 \end{enumerate}
-Together with determinization (the subset construction of \cref{thm:subset-construction}) and $\varepsilon$-removal (\cref{thm:epsilon-removal}), these two translations allow us to convert effectively between all three automaton models and regular expressions.
 
-\paragraph{Pedagogical strategy and running examples.}
-To make the mechanics of the proof transparent without losing sight of practical verification, we follow the argument at two complementary levels of abstraction:
+\paragraph{Base cases.}
+For the atomic expressions, we construct base automata with at most two states:
 \begin{itemize}[nosep]
-  \item \emph{The semantic thread (high-level view):} The document editor language $r_{\mathrm{session}}$ (\cref{ex:editor-session-dfa}) illustrates what the theorem guarantees for a real software monitor: the 4-phase DFA and the regular expression $\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}$ are interchangeable specifications of the same property.
-  \item \emph{The calculation microscope (algebraic view):} Tracing state elimination on a 4-state automaton, however, produces large, cluttered formulas. We therefore carry out the algebraic step-by-step recurrence on the compact 2-state parity DFA of \cref{ex:even-a-dfa} (renaming its even and odd states $q_1$ and $q_2$). The 2-state machine keeps every algebraic step readable and verifiable by hand.
+  \item For $\emptyset$, use a fresh entry state and a fresh accepting exit state with no path from the entry to the exit.
+  \item For $\varepsilon$, use a fresh entry state and a fresh accepting exit state connected by a single $\varepsilon$-move.
+  \item For a symbol $a\in\Sigma$, use a fresh entry state and a fresh accepting exit state connected by a single transition labelled $a$.
 \end{itemize}
-With this roadmap in place, we state the equivalence theorem formally.
 
-\Needspace{18\baselineskip}
-\begin{theorem}[Kleene equivalence]
-\label{thm:kleene}
-Both translations are effective:
-\begin{enumerate}[nosep]
-  \item from every finite automaton $A$, one can construct a restricted
-  regular expression $r_A$ that denotes $L(A)$;
-  \item from every restricted regular expression $r$, one can construct
-  a finite automaton $A_r$ whose language is denoted by $r$.
-\end{enumerate}
-Equivalently, a language $L\subseteq\Sigma^*$ is recognized by a finite
-automaton if and only if it is denoted by a restricted regular
-expression.
-\end{theorem}
-\prooflablink{proofs/chapter-02/kleene-equivalence.html}{%
-Follow both constructive directions: state elimination and Thompson's
-syntax-directed automaton construction.}
+\paragraph{Inductive combinators.}
+Assume normalized $\varepsilon$-NFAs have already been built for sub-expressions $r$ and $s$, with disjoint state sets:
+\begin{itemize}[nosep]
+  \item \textbf{Union ($r+s$):} create a fresh entry state with $\varepsilon$-moves to the two old entries, and a fresh accepting exit state reached by $\varepsilon$-moves from the two old exits. \Cref{fig:regex-union} shows the wiring.
+  \item \textbf{Concatenation ($rs$):} connect the exit of the automaton for $r$ to the entry of the automaton for $s$ by an $\varepsilon$-move. The entry of $r$ becomes the new entry, and the exit of $s$ becomes the new accepting exit. \Cref{fig:regex-concat} shows the wiring.
+  \item \textbf{Kleene star ($r^*$):} create a fresh entry state and a fresh accepting exit state. Add an $\varepsilon$-move directly from the new entry to the new exit for the zero-repetition case; add an $\varepsilon$-move from the new entry to the old entry to start one repetition; from the old exit, add one $\varepsilon$-move back to the old entry to repeat and one $\varepsilon$-move to the new exit to stop. \Cref{fig:regex-star} shows the wiring.
+\end{itemize}
 
-\begin{walkthrough}{Kleene's two-way translation}
-We prove both directions constructively.  We start with the direction
-that is less obvious on first contact, because it explains where the
-Kleene star appears in the proof.
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.3cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (i) {$i$};
+  \node[state, above right=0.6cm and 1.3cm of i] (ir) {$i_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
+  \node[state, below right=0.6cm and 1.3cm of i] (is) {$i_s$};
+  \node[state, right=of is] (fs) {$f_s$};
+  \node[acc, right=3.0cm of i] (f) {$f$};
+  \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
+  \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
+\end{tikzpicture}
+\captionof{figure}{The $\varepsilon$-NFA construction for union $r+s$: a fresh
+initial state branches into the two sub-automata via $\varepsilon$-moves
+(orange), and both old exits feed into a fresh common accepting exit.}
+\label{fig:regex-union}
+\end{center}
 
-\medskip
-\noindent\textbf{Automaton to regular expression.}
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.5cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (ir) {$i_r$};
+  \node[state, right=of ir] (fr) {$f_r$};
+  \node[state, right=of fr] (is) {$i_s$};
+  \node[acc, right=of is] (fs) {$f_s$};
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, thick] (fr) -- node[above, font=\small] {$\varepsilon$} (is);
+  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
+  \node[below=6mm of fr, font=\small, align=center]
+    {The accepting exit of the first automaton is spliced to the\\
+     entry of the second by a single $\varepsilon$-move (in orange).};
+\end{tikzpicture}
+\captionof{figure}{The $\varepsilon$-NFA construction for concatenation in the
+regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
+the entry of $s$ are wired together by an $\varepsilon$-move, and the
+exit $f_s$ becomes the accepting exit of the combined automaton.}
+\label{fig:regex-concat}
+\end{center}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=1.3cm,
+  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  \node[state] (i) {$i$};
+  \node[state, right=of i] (ir) {$i_r$};
+  \node[state, right=1.8cm of ir] (fr) {$f_r$};
+  \node[acc, right=of fr] (f) {$f$};
+  \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black, bend left=35] (i) to node[above, font=\small] {$\varepsilon$} (f);
+  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
+  \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
+  \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
+\end{tikzpicture}
+\captionof{figure}{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
+fresh initial state $i$ can either jump directly to the accepting exit
+$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
+copy of $r$, the automaton either loops back for another repetition or
+exits to $f$.}
+\label{fig:regex-star}
+\end{center}
+
+Each construction mirrors exactly the semantic operation: choose a
+branch for union, run one machine after the other for concatenation, and
+repeat any finite number of times for star.  Notice that the size of the
+resulting $\varepsilon$-NFA is strictly linear in the length of the
+regular expression: each symbol or operator contributes at most two states
+and four transitions. By \cref{thm:epsilon-removal}, we can eliminate all
+$\varepsilon$-moves, obtaining an ordinary NFA of identical language. This
+completes the compilation direction (Item 1 of \cref{thm:kleene}).
+
+\subsection{The Extraction Engine: State Elimination}
+\label{subsec:state-elimination}
+
+We now establish the reverse direction of \cref{thm:kleene}: from every finite automaton $A$, we can extract an equivalent restricted regular expression $r_A$ such that $L(r_A) = L(A)$.
+
+\begin{walkthrough}{State elimination: from DFA to regular expression}
 Let
 \[
   A=(\{q_1,\ldots,q_n\},\Sigma,\delta,q_1,F)
@@ -728,122 +832,6 @@ regular expressions.
 }{
 In the parity example $F=\{q_1\}$, so the constructed expression is $R_{1,1}^2$. After algebraic simplification, one familiar form is $b^*(ab^*ab^*)^*$.
 }
-
-\medskip
-\noindent\textbf{Regular expression to automaton.}
-We now build an $\varepsilon$-NFA by structural induction on the
-expression.  To keep the wiring uniform, every intermediate automaton is
-kept in a normalized shape: it has one entry state, one accepting exit
-state, and no transitions leaving that exit state.
-
-For $\emptyset$, use a fresh entry state and a fresh accepting exit
-state with no path from the entry to the exit.  For $\varepsilon$, add
-one $\varepsilon$-move from the entry to the exit.  For a symbol
-$a\in\Sigma$, add one transition labelled $a$ from the entry to the
-exit.
-
-Assume normalized $\varepsilon$-NFAs have already been built for $r$ and
-$s$, with disjoint state sets.
-\begin{itemize}[nosep]
-  \item For $r+s$, create a fresh entry state with $\varepsilon$-moves
-  to the two old entries, and a fresh accepting exit state reached by
-  $\varepsilon$-moves from the two old exits.  \Cref{fig:regex-union}
-  shows the wiring.
-  \item For $rs$, connect the exit of the automaton for $r$ to the entry
-  of the automaton for $s$ by an $\varepsilon$-move.  The entry of $r$
-  becomes the new entry, and the exit of $s$ becomes the new accepting
-  exit.  \Cref{fig:regex-concat} shows the wiring.
-  \item For $r^*$, create a fresh entry state and a fresh accepting exit
-  state.  Add an $\varepsilon$-move directly from the new entry to the
-  new exit for the zero-repetition case; add an $\varepsilon$-move from
-  the new entry to the old entry to start one repetition; from the old
-  exit, add one $\varepsilon$-move back to the old entry to repeat and
-  one $\varepsilon$-move to the new exit to stop.  \Cref{fig:regex-star}
-  shows the wiring.
-\end{itemize}
-
-\begin{center}
-\begin{tikzpicture}[
-  node distance=1.3cm,
-  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (i) {$i$};
-  \node[state, above right=0.6cm and 1.3cm of i] (ir) {$i_r$};
-  \node[state, right=of ir] (fr) {$f_r$};
-  \node[state, below right=0.6cm and 1.3cm of i] (is) {$i_s$};
-  \node[state, right=of is] (fs) {$f_s$};
-  \node[acc, right=3.0cm of i] (f) {$f$};
-  \draw[arr, orange!70!black] (i) -- node[above left, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black] (i) -- node[below left, font=\small] {$\varepsilon$} (is);
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
-  \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
-  \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
-\end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for union $r+s$: a fresh
-initial state branches into the two sub-automata via $\varepsilon$-moves
-(orange), and both old exits feed into a fresh common accepting exit.}
-\label{fig:regex-union}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[
-  node distance=1.5cm,
-  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (ir) {$i_r$};
-  \node[state, right=of ir] (fr) {$f_r$};
-  \node[state, right=of fr] (is) {$i_s$};
-  \node[acc, right=of is] (fs) {$f_s$};
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr, orange!70!black, thick] (fr) -- node[above, font=\small] {$\varepsilon$} (is);
-  \draw[arr] (is) -- node[above, font=\small] {$s$} (fs);
-  \node[below=6mm of fr, font=\small, align=center]
-    {The accepting exit of the first automaton is spliced to the\\
-     entry of the second by a single $\varepsilon$-move (in orange).};
-\end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for concatenation in the
-regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
-the entry of $s$ are wired together by an $\varepsilon$-move, and the
-exit $f_s$ becomes the accepting exit of the combined automaton.}
-\label{fig:regex-concat}
-\end{center}
-
-\begin{center}
-\begin{tikzpicture}[
-  node distance=1.3cm,
-  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
-  acc/.style={circle, draw, double, thick, minimum size=7mm, fill=teal!12},
-  arr/.style={-Stealth, thick},
-]
-  \node[state] (i) {$i$};
-  \node[state, right=of i] (ir) {$i_r$};
-  \node[state, right=1.8cm of ir] (fr) {$f_r$};
-  \node[acc, right=of fr] (f) {$f$};
-  \draw[arr, orange!70!black] (i) -- node[above, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black, bend left=35] (i) to node[above, font=\small] {$\varepsilon$} (f);
-  \draw[arr] (ir) -- node[above, font=\small] {$r$} (fr);
-  \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
-  \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
-\end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
-fresh initial state $i$ can either jump directly to the accepting exit
-$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
-copy of $r$, the automaton either loops back for another repetition or
-exits to $f$.}
-\label{fig:regex-star}
-\end{center}
-
-Each construction mirrors exactly the semantic operation: choose a
-branch for union, run one machine after the other for concatenation, and
-repeat any finite number of times for star.  By
-\cref{thm:epsilon-removal} we can then eliminate $\varepsilon$-moves,
-determinize, and obtain a DFA.  Hence every regular expression denotes
-an automaton-recognizable language.
 \end{walkthrough}
 
 \medskip\noindent
@@ -1082,14 +1070,22 @@ $(p_1,r_0)$ is accepting (teal, double border).}
 % ============================================================
 
 We now have a rich toolkit for building automata: regular expressions
-give us a syntax, and closure under union, intersection, and complement
+give us a declarative syntax, and closure under union, intersection, and complement
 lets us assemble compound properties from simpler ones.  The natural
-next question is: once we hold such an automaton, what can we actually
-\emph{ask} about it?  Can we decide whether two automata recognize the
-same language, or whether one language is contained in another?  It
-turns out that all of these semantic questions reduce to a single graph
-problem---reachability---making them not only decidable but efficiently
-so.
+next question is: once we hold such automata, what can we actually
+\emph{ask} about them in verification?
+
+In automated formal verification, the central question is whether an implementation satisfies its specification. When both system traces $\mathcal{M}$ and desired behaviors $\mathcal{S}$ are regular, verification asks whether every execution of the system is permitted by the specification:
+\[
+  L(\mathcal{M}) \subseteq L(\mathcal{S}).
+\]
+Using the Boolean closure properties established in \cref{sec:regular-closure}, this inclusion reduces directly to an emptiness query:
+\[
+  L(\mathcal{M}) \cap \overline{L(\mathcal{S})} = \emptyset.
+\]
+The automaton $A_{\mathrm{err}} = \mathcal{M} \times \overline{\mathcal{S}}$ recognizes executions that are produced by the system but forbidden by the specification. Consequently, emptiness testing on product automata is the algorithmic engine of model checking: if $L(A_{\mathrm{err}}) = \emptyset$, the system is verified; if $L(A_{\mathrm{err}}) \neq \emptyset$, any accepted word provides an executable counterexample (a bug trace) demonstrating how the specification is violated.
+
+It turns out that not only inclusion, but an entire battery of core semantic questions about automata reduce to graph reachability.
 
 \aside{Emptiness = satisfiability:
 if automata compile logical formulas,
@@ -1282,15 +1278,14 @@ abstract witness.
 \label{sec:myhill-nerode}
 % ============================================================
 
-So far we have a powerful toolkit---regular expressions to describe
-languages, closure properties to combine them, and decision procedures
-to answer questions about them.  But all of it rests on one assumption:
-the language is regular.  In many mathematical examples, however, the
-language is specified only by a membership predicate $P(w)$: a word $w$
-belongs to $L$ exactly when $P(w)$ is true.  This tells us what the
-language is, but not what finite memory would recognize it while the
-word is being read.  How do we know whether a finite-state description
-is even possible?  And if it is, what is the smallest one?
+So far we have a powerful toolkit---regular expressions to describe languages, closure properties to combine them, and decision procedures to answer verification questions about them. However, our construction pipeline comes at an operational cost: state-space explosion. Forming Cartesian products for intersection and synchronous execution multiplies state counts ($|Q_1| \times |Q_2|$), while subset construction during determinization can trigger an exponential blowup ($2^{|Q|}$). In large-scale verification and hardware monitoring, unoptimized automata quickly exhaust memory.
+
+This raises two fundamental questions:
+\begin{enumerate}[nosep]
+  \item \textbf{Canonicity and Minimality:} Given a regular language $L$, what is the minimal number of states necessary and sufficient to recognize it deterministically, and is this minimal automaton unique?
+  \item \textbf{Finite Memory and Regularity:} When a specification is presented abstractly via a membership predicate $P(w)$ (asserting what words belong to $L$ without giving a machine), what finite memory would recognize it while reading the word, and how do we determine whether a finite-state description is even possible?
+\end{enumerate}
+The Myhill--Nerode theorem provides the definitive algebraic answer to both questions: the states of the canonical minimal DFA correspond precisely to the equivalence classes of prefixes that cannot be distinguished by any future continuation.
 
 \paragraph{Intuition from the editor monitor: futures and prefixes.}
 To build intuition before introducing formal equivalence relations, consider our running document editor monitor (\cref{ex:editor-session-dfa}). Any execution prefix observed so far falls into one of four semantically distinct families:
