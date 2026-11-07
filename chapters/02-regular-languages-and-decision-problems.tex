@@ -161,13 +161,7 @@ Kleene's theorem asserts that both formalisms characterize precisely the same cl
 \end{enumerate}
 Together with determinization (the subset construction of \cref{thm:subset-construction}) and $\varepsilon$-removal (\cref{thm:epsilon-removal}), these two translations establish that regular expressions, DFAs, NFAs, and $\varepsilon$-NFAs are all functionally interchangeable.
 
-\paragraph{Pedagogical strategy and running examples.}
-To make the mechanics of both translations transparent without losing sight of practical verification, we follow the argument at two complementary levels of abstraction:
-\begin{itemize}[nosep]
-  \item \emph{The semantic thread (high-level view):} The document editor language $r_{\mathrm{session}}$ (\cref{ex:editor-session-dfa}) illustrates what the theorem guarantees for a real software monitor: the 4-phase DFA and the regular expression $\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}$ are interchangeable specifications of the same property.
-  \item \emph{The calculation microscope (algebraic view):} Tracing state elimination on a 4-state automaton, however, produces large, cluttered formulas. We therefore carry out the algebraic step-by-step recurrence on the compact 2-state parity DFA of \cref{ex:even-a-dfa} (renaming its even and odd states $q_1$ and $q_2$). The 2-state machine keeps every algebraic step readable and verifiable by hand.
-\end{itemize}
-With this roadmap in place, we state the equivalence theorem formally before unpacking each of the two compilation engines in detail.
+In software verification, this equivalence bridges declarative specifications with operational monitors: a developer can specify valid execution sequences---such as the editor session pattern $\texttt{open}\,(\texttt{edit}+\texttt{save})^*\,\texttt{close}$ (\cref{ex:editor-session-dfa})---and compile them algorithmically into an executable finite-state monitor, or conversely inspect a state machine and extract the regular property it enforces.
 
 \Needspace{18\baselineskip}
 \begin{theorem}[Kleene equivalence]
