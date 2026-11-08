@@ -88,301 +88,350 @@
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-01",
     "title": "Verification and Validation Techniques — UniUD",
     "section": "Linguaggi regolari e problemi di decisione",
-    "text": "Linguaggi regolari e problemi di decisione\n\n01 / 43 · Cap. 2 · pp. 23-24\n\nVVT · Lezione 2 · Capitolo 2\nObiettivo: costruire automi, decidere inclusioni e spiegare la memoria minima.\nPercorso: espressioni → automi → raggiungibilità → Myhill–Nerode."
+    "text": "Linguaggi regolari e problemi di decisione\n\n01 / 50 · Cap. 2 · pp. 23-24\n\nVVT · Lezione 2 · Capitolo 2\nNel capitolo 1 abbiamo introdotto gli automi a stati finiti: un modello operazionale che descrive come scansionare una parola passo dopo passo.\nQuesto capitolo introduce tre prospettive complementari:\n\nSintassi algebrica (dichiarativa): le espressioni regolari e l’equivalenza di Kleene.\nComposizione modulare: le proprietà di chiusura booleana (unione, intersezione, complemento).\nVerifica algoritmica: i problemi di decisione (inclusione, vuotezza, equivalenza).\n\nConclude la prospettiva di Myhill–Nerode: quanti stati servono davvero e qual è il DFA canonico minimo.\nFilo conduttore: la riduzione di quesiti semantici complessi a controlli di raggiungibilità su grafo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-02",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-02",
     "title": "Verification and Validation Techniques — UniUD",
     "section": "Richiamo: accettazione su parole finite",
-    "text": "Richiamo: accettazione su parole finite\n\n02 / 43 · Cap. 2 · introduzione, pp. 23-24\n\nUn DFA ha una sola run; un NFA può averne più di una.\nUna parola è accettata se almeno una run termina in uno stato finale, dopo aver consumato tutto l’input.\n L(\\mathcal A)\\subseteq\\Sigma^* \nUseremo \\Sigma=\\{0,1\\}. La parola vuota è \\varepsilon; il complemento è sempre relativo all’alfabeto dichiarato."
+    "text": "Richiamo: accettazione su parole finite\n\n02 / 50 · Cap. 2 · introduzione, pp. 23-24\n\nUn DFA ha una sola run per ogni parola; un NFA può averne nessuna, una o molte.\nUna parola è accettata se almeno una run termina in uno stato finale in F, dopo aver consumato l’intero input:\n L(\\mathcal{A})\\subseteq\\Sigma^* \n\n\\Sigma indica l’alfabeto di lavoro (spesso \\{0,1\\} o un insieme di eventi del sistema).\n\\varepsilon denota la parola vuota (|\\varepsilon|=0).\nIl complemento \\overline{L}=\\Sigma^*\\setminus L è sempre relativo all’alfabeto dichiarato \\Sigma."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-03",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-03",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Sintassi delle espressioni regolari",
-    "text": "Sintassi delle espressioni regolari\n\n03 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\nLe espressioni ristrette partono da:\n \\varnothing,\\qquad \\varepsilon,\\qquad a\\in\\Sigma \nSe r e s sono espressioni, anche r+s, rs e r^* lo sono.\nIl simbolo + indica unione. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità."
+    "section": "Dalla macchina alla formula: sintassi dichiarativa",
+    "text": "Dalla macchina alla formula: sintassi dichiarativa\n\n03 / 50 · Cap. 2 · §2.1.1, pp. 24-25\n\nDisegnare un automa è un atto operazionale: descrive cosa fa la macchina a ogni passo di computazione, non come è fatta la parola.\nPer specificare proprietà, interrogare tracce e comporre requisiti, è preferibile una sintassi algebrica e dichiarativa: le espressioni regolari.\nLe espressioni ristrette su \\Sigma partono dai casi atomici:\n \\varnothing,\\qquad \\varepsilon,\\qquad a\\in\\Sigma \ne si compongono induttivamente tramite:\n r+s \\quad\\text{(unione)},\\qquad rs \\quad\\text{(concatenazione)},\\qquad r^* \\quad\\text{(stella di Kleene)} \nPrecedenza: la stella precede la concatenazione, che precede l’unione. Le parentesi sciolgono le ambiguità."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-04",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-04",
     "title": "Verification and Validation Techniques — UniUD",
     "section": "Semantica delle espressioni regolari",
-    "text": "Semantica delle espressioni regolari\n\n04 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\n L(\\varnothing)=\\varnothing,\\quad L(\\varepsilon)=\\{\\varepsilon\\},\\quad L(a)=\\{a\\} \n L(r+s)=L(r)\\cup L(s) \n L(rs)=L(r)L(s),\\qquad L(r^*)=L(r)^* \n\\varnothing non contiene parole; \\varepsilon descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni."
+    "text": "Semantica delle espressioni regolari\n\n04 / 50 · Cap. 2 · §2.1.1, pp. 24-25\n\nLa semantica associa a ogni espressione regolare r il linguaggio formale L(r)\\subseteq\\Sigma^*:\n L(\\varnothing)=\\varnothing,\\quad L(\\varepsilon)=\\{\\varepsilon\\},\\quad L(a)=\\{a\\} \n L(r+s)=L(r)\\cup L(s) \n L(rs)=L(r)L(s),\\qquad L(r^*)=L(r)^* \n\\varnothing denota il linguaggio vuoto (nessuna parola); \\varepsilon denota il linguaggio contenente solo la parola vuota (\\{\\varepsilon\\}\\neq\\varnothing).\nLa stella r^* ammette sempre zero o più ripetizioni finite, quindi \\varepsilon\\in L(r^*) per qualsiasi espressione r."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-05",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-05",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Espressioni per suffisso e parità",
-    "text": "Espressioni per suffisso e parità\n\n05 / 43 · Cap. 2 · §2.1.1, p. 25\n\n (0+1)^*01 \nDescrive le parole che terminano con 01: accetta 01, 1101; rifiuta ε, 010.\n 0^*(10^*10^*)^* \nDescrive le parole con un numero pari di 1: ogni blocco ripetuto contribuisce due 1. Sono incluse ε e tutte le parole composte solo da 0."
+    "section": "Esempi di espressioni: suffisso e parità",
+    "text": "Esempi di espressioni: suffisso e parità\n\n05 / 50 · Cap. 2 · §2.1.1, p. 25\n\n (0+1)^*01 \nDescrive le parole che terminano con 01: accetta 01, 1101; rifiuta ε, 010.\n 0^*(10^*10^*)^* \nDescrive le parole con un numero pari di 1: ogni blocco ripetuto contribuisce due 1. Sono incluse ε e tutte le parole composte solo da 0.\nL’espressione descrive la struttura della parola; il DFA descrive come scansionarla."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-06",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-06",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Espressioni generali e star-free",
-    "text": "Espressioni generali e star-free\n\n06 / 43 · Cap. 2 · §2.1.1, pp. 25-26\n\nLe espressioni generali aggiungono intersezione e complemento:\n L(r\\cap s)=L(r)\\cap L(s),\\qquad L(\\overline r)=\\Sigma^*\\setminus L(r) \nLe espressioni star-free ammettono questi operatori booleani, ma non la stella.\nStar-free non significa linguaggio finito: \\overline{\\varnothing} descrive \\Sigma^*. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno."
+    "section": "Esempio guida: la sessione dell’editor",
+    "text": "Esempio guida: la sessione dell’editor\n\n06 / 50 · Cap. 2 · §2.1.1, p. 25\n\nNel nostro monitor software per un editor di testo, l’alfabeto di eventi è \\Sigma_{\\mathrm{edit}}=\\{\\texttt{apri},\\texttt{modifica},\\texttt{salva},\\texttt{chiudi}\\}.\nLa proprietà delle sessioni finite corrette si scrive direttamente come espressione regolare ristretta:\n r_{\\mathrm{sessione}}=\\texttt{apri}\\;(\\texttt{modifica}+\\texttt{salva})^*\\,\\texttt{chiudi} \nI tre blocchi riflettono il ciclo vitale del documento: 1. Inizio: apertura del documento una sola volta; 2. Lavoro: sequenza arbitraria finita di modifiche e salvataggi; 3. Termine: chiusura ordinata del file.\nDFA ed espressione regolare specificano lo stesso identico insieme di tracce a due livelli di astrazione complementari: macchina a stati vs specifica dichiarativa."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-07",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-07",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Transizioni ε e composizione",
-    "text": "Transizioni ε e composizione\n\n07 / 43 · Cap. 2 · §2.1.2, pp. 26-27\n\nUna transizione \\varepsilon cambia stato senza consumare simboli. Non aggiunge un simbolo all’alfabeto.\nPer concatenare gli automi per 0 e 1, colleghiamo l’uscita del primo all’ingresso del secondo. Solo l’ultima uscita resta accettante.\nIl doppio cerchio indica uno stato finale; la freccia esterna indica l’iniziale.\n\nTransizioni ε e composizione — figura 1"
+    "section": "Espressioni generali e star-free",
+    "text": "Espressioni generali e star-free\n\n07 / 50 · Cap. 2 · §2.1.1, pp. 25-26\n\nLe espressioni generali aggiungono intersezione e complemento direttamente nella sintassi:\n L(r\\cap s)=L(r)\\cap L(s),\\qquad L(\\overline{r})=\\Sigma^*\\setminus L(r) \nLe espressioni star-free ammettono questi operatori booleani, ma vietano la stella: nessuna iterazione libera.\nGerarchia espressiva: - Generali = Ristrette: i connettivi booleani sono una comodità sintattica, ma non aumentano il potere espressivo (si compilano via automi). - Star-free &lt; Ristrette: le star-free definiscono una classe strettamente più piccola (i linguaggi aperiodici / logica del primo ordine). Non possono contare modulo una costante (la parità non è star-free)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-08",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-08",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Chiusura ε come punto fisso",
-    "text": "Chiusura ε come punto fisso\n\n08 / 43 · Cap. 2 · §2.1.2, p. 27\n\n\\operatorname{ECl}(S) contiene tutti gli stati raggiungibili da S usando zero o più transizioni ε.\n X_0=S,\\qquad X_{i+1}=X_i\\cup\\bigcup_{q\\in X_i}\\Delta(q,\\varepsilon) \nSi arresta quando X_{i+1}=X_i. Nel diagramma precedente:\n \\operatorname{ECl}(\\{u\\})=\\{u,v\\} \nLo stato di partenza appartiene sempre alla propria chiusura."
+    "section": "L’obiettivo di equivalenza: il Teorema di Kleene",
+    "text": "L’obiettivo di equivalenza: il Teorema di Kleene\n\n08 / 50 · Cap. 2 · §2.1.2, pp. 26-27\n\nQual è il legame fondamentale tra la sintassi dichiarativa delle espressioni e il modello a stati degli automi?\nTeorema di Kleene: Un linguaggio L\\subseteq\\Sigma^* è riconosciuto da un automa a stati finiti se e solo se è denotato da un’espressione regolare ristretta.\nIl risultato fornisce due concreti motori algoritmici: 1. Motore di compilazione (Espressione \\to Automa): assemblaggio strutturale di sotto-automi tramite mosse silenti (costruzione di Thompson). 2. Motore di estrazione (Automa \\to Espressione): eliminazione graduale degli stati tramite programmazione dinamica.\nNella verifica software, Kleene assicura che possiamo alternare liberamente specifiche dichiarative e monitor a stati eseguibili."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-09",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-09",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Simulazione di un ε-NFA",
-    "text": "Simulazione di un ε-NFA\n\n09 / 43 · Cap. 2 · §2.1.2, pp. 27-28\n\nPrima di leggere e dopo ogni simbolo, calcoliamo la chiusura ε.\n\nIn Parola scegli 01; Letti conta i simboli consumati, da 0 a 2, inizialmente 0.\nA 0 l’insieme attivo è {s}. A 1 diventa {u,v}: è stato consumato solo 0.\nA 2 rimane {f} e la parola è accettata.\nScegli 0: il cursore si azzera e il massimo diventa 1. Al termine {u,v} non contiene finali.\n\nIl caso ε termina subito in {s} ed è rifiutato.\n\nSimulazione di un ε-NFA — figura 1"
+    "section": "La sfida della compilazione: le transizioni ε",
+    "text": "La sfida della compilazione: le transizioni ε\n\n09 / 50 · Cap. 2 · §2.1.3, pp. 27-28\n\nPer compilare un’espressione r in un automa A_r, dobbiamo comporre ricorsivamente le macchine dei sotto-termini per r+s, rs e r^*.\nComporre direttamente automi rigidi richiederebbe di ricablare a mano ogni transizione entrante negli stati finali del primo componente.\nPer rendere modulare l’assemblaggio, introduciamo un connettore ideale: la transizione \\varepsilon (mossa silente).\nUna transizione \\varepsilon cambia stato senza consumare simboli e senza far avanzare la testina di lettura sull’input."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-10",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-10",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Eliminare le transizioni ε",
-    "text": "Eliminare le transizioni ε\n\n10 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nManteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:\n \\Delta'(q,a)=\\operatorname{ECl}\\left(\\bigcup_{p\\in\\operatorname{ECl}(\\{q\\})}\\Delta(p,a)\\right) \nNell’esempio: \\Delta'(s,0)=\\{u,v\\} e \\Delta'(u,1)=\\{f\\}.\nIl nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota."
+    "section": "Transizioni ε e composizione",
+    "text": "Transizioni ε e composizione\n\n10 / 50 · Cap. 2 · §2.1.3, pp. 27-28\n\nPer concatenare gli automi per \\{0\\} e \\{1\\}, colleghiamo l’uscita del primo all’ingresso del secondo con un arco \\varepsilon.\nNon serve riprogettare gli stati interni: il controllo salta al secondo automa in modo asincrono.\nSolo l’uscita dell’ultimo frammento resta accettante; la freccia esterna indica l’iniziale.\n\nTransizioni ε e composizione — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-11",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-11",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Eliminazione ε: il caso della parola vuota",
-    "text": "Eliminazione ε: il caso della parola vuota\n\n11 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nCon la convenzione precedente manteniamo F, aggiungendo q_0 se la sua chiusura ε incontra F.\nEsempio: due stati i, f, con una sola freccia ε da i a f; solo f è finale.\nL’automa accetta ε. Eliminando la freccia senza correggere i finali, la rifiuterebbe.\nRendendo finale anche i, il linguaggio rimane esattamente \\{\\varepsilon\\}.\nempty_example = enfa({'i','f'}, {('i', EPS): {'f'}}, 'i', {'f'})\nordinary = remove_epsilon(empty_example)\nprint('Finali dopo la rimozione:', names(ordinary['final']))\nprint('ε accettata:', bool(enfa_run(ordinary, '')[-1] & ordinary['final']))\nprint('0 accettata:', bool(enfa_run(ordinary, '0')[-1] & ordinary['final']))\nFinali dopo la rimozione: {f, i}\nε accettata: True\n0 accettata: False"
+    "section": "Chiusura ε come punto fisso",
+    "text": "Chiusura ε come punto fisso\n\n11 / 50 · Cap. 2 · §2.1.3, p. 28\n\n\\operatorname{ECl}(S) contiene tutti gli stati raggiungibili da S seguendo zero o più transizioni \\varepsilon.\nSi calcola come punto fisso della sequenza crescente:\n X_0=S,\\qquad X_{i+1}=X_i\\cup\\bigcup_{q\\in X_i}\\Delta(q,\\varepsilon) \nL’algoritmo si arresta quando X_{i+1}=X_i. Nel diagramma precedente:\n \\operatorname{ECl}(\\{u\\})=\\{u,v\\} \nProprietà fondamentale: S\\subseteq\\operatorname{ECl}(S) sempre (cammino nullo di zero passi \\varepsilon)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-12",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-12",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Teorema di Kleene: le due costruzioni",
-    "text": "Teorema di Kleene: le due costruzioni\n\n12 / 43 · Cap. 2 · §2.1.3, pp. 30-32\n\nUn linguaggio su parole finite è riconosciuto da un automa finito se e solo se è descritto da un’espressione regolare ristretta.\n\nEspressione → automa: costruzione strutturale di Thompson.\nAutoma → espressione: ricorrenza sui possibili stati intermedi.\n\nEntrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio."
+    "section": "Simulazione di un ε-NFA",
+    "text": "Simulazione di un ε-NFA\n\n12 / 50 · Cap. 2 · §2.1.3, pp. 28-29\n\nIn un \\varepsilon-NFA, l’insieme degli stati attivi si espande con la chiusura \\varepsilon prima di iniziare e dopo ogni simbolo letto:\n\nIn Parola scegli 01; Letti conta i simboli consumati, da 0 a 2, inizialmente 0.\nA 0 l’insieme attivo è \\{s\\}. A 1 diventa \\{u,v\\}: è stato consumato solo 0.\nA 2 rimane \\{f\\} e la parola è accettata.\nScegli 0: il cursore si azzera e il massimo diventa 1. Al termine \\{u,v\\} non contiene finali.\n\nIl caso ε termina subito in \\{s\\} ed è rifiutato.\n\nSimulazione di un ε-NFA — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-13",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-13",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Thompson: casi base e invariante",
-    "text": "Thompson: casi base e invariante\n\n13 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nOgni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.\n\n\\varnothing: ingresso e uscita senza un cammino che li colleghi.\n\\varepsilon: un arco ε dall’ingresso all’uscita.\na: un arco etichettato a dall’ingresso all’uscita.\n\nI frammenti da comporre devono avere insiemi di stati disgiunti."
+    "section": "Eliminare le transizioni ε",
+    "text": "Eliminare le transizioni ε\n\n13 / 50 · Cap. 2 · §2.1.3, pp. 29-30\n\nManteniamo gli stati Q, ma ogni passo ordinario assorbe i passi \\varepsilon precedenti e successivi:\n \\Delta'(q,a)=\\operatorname{ECl}\\left(\\bigcup_{p\\in\\operatorname{ECl}(\\{q\\})}\\Delta(p,a)\\right) \nNell’esempio: \\Delta'(s,0)=\\{u,v\\} e \\Delta'(u,1)=\\{f\\}.\nIl nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-14",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-14",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Thompson: unione, concatenazione e stella",
-    "text": "Thompson: unione, concatenazione e stella\n\n14 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nUnione r+s: un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.\nConcatenazione rs: colleghiamo l’uscita di r all’ingresso di s con ε.\nStella r^*: aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.\nIl salto diretto ingresso → uscita realizza le zero ripetizioni."
+    "section": "Eliminazione ε: il caso della parola vuota",
+    "text": "Eliminazione ε: il caso della parola vuota\n\n14 / 50 · Cap. 2 · §2.1.3, p. 30\n\nGli stati finali rimangono F, con una correzione fondamentale:\n q_0\\in F' \\iff \\operatorname{ECl}(q_0)\\cap F\\neq\\varnothing \nSe dall’iniziale q_0 si può raggiungere uno stato finale solo tramite mosse \\varepsilon, l’automa originale accettava \\varepsilon.\nRendendo finale anche q_0, l’NFA senza \\varepsilon conserva esattamente l’accettazione di \\varepsilon.\nempty_example = enfa({'i','f'}, {('i', EPS): {'f'}}, 'i', {'f'})\nordinary = remove_epsilon(empty_example)\nprint('Finali dopo la rimozione:', names(ordinary['final']))\nprint('ε accettata:', bool(enfa_run(ordinary, '')[-1] & ordinary['final']))\nprint('0 accettata:', bool(enfa_run(ordinary, '0')[-1] & ordinary['final']))\nFinali dopo la rimozione: {f, i}\nε accettata: True\n0 accettata: False"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-15",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-15",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Compilare un’espressione in Python",
-    "text": "Compilare un’espressione in Python\n\n15 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nCompiliamo r=(0+1)^*01 e poi rimuoviamo ε e determinizziamo.\nIl codice rappresenta la sintassi con tuple: lit è un simbolo, plus è unione, cat è concatenazione, star è stella.\nLa prova finita confronta il DFA con la proprietà «termina con 01». La correttezza generale deriva dalla costruzione di Thompson.\nzero, one = ('lit','0'), ('lit','1')\nregex = ('cat', ('star', ('plus', zero, one)), ('cat', zero, one))\ncompiled_e = thompson(regex)\ncompiled_d = determinize(remove_epsilon(compiled_e))\nfor w in words():\n    assert accepts(compiled_d, w) == w.endswith('01')\nprint('Stati ε-NFA:', len(compiled_e['states']))\nprint('Stati DFA raggiungibili:', len(compiled_d['states']))\nprint('255 parole confrontate con il predicato del suffisso.')\nStati ε-NFA: 12\nStati DFA raggiungibili: 4\n255 parole confrontate con il predicato del suffisso."
+    "section": "Thompson: casi base e invariante",
+    "text": "Thompson: casi base e invariante\n\n15 / 50 · Cap. 2 · §2.1.3, pp. 30-31\n\nL’algoritmo di Thompson compila ricorsivamente un’espressione regolare in un \\varepsilon-NFA.\nInvariante strutturale: ogni frammento ha: - un solo ingresso i, senza transizioni entranti; - una sola uscita accettante f, senza transizioni uscenti.\nCasi base: - \\varnothing: ingresso e uscita sconnessi (nessun cammino collegato). - \\varepsilon: un arco \\varepsilon dall’ingresso all’uscita. - a\\in\\Sigma: un arco etichettato a dall’ingresso all’uscita."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-16",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-16",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Da automa a espressione: stati intermedi",
-    "text": "Da automa a espressione: stati intermedi\n\n16 / 43 · Cap. 2 · §2.1.3, pp. 32-33\n\nNumeriamo gli stati q_1,\\ldots,q_n.\nR_{ij}^{k} descrive le parole dei cammini da q_i a q_j che usano come stati intermedi solo q_1,\\ldots,q_k.\nGli estremi non sono vincolati. Con k=0 sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.\nQuindi R_{ij}^{0} è l’unione delle etichette dirette, con ε aggiunta quando i=j."
+    "section": "Thompson: unione, concatenazione e stella",
+    "text": "Thompson: unione, concatenazione e stella\n\n16 / 50 · Cap. 2 · §2.1.3, pp. 31-32\n\n\nUnione r+s: nuovo ingresso che sceglie con \\varepsilon uno dei due rami; le uscite raggiungono con \\varepsilon una nuova uscita comune.\nConcatenazione rs: colleghiamo l’uscita di r all’ingresso di s con un arco \\varepsilon.\nStella r^*: aggiungiamo nuovo ingresso e nuova uscita. Un arco \\varepsilon diretto i\\to f consente zero ripetizioni; un arco di ritorno f_r\\to i_r consente di iterare il corpo.\n\nLa dimensione dell’automa è strettamente lineare: ogni operatore aggiunge al più 2 stati e 4 transizioni."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-17",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-17",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Ricorrenza per la traduzione in espressione",
-    "text": "Ricorrenza per la traduzione in espressione\n\n17 / 43 · Cap. 2 · §2.1.3, pp. 33-36\n\nSbloccando q_k come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.\n R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \nLa stella rappresenta un numero finito qualsiasi di ritorni.\nAlla fine si uniscono R_{1j}^{n} per tutti i finali q_j, assumendo q_1 iniziale."
+    "section": "Compilare un’espressione in Python",
+    "text": "Compilare un’espressione in Python\n\n17 / 50 · Cap. 2 · §2.1.3, p. 32\n\nCompiliamo r=(0+1)^*01 e poi rimuoviamo \\varepsilon e determinizziamo.\nLa pipeline automatica chiude la catena: \\text{Regex} \\xrightarrow{\\text{Thompson}} \\varepsilon\\text{-NFA} \\xrightarrow{\\text{Rimozione }\\varepsilon} \\text{NFA} \\xrightarrow{\\text{Subset}} \\text{DFA}\nzero, one = ('lit','0'), ('lit','1')\nregex = ('cat', ('star', ('plus', zero, one)), ('cat', zero, one))\ncompiled_e = thompson(regex)\ncompiled_d = determinize(remove_epsilon(compiled_e))\nfor w in words():\n    assert accepts(compiled_d, w) == w.endswith('01')\nprint('Stati ε-NFA:', len(compiled_e['states']))\nprint('Stati DFA raggiungibili:', len(compiled_d['states']))\nprint('255 parole confrontate con il predicato del suffisso.')\nStati ε-NFA: 12\nStati DFA raggiungibili: 4\n255 parole confrontate con il predicato del suffisso."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-18",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-18",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Ricorrenza sul DFA della parità",
-    "text": "Ricorrenza sul DFA della parità\n\n18 / 43 · Cap. 2 · §2.1.3, pp. 33-34\n\nNel DFA della parità di 1, q_1 è pari e q_2 dispari. 0 conserva lo stato, 1 lo cambia.\n R_{11}^{0}=R_{22}^{0}=\\varepsilon+0,\\qquad R_{12}^{0}=R_{21}^{0}=1 \nSbloccando q_1:\n R_{22}^{1}=(\\varepsilon+0)+1(\\varepsilon+0)^*1 \nSono inclusi ε, 0, 11, 101; 00 richiede un passaggio intermedio per q_2 e non è ancora incluso."
+    "section": "Il motore di estrazione: da automa a espressione",
+    "text": "Il motore di estrazione: da automa a espressione\n\n18 / 50 · Cap. 2 · §2.1.4, pp. 32-33\n\nAffrontiamo ora la direzione inversa di Kleene: dato un automa A, estrarre una formula regolare r_A tale che L(r_A)=L(A).\nLa difficoltà risiede nei cicli: una computazione può vagare nel grafo prima di raggiungere uno stato finale.\nStrategia algoritmica: numerare gli stati Q=\\{q_1,\\ldots,q_n\\} e consentirli come intermedi uno alla volta tramite programmazione dinamica.\nLa numerazione è solo un indice di controllo per tenere traccia delle tappe intermedie permesse."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-19",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-19",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Chiusure dei linguaggi regolari",
-    "text": "Chiusure dei linguaggi regolari\n\n19 / 43 · Cap. 2 · §2.2, pp. 36-37\n\nSe L_1 e L_2 sono regolari sullo stesso alfabeto, sono regolari anche:\n L_1\\cup L_2,\\quad L_1L_2,\\quad L_1^*,\\quad \\overline{L_1},\\quad L_1\\cap L_2 \nUnione, concatenazione e stella seguono dalle costruzioni già viste.\nComplemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo."
+    "section": "Stati intermedi e linguaggi di cammino",
+    "text": "Stati intermedi e linguaggi di cammino\n\n19 / 50 · Cap. 2 · §2.1.4, pp. 33-34\n\nR_{ij}^{k} descrive le parole dei cammini da q_i a q_j che usano come stati intermedi solo un sottoinsieme di \\{q_1,\\ldots,q_k\\}.\nGli estremi q_i e q_j non sono vincolati dall’indice k.\nCaso base k=0 (nessun nodo intermedio ammesso): Sono ammessi solo archi diretti e il passo vuoto da uno stato a sé stesso:\n R_{ij}^{0} = \\{\\,a\\in\\Sigma \\mid \\delta(q_i,a)=q_j\\,\\} \\cup (\\{\\varepsilon\\} \\text{ se } i=j)"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-20",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-20",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Complemento: serve un DFA completo",
-    "text": "Complemento: serve un DFA completo\n\n20 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nPer un DFA completo basta sostituire F con Q\\setminus F.\nOgni parola ha esattamente una run completa: il suo verdetto viene invertito.\nDFA parziale per {1}: solo s —1→ f, con f finale. Scambiando i finali si accetta solo ε: 0 continua a non avere run.\nPrima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti."
+    "section": "Ricorrenza per la traduzione in espressione",
+    "text": "Ricorrenza per la traduzione in espressione\n\n20 / 50 · Cap. 2 · §2.1.4, pp. 34-35\n\nSbloccando q_k come nuovo stato intermedio consentito, un cammino da q_i a q_j può: 1. Non passare per q_k (descritto da R_{ij}^{k-1}); 2. Raggiungere q_k, ciclare su q_k zero o più volte, e ripartire verso q_j.\n R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \nAl termine (k=n), uniamo le espressioni per tutti gli stati finali q_j\\in F:\n L(A)=\\sum_{q_j\\in F} R_{1j}^{n}"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-21",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-21",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Perché lo scambio dei finali fallisce su un NFA",
-    "text": "Perché lo scambio dei finali fallisce su un NFA\n\n21 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nConsidera un NFA con iniziale s, finale f, e transizioni:\n\nda s, con 0, resta in s;\nda s, con 1, può restare in s oppure andare in f;\nda f, con 0 o 1, resta in f.\n\nAccetta le parole che contengono 1. Dopo lo scambio accetta ancora 1 tramite il ramo che resta in s.\nProcedura corretta: determinizzare → completare → scambiare."
+    "section": "Ricorrenza sul DFA della parità",
+    "text": "Ricorrenza sul DFA della parità\n\n21 / 50 · Cap. 2 · §2.1.4, pp. 35-36\n\nNel DFA della parità di 1, q_1 è pari (iniziale e finale) e q_2 dispari. 0 conserva lo stato, 1 lo cambia.\n R_{11}^{0}=R_{22}^{0}=\\varepsilon+0,\\qquad R_{12}^{0}=R_{21}^{0}=1 \nSbloccando q_1:\n R_{22}^{1}=(\\varepsilon+0)+1(\\varepsilon+0)^*1 \nSbloccando infine q_2, si estrae l’espressione totale per R_{11}^2, equivalente alla formula 0^*(10^*10^*)^*."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-22",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-22",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Intersezione mediante prodotto",
-    "text": "Intersezione mediante prodotto\n\n22 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nLo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.\n \\delta((p,q),a)=(\\delta_1(p,a),\\delta_2(q,a)) \nPer l’intersezione, lo stato iniziale è (q_{01},q_{02}) e i finali sono:\n F=F_1\\times F_2 \nEntrambi i componenti devono accettare al termine della stessa parola."
+    "section": "Chiusure dei linguaggi regolari: visione top-down",
+    "text": "Chiusure dei linguaggi regolari: visione top-down\n\n22 / 50 · Cap. 2 · §2.2, pp. 36-37\n\nSe L_1 e L_2 sono regolari sullo stesso alfabeto \\Sigma, sono regolari anche:\n L_1\\cup L_2,\\qquad L_1L_2,\\qquad L_1^*,\\qquad \\overline{L_1},\\qquad L_1\\cap L_2 \n\nUnione, concatenazione e stella: derivano immediatamente dalla costruzione di Thompson sulle espressioni regolari.\nComplemento e intersezione: richiedono algoritmi dedicati sulla struttura degli automi (inversione dei verdetti e prodotto sincronizzato).\n\nQuesto garantisce che gli operatori booleani delle espressioni generali non aumentano il potere espressivo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-23",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-23",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Simulazione del prodotto",
-    "text": "Simulazione del prodotto\n\n23 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nPrimo componente: 1 se il prefisso termina con 1, altrimenti 0. Secondo: 0 se il numero di 1 è pari, 1 se dispari. Solo (1,0) è finale.\n\nScegli Parola 11; Letti va da 0 a 2, inizialmente 0.\nA 1 compare (1,1); a 2 compare (1,0): accettata.\nScegli 110: Letti torna a 0, massimo 3. A 3 compare (0,0): rifiutata.\n\nε parte e termina in (0,0), quindi è rifiutata. La parità da sola non basta.\n\nSimulazione del prodotto — figura 1"
+    "section": "Significato operativo: comporre requisiti dell’editor",
+    "text": "Significato operativo: comporre requisiti dell’editor\n\n23 / 50 · Cap. 2 · §2.2, p. 37\n\nNella verifica software, le proprietà di chiusura sono lo strumento algebrico per combinare specifiche indipendenti:\n r_{\\mathrm{sessione}}=\\texttt{apri}\\;(\\texttt{modifica}+\\texttt{salva})^*\\,\\texttt{chiudi} \nDefiniamo il requisito «almeno un salvataggio»: L_{\\mathrm{salvato}}=\\Sigma^*\\,\\texttt{salva}\\,\\Sigma^*.\n\nIntersezione (L_{\\mathrm{sessione}}\\cap L_{\\mathrm{salvato}}): monitora tracce che sono sessioni ben formate e hanno salvato le modifiche.\nComplemento (\\overline{L_{\\mathrm{sessione}}}): monitora e intercetta tutte le sessioni errate o anomale (es. modifiche a file chiuso)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-24",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-24",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Comporre requisiti per l’editor",
-    "text": "Comporre requisiti per l’editor\n\n24 / 43 · Cap. 2 · §2.2, p. 37\n\nRiprendiamo l’alfabeto di eventi apri, modifica, salva, chiudi.\n r_{\\mathrm{sessione}}=\\mathrm{apri}\\;(\\mathrm{modifica}+\\mathrm{salva})^*\\;\\mathrm{chiudi} \nIl requisito «contiene almeno un salvataggio» è \\Sigma^*\\;\\mathrm{salva}\\;\\Sigma^*.\nIl prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola più corta possibile è apri, salva, chiudi.\nQuesto requisito non impone di salvare ogni modifica."
+    "section": "Complemento: serve un DFA completo",
+    "text": "Complemento: serve un DFA completo\n\n24 / 50 · Cap. 2 · §2.2.1, pp. 37-38\n\nPer un DFA deterministico e completo A=(Q,\\Sigma,\\delta,q_0,F), il complemento si ottiene scambiando finali e non finali:\n \\overline{A}=(Q,\\Sigma,\\delta,q_0,Q\\setminus F) \nOgni parola ha esattamente una run completa: il verdetto finale viene invertito in modo esatto.\nPerché serve la completezza: se un DFA omette le transizioni per certi simboli (DFA parziale), una parola priva di archi si blocca e viene rifiutata. Scambiare i finali senza aggiungere uno stato pozzo continuerebbe a rifiutarla!"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-25",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-25",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Problemi di decisione su automi",
-    "text": "Problemi di decisione su automi\n\n25 / 43 · Cap. 2 · §2.3, pp. 39-40\n\n\nAppartenenza: questa parola è accettata?\nVuotezza: esiste almeno una parola accettata?\nUniversalità: sono accettate tutte le parole di \\Sigma^*?\nInclusione: ogni parola di L_1 appartiene a L_2?\nEquivalenza: i due linguaggi coincidono?\n\nL’appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall’iniziale."
+    "section": "Perché lo scambio dei finali fallisce su un NFA",
+    "text": "Perché lo scambio dei finali fallisce su un NFA\n\n25 / 50 · Cap. 2 · §2.2.1, pp. 37-38\n\nConsidera un NFA con transizioni s\\xrightarrow{0,1}s e s\\xrightarrow{1}f, dove solo f è finale.\nQuesto automa accetta le parole che contengono 1. Se invertiamo F, s diventa finale e f non finale.\nLa parola 1 viene ancora accettata tramite il ramo che resta in s! Il non-determinismo offre rami multipli alternativi.\nProcedura universale per complementare: \\textbf{Determinizza} \\;\\longrightarrow\\; \\textbf{Completa con pozzo} \\;\\longrightarrow\\; \\textbf{Inverti i finali}"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-26",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-26",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Ricerca in ampiezza e parola testimone",
-    "text": "Ricerca in ampiezza e parola testimone\n\n26 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUna BFS esplora gli stati per distanza dall’iniziale. Memorizziamo, per ogni stato nuovo, predecessore e simbolo usato.\nAppena raggiungiamo un finale, ricostruiamo una parola accettata di lunghezza minima.\nAttenzione al risultato: None significa linguaggio vuoto; '' significa che ε è un testimone.\nfor label, machine in [('prodotto', PAIR), ('parità', PARITY)]:\n    witness = shortest_witness(machine)\n    print(label, '→', 'linguaggio vuoto' if witness is None else shown(witness))\nimpossible = dfa_product(ENDS, complement(CONTAINS))\nassert shortest_witness(impossible) is None\nprint('Termina con 1 e non contiene 1 → linguaggio vuoto')\nprodotto → 11\nparità → ε\nTermina con 1 e non contiene 1 → linguaggio vuoto"
+    "section": "Intersezione mediante prodotto cartesiano",
+    "text": "Intersezione mediante prodotto cartesiano\n\n26 / 50 · Cap. 2 · §2.2.2, pp. 38-39\n\nPer riconoscere L(A_1)\\cap L(A_2), facciamo marciare due DFA in parallelo sullo stesso input:\n Q=Q_1\\times Q_2,\\qquad q_0=(q_{01},q_{02}) \nLa funzione di transizione avanza entrambi i monitor a ogni simbolo:\n \\delta((p,q),a)=(\\delta_1(p,a),\\delta_2(q,a)) \nPer l’intersezione, entrambi devono accettare al termine della parola:\n F=F_1\\times F_2 \nIl prodotto ha al più |Q_1|\\times|Q_2| stati."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-27",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-27",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Proprietà del testimone corto",
-    "text": "Proprietà del testimone corto\n\n27 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUn DFA con n stati ha linguaggio non vuoto se e solo se accetta una parola w con:\n |w|&lt;n \nIn una run accettante minima nessuno stato si ripete: il tratto fra due visite allo stesso stato potrebbe essere eliminato.\nQuindi la run contiene al massimo n stati e la parola al massimo n-1 simboli."
+    "section": "Simulazione del prodotto",
+    "text": "Simulazione del prodotto\n\n27 / 50 · Cap. 2 · §2.2.2, pp. 38-39\n\nMonitor composto: A_1 verifica «termina con 1», A_2 verifica «parità di 1».\nSolo lo stato (1,0) è finale (termina con 1 e parità pari).\n\nCon parola 11: raggiunge (1,0) ed è accettata.\nCon parola 110: termina in (0,0) ed è rifiutata.\nε parte e termina in (0,0) (rifiutata).\n\n\nSimulazione del prodotto — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-28",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-28",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Raggiungibilità come punto fisso",
-    "text": "Raggiungibilità come punto fisso\n\n28 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\n\\operatorname{Post}(R) contiene i successori in un passo degli stati in R.\n R_0=\\{q_0\\},\\qquad R_{i+1}=R_i\\cup\\operatorname{Post}(R_i) \nR_i raccoglie gli stati raggiungibili con parole di lunghezza al massimo i. Il primo insieme stabile R^* contiene tutti gli stati raggiungibili.\n L(\\mathcal A)\\ne\\varnothing\\quad\\Longleftrightarrow\\quad R^*\\cap F\\ne\\varnothing"
+    "section": "Dalla composizione alla verifica formale",
+    "text": "Dalla composizione alla verifica formale\n\n28 / 50 · Cap. 2 · §2.3, pp. 39-40\n\nUna volta costruiti gli automi, quale domanda dobbiamo porre in verifica automatica?\nLa domanda fondamentale del Model Checking: ogni esecuzione possibile del sistema \\mathcal{M} rispetta la specifica \\mathcal{S}?\n L(\\mathcal{M}) \\subseteq L(\\mathcal{S}) \nGrazie alle chiusure booleane, l’inclusione si riduce a un test di vuotezza:\n L(\\mathcal{M}) \\cap \\overline{L(\\mathcal{S})} = \\varnothing \nL’automa degli errori A_{\\mathrm{err}} = \\mathcal{M} \\times \\overline{\\mathcal{S}} riconosce le violazioni: - L(A_{\\mathrm{err}}) = \\varnothing \\implies il sistema è verificato; - L(A_{\\mathrm{err}}) \\neq \\varnothing \\implies ogni parola accettata è un controesempio eseguibile (bug trace)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-29",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-29",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Esplorazione del punto fisso",
-    "text": "Esplorazione del punto fisso\n\n29 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\nIl DFA ricorda quanti 1 consecutivi chiudono il prefisso: 0, 1, 2; 3 significa che 111 è già comparso e resta assorbente. Solo 3 è finale.\nIterazione seleziona R_i: valori da 0 a 4, inizialmente 0.\n\nA 1, R_1=\\{0,1\\}; a 2, R_2=\\{0,1,2\\}.\nA 3 compare il finale 3: il linguaggio è non vuoto, testimone 111.\nA 4 non cambia nulla: il punto fisso è raggiunto.\n\nPrima di 3, non avere ancora trovato un finale non prova la vuotezza.\n\nEsplorazione del punto fisso — figura 1"
+    "section": "I problemi di decisione fondamentali",
+    "text": "I problemi di decisione fondamentali\n\n29 / 50 · Cap. 2 · §2.3, pp. 39-40\n\n\nAppartenenza: data w e A, w\\in L(A)? (simulazione della parola).\nVuotezza: L(A)=\\varnothing? (esiste almeno un’esecuzione accettata?).\nUniversalità: L(A)=\\Sigma^*? (tutte le parole sono ammesse?).\nInclusione: L(A_1)\\subseteq L(A_2)? (l’implementazione rispetta la specifica?).\nEquivalenza: L(A_1)=L(A_2)? (i due automi descrivono la stessa proprietà?).\n\nTutte queste domande semantiche si riducono alla raggiungibilità su grafo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-30",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-30",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Riduzioni alla vuotezza",
-    "text": "Riduzioni alla vuotezza\n\n30 / 43 · Cap. 2 · §2.3.1, p. 42\n\nLe chiusure trasformano le domande sui linguaggi in ricerca di testimoni:\n L_1\\subseteq L_2\\quad\\Longleftrightarrow\\quad L_1\\cap\\overline{L_2}=\\varnothing \n L=\\Sigma^*\\quad\\Longleftrightarrow\\quad\\overline L=\\varnothing \nL’equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una parola accettata da uno solo dei due automi.\nPer l’inclusione, ogni parola del prodotto con il complemento è un controesempio concreto."
+    "section": "Raggiungibilità e parola testimone",
+    "text": "Raggiungibilità e parola testimone\n\n30 / 50 · Cap. 2 · §2.3, pp. 40-41\n\nUn automa ha linguaggio non vuoto (L(A)\\neq\\varnothing) se e solo se almeno uno stato accettante q\\in F è raggiungibile da q_0.\nUna visita BFS esplora il grafo di transizione per livelli: - Se raggiunge un finale, ricostruisce all’indietro una parola accettata di lunghezza minima (testimone corto); - Se non incontra stati in F, il linguaggio è vuoto.\nfor label, machine in [('prodotto', PAIR), ('parità', PARITY)]:\n    witness = shortest_witness(machine)\n    print(label, '→', 'linguaggio vuoto' if witness is None else shown(witness))\nimpossible = dfa_product(ENDS, complement(CONTAINS))\nassert shortest_witness(impossible) is None\nprint('Termina con 1 e non contiene 1 → linguaggio vuoto')\nprodotto → 11\nparità → ε\nTermina con 1 e non contiene 1 → linguaggio vuoto"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-31",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-31",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Inclusione e controesempio eseguibile",
-    "text": "Inclusione e controesempio eseguibile\n\n31 / 43 · Cap. 2 · §2.3.1, p. 42\n\nSiano L_E le parole che terminano con 1 e L_C quelle che contengono 1.\nL_E\\subseteq L_C: il prodotto con il complemento di L_C non ha finali raggiungibili.\nIl verso opposto fallisce: 10 contiene 1, ma non termina con 1.\nLa BFS trova un testimone minimo della violazione; non esamina un insieme di test scelti a mano.\nfor label, left, right in [('E ⊆ C', ENDS, CONTAINS), ('C ⊆ E', CONTAINS, ENDS)]:\n    bad = dfa_product(left, complement(right))\n    witness = shortest_witness(bad)\n    print(label, '→', 'vera' if witness is None else 'falsa, controesempio: '+shown(witness))\n    if witness is not None:\n        assert accepts(left, witness) and not accepts(right, witness)\nE ⊆ C → vera\nC ⊆ E → falsa, controesempio: 10"
+    "section": "Proprietà del testimone corto",
+    "text": "Proprietà del testimone corto\n\n31 / 50 · Cap. 2 · §2.3, pp. 40-41\n\nUn automa con n stati ha linguaggio non vuoto se e solo se accetta una parola w con:\n |w| &lt; n \nDimostrazione per pumping: - In una run accettante di lunghezza minima p_0 \\xrightarrow{a_1} \\dots \\xrightarrow{a_m} p_m con p_m\\in F, nessuno stato può ripetersi. - Se m\\ge n, visitiamo m+1 &gt; n stati: per il principio dei cassetti due stati coincidono (p_i=p_j). - Il segmento intermedio è un ciclo chiuso: eliminandolo otteniamo una parola accettata più corta, contraddicendo la minimalità. - Quindi la run minima non ripete stati e la parola ha lunghezza |w|\\le n-1 &lt; n."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-32",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-32",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Costo delle procedure e rappresentazione",
-    "text": "Costo delle procedure e rappresentazione\n\n32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42\n\nSu un grafo esplicito con n stati e m archi, la BFS costa O(n+m).\nPer due DFA, un prodotto ha al massimo n_1n_2 stati; si possono esplorare solo quelli raggiungibili.\nPer gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a 2^n sottoinsiemi.\n«Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo."
+    "section": "Raggiungibilità come punto fisso",
+    "text": "Raggiungibilità come punto fisso\n\n32 / 50 · Cap. 2 · §2.3.1, pp. 41-42\n\nNel model checking simbolico la raggiungibilità si formula tramite l’operatore di passo in avanti:\n \\operatorname{Post}(R) = \\{\\,q'\\in Q \\mid \\exists q\\in R, a\\in\\Sigma:\\; \\delta(q,a)=q'\\,\\} \nCostruiamo gli stati raggiungibili in al più i passi:\n R_0=\\{q_0\\},\\qquad R_{i+1}=R_i\\cup\\operatorname{Post}(R_i) \nPoiché R_0\\subseteq R_1\\subseteq\\dots\\subseteq Q, la sequenza converge a un punto fisso R^*.\n L(\\mathcal{A})\\ne\\varnothing\\quad\\Longleftrightarrow\\quad R^*\\cap F\\ne\\varnothing"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-33",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-33",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Equivalenze, classi e indice",
-    "text": "Equivalenze, classi e indice\n\n33 / 43 · Cap. 2 · §2.4, pp. 43-44\n\nUna relazione di equivalenza è riflessiva, simmetrica e transitiva. Le sue classi formano una partizione: non si sovrappongono e coprono tutto l’insieme.\nL’indice è il numero delle classi.\nEsempio: raggruppare le parole per parità della lunghezza dà due classi.\n«Condividono un simbolo» non è transitiva: 0 condivide con 01, 01 con 1, ma 0 non condivide con 1."
+    "section": "Esplorazione del punto fisso",
+    "text": "Esplorazione del punto fisso\n\n33 / 50 · Cap. 2 · §2.3.1, pp. 41-42\n\nDFA che rileva la comparsa della sequenza 111 (stati da 0 a 3, solo 3 è finale).\nIterazione seleziona R_i: valori da 0 a 4, inizialmente 0.\n\nA 1, R_1=\\{0,1\\}; a 2, R_2=\\{0,1,2\\}.\nA 3 compare il finale 3: il linguaggio è non vuoto, testimone 111.\nA 4 non cambia nulla: il punto fisso è raggiunto.\n\nPrima di 3, non avere ancora trovato un finale non prova la vuotezza.\n\nEsplorazione del punto fisso — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-34",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-34",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Invarianza a destra e compatibilità",
-    "text": "Invarianza a destra e compatibilità\n\n34 / 43 · Cap. 2 · §2.4, pp. 44-46\n\nPer rappresentare classi di prefissi come stati servono due proprietà.\nInvarianza a destra:\n x\\sim y\\quad\\Longrightarrow\\quad xz\\sim yz\\quad\\text{per ogni }z\\in\\Sigma^* \nCompatibilità con L: prefissi nella stessa classe appartengono entrambi a L, oppure entrambi ne sono fuori.\nLa prima rende coerenti le transizioni; la seconda rende coerente il verdetto."
+    "section": "Riduzioni alla vuotezza",
+    "text": "Riduzioni alla vuotezza\n\n34 / 50 · Cap. 2 · §2.3.1, p. 42\n\nLe proprietà si riducono a test di vuotezza su prodotti:\n L_1\\subseteq L_2\\quad\\Longleftrightarrow\\quad L_1\\cap\\overline{L_2}=\\varnothing \n L=\\Sigma^*\\quad\\Longleftrightarrow\\quad\\overline{L}=\\varnothing \n L_1=L_2\\quad\\Longleftrightarrow\\quad (L_1\\cap\\overline{L_2})\\cup(\\overline{L_1}\\cap L_2)=\\varnothing \nPer l’inclusione, ogni parola accettata dal prodotto L_1\\cap\\overline{L_2} è un controesempio concreto che dimostra dove e come la proprietà è violata."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-35",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-35",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Equivalenza di Myhill–Nerode",
-    "text": "Equivalenza di Myhill–Nerode\n\n35 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nDue prefissi sono equivalenti per L quando nessuna continuazione distingue i loro verdetti:\n x\\sim_L y\\quad\\Longleftrightarrow\\quad\\forall z\\in\\Sigma^*:\\;(xz\\in L\\Longleftrightarrow yz\\in L) \nPer il linguaggio «termina con 1», 01 e 11 sono equivalenti.\n0 e 01 sono distinti: basta z=\\varepsilon. Accettare o rifiutare entrambi adesso non garantisce invece che due prefissi siano equivalenti."
+    "section": "Inclusione e controesempio in Python",
+    "text": "Inclusione e controesempio in Python\n\n35 / 50 · Cap. 2 · §2.3.1, p. 42\n\nSiano L_E «termina con 1» e L_C «contiene 1».\n\nL_E\\subseteq L_C: il prodotto con il complemento di L_C è vuoto \\implies proprietà verificata!\nL_C\\subseteq L_E: il prodotto con il complemento di L_E trova il testimone 10: contiene 1 ma non termina con 1 (controesempio).\n\nfor label, left, right in [('E ⊆ C', ENDS, CONTAINS), ('C ⊆ E', CONTAINS, ENDS)]:\n    bad = dfa_product(left, complement(right))\n    witness = shortest_witness(bad)\n    print(label, '→', 'vera' if witness is None else 'falsa, controesempio: '+shown(witness))\n    if witness is not None:\n        assert accepts(left, witness) and not accepts(right, witness)\nE ⊆ C → vera\nC ⊆ E → falsa, controesempio: 10"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-36",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-36",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Confrontare i futuri di due prefissi",
-    "text": "Confrontare i futuri di due prefissi\n\n36 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nUsiamo il linguaggio «numero pari di 1».\nCoppia seleziona ε / 1, 1 / 01 o ε / 11, inizialmente ε / 1. Suffisso seleziona ε, 0, 1, 01, inizialmente ε.\n\nCon ε / 1 e suffisso ε, i verdetti differiscono: i prefissi sono distinguibili.\nScegli 1 / 01 mantenendo ε: entrambi rifiutano. Con suffisso 1, entrambi accettano.\nI due prefissi restano equivalenti per ogni suffisso perché hanno la stessa parità, non perché abbiamo provato quattro casi.\n\n\nConfrontare i futuri di due prefissi — figura 1"
+    "section": "Costo computazionale ed esplosione degli stati",
+    "text": "Costo computazionale ed esplosione degli stati\n\n36 / 50 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42\n\nSu un grafo esplicito con n stati e m archi, la BFS costa O(n+m).\nPer due DFA, il prodotto ha al massimo n_1n_2 stati; si possono esplorare solo quelli raggiungibili.\nTuttavia, per gli NFA, il complemento e l’inclusione richiedono la determinizzazione, che può generare fino a 2^n stati.\n«Riducibile a raggiungibilità» non significa che il grafo sia sempre trattabile: nella verifica reale occorre minimizzare gli stati."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-37",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-37",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Teorema di Myhill–Nerode",
-    "text": "Teorema di Myhill–Nerode\n\n37 / 43 · Cap. 2 · §2.4, pp. 45-47\n\nPer L\\subseteq\\Sigma^* sono equivalenti:\n\nL è regolare.\nEsiste un’equivalenza di indice finito, invariante a destra e compatibile con L.\nL’equivalenza \\sim_L ha indice finito.\n\nUn DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare."
+    "section": "La memoria minima: quanti stati servono davvero?",
+    "text": "La memoria minima: quanti stati servono davvero?\n\n37 / 50 · Cap. 2 · §2.4, pp. 42-43\n\nLa pipeline di verifica paga il costo dell’esplosione dello spazio degli stati (n_1 n_2, 2^n).\nDue quesiti fondamentali: 1. Canonicità e Minimalità: dato un linguaggio regolare L, qual è il numero minimo di stati per riconoscerlo? Tale DFA minimale è unico? 2. Memoria Finita e Regolarità: quando una specifica è fornita come predicato astratto P(w), quale memoria finita serve, e come stabiliamo se esiste un automa a stati finiti?\nIl Teorema di Myhill–Nerode fornisce la risposta definitiva: gli stati del DFA minimo canonico sono le classi di equivalenza dei prefissi indistinguibili rispetto a ogni continuazione futura."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-38",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-38",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Costruire il DFA delle classi",
-    "text": "Costruire il DFA delle classi\n\n38 / 43 · Cap. 2 · §2.4, p. 47\n\nSe \\sim_L ha indice finito, usiamo le sue classi come stati.\n\nStato iniziale: [\\varepsilon].\nTransizione: \\delta([w],a)=[wa].\nClasse accettante: [w] con w\\in L.\n\nL’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali.\nDopo aver letto w, lo stato è [w]: il DFA riconosce esattamente L."
+    "section": "L’intuizione dell’editor: prefissi e futuri",
+    "text": "L’intuizione dell’editor: prefissi e futuri\n\n38 / 50 · Cap. 2 · §2.4, pp. 43-44\n\nNel monitor dell’editor, ogni prefisso appartiene a una di 4 famiglie semantiche: 1. Iniziale: nessun evento ancora verificato (\\varepsilon); 2. Sessione aperta: il file è aperto (\\texttt{apri}, \\texttt{apri}\\ \\texttt{modifica}, \\texttt{apri}\\ \\texttt{salva}); 3. Sessione chiusa: terminazione corretta (\\texttt{apri}\\ \\texttt{chiudi}); 4. Errore / Pozzo: sequenza illegale (\\texttt{modifica} prima di \\texttt{apri}).\nFenomeno fondamentale: prefissi nella stessa famiglia ammettono gli stessi identici futuri validi (es. sia \\texttt{apri}\\ \\texttt{modifica} sia \\texttt{apri}\\ \\texttt{salva} si completano con \\texttt{chiudi}).\nL’automa non deve memorizzare l’intera traccia passata: deve solo ricordare la famiglia! Queste 4 famiglie sono i 4 stati del DFA minimo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-39",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-39",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Minimalità del DFA delle classi",
-    "text": "Minimalità del DFA delle classi\n\n39 / 43 · Cap. 2 · §2.4, pp. 47-48\n\nSe due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per L deve quindi portarli in stati diversi.\nOgni DFA per L ha almeno tanti stati quante sono le classi di \\sim_L. Il DFA delle classi raggiunge questo limite.\nPer «termina con 1» ci sono due classi: prefissi che terminano con 1 e tutti gli altri, inclusa ε. Due stati sono necessari e sufficienti."
+    "section": "Predicato non equivale ad automa",
+    "text": "Predicato non equivale ad automa\n\n39 / 50 · Cap. 2 · §2.4, pp. 44-45\n\nUn predicato P(w) esprime una condizione logica, non la macchina che la calcola.\n\nP_{\\mathrm{pari}}(w) \\equiv «numero pari di simboli a»:\n\nBasta ricordare la parità dei simboli letti finora \\implies DFA a 2 stati.\n\nP_{=}(w) \\equiv «tanti simboli a quanti simboli b»:\n\nRichiede di ricordare una differenza arbitraria tra conteggi \\implies richiede memoria infinita.\n\n\n«Definito da un predicato» non significa né regolare né non regolare finché non si analizzano le continuazioni future."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-40",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-40",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Non regolarità mediante prefissi distinguibili",
-    "text": "Non regolarità mediante prefissi distinguibili\n\n40 / 43 · Cap. 2 · §2.4, p. 43 e applicazione del teorema, pp. 45-47\n\nConsidera il linguaggio delle parole con tanti 0 quanti 1.\nPrendiamo i prefissi x_n=0^n, per ogni n\\geq0.\nSe m\\ne n, il suffisso z=1^n distingue x_n da x_m:\n 0^n1^n\\in L,\\qquad 0^m1^n\\notin L \nEsistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare."
+    "section": "Relazioni di equivalenza, classi e indice",
+    "text": "Relazioni di equivalenza, classi e indice\n\n40 / 50 · Cap. 2 · §2.4, pp. 44-45\n\nUna relazione di equivalenza \\sim su \\Sigma^* è riflessiva, simmetrica e transitiva.\nPartiziona \\Sigma^* in classi di equivalenza disgiunte:\n [w]=\\{u\\in\\Sigma^* \\mid u\\sim w\\} \nL’indice di \\sim è il numero totale delle sue classi. Se l’indice è finito, ogni classe può diventare uno stato di un DFA.\nEsempio: classificare le parole in base alla parità della lunghezza ha indice 2 (parole pari e dispari)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-41",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-41",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Esercizi di autoverifica",
-    "text": "Esercizi di autoverifica\n\n41 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\nChe linguaggi descrivono \\varnothing^* e \\varepsilon+01?\nDue stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l’accettazione della parola vuota dopo la rimozione ε?\nTrova la parola minima che termina con 1 e contiene un numero pari di 1.\nPer il linguaggio «contiene 1», ε e 0 sono equivalenti? E ε e 1?\nQuale prodotto verifica L_C\\subseteq L_E e quale controesempio trova?\n\nSpiega a voce le ragioni prima di passare alle soluzioni."
+    "section": "Invarianza a destra e compatibilità",
+    "text": "Invarianza a destra e compatibilità\n\n41 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nPer usare le classi come stati di un automa servono due proprietà:\nInvarianza a destra:  x\\sim y\\quad\\Longrightarrow\\quad xz\\sim yz\\quad\\text{per ogni }z\\in\\Sigma^*  Rende coerenti e ben definite le transizioni: \\delta([w],a)=[wa].\nCompatibilità con L:  x\\sim y\\quad\\Longrightarrow\\quad (x\\in L \\iff y\\in L)  Rende ben definiti gli stati accettanti: ogni classe è interamente contenuta in L o interamente fuori da L."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-42",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-42",
     "title": "Verification and Validation Techniques — UniUD",
-    "section": "Soluzioni e verifica degli algoritmi",
-    "text": "Soluzioni e verifica degli algoritmi\n\n42 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\n\\varnothing^* descrive \\{\\varepsilon\\}; \\varepsilon+01 descrive \\{\\varepsilon,01\\}.\nCon la nostra formula per \\Delta', rendiamo finale anche l’iniziale.\n11: un solo 1 dà parità dispari.\nε e 0 hanno gli stessi futuri; ε e 1 sono distinti già dal suffisso vuoto.\nProdotto di C con il complemento di E: testimone minimo 10.\n\nIl controllo seguente confronta costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.\nprint('Verifica completata: 255 parole e 10 espressioni.')\nprint('ε-NFA, rimozione ε e DFA concordano con i predicati diretti.')\nprint('BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.')\nVerifica completata: 255 parole e 10 espressioni.\nε-NFA, rimozione ε e DFA concordano con i predicati diretti.\nBFS, inclusioni, testimone vuoto e punto fisso: controlli passati."
+    "section": "Equivalenza di Myhill–Nerode",
+    "text": "Equivalenza di Myhill–Nerode\n\n42 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nDue prefissi sono equivalenti per L se nessuna continuazione futura può distinguere i loro verdetti:\n x\\sim_L y\\quad\\Longleftrightarrow\\quad\\forall z\\in\\Sigma^*:\\;(xz\\in L\\Longleftrightarrow yz\\in L) \n\\sim_L è invariante a destra e compatibile con L.\nÈ la relazione più grossolana (con il minor numero di classi) che riconosce L.\nDue prefissi possono avere verdetti opposti o uguali sul momento; ciò che conta è il comportamento su tutti i suffissi possibili z."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-43",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-43",
     "title": "Verification and Validation Techniques — UniUD",
+    "section": "Confrontare i futuri di due prefissi",
+    "text": "Confrontare i futuri di due prefissi\n\n43 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nUsiamo il linguaggio «numero pari di 1».\nCoppia seleziona ε / 1, 1 / 01 o ε / 11. Suffisso seleziona ε, 0, 1, 01.\n\nCon ε / 1 e suffisso ε, i verdetti differiscono: i prefissi sono distinguibili.\nCon 1 / 01, per qualsiasi suffisso z i verdetti coincidono: 1\\sim_L 01.\nI prefissi restano equivalenti per ogni suffisso perché hanno la stessa parità, non solo per i suffissi testati.\n\n\nConfrontare i futuri di due prefissi — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-44",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-44",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Teorema di Myhill–Nerode",
+    "text": "Teorema di Myhill–Nerode\n\n44 / 50 · Cap. 2 · §2.4, pp. 46-47\n\nPer ogni linguaggio L\\subseteq\\Sigma^* sono equivalenti:\n\nL è regolare (riconosciuto da un DFA).\nEsiste un’equivalenza \\sim di indice finito, invariante a destra e compatibile con L.\nL’equivalenza di Myhill–Nerode \\sim_L ha indice finito.\n\nUn DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può realmente osservare."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-45",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-45",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Costruire il DFA delle classi",
+    "text": "Costruire il DFA delle classi\n\n45 / 50 · Cap. 2 · §2.4, p. 47\n\nSe \\sim_L ha indice finito, usiamo le sue classi come stati del DFA canonico:\n Q=\\{[w] \\mid w\\in\\Sigma^*\\} \n\nStato iniziale: [\\varepsilon].\nFunzione di transizione: \\delta([w],a)=[wa].\nStati accettanti: \\{[w] \\mid w\\in L\\}.\n\nL’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-46",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-46",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Minimalità del DFA delle classi",
+    "text": "Minimalità del DFA delle classi\n\n46 / 50 · Cap. 2 · §2.4, pp. 47-48\n\nSe due prefissi x,y appartengono a classi di Myhill–Nerode diverse, un suffisso z li distingue (xz\\in L \\not\\iff yz\\in L).\nQualunque DFA per L deve portarli in stati diversi: se li portasse nello stesso stato, leggendo z darebbe lo stesso verdetto su entrambe le parole.\nConclusione: ogni DFA per L ha almeno tanti stati quante sono le classi di \\sim_L.\nIl DFA delle classi raggiunge esattamente questo minimo ed è unico a meno di isomorfismo."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-47",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-47",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Dimostrare la non-regolarità",
+    "text": "Dimostrare la non-regolarità\n\n47 / 50 · Cap. 2 · §2.4, p. 43 e pp. 45-47\n\nPer dimostrare che un linguaggio non è regolare, basta esibire una famiglia infinita di prefissi a due a due distinguibili.\nLinguaggio con tanti 0 quanti 1: L=\\{0^n 1^n \\mid n\\ge 0\\}.\nPrendiamo la sequenza infinita di prefissi x_n=0^n per ogni n\\ge 0.\nSe m\\ne n, il suffisso z=1^n distingue x_n da x_m:\n 0^n 1^n\\in L,\\qquad 0^m 1^n\\notin L \nEsistono infinite classi di Myhill–Nerode distinte. Dunque il linguaggio non è regolare, anche se il suo predicato è banale da descrivere."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-48",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-48",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Esercizi di autoverifica",
+    "text": "Esercizi di autoverifica\n\n48 / 50 · Cap. 2 · Esercizi, pp. 48-49\n\n\nChe linguaggi descrivono \\varnothing^* e \\varepsilon+01?\nDue stati, iniziale e finale, sono collegati solo da \\varepsilon: quale correzione preserva l’accettazione della parola vuota dopo la rimozione \\varepsilon?\nTrova la parola minima che termina con 1 e contiene un numero pari di 1.\nPer il linguaggio «contiene 1», ε e 0 sono equivalenti per \\sim_L? E ε e 1?\nQuale prodotto verifica L_C\\subseteq L_E e quale controesempio restituisce?\n\nSpiega a voce le ragioni prima di passare alle soluzioni."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-49",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-49",
+    "title": "Verification and Validation Techniques — UniUD",
+    "section": "Soluzioni e verifica degli algoritmi",
+    "text": "Soluzioni e verifica degli algoritmi\n\n49 / 50 · Cap. 2 · Esercizi, pp. 48-49\n\n\n\\varnothing^* descrive \\{\\varepsilon\\}; \\varepsilon+01 descrive \\{\\varepsilon,01\\}.\nRendiamo finale anche lo stato iniziale q_0 (poiché \\operatorname{ECl}(q_0)\\cap F\\neq\\varnothing).\n11: un solo 1 darebbe parità dispari.\nε e 0 hanno gli stessi futuri (equivalenti); ε e 1 sono distinti già dal suffisso vuoto \\varepsilon.\nProdotto tra L_C e il complemento di L_E: controesempio minimo 10.\n\nIl controllo seguente verifica costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.\nprint('Verifica completata: 255 parole e 10 espressioni.')\nprint('ε-NFA, rimozione ε e DFA concordano con i predicati diretti.')\nprint('BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.')\nVerifica completata: 255 parole e 10 espressioni.\nε-NFA, rimozione ε e DFA concordano con i predicati diretti.\nBFS, inclusioni, testimone vuoto e punto fisso: controlli passati."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-50",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione.html#scena-50",
+    "title": "Verification and Validation Techniques — UniUD",
     "section": "Riepilogo e collegamento alla verifica",
-    "text": "Riepilogo e collegamento alla verifica\n\n43 / 43 · Cap. 2 · Riepilogo, p. 48\n\n\nEspressioni regolari e automi finiti descrivono gli stessi linguaggi.\nLe transizioni ε rendono modulari le costruzioni e si possono eliminare.\nComplemento e prodotto compilano requisiti booleani.\nL’inclusione si decide cercando un comportamento ammesso dal sistema e vietato dalla specifica.\nMyhill–Nerode identifica la memoria minima necessaria.\n\nNel capitolo 3 passeremo alle parole infinite: il momento finale di accettazione non sarà più disponibile."
+    "text": "Riepilogo e collegamento alla verifica\n\n50 / 50 · Cap. 2 · Riepilogo, p. 48\n\n\nSintassi algebrica ed equivalenza: Espressioni regolari e automi finiti riconoscono la stessa classe di linguaggi (Teorema di Kleene: Thompson ed eliminazione stati).\nComposizione modulare: Complemento (determinizza \\to completa \\to scambia) e prodotto cartesiano permettono di comporre specifiche arbitrarie.\nVerifica automatica: L’inclusione L(\\mathcal{M})\\subseteq L(\\mathcal{S}) si riduce alla vuotezza di \\mathcal{M}\\times\\overline{\\mathcal{S}}, fornendo controesempi eseguibili.\nCanonicità e memoria minima: Myhill–Nerode dimostra che la memoria necessaria dipende dalle classi dei futuri, identificando il DFA minimale unico.\n\nNel capitolo 3 passeremo alle parole infinite: nei sistemi reattivi il momento finale di accettazione a termine parola non sarà più disponibile."
   },
   {
     "objectID": "presentazioni/01-automi-finiti-e-linguaggi-regolari.html#scena-01",
@@ -1460,308 +1509,357 @@
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-01",
     "title": "Linguaggi regolari e problemi di decisione",
     "section": "Linguaggi regolari e problemi di decisione",
-    "text": "Linguaggi regolari e problemi di decisione\n\n01 / 43 · Cap. 2 · pp. 23-24\n\nVVT · Lezione 2 · Capitolo 2\nObiettivo: costruire automi, decidere inclusioni e spiegare la memoria minima.\nPercorso: espressioni → automi → raggiungibilità → Myhill–Nerode."
+    "text": "Linguaggi regolari e problemi di decisione\n\n01 / 50 · Cap. 2 · pp. 23-24\n\nVVT · Lezione 2 · Capitolo 2\nNel capitolo 1 abbiamo introdotto gli automi a stati finiti: un modello operazionale che descrive come scansionare una parola passo dopo passo.\nQuesto capitolo introduce tre prospettive complementari:\n\nSintassi algebrica (dichiarativa): le espressioni regolari e l’equivalenza di Kleene.\nComposizione modulare: le proprietà di chiusura booleana (unione, intersezione, complemento).\nVerifica algoritmica: i problemi di decisione (inclusione, vuotezza, equivalenza).\n\nConclude la prospettiva di Myhill–Nerode: quanti stati servono davvero e qual è il DFA canonico minimo.\nFilo conduttore: la riduzione di quesiti semantici complessi a controlli di raggiungibilità su grafo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-02",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-02",
     "title": "Linguaggi regolari e problemi di decisione",
     "section": "Richiamo: accettazione su parole finite",
-    "text": "Richiamo: accettazione su parole finite\n\n02 / 43 · Cap. 2 · introduzione, pp. 23-24\n\nUn DFA ha una sola run; un NFA può averne più di una.\nUna parola è accettata se almeno una run termina in uno stato finale, dopo aver consumato tutto l’input.\n L(\\mathcal A)\\subseteq\\Sigma^* \nUseremo \\Sigma=\\{0,1\\}. La parola vuota è \\varepsilon; il complemento è sempre relativo all’alfabeto dichiarato."
+    "text": "Richiamo: accettazione su parole finite\n\n02 / 50 · Cap. 2 · introduzione, pp. 23-24\n\nUn DFA ha una sola run per ogni parola; un NFA può averne nessuna, una o molte.\nUna parola è accettata se almeno una run termina in uno stato finale in F, dopo aver consumato l’intero input:\n L(\\mathcal{A})\\subseteq\\Sigma^* \n\n\\Sigma indica l’alfabeto di lavoro (spesso \\{0,1\\} o un insieme di eventi del sistema).\n\\varepsilon denota la parola vuota (|\\varepsilon|=0).\nIl complemento \\overline{L}=\\Sigma^*\\setminus L è sempre relativo all’alfabeto dichiarato \\Sigma."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-03",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-03",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Sintassi delle espressioni regolari",
-    "text": "Sintassi delle espressioni regolari\n\n03 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\nLe espressioni ristrette partono da:\n \\varnothing,\\qquad \\varepsilon,\\qquad a\\in\\Sigma \nSe r e s sono espressioni, anche r+s, rs e r^* lo sono.\nIl simbolo + indica unione. La stella ha precedenza sulla concatenazione, che precede l’unione; le parentesi eliminano ambiguità."
+    "section": "Dalla macchina alla formula: sintassi dichiarativa",
+    "text": "Dalla macchina alla formula: sintassi dichiarativa\n\n03 / 50 · Cap. 2 · §2.1.1, pp. 24-25\n\nDisegnare un automa è un atto operazionale: descrive cosa fa la macchina a ogni passo di computazione, non come è fatta la parola.\nPer specificare proprietà, interrogare tracce e comporre requisiti, è preferibile una sintassi algebrica e dichiarativa: le espressioni regolari.\nLe espressioni ristrette su \\Sigma partono dai casi atomici:\n \\varnothing,\\qquad \\varepsilon,\\qquad a\\in\\Sigma \ne si compongono induttivamente tramite:\n r+s \\quad\\text{(unione)},\\qquad rs \\quad\\text{(concatenazione)},\\qquad r^* \\quad\\text{(stella di Kleene)} \nPrecedenza: la stella precede la concatenazione, che precede l’unione. Le parentesi sciolgono le ambiguità."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-04",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-04",
     "title": "Linguaggi regolari e problemi di decisione",
     "section": "Semantica delle espressioni regolari",
-    "text": "Semantica delle espressioni regolari\n\n04 / 43 · Cap. 2 · §2.1.1, pp. 24-25\n\n L(\\varnothing)=\\varnothing,\\quad L(\\varepsilon)=\\{\\varepsilon\\},\\quad L(a)=\\{a\\} \n L(r+s)=L(r)\\cup L(s) \n L(rs)=L(r)L(s),\\qquad L(r^*)=L(r)^* \n\\varnothing non contiene parole; \\varepsilon descrive una parola di lunghezza zero. La stella consente sempre zero ripetizioni."
+    "text": "Semantica delle espressioni regolari\n\n04 / 50 · Cap. 2 · §2.1.1, pp. 24-25\n\nLa semantica associa a ogni espressione regolare r il linguaggio formale L(r)\\subseteq\\Sigma^*:\n L(\\varnothing)=\\varnothing,\\quad L(\\varepsilon)=\\{\\varepsilon\\},\\quad L(a)=\\{a\\} \n L(r+s)=L(r)\\cup L(s) \n L(rs)=L(r)L(s),\\qquad L(r^*)=L(r)^* \n\\varnothing denota il linguaggio vuoto (nessuna parola); \\varepsilon denota il linguaggio contenente solo la parola vuota (\\{\\varepsilon\\}\\neq\\varnothing).\nLa stella r^* ammette sempre zero o più ripetizioni finite, quindi \\varepsilon\\in L(r^*) per qualsiasi espressione r."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-05",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-05",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Espressioni per suffisso e parità",
-    "text": "Espressioni per suffisso e parità\n\n05 / 43 · Cap. 2 · §2.1.1, p. 25\n\n (0+1)^*01 \nDescrive le parole che terminano con 01: accetta 01, 1101; rifiuta ε, 010.\n 0^*(10^*10^*)^* \nDescrive le parole con un numero pari di 1: ogni blocco ripetuto contribuisce due 1. Sono incluse ε e tutte le parole composte solo da 0."
+    "section": "Esempi di espressioni: suffisso e parità",
+    "text": "Esempi di espressioni: suffisso e parità\n\n05 / 50 · Cap. 2 · §2.1.1, p. 25\n\n (0+1)^*01 \nDescrive le parole che terminano con 01: accetta 01, 1101; rifiuta ε, 010.\n 0^*(10^*10^*)^* \nDescrive le parole con un numero pari di 1: ogni blocco ripetuto contribuisce due 1. Sono incluse ε e tutte le parole composte solo da 0.\nL’espressione descrive la struttura della parola; il DFA descrive come scansionarla."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-06",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-06",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Espressioni generali e star-free",
-    "text": "Espressioni generali e star-free\n\n06 / 43 · Cap. 2 · §2.1.1, pp. 25-26\n\nLe espressioni generali aggiungono intersezione e complemento:\n L(r\\cap s)=L(r)\\cap L(s),\\qquad L(\\overline r)=\\Sigma^*\\setminus L(r) \nLe espressioni star-free ammettono questi operatori booleani, ma non la stella.\nStar-free non significa linguaggio finito: \\overline{\\varnothing} descrive \\Sigma^*. Le espressioni generali hanno la stessa potenza delle ristrette; le star-free ne hanno meno."
+    "section": "Esempio guida: la sessione dell’editor",
+    "text": "Esempio guida: la sessione dell’editor\n\n06 / 50 · Cap. 2 · §2.1.1, p. 25\n\nNel nostro monitor software per un editor di testo, l’alfabeto di eventi è \\Sigma_{\\mathrm{edit}}=\\{\\texttt{apri},\\texttt{modifica},\\texttt{salva},\\texttt{chiudi}\\}.\nLa proprietà delle sessioni finite corrette si scrive direttamente come espressione regolare ristretta:\n r_{\\mathrm{sessione}}=\\texttt{apri}\\;(\\texttt{modifica}+\\texttt{salva})^*\\,\\texttt{chiudi} \nI tre blocchi riflettono il ciclo vitale del documento: 1. Inizio: apertura del documento una sola volta; 2. Lavoro: sequenza arbitraria finita di modifiche e salvataggi; 3. Termine: chiusura ordinata del file.\nDFA ed espressione regolare specificano lo stesso identico insieme di tracce a due livelli di astrazione complementari: macchina a stati vs specifica dichiarativa."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-07",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-07",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Transizioni ε e composizione",
-    "text": "Transizioni ε e composizione\n\n07 / 43 · Cap. 2 · §2.1.2, pp. 26-27\n\nUna transizione \\varepsilon cambia stato senza consumare simboli. Non aggiunge un simbolo all’alfabeto.\nPer concatenare gli automi per 0 e 1, colleghiamo l’uscita del primo all’ingresso del secondo. Solo l’ultima uscita resta accettante.\nIl doppio cerchio indica uno stato finale; la freccia esterna indica l’iniziale.\n\n\n\nTransizioni ε e composizione — figura 1"
+    "section": "Espressioni generali e star-free",
+    "text": "Espressioni generali e star-free\n\n07 / 50 · Cap. 2 · §2.1.1, pp. 25-26\n\nLe espressioni generali aggiungono intersezione e complemento direttamente nella sintassi:\n L(r\\cap s)=L(r)\\cap L(s),\\qquad L(\\overline{r})=\\Sigma^*\\setminus L(r) \nLe espressioni star-free ammettono questi operatori booleani, ma vietano la stella: nessuna iterazione libera.\nGerarchia espressiva: - Generali = Ristrette: i connettivi booleani sono una comodità sintattica, ma non aumentano il potere espressivo (si compilano via automi). - Star-free &lt; Ristrette: le star-free definiscono una classe strettamente più piccola (i linguaggi aperiodici / logica del primo ordine). Non possono contare modulo una costante (la parità non è star-free)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-08",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-08",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Chiusura ε come punto fisso",
-    "text": "Chiusura ε come punto fisso\n\n08 / 43 · Cap. 2 · §2.1.2, p. 27\n\n\\operatorname{ECl}(S) contiene tutti gli stati raggiungibili da S usando zero o più transizioni ε.\n X_0=S,\\qquad X_{i+1}=X_i\\cup\\bigcup_{q\\in X_i}\\Delta(q,\\varepsilon) \nSi arresta quando X_{i+1}=X_i. Nel diagramma precedente:\n \\operatorname{ECl}(\\{u\\})=\\{u,v\\} \nLo stato di partenza appartiene sempre alla propria chiusura."
+    "section": "L’obiettivo di equivalenza: il Teorema di Kleene",
+    "text": "L’obiettivo di equivalenza: il Teorema di Kleene\n\n08 / 50 · Cap. 2 · §2.1.2, pp. 26-27\n\nQual è il legame fondamentale tra la sintassi dichiarativa delle espressioni e il modello a stati degli automi?\nTeorema di Kleene: Un linguaggio L\\subseteq\\Sigma^* è riconosciuto da un automa a stati finiti se e solo se è denotato da un’espressione regolare ristretta.\nIl risultato fornisce due concreti motori algoritmici: 1. Motore di compilazione (Espressione \\to Automa): assemblaggio strutturale di sotto-automi tramite mosse silenti (costruzione di Thompson). 2. Motore di estrazione (Automa \\to Espressione): eliminazione graduale degli stati tramite programmazione dinamica.\nNella verifica software, Kleene assicura che possiamo alternare liberamente specifiche dichiarative e monitor a stati eseguibili."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-09",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-09",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Simulazione di un ε-NFA",
-    "text": "Simulazione di un ε-NFA\n\n09 / 43 · Cap. 2 · §2.1.2, pp. 27-28\n\nPrima di leggere e dopo ogni simbolo, calcoliamo la chiusura ε.\n\nIn Parola scegli 01; Letti conta i simboli consumati, da 0 a 2, inizialmente 0.\nA 0 l’insieme attivo è {s}. A 1 diventa {u,v}: è stato consumato solo 0.\nA 2 rimane {f} e la parola è accettata.\nScegli 0: il cursore si azzera e il massimo diventa 1. Al termine {u,v} non contiene finali.\n\nIl caso ε termina subito in {s} ed è rifiutato.\n\n\n\nSimulazione di un ε-NFA — figura 1"
+    "section": "La sfida della compilazione: le transizioni ε",
+    "text": "La sfida della compilazione: le transizioni ε\n\n09 / 50 · Cap. 2 · §2.1.3, pp. 27-28\n\nPer compilare un’espressione r in un automa A_r, dobbiamo comporre ricorsivamente le macchine dei sotto-termini per r+s, rs e r^*.\nComporre direttamente automi rigidi richiederebbe di ricablare a mano ogni transizione entrante negli stati finali del primo componente.\nPer rendere modulare l’assemblaggio, introduciamo un connettore ideale: la transizione \\varepsilon (mossa silente).\nUna transizione \\varepsilon cambia stato senza consumare simboli e senza far avanzare la testina di lettura sull’input."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-10",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-10",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Eliminare le transizioni ε",
-    "text": "Eliminare le transizioni ε\n\n10 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nManteniamo gli stati, ma ogni passo ordinario assorbe i passi ε precedenti e successivi:\n \\Delta'(q,a)=\\operatorname{ECl}\\left(\\bigcup_{p\\in\\operatorname{ECl}(\\{q\\})}\\Delta(p,a)\\right) \nNell’esempio: \\Delta'(s,0)=\\{u,v\\} e \\Delta'(u,1)=\\{f\\}.\nIl nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota."
+    "section": "Transizioni ε e composizione",
+    "text": "Transizioni ε e composizione\n\n10 / 50 · Cap. 2 · §2.1.3, pp. 27-28\n\nPer concatenare gli automi per \\{0\\} e \\{1\\}, colleghiamo l’uscita del primo all’ingresso del secondo con un arco \\varepsilon.\nNon serve riprogettare gli stati interni: il controllo salta al secondo automa in modo asincrono.\nSolo l’uscita dell’ultimo frammento resta accettante; la freccia esterna indica l’iniziale.\n\n\n\nTransizioni ε e composizione — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-11",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-11",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Eliminazione ε: il caso della parola vuota",
-    "text": "Eliminazione ε: il caso della parola vuota\n\n11 / 43 · Cap. 2 · §2.1.2, pp. 29-30\n\nCon la convenzione precedente manteniamo F, aggiungendo q_0 se la sua chiusura ε incontra F.\nEsempio: due stati i, f, con una sola freccia ε da i a f; solo f è finale.\nL’automa accetta ε. Eliminando la freccia senza correggere i finali, la rifiuterebbe.\nRendendo finale anche i, il linguaggio rimane esattamente \\{\\varepsilon\\}.\nempty_example = enfa({'i','f'}, {('i', EPS): {'f'}}, 'i', {'f'})\nordinary = remove_epsilon(empty_example)\nprint('Finali dopo la rimozione:', names(ordinary['final']))\nprint('ε accettata:', bool(enfa_run(ordinary, '')[-1] & ordinary['final']))\nprint('0 accettata:', bool(enfa_run(ordinary, '0')[-1] & ordinary['final']))\nFinali dopo la rimozione: {f, i}\nε accettata: True\n0 accettata: False"
+    "section": "Chiusura ε come punto fisso",
+    "text": "Chiusura ε come punto fisso\n\n11 / 50 · Cap. 2 · §2.1.3, p. 28\n\n\\operatorname{ECl}(S) contiene tutti gli stati raggiungibili da S seguendo zero o più transizioni \\varepsilon.\nSi calcola come punto fisso della sequenza crescente:\n X_0=S,\\qquad X_{i+1}=X_i\\cup\\bigcup_{q\\in X_i}\\Delta(q,\\varepsilon) \nL’algoritmo si arresta quando X_{i+1}=X_i. Nel diagramma precedente:\n \\operatorname{ECl}(\\{u\\})=\\{u,v\\} \nProprietà fondamentale: S\\subseteq\\operatorname{ECl}(S) sempre (cammino nullo di zero passi \\varepsilon)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-12",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-12",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Teorema di Kleene: le due costruzioni",
-    "text": "Teorema di Kleene: le due costruzioni\n\n12 / 43 · Cap. 2 · §2.1.3, pp. 30-32\n\nUn linguaggio su parole finite è riconosciuto da un automa finito se e solo se è descritto da un’espressione regolare ristretta.\n\nEspressione → automa: costruzione strutturale di Thompson.\nAutoma → espressione: ricorrenza sui possibili stati intermedi.\n\nEntrambe sono procedure effettive. Si può passare da ε-NFA a NFA, poi a DFA, conservando il linguaggio."
+    "section": "Simulazione di un ε-NFA",
+    "text": "Simulazione di un ε-NFA\n\n12 / 50 · Cap. 2 · §2.1.3, pp. 28-29\n\nIn un \\varepsilon-NFA, l’insieme degli stati attivi si espande con la chiusura \\varepsilon prima di iniziare e dopo ogni simbolo letto:\n\nIn Parola scegli 01; Letti conta i simboli consumati, da 0 a 2, inizialmente 0.\nA 0 l’insieme attivo è \\{s\\}. A 1 diventa \\{u,v\\}: è stato consumato solo 0.\nA 2 rimane \\{f\\} e la parola è accettata.\nScegli 0: il cursore si azzera e il massimo diventa 1. Al termine \\{u,v\\} non contiene finali.\n\nIl caso ε termina subito in \\{s\\} ed è rifiutato.\n\n\n\nSimulazione di un ε-NFA — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-13",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-13",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Thompson: casi base e invariante",
-    "text": "Thompson: casi base e invariante\n\n13 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nOgni frammento ha un ingresso e una sola uscita accettante, inizialmente priva di archi uscenti.\n\n\\varnothing: ingresso e uscita senza un cammino che li colleghi.\n\\varepsilon: un arco ε dall’ingresso all’uscita.\na: un arco etichettato a dall’ingresso all’uscita.\n\nI frammenti da comporre devono avere insiemi di stati disgiunti."
+    "section": "Eliminare le transizioni ε",
+    "text": "Eliminare le transizioni ε\n\n13 / 50 · Cap. 2 · §2.1.3, pp. 29-30\n\nManteniamo gli stati Q, ma ogni passo ordinario assorbe i passi \\varepsilon precedenti e successivi:\n \\Delta'(q,a)=\\operatorname{ECl}\\left(\\bigcup_{p\\in\\operatorname{ECl}(\\{q\\})}\\Delta(p,a)\\right) \nNell’esempio: \\Delta'(s,0)=\\{u,v\\} e \\Delta'(u,1)=\\{f\\}.\nIl nuovo NFA legge solo simboli reali. Va controllata separatamente l’accettazione della parola vuota."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-14",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-14",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Thompson: unione, concatenazione e stella",
-    "text": "Thompson: unione, concatenazione e stella\n\n14 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nUnione r+s: un nuovo ingresso sceglie con ε uno dei due frammenti; le vecchie uscite raggiungono una nuova uscita.\nConcatenazione rs: colleghiamo l’uscita di r all’ingresso di s con ε.\nStella r^*: aggiungiamo ingresso e uscita nuovi; consentiamo di saltare il frammento, attraversarlo, ripeterlo e uscire.\nIl salto diretto ingresso → uscita realizza le zero ripetizioni."
+    "section": "Eliminazione ε: il caso della parola vuota",
+    "text": "Eliminazione ε: il caso della parola vuota\n\n14 / 50 · Cap. 2 · §2.1.3, p. 30\n\nGli stati finali rimangono F, con una correzione fondamentale:\n q_0\\in F' \\iff \\operatorname{ECl}(q_0)\\cap F\\neq\\varnothing \nSe dall’iniziale q_0 si può raggiungere uno stato finale solo tramite mosse \\varepsilon, l’automa originale accettava \\varepsilon.\nRendendo finale anche q_0, l’NFA senza \\varepsilon conserva esattamente l’accettazione di \\varepsilon.\nempty_example = enfa({'i','f'}, {('i', EPS): {'f'}}, 'i', {'f'})\nordinary = remove_epsilon(empty_example)\nprint('Finali dopo la rimozione:', names(ordinary['final']))\nprint('ε accettata:', bool(enfa_run(ordinary, '')[-1] & ordinary['final']))\nprint('0 accettata:', bool(enfa_run(ordinary, '0')[-1] & ordinary['final']))\nFinali dopo la rimozione: {f, i}\nε accettata: True\n0 accettata: False"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-15",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-15",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Compilare un’espressione in Python",
-    "text": "Compilare un’espressione in Python\n\n15 / 43 · Cap. 2 · §2.1.3, pp. 34-35\n\nCompiliamo r=(0+1)^*01 e poi rimuoviamo ε e determinizziamo.\nIl codice rappresenta la sintassi con tuple: lit è un simbolo, plus è unione, cat è concatenazione, star è stella.\nLa prova finita confronta il DFA con la proprietà «termina con 01». La correttezza generale deriva dalla costruzione di Thompson.\nzero, one = ('lit','0'), ('lit','1')\nregex = ('cat', ('star', ('plus', zero, one)), ('cat', zero, one))\ncompiled_e = thompson(regex)\ncompiled_d = determinize(remove_epsilon(compiled_e))\nfor w in words():\n    assert accepts(compiled_d, w) == w.endswith('01')\nprint('Stati ε-NFA:', len(compiled_e['states']))\nprint('Stati DFA raggiungibili:', len(compiled_d['states']))\nprint('255 parole confrontate con il predicato del suffisso.')\nStati ε-NFA: 12\nStati DFA raggiungibili: 4\n255 parole confrontate con il predicato del suffisso."
+    "section": "Thompson: casi base e invariante",
+    "text": "Thompson: casi base e invariante\n\n15 / 50 · Cap. 2 · §2.1.3, pp. 30-31\n\nL’algoritmo di Thompson compila ricorsivamente un’espressione regolare in un \\varepsilon-NFA.\nInvariante strutturale: ogni frammento ha: - un solo ingresso i, senza transizioni entranti; - una sola uscita accettante f, senza transizioni uscenti.\nCasi base: - \\varnothing: ingresso e uscita sconnessi (nessun cammino collegato). - \\varepsilon: un arco \\varepsilon dall’ingresso all’uscita. - a\\in\\Sigma: un arco etichettato a dall’ingresso all’uscita."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-16",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-16",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Da automa a espressione: stati intermedi",
-    "text": "Da automa a espressione: stati intermedi\n\n16 / 43 · Cap. 2 · §2.1.3, pp. 32-33\n\nNumeriamo gli stati q_1,\\ldots,q_n.\nR_{ij}^{k} descrive le parole dei cammini da q_i a q_j che usano come stati intermedi solo q_1,\\ldots,q_k.\nGli estremi non sono vincolati. Con k=0 sono ammessi solo archi diretti e il cammino vuoto da uno stato a sé stesso.\nQuindi R_{ij}^{0} è l’unione delle etichette dirette, con ε aggiunta quando i=j."
+    "section": "Thompson: unione, concatenazione e stella",
+    "text": "Thompson: unione, concatenazione e stella\n\n16 / 50 · Cap. 2 · §2.1.3, pp. 31-32\n\n\nUnione r+s: nuovo ingresso che sceglie con \\varepsilon uno dei due rami; le uscite raggiungono con \\varepsilon una nuova uscita comune.\nConcatenazione rs: colleghiamo l’uscita di r all’ingresso di s con un arco \\varepsilon.\nStella r^*: aggiungiamo nuovo ingresso e nuova uscita. Un arco \\varepsilon diretto i\\to f consente zero ripetizioni; un arco di ritorno f_r\\to i_r consente di iterare il corpo.\n\nLa dimensione dell’automa è strettamente lineare: ogni operatore aggiunge al più 2 stati e 4 transizioni."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-17",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-17",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Ricorrenza per la traduzione in espressione",
-    "text": "Ricorrenza per la traduzione in espressione\n\n17 / 43 · Cap. 2 · §2.1.3, pp. 33-36\n\nSbloccando q_k come nuovo stato intermedio, un cammino può evitarlo oppure entrarvi, ritornarvi e uscire.\n R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \nLa stella rappresenta un numero finito qualsiasi di ritorni.\nAlla fine si uniscono R_{1j}^{n} per tutti i finali q_j, assumendo q_1 iniziale."
+    "section": "Compilare un’espressione in Python",
+    "text": "Compilare un’espressione in Python\n\n17 / 50 · Cap. 2 · §2.1.3, p. 32\n\nCompiliamo r=(0+1)^*01 e poi rimuoviamo \\varepsilon e determinizziamo.\nLa pipeline automatica chiude la catena: \\text{Regex} \\xrightarrow{\\text{Thompson}} \\varepsilon\\text{-NFA} \\xrightarrow{\\text{Rimozione }\\varepsilon} \\text{NFA} \\xrightarrow{\\text{Subset}} \\text{DFA}\nzero, one = ('lit','0'), ('lit','1')\nregex = ('cat', ('star', ('plus', zero, one)), ('cat', zero, one))\ncompiled_e = thompson(regex)\ncompiled_d = determinize(remove_epsilon(compiled_e))\nfor w in words():\n    assert accepts(compiled_d, w) == w.endswith('01')\nprint('Stati ε-NFA:', len(compiled_e['states']))\nprint('Stati DFA raggiungibili:', len(compiled_d['states']))\nprint('255 parole confrontate con il predicato del suffisso.')\nStati ε-NFA: 12\nStati DFA raggiungibili: 4\n255 parole confrontate con il predicato del suffisso."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-18",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-18",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Ricorrenza sul DFA della parità",
-    "text": "Ricorrenza sul DFA della parità\n\n18 / 43 · Cap. 2 · §2.1.3, pp. 33-34\n\nNel DFA della parità di 1, q_1 è pari e q_2 dispari. 0 conserva lo stato, 1 lo cambia.\n R_{11}^{0}=R_{22}^{0}=\\varepsilon+0,\\qquad R_{12}^{0}=R_{21}^{0}=1 \nSbloccando q_1:\n R_{22}^{1}=(\\varepsilon+0)+1(\\varepsilon+0)^*1 \nSono inclusi ε, 0, 11, 101; 00 richiede un passaggio intermedio per q_2 e non è ancora incluso."
+    "section": "Il motore di estrazione: da automa a espressione",
+    "text": "Il motore di estrazione: da automa a espressione\n\n18 / 50 · Cap. 2 · §2.1.4, pp. 32-33\n\nAffrontiamo ora la direzione inversa di Kleene: dato un automa A, estrarre una formula regolare r_A tale che L(r_A)=L(A).\nLa difficoltà risiede nei cicli: una computazione può vagare nel grafo prima di raggiungere uno stato finale.\nStrategia algoritmica: numerare gli stati Q=\\{q_1,\\ldots,q_n\\} e consentirli come intermedi uno alla volta tramite programmazione dinamica.\nLa numerazione è solo un indice di controllo per tenere traccia delle tappe intermedie permesse."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-19",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-19",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Chiusure dei linguaggi regolari",
-    "text": "Chiusure dei linguaggi regolari\n\n19 / 43 · Cap. 2 · §2.2, pp. 36-37\n\nSe L_1 e L_2 sono regolari sullo stesso alfabeto, sono regolari anche:\n L_1\\cup L_2,\\quad L_1L_2,\\quad L_1^*,\\quad \\overline{L_1},\\quad L_1\\cap L_2 \nUnione, concatenazione e stella seguono dalle costruzioni già viste.\nComplemento e intersezione permettono di combinare requisiti. Con Kleene, dimostrano che gli operatori delle espressioni generali non aggiungono potere espressivo."
+    "section": "Stati intermedi e linguaggi di cammino",
+    "text": "Stati intermedi e linguaggi di cammino\n\n19 / 50 · Cap. 2 · §2.1.4, pp. 33-34\n\nR_{ij}^{k} descrive le parole dei cammini da q_i a q_j che usano come stati intermedi solo un sottoinsieme di \\{q_1,\\ldots,q_k\\}.\nGli estremi q_i e q_j non sono vincolati dall’indice k.\nCaso base k=0 (nessun nodo intermedio ammesso): Sono ammessi solo archi diretti e il passo vuoto da uno stato a sé stesso:\n R_{ij}^{0} = \\{\\,a\\in\\Sigma \\mid \\delta(q_i,a)=q_j\\,\\} \\cup (\\{\\varepsilon\\} \\text{ se } i=j)"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-20",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-20",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Complemento: serve un DFA completo",
-    "text": "Complemento: serve un DFA completo\n\n20 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nPer un DFA completo basta sostituire F con Q\\setminus F.\nOgni parola ha esattamente una run completa: il suo verdetto viene invertito.\nDFA parziale per {1}: solo s —1→ f, con f finale. Scambiando i finali si accetta solo ε: 0 continua a non avere run.\nPrima bisogna aggiungere uno stato pozzo e tutte le transizioni mancanti."
+    "section": "Ricorrenza per la traduzione in espressione",
+    "text": "Ricorrenza per la traduzione in espressione\n\n20 / 50 · Cap. 2 · §2.1.4, pp. 34-35\n\nSbloccando q_k come nuovo stato intermedio consentito, un cammino da q_i a q_j può: 1. Non passare per q_k (descritto da R_{ij}^{k-1}); 2. Raggiungere q_k, ciclare su q_k zero o più volte, e ripartire verso q_j.\n R_{ij}^{k}=R_{ij}^{k-1}+R_{ik}^{k-1}(R_{kk}^{k-1})^*R_{kj}^{k-1} \nAl termine (k=n), uniamo le espressioni per tutti gli stati finali q_j\\in F:\n L(A)=\\sum_{q_j\\in F} R_{1j}^{n}"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-21",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-21",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Perché lo scambio dei finali fallisce su un NFA",
-    "text": "Perché lo scambio dei finali fallisce su un NFA\n\n21 / 43 · Cap. 2 · §2.2.1, pp. 37-38\n\nConsidera un NFA con iniziale s, finale f, e transizioni:\n\nda s, con 0, resta in s;\nda s, con 1, può restare in s oppure andare in f;\nda f, con 0 o 1, resta in f.\n\nAccetta le parole che contengono 1. Dopo lo scambio accetta ancora 1 tramite il ramo che resta in s.\nProcedura corretta: determinizzare → completare → scambiare."
+    "section": "Ricorrenza sul DFA della parità",
+    "text": "Ricorrenza sul DFA della parità\n\n21 / 50 · Cap. 2 · §2.1.4, pp. 35-36\n\nNel DFA della parità di 1, q_1 è pari (iniziale e finale) e q_2 dispari. 0 conserva lo stato, 1 lo cambia.\n R_{11}^{0}=R_{22}^{0}=\\varepsilon+0,\\qquad R_{12}^{0}=R_{21}^{0}=1 \nSbloccando q_1:\n R_{22}^{1}=(\\varepsilon+0)+1(\\varepsilon+0)^*1 \nSbloccando infine q_2, si estrae l’espressione totale per R_{11}^2, equivalente alla formula 0^*(10^*10^*)^*."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-22",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-22",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Intersezione mediante prodotto",
-    "text": "Intersezione mediante prodotto\n\n22 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nLo stato del prodotto è una coppia: ricorda entrambi gli stati raggiunti dopo lo stesso prefisso.\n \\delta((p,q),a)=(\\delta_1(p,a),\\delta_2(q,a)) \nPer l’intersezione, lo stato iniziale è (q_{01},q_{02}) e i finali sono:\n F=F_1\\times F_2 \nEntrambi i componenti devono accettare al termine della stessa parola."
+    "section": "Chiusure dei linguaggi regolari: visione top-down",
+    "text": "Chiusure dei linguaggi regolari: visione top-down\n\n22 / 50 · Cap. 2 · §2.2, pp. 36-37\n\nSe L_1 e L_2 sono regolari sullo stesso alfabeto \\Sigma, sono regolari anche:\n L_1\\cup L_2,\\qquad L_1L_2,\\qquad L_1^*,\\qquad \\overline{L_1},\\qquad L_1\\cap L_2 \n\nUnione, concatenazione e stella: derivano immediatamente dalla costruzione di Thompson sulle espressioni regolari.\nComplemento e intersezione: richiedono algoritmi dedicati sulla struttura degli automi (inversione dei verdetti e prodotto sincronizzato).\n\nQuesto garantisce che gli operatori booleani delle espressioni generali non aumentano il potere espressivo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-23",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-23",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Simulazione del prodotto",
-    "text": "Simulazione del prodotto\n\n23 / 43 · Cap. 2 · §2.2.2, pp. 38-39\n\nPrimo componente: 1 se il prefisso termina con 1, altrimenti 0. Secondo: 0 se il numero di 1 è pari, 1 se dispari. Solo (1,0) è finale.\n\nScegli Parola 11; Letti va da 0 a 2, inizialmente 0.\nA 1 compare (1,1); a 2 compare (1,0): accettata.\nScegli 110: Letti torna a 0, massimo 3. A 3 compare (0,0): rifiutata.\n\nε parte e termina in (0,0), quindi è rifiutata. La parità da sola non basta.\n\n\n\nSimulazione del prodotto — figura 1"
+    "section": "Significato operativo: comporre requisiti dell’editor",
+    "text": "Significato operativo: comporre requisiti dell’editor\n\n23 / 50 · Cap. 2 · §2.2, p. 37\n\nNella verifica software, le proprietà di chiusura sono lo strumento algebrico per combinare specifiche indipendenti:\n r_{\\mathrm{sessione}}=\\texttt{apri}\\;(\\texttt{modifica}+\\texttt{salva})^*\\,\\texttt{chiudi} \nDefiniamo il requisito «almeno un salvataggio»: L_{\\mathrm{salvato}}=\\Sigma^*\\,\\texttt{salva}\\,\\Sigma^*.\n\nIntersezione (L_{\\mathrm{sessione}}\\cap L_{\\mathrm{salvato}}): monitora tracce che sono sessioni ben formate e hanno salvato le modifiche.\nComplemento (\\overline{L_{\\mathrm{sessione}}}): monitora e intercetta tutte le sessioni errate o anomale (es. modifiche a file chiuso)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-24",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-24",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Comporre requisiti per l’editor",
-    "text": "Comporre requisiti per l’editor\n\n24 / 43 · Cap. 2 · §2.2, p. 37\n\nRiprendiamo l’alfabeto di eventi apri, modifica, salva, chiudi.\n r_{\\mathrm{sessione}}=\\mathrm{apri}\\;(\\mathrm{modifica}+\\mathrm{salva})^*\\;\\mathrm{chiudi} \nIl requisito «contiene almeno un salvataggio» è \\Sigma^*\\;\\mathrm{salva}\\;\\Sigma^*.\nIl prodotto accetta le sessioni ordinate con almeno un salvataggio. Una parola più corta possibile è apri, salva, chiudi.\nQuesto requisito non impone di salvare ogni modifica."
+    "section": "Complemento: serve un DFA completo",
+    "text": "Complemento: serve un DFA completo\n\n24 / 50 · Cap. 2 · §2.2.1, pp. 37-38\n\nPer un DFA deterministico e completo A=(Q,\\Sigma,\\delta,q_0,F), il complemento si ottiene scambiando finali e non finali:\n \\overline{A}=(Q,\\Sigma,\\delta,q_0,Q\\setminus F) \nOgni parola ha esattamente una run completa: il verdetto finale viene invertito in modo esatto.\nPerché serve la completezza: se un DFA omette le transizioni per certi simboli (DFA parziale), una parola priva di archi si blocca e viene rifiutata. Scambiare i finali senza aggiungere uno stato pozzo continuerebbe a rifiutarla!"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-25",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-25",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Problemi di decisione su automi",
-    "text": "Problemi di decisione su automi\n\n25 / 43 · Cap. 2 · §2.3, pp. 39-40\n\n\nAppartenenza: questa parola è accettata?\nVuotezza: esiste almeno una parola accettata?\nUniversalità: sono accettate tutte le parole di \\Sigma^*?\nInclusione: ogni parola di L_1 appartiene a L_2?\nEquivalenza: i due linguaggi coincidono?\n\nL’appartenenza usa la simulazione. Per la vuotezza basta chiedere se un finale è raggiungibile dall’iniziale."
+    "section": "Perché lo scambio dei finali fallisce su un NFA",
+    "text": "Perché lo scambio dei finali fallisce su un NFA\n\n25 / 50 · Cap. 2 · §2.2.1, pp. 37-38\n\nConsidera un NFA con transizioni s\\xrightarrow{0,1}s e s\\xrightarrow{1}f, dove solo f è finale.\nQuesto automa accetta le parole che contengono 1. Se invertiamo F, s diventa finale e f non finale.\nLa parola 1 viene ancora accettata tramite il ramo che resta in s! Il non-determinismo offre rami multipli alternativi.\nProcedura universale per complementare: \\textbf{Determinizza} \\;\\longrightarrow\\; \\textbf{Completa con pozzo} \\;\\longrightarrow\\; \\textbf{Inverti i finali}"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-26",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-26",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Ricerca in ampiezza e parola testimone",
-    "text": "Ricerca in ampiezza e parola testimone\n\n26 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUna BFS esplora gli stati per distanza dall’iniziale. Memorizziamo, per ogni stato nuovo, predecessore e simbolo usato.\nAppena raggiungiamo un finale, ricostruiamo una parola accettata di lunghezza minima.\nAttenzione al risultato: None significa linguaggio vuoto; '' significa che ε è un testimone.\nfor label, machine in [('prodotto', PAIR), ('parità', PARITY)]:\n    witness = shortest_witness(machine)\n    print(label, '→', 'linguaggio vuoto' if witness is None else shown(witness))\nimpossible = dfa_product(ENDS, complement(CONTAINS))\nassert shortest_witness(impossible) is None\nprint('Termina con 1 e non contiene 1 → linguaggio vuoto')\nprodotto → 11\nparità → ε\nTermina con 1 e non contiene 1 → linguaggio vuoto"
+    "section": "Intersezione mediante prodotto cartesiano",
+    "text": "Intersezione mediante prodotto cartesiano\n\n26 / 50 · Cap. 2 · §2.2.2, pp. 38-39\n\nPer riconoscere L(A_1)\\cap L(A_2), facciamo marciare due DFA in parallelo sullo stesso input:\n Q=Q_1\\times Q_2,\\qquad q_0=(q_{01},q_{02}) \nLa funzione di transizione avanza entrambi i monitor a ogni simbolo:\n \\delta((p,q),a)=(\\delta_1(p,a),\\delta_2(q,a)) \nPer l’intersezione, entrambi devono accettare al termine della parola:\n F=F_1\\times F_2 \nIl prodotto ha al più |Q_1|\\times|Q_2| stati."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-27",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-27",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Proprietà del testimone corto",
-    "text": "Proprietà del testimone corto\n\n27 / 43 · Cap. 2 · §2.3, pp. 40-41\n\nUn DFA con n stati ha linguaggio non vuoto se e solo se accetta una parola w con:\n |w|&lt;n \nIn una run accettante minima nessuno stato si ripete: il tratto fra due visite allo stesso stato potrebbe essere eliminato.\nQuindi la run contiene al massimo n stati e la parola al massimo n-1 simboli."
+    "section": "Simulazione del prodotto",
+    "text": "Simulazione del prodotto\n\n27 / 50 · Cap. 2 · §2.2.2, pp. 38-39\n\nMonitor composto: A_1 verifica «termina con 1», A_2 verifica «parità di 1».\nSolo lo stato (1,0) è finale (termina con 1 e parità pari).\n\nCon parola 11: raggiunge (1,0) ed è accettata.\nCon parola 110: termina in (0,0) ed è rifiutata.\nε parte e termina in (0,0) (rifiutata).\n\n\n\n\nSimulazione del prodotto — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-28",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-28",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Raggiungibilità come punto fisso",
-    "text": "Raggiungibilità come punto fisso\n\n28 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\n\\operatorname{Post}(R) contiene i successori in un passo degli stati in R.\n R_0=\\{q_0\\},\\qquad R_{i+1}=R_i\\cup\\operatorname{Post}(R_i) \nR_i raccoglie gli stati raggiungibili con parole di lunghezza al massimo i. Il primo insieme stabile R^* contiene tutti gli stati raggiungibili.\n L(\\mathcal A)\\ne\\varnothing\\quad\\Longleftrightarrow\\quad R^*\\cap F\\ne\\varnothing"
+    "section": "Dalla composizione alla verifica formale",
+    "text": "Dalla composizione alla verifica formale\n\n28 / 50 · Cap. 2 · §2.3, pp. 39-40\n\nUna volta costruiti gli automi, quale domanda dobbiamo porre in verifica automatica?\nLa domanda fondamentale del Model Checking: ogni esecuzione possibile del sistema \\mathcal{M} rispetta la specifica \\mathcal{S}?\n L(\\mathcal{M}) \\subseteq L(\\mathcal{S}) \nGrazie alle chiusure booleane, l’inclusione si riduce a un test di vuotezza:\n L(\\mathcal{M}) \\cap \\overline{L(\\mathcal{S})} = \\varnothing \nL’automa degli errori A_{\\mathrm{err}} = \\mathcal{M} \\times \\overline{\\mathcal{S}} riconosce le violazioni: - L(A_{\\mathrm{err}}) = \\varnothing \\implies il sistema è verificato; - L(A_{\\mathrm{err}}) \\neq \\varnothing \\implies ogni parola accettata è un controesempio eseguibile (bug trace)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-29",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-29",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Esplorazione del punto fisso",
-    "text": "Esplorazione del punto fisso\n\n29 / 43 · Cap. 2 · §2.3.1, pp. 41-42\n\nIl DFA ricorda quanti 1 consecutivi chiudono il prefisso: 0, 1, 2; 3 significa che 111 è già comparso e resta assorbente. Solo 3 è finale.\nIterazione seleziona R_i: valori da 0 a 4, inizialmente 0.\n\nA 1, R_1=\\{0,1\\}; a 2, R_2=\\{0,1,2\\}.\nA 3 compare il finale 3: il linguaggio è non vuoto, testimone 111.\nA 4 non cambia nulla: il punto fisso è raggiunto.\n\nPrima di 3, non avere ancora trovato un finale non prova la vuotezza.\n\n\n\nEsplorazione del punto fisso — figura 1"
+    "section": "I problemi di decisione fondamentali",
+    "text": "I problemi di decisione fondamentali\n\n29 / 50 · Cap. 2 · §2.3, pp. 39-40\n\n\nAppartenenza: data w e A, w\\in L(A)? (simulazione della parola).\nVuotezza: L(A)=\\varnothing? (esiste almeno un’esecuzione accettata?).\nUniversalità: L(A)=\\Sigma^*? (tutte le parole sono ammesse?).\nInclusione: L(A_1)\\subseteq L(A_2)? (l’implementazione rispetta la specifica?).\nEquivalenza: L(A_1)=L(A_2)? (i due automi descrivono la stessa proprietà?).\n\nTutte queste domande semantiche si riducono alla raggiungibilità su grafo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-30",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-30",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Riduzioni alla vuotezza",
-    "text": "Riduzioni alla vuotezza\n\n30 / 43 · Cap. 2 · §2.3.1, p. 42\n\nLe chiusure trasformano le domande sui linguaggi in ricerca di testimoni:\n L_1\\subseteq L_2\\quad\\Longleftrightarrow\\quad L_1\\cap\\overline{L_2}=\\varnothing \n L=\\Sigma^*\\quad\\Longleftrightarrow\\quad\\overline L=\\varnothing \nL’equivalenza richiede entrambe le inclusioni. In alternativa, cerchiamo una parola accettata da uno solo dei due automi.\nPer l’inclusione, ogni parola del prodotto con il complemento è un controesempio concreto."
+    "section": "Raggiungibilità e parola testimone",
+    "text": "Raggiungibilità e parola testimone\n\n30 / 50 · Cap. 2 · §2.3, pp. 40-41\n\nUn automa ha linguaggio non vuoto (L(A)\\neq\\varnothing) se e solo se almeno uno stato accettante q\\in F è raggiungibile da q_0.\nUna visita BFS esplora il grafo di transizione per livelli: - Se raggiunge un finale, ricostruisce all’indietro una parola accettata di lunghezza minima (testimone corto); - Se non incontra stati in F, il linguaggio è vuoto.\nfor label, machine in [('prodotto', PAIR), ('parità', PARITY)]:\n    witness = shortest_witness(machine)\n    print(label, '→', 'linguaggio vuoto' if witness is None else shown(witness))\nimpossible = dfa_product(ENDS, complement(CONTAINS))\nassert shortest_witness(impossible) is None\nprint('Termina con 1 e non contiene 1 → linguaggio vuoto')\nprodotto → 11\nparità → ε\nTermina con 1 e non contiene 1 → linguaggio vuoto"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-31",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-31",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Inclusione e controesempio eseguibile",
-    "text": "Inclusione e controesempio eseguibile\n\n31 / 43 · Cap. 2 · §2.3.1, p. 42\n\nSiano L_E le parole che terminano con 1 e L_C quelle che contengono 1.\nL_E\\subseteq L_C: il prodotto con il complemento di L_C non ha finali raggiungibili.\nIl verso opposto fallisce: 10 contiene 1, ma non termina con 1.\nLa BFS trova un testimone minimo della violazione; non esamina un insieme di test scelti a mano.\nfor label, left, right in [('E ⊆ C', ENDS, CONTAINS), ('C ⊆ E', CONTAINS, ENDS)]:\n    bad = dfa_product(left, complement(right))\n    witness = shortest_witness(bad)\n    print(label, '→', 'vera' if witness is None else 'falsa, controesempio: '+shown(witness))\n    if witness is not None:\n        assert accepts(left, witness) and not accepts(right, witness)\nE ⊆ C → vera\nC ⊆ E → falsa, controesempio: 10"
+    "section": "Proprietà del testimone corto",
+    "text": "Proprietà del testimone corto\n\n31 / 50 · Cap. 2 · §2.3, pp. 40-41\n\nUn automa con n stati ha linguaggio non vuoto se e solo se accetta una parola w con:\n |w| &lt; n \nDimostrazione per pumping: - In una run accettante di lunghezza minima p_0 \\xrightarrow{a_1} \\dots \\xrightarrow{a_m} p_m con p_m\\in F, nessuno stato può ripetersi. - Se m\\ge n, visitiamo m+1 &gt; n stati: per il principio dei cassetti due stati coincidono (p_i=p_j). - Il segmento intermedio è un ciclo chiuso: eliminandolo otteniamo una parola accettata più corta, contraddicendo la minimalità. - Quindi la run minima non ripete stati e la parola ha lunghezza |w|\\le n-1 &lt; n."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-32",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-32",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Costo delle procedure e rappresentazione",
-    "text": "Costo delle procedure e rappresentazione\n\n32 / 43 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42\n\nSu un grafo esplicito con n stati e m archi, la BFS costa O(n+m).\nPer due DFA, un prodotto ha al massimo n_1n_2 stati; si possono esplorare solo quelli raggiungibili.\nPer gli NFA, complemento, inclusione ed equivalenza possono richiedere la determinizzazione, con fino a 2^n sottoinsiemi.\n«Riducibile a raggiungibilità» non significa avere sempre un grafo piccolo."
+    "section": "Raggiungibilità come punto fisso",
+    "text": "Raggiungibilità come punto fisso\n\n32 / 50 · Cap. 2 · §2.3.1, pp. 41-42\n\nNel model checking simbolico la raggiungibilità si formula tramite l’operatore di passo in avanti:\n \\operatorname{Post}(R) = \\{\\,q'\\in Q \\mid \\exists q\\in R, a\\in\\Sigma:\\; \\delta(q,a)=q'\\,\\} \nCostruiamo gli stati raggiungibili in al più i passi:\n R_0=\\{q_0\\},\\qquad R_{i+1}=R_i\\cup\\operatorname{Post}(R_i) \nPoiché R_0\\subseteq R_1\\subseteq\\dots\\subseteq Q, la sequenza converge a un punto fisso R^*.\n L(\\mathcal{A})\\ne\\varnothing\\quad\\Longleftrightarrow\\quad R^*\\cap F\\ne\\varnothing"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-33",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-33",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Equivalenze, classi e indice",
-    "text": "Equivalenze, classi e indice\n\n33 / 43 · Cap. 2 · §2.4, pp. 43-44\n\nUna relazione di equivalenza è riflessiva, simmetrica e transitiva. Le sue classi formano una partizione: non si sovrappongono e coprono tutto l’insieme.\nL’indice è il numero delle classi.\nEsempio: raggruppare le parole per parità della lunghezza dà due classi.\n«Condividono un simbolo» non è transitiva: 0 condivide con 01, 01 con 1, ma 0 non condivide con 1."
+    "section": "Esplorazione del punto fisso",
+    "text": "Esplorazione del punto fisso\n\n33 / 50 · Cap. 2 · §2.3.1, pp. 41-42\n\nDFA che rileva la comparsa della sequenza 111 (stati da 0 a 3, solo 3 è finale).\nIterazione seleziona R_i: valori da 0 a 4, inizialmente 0.\n\nA 1, R_1=\\{0,1\\}; a 2, R_2=\\{0,1,2\\}.\nA 3 compare il finale 3: il linguaggio è non vuoto, testimone 111.\nA 4 non cambia nulla: il punto fisso è raggiunto.\n\nPrima di 3, non avere ancora trovato un finale non prova la vuotezza.\n\n\n\nEsplorazione del punto fisso — figura 1"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-34",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-34",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Invarianza a destra e compatibilità",
-    "text": "Invarianza a destra e compatibilità\n\n34 / 43 · Cap. 2 · §2.4, pp. 44-46\n\nPer rappresentare classi di prefissi come stati servono due proprietà.\nInvarianza a destra:\n x\\sim y\\quad\\Longrightarrow\\quad xz\\sim yz\\quad\\text{per ogni }z\\in\\Sigma^* \nCompatibilità con L: prefissi nella stessa classe appartengono entrambi a L, oppure entrambi ne sono fuori.\nLa prima rende coerenti le transizioni; la seconda rende coerente il verdetto."
+    "section": "Riduzioni alla vuotezza",
+    "text": "Riduzioni alla vuotezza\n\n34 / 50 · Cap. 2 · §2.3.1, p. 42\n\nLe proprietà si riducono a test di vuotezza su prodotti:\n L_1\\subseteq L_2\\quad\\Longleftrightarrow\\quad L_1\\cap\\overline{L_2}=\\varnothing \n L=\\Sigma^*\\quad\\Longleftrightarrow\\quad\\overline{L}=\\varnothing \n L_1=L_2\\quad\\Longleftrightarrow\\quad (L_1\\cap\\overline{L_2})\\cup(\\overline{L_1}\\cap L_2)=\\varnothing \nPer l’inclusione, ogni parola accettata dal prodotto L_1\\cap\\overline{L_2} è un controesempio concreto che dimostra dove e come la proprietà è violata."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-35",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-35",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Equivalenza di Myhill–Nerode",
-    "text": "Equivalenza di Myhill–Nerode\n\n35 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nDue prefissi sono equivalenti per L quando nessuna continuazione distingue i loro verdetti:\n x\\sim_L y\\quad\\Longleftrightarrow\\quad\\forall z\\in\\Sigma^*:\\;(xz\\in L\\Longleftrightarrow yz\\in L) \nPer il linguaggio «termina con 1», 01 e 11 sono equivalenti.\n0 e 01 sono distinti: basta z=\\varepsilon. Accettare o rifiutare entrambi adesso non garantisce invece che due prefissi siano equivalenti."
+    "section": "Inclusione e controesempio in Python",
+    "text": "Inclusione e controesempio in Python\n\n35 / 50 · Cap. 2 · §2.3.1, p. 42\n\nSiano L_E «termina con 1» e L_C «contiene 1».\n\nL_E\\subseteq L_C: il prodotto con il complemento di L_C è vuoto \\implies proprietà verificata!\nL_C\\subseteq L_E: il prodotto con il complemento di L_E trova il testimone 10: contiene 1 ma non termina con 1 (controesempio).\n\nfor label, left, right in [('E ⊆ C', ENDS, CONTAINS), ('C ⊆ E', CONTAINS, ENDS)]:\n    bad = dfa_product(left, complement(right))\n    witness = shortest_witness(bad)\n    print(label, '→', 'vera' if witness is None else 'falsa, controesempio: '+shown(witness))\n    if witness is not None:\n        assert accepts(left, witness) and not accepts(right, witness)\nE ⊆ C → vera\nC ⊆ E → falsa, controesempio: 10"
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-36",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-36",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Confrontare i futuri di due prefissi",
-    "text": "Confrontare i futuri di due prefissi\n\n36 / 43 · Cap. 2 · §2.4, pp. 45-46\n\nUsiamo il linguaggio «numero pari di 1».\nCoppia seleziona ε / 1, 1 / 01 o ε / 11, inizialmente ε / 1. Suffisso seleziona ε, 0, 1, 01, inizialmente ε.\n\nCon ε / 1 e suffisso ε, i verdetti differiscono: i prefissi sono distinguibili.\nScegli 1 / 01 mantenendo ε: entrambi rifiutano. Con suffisso 1, entrambi accettano.\nI due prefissi restano equivalenti per ogni suffisso perché hanno la stessa parità, non perché abbiamo provato quattro casi.\n\n\n\n\nConfrontare i futuri di due prefissi — figura 1"
+    "section": "Costo computazionale ed esplosione degli stati",
+    "text": "Costo computazionale ed esplosione degli stati\n\n36 / 50 · Cap. 2 · §2.3 e collegamento con §1.4, pp. 39-42\n\nSu un grafo esplicito con n stati e m archi, la BFS costa O(n+m).\nPer due DFA, il prodotto ha al massimo n_1n_2 stati; si possono esplorare solo quelli raggiungibili.\nTuttavia, per gli NFA, il complemento e l’inclusione richiedono la determinizzazione, che può generare fino a 2^n stati.\n«Riducibile a raggiungibilità» non significa che il grafo sia sempre trattabile: nella verifica reale occorre minimizzare gli stati."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-37",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-37",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Teorema di Myhill–Nerode",
-    "text": "Teorema di Myhill–Nerode\n\n37 / 43 · Cap. 2 · §2.4, pp. 45-47\n\nPer L\\subseteq\\Sigma^* sono equivalenti:\n\nL è regolare.\nEsiste un’equivalenza di indice finito, invariante a destra e compatibile con L.\nL’equivalenza \\sim_L ha indice finito.\n\nUn DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può osservare."
+    "section": "La memoria minima: quanti stati servono davvero?",
+    "text": "La memoria minima: quanti stati servono davvero?\n\n37 / 50 · Cap. 2 · §2.4, pp. 42-43\n\nLa pipeline di verifica paga il costo dell’esplosione dello spazio degli stati (n_1 n_2, 2^n).\nDue quesiti fondamentali: 1. Canonicità e Minimalità: dato un linguaggio regolare L, qual è il numero minimo di stati per riconoscerlo? Tale DFA minimale è unico? 2. Memoria Finita e Regolarità: quando una specifica è fornita come predicato astratto P(w), quale memoria finita serve, e come stabiliamo se esiste un automa a stati finiti?\nIl Teorema di Myhill–Nerode fornisce la risposta definitiva: gli stati del DFA minimo canonico sono le classi di equivalenza dei prefissi indistinguibili rispetto a ogni continuazione futura."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-38",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-38",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Costruire il DFA delle classi",
-    "text": "Costruire il DFA delle classi\n\n38 / 43 · Cap. 2 · §2.4, p. 47\n\nSe \\sim_L ha indice finito, usiamo le sue classi come stati.\n\nStato iniziale: [\\varepsilon].\nTransizione: \\delta([w],a)=[wa].\nClasse accettante: [w] con w\\in L.\n\nL’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali.\nDopo aver letto w, lo stato è [w]: il DFA riconosce esattamente L."
+    "section": "L’intuizione dell’editor: prefissi e futuri",
+    "text": "L’intuizione dell’editor: prefissi e futuri\n\n38 / 50 · Cap. 2 · §2.4, pp. 43-44\n\nNel monitor dell’editor, ogni prefisso appartiene a una di 4 famiglie semantiche: 1. Iniziale: nessun evento ancora verificato (\\varepsilon); 2. Sessione aperta: il file è aperto (\\texttt{apri}, \\texttt{apri}\\ \\texttt{modifica}, \\texttt{apri}\\ \\texttt{salva}); 3. Sessione chiusa: terminazione corretta (\\texttt{apri}\\ \\texttt{chiudi}); 4. Errore / Pozzo: sequenza illegale (\\texttt{modifica} prima di \\texttt{apri}).\nFenomeno fondamentale: prefissi nella stessa famiglia ammettono gli stessi identici futuri validi (es. sia \\texttt{apri}\\ \\texttt{modifica} sia \\texttt{apri}\\ \\texttt{salva} si completano con \\texttt{chiudi}).\nL’automa non deve memorizzare l’intera traccia passata: deve solo ricordare la famiglia! Queste 4 famiglie sono i 4 stati del DFA minimo."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-39",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-39",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Minimalità del DFA delle classi",
-    "text": "Minimalità del DFA delle classi\n\n39 / 43 · Cap. 2 · §2.4, pp. 47-48\n\nSe due prefissi appartengono a classi di Myhill–Nerode diverse, un suffisso li distingue. Qualunque DFA per L deve quindi portarli in stati diversi.\nOgni DFA per L ha almeno tanti stati quante sono le classi di \\sim_L. Il DFA delle classi raggiunge questo limite.\nPer «termina con 1» ci sono due classi: prefissi che terminano con 1 e tutti gli altri, inclusa ε. Due stati sono necessari e sufficienti."
+    "section": "Predicato non equivale ad automa",
+    "text": "Predicato non equivale ad automa\n\n39 / 50 · Cap. 2 · §2.4, pp. 44-45\n\nUn predicato P(w) esprime una condizione logica, non la macchina che la calcola.\n\nP_{\\mathrm{pari}}(w) \\equiv «numero pari di simboli a»:\n\nBasta ricordare la parità dei simboli letti finora \\implies DFA a 2 stati.\n\nP_{=}(w) \\equiv «tanti simboli a quanti simboli b»:\n\nRichiede di ricordare una differenza arbitraria tra conteggi \\implies richiede memoria infinita.\n\n\n«Definito da un predicato» non significa né regolare né non regolare finché non si analizzano le continuazioni future."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-40",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-40",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Non regolarità mediante prefissi distinguibili",
-    "text": "Non regolarità mediante prefissi distinguibili\n\n40 / 43 · Cap. 2 · §2.4, p. 43 e applicazione del teorema, pp. 45-47\n\nConsidera il linguaggio delle parole con tanti 0 quanti 1.\nPrendiamo i prefissi x_n=0^n, per ogni n\\geq0.\nSe m\\ne n, il suffisso z=1^n distingue x_n da x_m:\n 0^n1^n\\in L,\\qquad 0^m1^n\\notin L \nEsistono infinite classi di Myhill–Nerode. Dunque il linguaggio non è regolare, anche se il suo predicato di appartenenza è facile da calcolare."
+    "section": "Relazioni di equivalenza, classi e indice",
+    "text": "Relazioni di equivalenza, classi e indice\n\n40 / 50 · Cap. 2 · §2.4, pp. 44-45\n\nUna relazione di equivalenza \\sim su \\Sigma^* è riflessiva, simmetrica e transitiva.\nPartiziona \\Sigma^* in classi di equivalenza disgiunte:\n [w]=\\{u\\in\\Sigma^* \\mid u\\sim w\\} \nL’indice di \\sim è il numero totale delle sue classi. Se l’indice è finito, ogni classe può diventare uno stato di un DFA.\nEsempio: classificare le parole in base alla parità della lunghezza ha indice 2 (parole pari e dispari)."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-41",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-41",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Esercizi di autoverifica",
-    "text": "Esercizi di autoverifica\n\n41 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\nChe linguaggi descrivono \\varnothing^* e \\varepsilon+01?\nDue stati, iniziale e finale, sono collegati solo da ε: che correzione conserva l’accettazione della parola vuota dopo la rimozione ε?\nTrova la parola minima che termina con 1 e contiene un numero pari di 1.\nPer il linguaggio «contiene 1», ε e 0 sono equivalenti? E ε e 1?\nQuale prodotto verifica L_C\\subseteq L_E e quale controesempio trova?\n\nSpiega a voce le ragioni prima di passare alle soluzioni."
+    "section": "Invarianza a destra e compatibilità",
+    "text": "Invarianza a destra e compatibilità\n\n41 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nPer usare le classi come stati di un automa servono due proprietà:\nInvarianza a destra:  x\\sim y\\quad\\Longrightarrow\\quad xz\\sim yz\\quad\\text{per ogni }z\\in\\Sigma^*  Rende coerenti e ben definite le transizioni: \\delta([w],a)=[wa].\nCompatibilità con L:  x\\sim y\\quad\\Longrightarrow\\quad (x\\in L \\iff y\\in L)  Rende ben definiti gli stati accettanti: ogni classe è interamente contenuta in L o interamente fuori da L."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-42",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-42",
     "title": "Linguaggi regolari e problemi di decisione",
-    "section": "Soluzioni e verifica degli algoritmi",
-    "text": "Soluzioni e verifica degli algoritmi\n\n42 / 43 · Cap. 2 · Esercizi, pp. 48-49\n\n\n\\varnothing^* descrive \\{\\varepsilon\\}; \\varepsilon+01 descrive \\{\\varepsilon,01\\}.\nCon la nostra formula per \\Delta', rendiamo finale anche l’iniziale.\n11: un solo 1 dà parità dispari.\nε e 0 hanno gli stessi futuri; ε e 1 sono distinti già dal suffisso vuoto.\nProdotto di C con il complemento di E: testimone minimo 10.\n\nIl controllo seguente confronta costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.\nprint('Verifica completata: 255 parole e 10 espressioni.')\nprint('ε-NFA, rimozione ε e DFA concordano con i predicati diretti.')\nprint('BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.')\nVerifica completata: 255 parole e 10 espressioni.\nε-NFA, rimozione ε e DFA concordano con i predicati diretti.\nBFS, inclusioni, testimone vuoto e punto fisso: controlli passati."
+    "section": "Equivalenza di Myhill–Nerode",
+    "text": "Equivalenza di Myhill–Nerode\n\n42 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nDue prefissi sono equivalenti per L se nessuna continuazione futura può distinguere i loro verdetti:\n x\\sim_L y\\quad\\Longleftrightarrow\\quad\\forall z\\in\\Sigma^*:\\;(xz\\in L\\Longleftrightarrow yz\\in L) \n\\sim_L è invariante a destra e compatibile con L.\nÈ la relazione più grossolana (con il minor numero di classi) che riconosce L.\nDue prefissi possono avere verdetti opposti o uguali sul momento; ciò che conta è il comportamento su tutti i suffissi possibili z."
   },
   {
     "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-43",
     "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-43",
     "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Confrontare i futuri di due prefissi",
+    "text": "Confrontare i futuri di due prefissi\n\n43 / 50 · Cap. 2 · §2.4, pp. 45-46\n\nUsiamo il linguaggio «numero pari di 1».\nCoppia seleziona ε / 1, 1 / 01 o ε / 11. Suffisso seleziona ε, 0, 1, 01.\n\nCon ε / 1 e suffisso ε, i verdetti differiscono: i prefissi sono distinguibili.\nCon 1 / 01, per qualsiasi suffisso z i verdetti coincidono: 1\\sim_L 01.\nI prefissi restano equivalenti per ogni suffisso perché hanno la stessa parità, non solo per i suffissi testati.\n\n\n\n\nConfrontare i futuri di due prefissi — figura 1"
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-44",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-44",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Teorema di Myhill–Nerode",
+    "text": "Teorema di Myhill–Nerode\n\n44 / 50 · Cap. 2 · §2.4, pp. 46-47\n\nPer ogni linguaggio L\\subseteq\\Sigma^* sono equivalenti:\n\nL è regolare (riconosciuto da un DFA).\nEsiste un’equivalenza \\sim di indice finito, invariante a destra e compatibile con L.\nL’equivalenza di Myhill–Nerode \\sim_L ha indice finito.\n\nUn DFA fornisce una classificazione finita dei prefissi. Myhill–Nerode conserva soltanto le distinzioni che qualche continuazione può realmente osservare."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-45",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-45",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Costruire il DFA delle classi",
+    "text": "Costruire il DFA delle classi\n\n45 / 50 · Cap. 2 · §2.4, p. 47\n\nSe \\sim_L ha indice finito, usiamo le sue classi come stati del DFA canonico:\n Q=\\{[w] \\mid w\\in\\Sigma^*\\} \n\nStato iniziale: [\\varepsilon].\nFunzione di transizione: \\delta([w],a)=[wa].\nStati accettanti: \\{[w] \\mid w\\in L\\}.\n\nL’invarianza a destra rende la transizione indipendente dal rappresentante. La compatibilità rende ben definito l’insieme dei finali."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-46",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-46",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Minimalità del DFA delle classi",
+    "text": "Minimalità del DFA delle classi\n\n46 / 50 · Cap. 2 · §2.4, pp. 47-48\n\nSe due prefissi x,y appartengono a classi di Myhill–Nerode diverse, un suffisso z li distingue (xz\\in L \\not\\iff yz\\in L).\nQualunque DFA per L deve portarli in stati diversi: se li portasse nello stesso stato, leggendo z darebbe lo stesso verdetto su entrambe le parole.\nConclusione: ogni DFA per L ha almeno tanti stati quante sono le classi di \\sim_L.\nIl DFA delle classi raggiunge esattamente questo minimo ed è unico a meno di isomorfismo."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-47",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-47",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Dimostrare la non-regolarità",
+    "text": "Dimostrare la non-regolarità\n\n47 / 50 · Cap. 2 · §2.4, p. 43 e pp. 45-47\n\nPer dimostrare che un linguaggio non è regolare, basta esibire una famiglia infinita di prefissi a due a due distinguibili.\nLinguaggio con tanti 0 quanti 1: L=\\{0^n 1^n \\mid n\\ge 0\\}.\nPrendiamo la sequenza infinita di prefissi x_n=0^n per ogni n\\ge 0.\nSe m\\ne n, il suffisso z=1^n distingue x_n da x_m:\n 0^n 1^n\\in L,\\qquad 0^m 1^n\\notin L \nEsistono infinite classi di Myhill–Nerode distinte. Dunque il linguaggio non è regolare, anche se il suo predicato è banale da descrivere."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-48",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-48",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Esercizi di autoverifica",
+    "text": "Esercizi di autoverifica\n\n48 / 50 · Cap. 2 · Esercizi, pp. 48-49\n\n\nChe linguaggi descrivono \\varnothing^* e \\varepsilon+01?\nDue stati, iniziale e finale, sono collegati solo da \\varepsilon: quale correzione preserva l’accettazione della parola vuota dopo la rimozione \\varepsilon?\nTrova la parola minima che termina con 1 e contiene un numero pari di 1.\nPer il linguaggio «contiene 1», ε e 0 sono equivalenti per \\sim_L? E ε e 1?\nQuale prodotto verifica L_C\\subseteq L_E e quale controesempio restituisce?\n\nSpiega a voce le ragioni prima di passare alle soluzioni."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-49",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-49",
+    "title": "Linguaggi regolari e problemi di decisione",
+    "section": "Soluzioni e verifica degli algoritmi",
+    "text": "Soluzioni e verifica degli algoritmi\n\n49 / 50 · Cap. 2 · Esercizi, pp. 48-49\n\n\n\\varnothing^* descrive \\{\\varepsilon\\}; \\varepsilon+01 descrive \\{\\varepsilon,01\\}.\nRendiamo finale anche lo stato iniziale q_0 (poiché \\operatorname{ECl}(q_0)\\cap F\\neq\\varnothing).\n11: un solo 1 darebbe parità dispari.\nε e 0 hanno gli stessi futuri (equivalenti); ε e 1 sono distinti già dal suffisso vuoto \\varepsilon.\nProdotto tra L_C e il complemento di L_E: controesempio minimo 10.\n\nIl controllo seguente verifica costruzioni e predicati su tutte le 255 parole binarie fino a lunghezza 7.\nprint('Verifica completata: 255 parole e 10 espressioni.')\nprint('ε-NFA, rimozione ε e DFA concordano con i predicati diretti.')\nprint('BFS, inclusioni, testimone vuoto e punto fisso: controlli passati.')\nVerifica completata: 255 parole e 10 espressioni.\nε-NFA, rimozione ε e DFA concordano con i predicati diretti.\nBFS, inclusioni, testimone vuoto e punto fisso: controlli passati."
+  },
+  {
+    "objectID": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-50",
+    "href": "presentazioni/02-linguaggi-regolari-e-problemi-di-decisione-lettura.html#scena-50",
+    "title": "Linguaggi regolari e problemi di decisione",
     "section": "Riepilogo e collegamento alla verifica",
-    "text": "Riepilogo e collegamento alla verifica\n\n43 / 43 · Cap. 2 · Riepilogo, p. 48\n\n\nEspressioni regolari e automi finiti descrivono gli stessi linguaggi.\nLe transizioni ε rendono modulari le costruzioni e si possono eliminare.\nComplemento e prodotto compilano requisiti booleani.\nL’inclusione si decide cercando un comportamento ammesso dal sistema e vietato dalla specifica.\nMyhill–Nerode identifica la memoria minima necessaria.\n\nNel capitolo 3 passeremo alle parole infinite: il momento finale di accettazione non sarà più disponibile."
+    "text": "Riepilogo e collegamento alla verifica\n\n50 / 50 · Cap. 2 · Riepilogo, p. 48\n\n\nSintassi algebrica ed equivalenza: Espressioni regolari e automi finiti riconoscono la stessa classe di linguaggi (Teorema di Kleene: Thompson ed eliminazione stati).\nComposizione modulare: Complemento (determinizza \\to completa \\to scambia) e prodotto cartesiano permettono di comporre specifiche arbitrarie.\nVerifica automatica: L’inclusione L(\\mathcal{M})\\subseteq L(\\mathcal{S}) si riduce alla vuotezza di \\mathcal{M}\\times\\overline{\\mathcal{S}}, fornendo controesempi eseguibili.\nCanonicità e memoria minima: Myhill–Nerode dimostra che la memoria necessaria dipende dalle classi dei futuri, identificando il DFA minimale unico.\n\nNel capitolo 3 passeremo alle parole infinite: nei sistemi reattivi il momento finale di accettazione a termine parola non sarà più disponibile."
   },
   {
     "objectID": "presentazioni/index.html",
     "href": "presentazioni/index.html",
     "title": "Presentazioni",
     "section": "",
-    "text": "Lezioni di Verification and Validation Techniques, in italiano. Apri un capitolo e usa le frecce per sfogliare le slide; F attiva lo schermo intero e O mostra la panoramica.\nSul telefono in verticale si apre la vista di lettura, con testo a larghezza schermo e scorrimento continuo. Puoi passare a Modalità slide o tornare a Lettura in qualsiasi momento, anche su desktop.\n\nCAPITOLO 01Automi finiti e linguaggi regolari31 slide · Apri la presentazione →\nCAPITOLO 02Linguaggi regolari e problemi di decisione43 slide · Apri la presentazione →\n\nPer esplorare gli algoritmi, apri i notebook interattivi."
+    "text": "Lezioni di Verification and Validation Techniques, in italiano. Apri un capitolo e usa le frecce per sfogliare le slide; F attiva lo schermo intero e O mostra la panoramica.\nSul telefono in verticale si apre la vista di lettura, con testo a larghezza schermo e scorrimento continuo. Puoi passare a Modalità slide o tornare a Lettura in qualsiasi momento, anche su desktop.\n\nCAPITOLO 01Automi finiti e linguaggi regolari31 slide · Apri la presentazione →\nCAPITOLO 02Linguaggi regolari e problemi di decisione50 slide · Apri la presentazione →\n\nPer esplorare gli algoritmi, apri i notebook interattivi."
   },
   {
     "objectID": "proofs/chapter-02/epsilon-removal.html",

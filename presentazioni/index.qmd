@@ -13,7 +13,7 @@ Sul telefono in verticale si apre la **vista di lettura**, con testo a larghezza
 ```{=html}
 <div class="card-grid">
 <a class="algo-card" href="01-automi-finiti-e-linguaggi-regolari.qmd"><span class="card-num">CAPITOLO 01</span><span class="card-title">Automi finiti e linguaggi regolari</span><span class="card-desc">31 slide · Apri la presentazione →</span></a>
-<a class="algo-card" href="02-linguaggi-regolari-e-problemi-di-decisione.qmd"><span class="card-num">CAPITOLO 02</span><span class="card-title">Linguaggi regolari e problemi di decisione</span><span class="card-desc">43 slide · Apri la presentazione →</span></a>
+<a class="algo-card" href="02-linguaggi-regolari-e-problemi-di-decisione.qmd"><span class="card-num">CAPITOLO 02</span><span class="card-title">Linguaggi regolari e problemi di decisione</span><span class="card-desc">50 slide · Apri la presentazione →</span></a>
 </div>
 ```
 
