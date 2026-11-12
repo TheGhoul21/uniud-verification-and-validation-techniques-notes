@@ -454,8 +454,9 @@ why the empty word requires a separate final-state correction.}
     \begin{align*}
       \widehat{\Delta}_{A'}(\{q_0\},wa)
       &= \bigcup_{p\in S}\Delta'(p,a) \quad \text{(IH)} \\
-      &= \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right) \\
-      &= \mathsf{ECl}\!\left(\bigcup_{p\in S}\Delta(p,a)\right) \quad \text{($\mathsf{ECl}(p)\subseteq S$)} \\
+      &= \bigcup_{p\in S}\mathsf{ECl}\!\left(\bigcup_{r\in\mathsf{ECl}(p)}\Delta(r,a)\right) \quad \text{(def.\ of $\Delta'$)} \\
+      &= \mathsf{ECl}\!\left(\bigcup_{r \in \bigcup_{p\in S}\mathsf{ECl}(p)}\Delta(r,a)\right) \quad \text{($\mathsf{ECl}$ distributes over $\cup$)} \\
+      &= \mathsf{ECl}\!\left(\bigcup_{r\in S}\Delta(r,a)\right) \quad \text{($\mathsf{ECl}(S)=S$)} \\
       &= \widehat{\Delta}_A(\{q_0\},wa)
     \end{align*}
     Hence the reachable sets coincide for every non-empty word.  If
@@ -472,6 +473,48 @@ why the empty word requires a separate final-state correction.}
     From the active set $\{q_1, r_0\}$, the only $b$-transition is from $r_0$ to $r_1$. Since $r_1 \in F'$, $ab$ is accepted.
   }
 \end{walkthrough}
+
+\begin{formaldetails}[Decompressing the algebraic step: why the inner $\varepsilon$-closure collapses]
+The inductive step in the proof above relies on an algebraic identity that often puzzles students on a first reading:
+\[
+  \bigcup_{p\in S} \mathsf{ECl}\!\left( \bigcup_{r\in\mathsf{ECl}(p)} \Delta(r,a) \right)
+  = \mathsf{ECl}\!\left( \bigcup_{p\in S}\Delta(p,a) \right).
+\]
+Why does the inner $\varepsilon$-closure disappear entirely? Let us decompress this step into its elementary mathematical operations.
+
+\paragraph{Step 1: Distributing $\mathsf{ECl}$ outside the union.}
+The $\varepsilon$-closure of a union is simply the union of the closures: $\mathsf{ECl}(X \cup Y) = \mathsf{ECl}(X) \cup \mathsf{ECl}(Y)$. Extending this to arbitrary unions allows us to pull the outer $\mathsf{ECl}$ completely to the front:
+\[
+  \bigcup_{p\in S} \mathsf{ECl}\!\left( \bigcup_{r\in\mathsf{ECl}(p)} \Delta(r,a) \right)
+  = \mathsf{ECl}\!\left( \bigcup_{p\in S} \bigcup_{r\in\mathsf{ECl}(p)} \Delta(r,a) \right).
+\]
+
+\paragraph{Step 2: Reorganizing the double union.}
+The expression $\bigcup_{p\in S} \bigcup_{r\in\mathsf{ECl}(p)} \Delta(r,a)$ asks us to take every state $p \in S$, collect all states $r$ reachable silently from $p$, and follow an $a$-transition from each such $r$. Instead of doing this state-by-state, we can first collect all reachable intermediate states $r$ across the entire set $S$, and then apply $\Delta(\cdot, a)$:
+\[
+  \bigcup_{p\in S} \bigcup_{r\in\mathsf{ECl}(p)} \Delta(r,a)
+  = \bigcup_{r \in \left(\bigcup_{p\in S}\mathsf{ECl}(p)\right)} \Delta(r,a).
+\]
+
+\paragraph{Step 3: Exploiting that $S$ is $\varepsilon$-closed.}
+By definition of set-level $\varepsilon$-closure, the total pool of states reachable silently from $S$ is $\bigcup_{p\in S}\mathsf{ECl}(p) = \mathsf{ECl}(S)$. By the induction hypothesis, $S = \widehat{\Delta}_A(\{q_0\}, w)$, which is already $\varepsilon$-closed:
+\[
+  \mathsf{ECl}(S) = S.
+\]
+Substituting this identity collapses the index set directly back to $S$:
+\[
+  \bigcup_{r \in \left(\bigcup_{p\in S}\mathsf{ECl}(p)\right)} \Delta(r,a)
+  = \bigcup_{r \in \mathsf{ECl}(S)} \Delta(r,a)
+  = \bigcup_{r\in S} \Delta(r,a).
+\]
+Renaming the dummy index $r$ back to $p$ and restoring the outer $\mathsf{ECl}$ yields $\mathsf{ECl}(\bigcup_{p\in S}\Delta(p,a))$.
+
+\paragraph{Operational intuition.}
+Operationally, the original formula prescribed: \emph{“from each active state in $S$, explore all $\varepsilon$-steps, then read $a$, then explore all $\varepsilon$-steps again.”} But because $S$ already includes every state reachable via silent transitions from earlier steps, expanding $S$ by $\varepsilon$-moves before reading $a$ is completely redundant---it reaches no new states. The pre-$\varepsilon$ phase can be eliminated without losing any transition.
+
+\paragraph{Oral exam warning: a common misconception.}
+Students often falsely assume that this collapse requires $\mathsf{ECl}(p) = \{p\}$ for every individual state $p \in S$. That is almost never true! Individual states in $S$ may have non-trivial silent transitions to other states in $S$. The collapse works not because individual states have no $\varepsilon$-moves, but because \emph{all their destinations are already present in $S$}: $\bigcup_{p\in S}\mathsf{ECl}(p) = S$.
+\end{formaldetails}
 
 \medskip\noindent
 In summary, $\varepsilon$-transitions provide a convenient and modular intermediate syntax for composing automata, but they do not increase expressive power. The closure construction compiles them directly into ordinary symbol transitions, establishing that $\varepsilon$-NFAs and ordinary NFAs characterize exactly the same class of languages.
@@ -512,33 +555,85 @@ transition targets.}
 \label{fig:epsilon-removal-example}
 \end{figure}
 
-\paragraph{Thompson's syntax-directed construction.}
-With $\varepsilon$-moves and the $\varepsilon$-removal algorithm in place, we can now assemble an $\varepsilon$-NFA for any restricted regular expression by structural induction. This construction, due to Ken Thompson (1968), proceeds bottom-up along the abstract syntax tree of the expression.
+\subsubsection*{Thompson's Syntax-Directed Compilation}
 
-To keep the wiring completely uniform and modular, every intermediate automaton is kept in a \textbf{normalized shape}:
-\begin{enumerate}[nosep]
-  \item it has exactly one initial entry state with no incoming transitions;
-  \item it has exactly one accepting exit state with no outgoing transitions;
-  \item the entry and exit states are distinct.
-\end{enumerate}
+With silent transitions established and the $\varepsilon$-removal algorithm of \cref{thm:epsilon-removal} in hand, we are ready to build the first algorithmic engine of Kleene's theorem: compiling any restricted regular expression $r$ into an equivalent finite automaton $A_r$.
 
-\paragraph{Base cases.}
-For the atomic expressions, we construct base automata with at most two states:
-\begin{itemize}[nosep]
-  \item For $\emptyset$, use a fresh entry state and a fresh accepting exit state with no path from the entry to the exit.
-  \item For $\varepsilon$, use a fresh entry state and a fresh accepting exit state connected by a single $\varepsilon$-move.
-  \item For a symbol $a\in\Sigma$, use a fresh entry state and a fresh accepting exit state connected by a single transition labelled $a$.
-\end{itemize}
+The classical algorithm, introduced by Ken Thompson in 1968, is a \emph{syntax-directed compiler}. It views a regular expression through its abstract syntax tree (AST) and proceeds by structural induction from the leaves up to the root. For each atomic leaf, it instantiates an elementary two-state gadget; for each internal operator node ($+$, concatenation, or $*$), it splices the sub-automata of the operands together using fresh silent transitions.
 
-\paragraph{Inductive combinators.}
-Assume normalized $\varepsilon$-NFAs have already been built for sub-expressions $r$ and $s$, with disjoint state sets:
-\begin{itemize}[nosep]
-  \item \textbf{Union ($r+s$):} create a fresh entry state with $\varepsilon$-moves to the two old entries, and a fresh accepting exit state reached by $\varepsilon$-moves from the two old exits. \Cref{fig:regex-union} shows the wiring.
-  \item \textbf{Concatenation ($rs$):} connect the exit of the automaton for $r$ to the entry of the automaton for $s$ by an $\varepsilon$-move. The entry of $r$ becomes the new entry, and the exit of $s$ becomes the new accepting exit. \Cref{fig:regex-concat} shows the wiring.
-  \item \textbf{Kleene star ($r^*$):} create a fresh entry state and a fresh accepting exit state. Add an $\varepsilon$-move directly from the new entry to the new exit for the zero-repetition case; add an $\varepsilon$-move from the new entry to the old entry to start one repetition; from the old exit, add one $\varepsilon$-move back to the old entry to repeat and one $\varepsilon$-move to the new exit to stop. \Cref{fig:regex-star} shows the wiring.
-\end{itemize}
+\paragraph{The modularity contract: the normalized invariant.}
+Why not simply connect arbitrary automata together? In general, an automaton may have multiple entry points, transitions cycling back into the start state, or multiple accepting states with outgoing edges. If we attempted to wire such automata into sequences or loops, subtle and catastrophic interference would occur: looping back in a Kleene star could accidentally jump into an earlier iteration, or a shortcut around a sub-expression could bypass critical checks elsewhere.
+
+To achieve total modularity---treating sub-automata as plug-and-play components like electronic integrated circuits---Thompson enforces a strict structural contract. Every intermediate automaton $A_r$ must satisfy three invariants:
+it possesses \emph{exactly one} initial entry state $i$, which has \textbf{no incoming transitions} whatsoever;
+it possesses \emph{exactly one} accepting exit state $f$, which has \textbf{no outgoing transitions} whatsoever; and
+the entry and exit states are distinct ($i \neq f$).
+
+Operationally, every intermediate automaton $A_r$ functions as a self-contained black box with two clean external terminals: an input terminal $i$ and an output terminal $f$. Entering $i$ marks the exact beginning of matching the expression $r$; reaching $f$ marks the successful completion of that match. Because $i$ has no incoming transitions and $f$ has no outgoing transitions, we can wire these terminals into larger networks without ever inspecting or disturbing the internal wiring inside the box.
+
+\Needspace{12\baselineskip}
+\paragraph{Base gadgets: atomic expressions.}
+The base of the induction covers the three atomic forms of regular expressions: the empty language $\emptyset$, the empty word $\varepsilon$, and individual alphabet symbols $a \in \Sigma$. As shown in \cref{fig:thompson-base}, each base gadget is constructed using exactly two distinct states, an entry $i$ and an exit $f$, directly satisfying the normalized invariant:
+
+For the empty language $\emptyset$, we must recognize no words at all, not even $\varepsilon$. The gadget consists of an initial state $i$ and an accepting state $f$ with no transitions between them. Any computation starting at $i$ is immediately stranded; $f$ remains unreachable, ensuring $L(A_\emptyset) = \emptyset$.
+
+For the empty word $\varepsilon$, we must accept the single string of length zero. We add a single silent transition $i \xrightarrow{\varepsilon} f$. The machine moves to the accepting state without consuming any input symbol, correctly recognizing $\{\varepsilon\}$. Any non-empty word is rejected because there are no transitions reading symbols from $\Sigma$.
+
+For a single symbol $a \in \Sigma$, we must recognize the singleton language $\{a\}$. We place a single transition $i \xrightarrow{a} f$. Consuming the letter $a$ carries the automaton from entry to exit; reading any other symbol or attempting a silent jump is impossible.
 
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[
+  node distance=1.3cm,
+  state/.style={circle, draw, thick, minimum size=7.5mm, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=7.5mm, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  % Empty set
+  \node[state] (i0) {$i$};
+  \node[acc, right=of i0] (f0) {$f$};
+  \draw[arr] ([xshift=-5mm]i0.west) -- (i0.west);
+  \node[below=3mm of i0, xshift=6.5mm, font=\small] {Case $r = \emptyset$};
+
+  % Epsilon
+  \node[state, right=1.6cm of f0] (ie) {$i$};
+  \node[acc, right=of ie] (fe) {$f$};
+  \draw[arr] ([xshift=-5mm]ie.west) -- (ie.west);
+  \draw[arr, orange!70!black] (ie) -- node[above, font=\small] {$\varepsilon$} (fe);
+  \node[below=3mm of ie, xshift=6.5mm, font=\small] {Case $r = \varepsilon$};
+
+  % Symbol a
+  \node[state, right=1.6cm of fe] (ia) {$i$};
+  \node[acc, right=of ia] (fa) {$f$};
+  \draw[arr] ([xshift=-5mm]ia.west) -- (ia.west);
+  \draw[arr] (ia) -- node[above, font=\small] {$a$} (fa);
+  \node[below=3mm of ia, xshift=6.5mm, font=\small] {Case $r = a$};
+\end{tikzpicture}
+\captionof{figure}{The elementary base gadgets in Thompson's construction. Each base automaton has exactly two states: a dedicated entry state $i$ with in-degree zero and a dedicated accepting exit state $f$ with out-degree zero.}
+\label{fig:thompson-base}
+\end{minipage}
+\end{center}
+
+\paragraph{Inductive combinators: assembling compound gadgets.}
+For the inductive step, assume that normalized $\varepsilon$-NFAs have already been constructed for two sub-expressions $r$ and $s$. Let these sub-automata have disjoint state sets, with entry and exit states $(i_r, f_r)$ and $(i_s, f_s)$ respectively. We compose them according to the algebraic operator at the current node of the syntax tree.
+
+\paragraph{Union ($r + s$): non-deterministic branching.}
+The union expression demands that an input word be accepted if it matches either $r$ or $s$. Since the machine cannot know in advance which alternative will succeed, it must branch non-deterministically at the very beginning.
+
+To build the union automaton (\cref{fig:regex-union}), we create a fresh initial state $i$ and a fresh accepting state $f$. From $i$, two silent transitions branch out:
+\[
+  i \xrightarrow{\varepsilon} i_r \quad \text{and} \quad i \xrightarrow{\varepsilon} i_s.
+\]
+The machine non-deterministically chooses which sub-automaton to explore. Whichever branch is taken, once that sub-machine finishes matching its portion of the input, it reaches its respective exit state ($f_r$ or $f_s$). From both of these intermediate exits, we add silent transitions directly into the fresh unified exit $f$:
+\[
+  f_r \xrightarrow{\varepsilon} f \quad \text{and} \quad f_s \xrightarrow{\varepsilon} f.
+\]
+The states $f_r$ and $f_s$ are stripped of their accepting status; only $f$ is accepting. Because $i$ is fresh, it has no incoming transitions; because $f$ is fresh, it has no outgoing transitions. The structural invariant is preserved.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}[
   node distance=1.3cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -558,13 +653,23 @@ Assume normalized $\varepsilon$-NFAs have already been built for sub-expressions
   \draw[arr, orange!70!black] (fr) -- node[above right, font=\small] {$\varepsilon$} (f);
   \draw[arr, orange!70!black] (fs) -- node[below right, font=\small] {$\varepsilon$} (f);
 \end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for union $r+s$: a fresh
-initial state branches into the two sub-automata via $\varepsilon$-moves
-(orange), and both old exits feed into a fresh common accepting exit.}
+\captionof{figure}{The $\varepsilon$-NFA construction for union $r+s$: a fresh initial state $i$ branches into the two sub-automata via $\varepsilon$-moves (orange), and both intermediate exits feed into a fresh common accepting exit $f$.}
 \label{fig:regex-union}
+\end{minipage}
 \end{center}
 
+\paragraph{Concatenation ($rs$): sequential pipelining.}
+The concatenation expression requires matching a word $w = uv$ where $u \in L(r)$ and $v \in L(s)$. The automaton must first process $u$ through $A_r$, and the exact moment it completes $u$---arriving at $f_r$---it must seamlessly hand over control to $A_s$ to read $v$.
+
+As illustrated in \cref{fig:regex-concat}, we bridge the two machines with a single silent transition:
+\[
+  f_r \xrightarrow{\varepsilon} i_s.
+\]
+The state $i_r$ becomes the initial state of the compound machine, and $f_s$ becomes its sole accepting state ($f_r$ ceases to be accepting). Notice how neatly the normalized invariant works here: because $i_r$ already has no incoming transitions and $f_s$ already has no outgoing transitions, the spliced automaton automatically satisfies the invariant without needing any fresh entry or exit states.
+
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}[
   node distance=1.5cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -582,14 +687,23 @@ initial state branches into the two sub-automata via $\varepsilon$-moves
     {The accepting exit of the first automaton is spliced to the\\
      entry of the second by a single $\varepsilon$-move (in orange).};
 \end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for concatenation in the
-regex-to-automaton direction of \cref{thm:kleene}: the exit of $r$ and
-the entry of $s$ are wired together by an $\varepsilon$-move, and the
-exit $f_s$ becomes the accepting exit of the combined automaton.}
+\captionof{figure}{The $\varepsilon$-NFA construction for concatenation $rs$: the exit of $r$ and the entry of $s$ are wired together by an $\varepsilon$-move, and the exit $f_s$ becomes the accepting exit of the combined automaton.}
 \label{fig:regex-concat}
+\end{minipage}
 \end{center}
 
+\paragraph{Kleene star ($r^*$): repetition and the bypass shell.}
+The Kleene star matches any finite repetition $r^k$ for $k \ge 0$. This poses two distinct operational demands: for $k = 0$, the automaton must accept the empty word $\varepsilon$; and for $k \ge 1$, upon completing one iteration at $f_r$, the automaton must be able either to repeat (re-entering $A_r$) or to terminate (proceeding to acceptance).
+
+A frequent beginner mistake is to simply add a feedback edge $f_r \xrightarrow{\varepsilon} i_r$ and declare $i_r$ accepting. Why is that disastrous? If $i_r$ were made accepting, any subsequent outer concatenation or star could accept prematurely without reading $r$, and any feedback loop would pollute external entry transitions.
+
+Thompson solves this by wrapping $A_r$ in a protective outer shell consisting of a fresh entry state $i$ and a fresh exit state $f$ (\cref{fig:regex-star}), coordinated by four silent transitions. First, the \emph{zero-iteration bypass} $i \xrightarrow{\varepsilon} f$ allows the machine to skip $A_r$ entirely and jump directly to acceptance without consuming any input, correctly recognizing $\varepsilon$. Second, the \emph{entry transition} $i \xrightarrow{\varepsilon} i_r$ launches the very first iteration through $A_r$. Third, the \emph{repetition loop} $f_r \xrightarrow{\varepsilon} i_r$ sends control back to $i_r$ whenever a copy of $r$ completes, enabling further repetitions. Fourth, the \emph{exit transition} $f_r \xrightarrow{\varepsilon} f$ leaves the loop after the final repetition finishes and delivers control to the accepting state $f$.
+
+The intermediate state $f_r$ relinquishes its accepting status; only $f$ is accepting. The fresh outer shell guarantees that $i$ has in-degree zero and $f$ has out-degree zero, perfectly isolating the repetition loop.
+
 \begin{center}
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}[
   node distance=1.3cm,
   state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
@@ -606,22 +720,85 @@ exit $f_s$ becomes the accepting exit of the combined automaton.}
   \draw[arr, orange!70!black, bend left=35] (fr) to node[below, font=\small] {$\varepsilon$} (ir);
   \draw[arr, orange!70!black] (fr) -- node[above, font=\small] {$\varepsilon$} (f);
 \end{tikzpicture}
-\captionof{figure}{The $\varepsilon$-NFA construction for Kleene star $r^*$: a
-fresh initial state $i$ can either jump directly to the accepting exit
-$f$ (zero repetitions) or enter the sub-automaton for~$r$; after each
-copy of $r$, the automaton either loops back for another repetition or
-exits to $f$.}
+\captionof{figure}{The $\varepsilon$-NFA construction for Kleene star $r^*$: a fresh initial state $i$ can either jump directly to the accepting exit $f$ (zero repetitions) or enter the sub-automaton for~$r$; after each copy of $r$, the automaton either loops back for another repetition or exits to $f$.}
 \label{fig:regex-star}
+\end{minipage}
 \end{center}
 
-Each construction mirrors exactly the semantic operation: choose a
-branch for union, run one machine after the other for concatenation, and
-repeat any finite number of times for star.  Notice that the size of the
-resulting $\varepsilon$-NFA is strictly linear in the length of the
-regular expression: each symbol or operator contributes at most two states
-and four transitions. By \cref{thm:epsilon-removal}, we can eliminate all
-$\varepsilon$-moves, obtaining an ordinary NFA of identical language. This
-completes the compilation direction (Item 1 of \cref{thm:kleene}).
+\paragraph{Putting it all together: compiling $(a+b)^*a$.}
+To see the compiler in action, let us trace how Thompson's algorithm processes a compound regular expression bottom-up from its syntax tree, taking $(a+b)^*a$ as our example.
+
+First, at the leaves, we build two base gadgets for the alphabet symbols $a$ and $b$, each consisting of two states connected by a symbol transition ($i_a \xrightarrow{a} f_a$ and $i_b \xrightarrow{b} f_b$).
+Next, evaluating the union node $a+b$, we instantiate fresh entry and exit states $i_1$ and $f_1$, linking them to the base gadgets via four silent transitions; this yields a 6-state sub-automaton.
+Moving up to the Kleene star $(a+b)^*$, we wrap this union sub-automaton inside fresh boundary states $i_0$ and $f_0$, adding the bypass $i_0 \xrightarrow{\varepsilon} f_0$, entry $i_0 \xrightarrow{\varepsilon} i_1$, loop $f_1 \xrightarrow{\varepsilon} i_1$, and exit $f_1 \xrightarrow{\varepsilon} f_0$, expanding the machine to 8 states.
+Finally, for the concatenation with the trailing symbol $a$, we build a fresh 2-state gadget ($i_2 \xrightarrow{a} f_2$) and splice the star exit $f_0$ to $i_2$ with a silent transition $f_0 \xrightarrow{\varepsilon} i_2$.
+
+The complete compiled machine is shown in \cref{fig:thompson-example}. Every component retains its local structure, and the entire 10-state $\varepsilon$-NFA is assembled mechanically in a single bottom-up pass.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[
+  node distance=1.1cm,
+  state/.style={circle, draw, thick, minimum size=6.5mm, font=\small, fill=blue!8},
+  acc/.style={circle, draw, double, thick, minimum size=6.5mm, font=\small, fill=teal!12},
+  arr/.style={-Stealth, thick},
+]
+  % Star outer shell
+  \node[state] (i_star) {$i_0$};
+  
+  % Union outer shell
+  \node[state, right=0.9cm of i_star] (i_un) {$i_1$};
+  
+  % Branch a
+  \node[state, above right=0.45cm and 0.8cm of i_un] (ia) {$i_a$};
+  \node[state, right=1.0cm of ia] (fa) {$f_a$};
+  
+  % Branch b
+  \node[state, below right=0.45cm and 0.8cm of i_un] (ib) {$i_b$};
+  \node[state, right=1.0cm of ib] (fb) {$f_b$};
+  
+  % Union exit
+  \node[state, below right=0.45cm and 0.8cm of fa] (f_un) {$f_1$};
+  
+  % Star exit
+  \node[state, right=0.9cm of f_un] (f_star) {$f_0$};
+  
+  % Trailing a gadget
+  \node[state, right=0.9cm of f_star] (ia2) {$i_2$};
+  \node[acc, right=1.0cm of ia2] (fa2) {$f_2$};
+  
+  % Connections inside union
+  \draw[arr, orange!70!black] (i_un) -- node[above left, font=\scriptsize] {$\varepsilon$} (ia);
+  \draw[arr, orange!70!black] (i_un) -- node[below left, font=\scriptsize] {$\varepsilon$} (ib);
+  \draw[arr] (ia) -- node[above, font=\small] {$a$} (fa);
+  \draw[arr] (ib) -- node[above, font=\small] {$b$} (fb);
+  \draw[arr, orange!70!black] (fa) -- node[above right, font=\scriptsize] {$\varepsilon$} (f_un);
+  \draw[arr, orange!70!black] (fb) -- node[below right, font=\scriptsize] {$\varepsilon$} (f_un);
+  
+  % Star transitions
+  \draw[arr, orange!70!black] (i_star) -- node[above, font=\scriptsize] {$\varepsilon$} (i_un);
+  \draw[arr, orange!70!black] (i_star) to[out=45, in=135, looseness=0.9] node[above, font=\scriptsize] {$\varepsilon$} (f_star);
+  \draw[arr, orange!70!black] (f_un) to[out=-125, in=-55, looseness=1.6] node[below, font=\scriptsize] {$\varepsilon$} (i_un);
+  \draw[arr, orange!70!black] (f_un) -- node[above, font=\scriptsize] {$\varepsilon$} (f_star);
+  
+  % Concatenation splice
+  \draw[arr, orange!70!black] (f_star) -- node[above, font=\scriptsize] {$\varepsilon$} (ia2);
+  \draw[arr] (ia2) -- node[above, font=\small] {$a$} (fa2);
+\end{tikzpicture}
+\captionof{figure}{The complete $\varepsilon$-NFA compiled by Thompson's algorithm for $(a+b)^*a$. The base gadgets for $a$ and $b$ are nested inside the union module ($i_1, f_1$), wrapped in the Kleene star shell ($i_0, f_0$), and spliced via an $\varepsilon$-transition to the final base gadget for $a$ ($i_2, f_2$).}
+\label{fig:thompson-example}
+\end{minipage}
+\end{center}
+
+\paragraph{Complexity bounds and algorithmic impact.}
+A crucial virtue of Thompson's construction is its efficiency. Let $|r|$ denote the syntactic size of the regular expression (the total count of alphabet symbols, empty symbols, and operators). Each base symbol contributes exactly 2 states and at most 1 transition; each union adds 2 fresh states and 4 transitions; each concatenation introduces no fresh states and a single transition; and each Kleene star adds 2 fresh states and 4 transitions.
+
+Summing across the abstract syntax tree, if an expression has size $n = |r|$, the compiled automaton has at most $2n$ states and at most $4n$ transitions. Thus, the construction runs in strictly \textbf{linear time} $O(n)$ and produces an automaton of \textbf{linear size} $O(n)$.
+
+This linear bound is of paramount importance in software verification and compiler design. Converting an arbitrary regular expression directly into a deterministic automaton (DFA) can trigger an exponential state explosion ($2^n$ states in the worst case). Thompson's construction bypasses this bottleneck entirely: it produces a compact $\varepsilon$-NFA in linear time. Real-world regular expression matchers (such as Ken Thompson's original \texttt{grep} and modern production engines like Google's RE2) use this exact representation to simulate the NFA on-the-fly, tracking active state sets across an input word $w$ in time $O(|r|\cdot|w|)$ without ever materializing an exponential DFA.
+
+Finally, by applying the $\varepsilon$-removal algorithm of \cref{thm:epsilon-removal}, we can mechanically eliminate all silent transitions from the compiled machine, yielding an equivalent standard NFA without $\varepsilon$-moves. This constructively proves the first direction of \cref{thm:kleene}: \emph{every restricted regular expression denotes a regular language recognized by a finite automaton.}
 
 \subsection{The Extraction Engine: State Elimination}
 \label{subsec:state-elimination}
