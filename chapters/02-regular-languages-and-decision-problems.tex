@@ -800,43 +800,65 @@ This linear bound is of paramount importance in software verification and compil
 
 Finally, by applying the $\varepsilon$-removal algorithm of \cref{thm:epsilon-removal}, we can mechanically eliminate all silent transitions from the compiled machine, yielding an equivalent standard NFA without $\varepsilon$-moves. This constructively proves the first direction of \cref{thm:kleene}: \emph{every restricted regular expression denotes a regular language recognized by a finite automaton.}
 
-\subsection{The Extraction Engine: State Elimination}
+\subsection{The Extraction Engine: State Elimination and Path Expressions}
 \label{subsec:state-elimination}
 
-We now establish the reverse direction of \cref{thm:kleene}: from every finite automaton $A$, we can extract an equivalent restricted regular expression $r_A$ such that $L(r_A) = L(A)$.
+We now establish the reverse direction of \cref{thm:kleene}: from every finite automaton $A$, we can systematically extract an equivalent restricted regular expression $r_A$ such that $L(r_A) = L(A)$.
 
-\begin{walkthrough}{State elimination: from DFA to regular expression}
-Let
+In the literature, this extraction is presented through two complementary lenses:
+\begin{enumerate}[leftmargin=1.4em, nosep]
+  \item \textbf{The algebraic dynamic programming approach} of McNaughton and Yamada (1960), which sets up a system of path languages $R_{i,j}^k$ indexed by the set of permitted intermediate states and solves them via recurrence.
+  \item \textbf{The graphical state elimination method} (often formalized via Generalized NFAs, or GNFAs), which removes states one by one from the transition graph, updating edge labels with regular expressions that capture all bypass paths through the eliminated state.
+\end{enumerate}
+These two formulations compute the exact same mathematical objects: eliminating state $q_k$ from the transition graph is the geometric manifestation of the algebraic recurrence step for $R_{i,j}^k$. We develop the algorithmic framework using intermediate state frontiers and provide the graph-elimination intuition throughout.
+
+\paragraph{Runs and intermediate states.}
+Let $A = (Q, \Sigma, \delta, q_1, F)$ be a DFA with $n$ states, which we number explicitly as
 \[
-  A=(\{q_1,\ldots,q_n\},\Sigma,\delta,q_1,F)
+  Q = \{q_1, q_2, \ldots, q_n\},
 \]
-be a DFA whose initial state is $q_1$.  The automaton already defines a
-language:
+designating $q_1$ as the initial state without loss of generality.
+The automaton defines the regular language
 \[
-  L(A)=\{\,w\in\Sigma^* \mid \widehat{\delta}(q_1,w)\in F\,\}.
+  L(A) = \{\,w \in \Sigma^* \mid \widehat{\delta}(q_1, w) \in F\,\}.
 \]
-What we must show is that this same language can be written as a regular
-expression.
+To translate this operational definition into an algebraic regular expression, we must track how runs traverse the state space. Consider a run of length $m \ge 0$ on an input word $w = a_1 a_2 \cdots a_m \in \Sigma^*$:
+\[
+  p_0 \tto{a_1} p_1 \tto{a_2} p_2 \cdots \tto{a_m} p_m,
+\]
+where $p_0 = q_i$ is the starting state and $p_m = q_j$ is the ending state. The \emph{intermediate states} of this run are the internal waypoints visited strictly between the start and the finish:
+\[
+  \operatorname{Int}(p_0 \dots p_m) = \{p_1, p_2, \ldots, p_{m-1}\}.
+\]
+Notice two immediate structural facts about this set:
+\begin{itemize}[leftmargin=1.2em, nosep]
+  \item If $|w| = 0$ ($m=0$, so $w = \varepsilon$ and $q_i = q_j$), the run has zero transitions and visits zero internal states: $\operatorname{Int} = \emptyset$.
+  \item If $|w| = 1$ ($m=1$, a single step $q_i \tto{a} q_j$), the run also has zero internal states: $\operatorname{Int} = \emptyset$.
+  \item For $|w| \ge 2$, the run has exactly $m-1$ internal stops.
+\end{itemize}
 
-The difficulty is that a run may wander through the automaton before it
-reaches its final state.  The proof controls this wandering by numbering
-the states and allowing them as intermediate states one at a time.  The
-numbering is only bookkeeping: it lets us say, at stage $k$, which
-states may appear in the middle of a run.
+\begin{definition}[Intermediate-state path language $R_{i,j}^k$]
+\label{def:rijk}
+For every stage $0 \le k \le n$ and every pair of states $q_i, q_j \in Q$, the \emph{path language} $R_{i,j}^k \subseteq \Sigma^*$ is the set of all words $w$ that drive the automaton from $q_i$ to $q_j$ along a run whose intermediate states all belong to the permitted prefix $\{q_1, \ldots, q_k\}$:
+\[
+  R_{i,j}^k = \left\{\, w \in \Sigma^* \;\middle|\; q_i \tto{w} q_j \text{ via a run with } \operatorname{Int} \subseteq \{q_1, \ldots, q_k\} \,\right\}.
+\]
+\end{definition}
 
-\aside{A recurring finite-state technique is to make the state set
-visible.  Writing $Q=\{q_1,\ldots,q_n\}$ does not add structure to the
-automaton; it only chooses names for the finitely many states.  Once the
-states are named, we can speak about ``the first $k$ states'', build
-tables indexed by $i,j,k$, and prove statements by induction over that
-index.  Abstract notation $Q$ is best for definitions; explicit names
-$q_1,\ldots,q_n$ are best for constructions.}
+\noindent
+\textbf{Crucial boundary distinction:} The endpoints $q_i$ and $q_j$ are \textbf{never} constrained by the index $k$. They can be any states in $Q$, even with indices strictly greater than $k$. The index $k$ acts strictly as a frontier for internal waypoints:
+\begin{itemize}[leftmargin=1.2em, nosep]
+  \item When $k=0$, the permitted set $\{q_1, \ldots, q_0\} = \emptyset$ is empty: no intermediate state is allowed at all. Runs in $R_{i,j}^0$ must be direct hops of length $\le 1$.
+  \item When $k=n$, the permitted set is the entire state set $Q$: every state is allowed as an intermediate stop, so $R_{i,j}^n$ contains all words taking $q_i$ to $q_j$ with no restrictions.
+\end{itemize}
 
-Before writing the formal definition, look at the following small path
-picture.  We only care about labels of paths between numbered states, so
-accepting states are irrelevant here.
+\aside{A recurring finite-state technique is to make the state set visible. Writing $Q=\{q_1,\ldots,q_n\}$ does not add structure to the automaton; it only chooses names for the finitely many states. Once the states are named, we can speak about ``the first $k$ states'', build tables indexed by $i,j,k$, and prove statements by induction over that index.}
 
-\begin{center}
+To visualize how increasing $k$ unlocks additional paths, consider the fragment in \cref{fig:intermediate-state-toy}.
+
+\noindent
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}[
   node distance=1.45cm,
   state/.style={circle, draw, thick, minimum size=7.5mm, fill=blue!8},
@@ -857,100 +879,72 @@ accepting states are irrelevant here.
   \draw[arr, loop below] (q4) to node[below, font=\small] {$b$} (q4);
   \draw[arr] (q4) -- node[below right, font=\small] {$a$} (q5);
 \end{tikzpicture}
-\end{center}
+\captionof{figure}{Unlocking intermediate states. From $q_3$ to $q_5$: with $k=0$, only the direct edge $b$ is available; unlocking $\{q_1, q_2\}$ ($k=2$) adds $aa^*ba$; unlocking $q_4$ ($k=4$) adds $aa^*bb^*a$.}
+\label{fig:intermediate-state-toy}
+\end{minipage}
 
-From $q_3$ to $q_5$, if no intermediate state is allowed, the only word
-shown is $b$.  If only $q_1$ and $q_2$ may be used in the middle, we can
-also read
-\[
-  aa^*ba
-\]
-by going from $q_3$ to $q_1$, looping on $q_1$ any finite number of
-times, moving to $q_2$, and then exiting to $q_5$.  If $q_4$ is also
-allowed, the extra possibility through $q_4$ contributes
-\[
-  aa^*bb^*a.
-\]
-This is the intuition behind the superscript: $k$ tells us which state
-names are unlocked as intermediate stops.  In the notation we are about
-to define, the displayed paths contribute
-\[
-  R_{3,5}^0 = b,\qquad
-  R_{3,5}^2 = b + aa^*ba,\qquad
-  R_{3,5}^4 = b + aa^*ba + aa^*bb^*a.
-\]
-
-Now define, for $0\leq k\leq n$, the language $R_{i,j}^k$ as the set of
-all words that take the automaton from $q_i$ to $q_j$ while every state
-visited after a non-empty proper prefix belongs to
-\[
-  \{q_1,\ldots,q_k\}.
-\]
-The endpoints $q_i$ and $q_j$ are not constrained by this condition.
-Thus $k$ is a frontier: $R_{i,j}^0$ allows no intermediate state at all,
-while $R_{i,j}^n$ allows every state and therefore imposes no real
-restriction.
-
-In the parity DFA, the intermediate states are the states reached after
-reading a non-empty proper prefix of the word.  This gives quick tests
-for membership and non-membership:
-\begin{itemize}[nosep]
-  \item $a\in R_{1,2}^0$, because it goes directly from $q_1$ to $q_2$
-  and has no intermediate state.  But $ba\notin R_{1,2}^0$: after the
-  proper prefix $b$, the run is already at $q_1$, so there is an
-  intermediate state, and the frontier $k=0$ allows none.
-  \item For $R_{2,2}^1$, the only allowed intermediate state is $q_1$.
-  The endpoint $q_2$ is still allowed: for example
-  $b\in R_{2,2}^1$, because a one-letter word has no intermediate
-  state.  Also $aa,aba\in R_{2,2}^1$, because their intermediate stops
-  are all $q_1$.  By contrast, $bb\notin R_{2,2}^1$: after the first
-  $b$ the run is at $q_2$ as an intermediate stop, and $q_2$ has not
-  been unlocked yet.
-  \item Since this automaton has $n=2$ states, $R_{1,1}^2$ permits both
-  $q_1$ and $q_2$ as intermediate states.  Thus $aa$ and $bb$ both
-  belong to $R_{1,1}^2$.  But $ab\notin R_{1,1}^2$, not because of the
-  frontier condition, but because it ends in $q_2$ rather than in
-  $q_1$.
+\noindent
+From $q_3$ to $q_5$:
+\begin{itemize}[leftmargin=1.2em, nosep]
+  \item At $k=0$, no intermediate states are allowed; the only path is the direct transition $R_{3,5}^0 = b$.
+  \item At $k=2$, states $q_1$ and $q_2$ are unlocked. A run can step $q_3 \to q_1$, loop at $q_1$ on $a^*$, step $q_1 \to q_2$, and exit to $q_5$, giving $R_{3,5}^2 = b + aa^*ba$.
+  \item At $k=4$, state $q_4$ is also unlocked, allowing the branch through $q_4$ with $b^*$, yielding $R_{3,5}^4 = b + aa^*ba + aa^*bb^*a$.
 \end{itemize}
 
-\wtstep{Base Case ($k=0$)}{
-We prove by induction on $k$ that each $R_{i,j}^k$ is denoted by a
-restricted regular expression.  For $k=0$, no intermediate state is
-allowed, so a path from $q_i$ to $q_j$ is either the empty path (when
-$i=j$) or a single transition labelled by some $a\in\Sigma$.  Hence
-$R_{i,j}^0$ is denoted by a finite union of symbols, together with
-$\varepsilon$ when $i=j$---a restricted regular expression.
-}{
-In the parity running example this base layer is concrete:
-\vspace{-2mm}
-\begin{align*}
-  R_{1,1}^0&=\varepsilon+b, & R_{1,2}^0&=a,\\[1mm]
-  R_{2,1}^0&=a,             & R_{2,2}^0&=\varepsilon+b.
-\end{align*}
-With no intermediate state allowed, the only possible non-empty words
-have length one.
-}
+\begin{example}[The parity DFA as a running benchmark]
+\label{ex:parity-dfa-state-elim}
+To ground every step of the algorithm in a concrete calculation, we track the two-state parity DFA $A_{\mathrm{parity}} = (\{q_1, q_2\}, \{a, b\}, \delta, q_1, \{q_1\})$ shown in \cref{fig:parity-dfa-elim}, which accepts words over $\{a, b\}$ containing an even number of $a$'s.
 
-For the induction step, a path counted by $R_{i,j}^k$ either never
-visits $q_k$ as an intermediate state---in which case it lies in
-$R_{i,j}^{k-1}$---or it visits $q_k$ at least once.  In the latter case,
-split the path at the first visit to $q_k$, then at each complete return
-to $q_k$, and finally at the last departure toward $q_j$.  In the
-lecture, the whiteboard picture is the one in
-\cref{fig:kleene-rijk-split}: either avoid $q_k$, or enter $q_k$, loop
-around it any finite number of times, and exit.  This yields the recurrence
-\[
-  R_{i,j}^k =
-  R_{i,j}^{k-1}
-  +
-  R_{i,k}^{k-1}\,(R_{k,k}^{k-1})^*\,R_{k,j}^{k-1},
-\]
-which is regular by the induction hypothesis.
+\noindent
+\begin{minipage}{\linewidth}
+\centering
+\begin{tikzpicture}[
+  node distance=2.6cm,
+  state/.style={circle, draw, thick, minimum size=8.5mm, fill=blue!8, font=\small},
+  acc/.style={circle, draw, double, thick, minimum size=8.5mm, fill=teal!12, font=\small},
+  arr/.style={-Stealth, thick},
+]
+  \node[acc] (q1) {$q_1$};
+  \node[state, right=of q1] (q2) {$q_2$};
 
-\begin{center}
+  \draw[arr] ([xshift=-8mm]q1.west) -- (q1);
+  \draw[arr, loop above] (q1) to node[above, font=\small] {$b$} (q1);
+  \draw[arr, bend left=25] (q1) to node[above, font=\small] {$a$} (q2);
+  \draw[arr, bend left=25] (q2) to node[below, font=\small] {$a$} (q1);
+  \draw[arr, loop above] (q2) to node[above, font=\small] {$b$} (q2);
+\end{tikzpicture}
+\captionof{figure}{The parity DFA: state $q_1$ is initial and accepting (even number of $a$'s), while $q_2$ is rejecting (odd number of $a$'s). The symbol $a$ flips parity; the symbol $b$ preserves it.}
+\label{fig:parity-dfa-elim}
+\end{minipage}
+
+\noindent
+Testing membership across intermediate frontiers illustrates the definitions:
+\begin{itemize}[leftmargin=1.2em, nosep]
+  \item $a \in R_{1,2}^0$, because the step $q_1 \tto{a} q_2$ has length 1 and zero intermediate states. But $ba \notin R_{1,2}^0$: the run $q_1 \tto{b} q_1 \tto{a} q_2$ visits $q_1$ as an intermediate state, forbidden when $k=0$.
+  \item For $R_{2,2}^1$, only $q_1$ is permitted internally. The word $b \in R_{2,2}^1$ (length 1, no intermediate stop). The words $aa \in R_{2,2}^1$ ($q_2 \tto{a} q_1 \tto{a} q_2$) and $aba \in R_{2,2}^1$ are also admitted because their intermediate stops are all $q_1$. However, $bb \notin R_{2,2}^1$: the run $q_2 \tto{b} q_2 \tto{b} q_2$ visits $q_2$ internally, which is not yet unlocked at $k=1$.
+  \item At $k=2$, all states are unlocked. Both $aa$ and $bb$ belong to $R_{1,1}^2$. In contrast, $ab \notin R_{1,1}^2$, not because of any intermediate restriction, but simply because it ends in $q_2 \neq q_1$.
+\end{itemize}
+\end{example}
+
+\paragraph{The inductive split: bypassing state $q_k$.}
+How do we express $R_{i,j}^k$ using expressions from the previous stage $k-1$?
+When we increase the index from $k-1$ to $k$, state $q_k$ becomes newly available as an intermediate waypoint. Any run from $q_i$ to $q_j$ whose intermediate states belong to $\{q_1, \ldots, q_k\}$ falls into one of two mutually exclusive categories:
+\begin{enumerate}[leftmargin=1.2em, nosep]
+  \item \textbf{It never visits $q_k$ as an intermediate state.} Then all its intermediate waypoints already belong to $\{q_1, \ldots, q_{k-1}\}$. By definition, this part of the language is precisely $R_{i,j}^{k-1}$.
+  \item \textbf{It visits $q_k$ at least once as an intermediate state.} We can split this run at its \emph{first} arrival at $q_k$, at each subsequent \emph{return} to $q_k$, and at its \emph{final departure} toward $q_j$, as shown in \cref{fig:kleene-rijk-split}:
+  \begin{itemize}[nosep]
+    \item The entry leg goes from $q_i$ to the first visit to $q_k$. Since this is the first visit, no earlier intermediate state is $q_k$; hence this leg belongs to $R_{i,k}^{k-1}$.
+    \item The middle loop consists of zero or more complete excursions from $q_k$ back to $q_k$ without passing through $q_k$ in the middle. Each such excursion belongs to $R_{k,k}^{k-1}$, and repeating it any finite number of times yields $(R_{k,k}^{k-1})^*$.
+    \item The exit leg leaves $q_k$ for the last time and reaches $q_j$ without visiting $q_k$ again, belonging to $R_{k,j}^{k-1}$.
+  \end{itemize}
+\end{enumerate}
+
+\noindent
+\begin{minipage}{\linewidth}
+\centering
 \begin{tikzpicture}[
   node distance=2.2cm,
-  state/.style={circle, draw, thick, minimum size=7mm, fill=blue!8},
+  state/.style={circle, draw, thick, minimum size=7.5mm, fill=blue!8},
   arr/.style={-Stealth, thick},
 ]
   \node[state] (qi) {$q_i$};
@@ -968,58 +962,114 @@ which is regular by the induction hypothesis.
     {Either avoid $q_k$, or enter it, make finitely many complete
     returns, and exit.};
 \end{tikzpicture}
-\captionof{figure}{The inductive split in the automaton-to-expression direction
-of Kleene's theorem.  Allowing $q_k$ as a new intermediate state adds
-exactly the paths that enter $q_k$, repeat a $q_k$-to-$q_k$ block any
-finite number of times, and then leave.}
+\captionof{figure}{The inductive split in the McNaughton--Yamada recurrence and state elimination. Allowing $q_k$ as an intermediate state (or eliminating $q_k$ by bypassing it) adds all paths that visit $q_k$, loop around it any finite number of times via $(R_{k,k}^{k-1})^*$, and depart toward $q_j$.}
 \label{fig:kleene-rijk-split}
-\end{center}
+\end{minipage}
 
-\wtstep{Trace for $k=1$}{
-This is the exact point where Kleene star is forced on us.  If a run
-passes through $q_k$ once, there is no middle loop.  If it passes through
-$q_k$ twice, there is one $q_k$-to-$q_k$ block.  If it passes through
-$q_k$ many times, there are many such blocks.  The star
-$(R_{k,k}^{k-1})^*$ summarizes all finite numbers of complete returns.
+\noindent
+Summing these two alternatives yields the celebrated \textbf{McNaughton--Yamada recurrence}:
+\[
+  R_{i,j}^k = R_{i,j}^{k-1} + R_{i,k}^{k-1}\,(R_{k,k}^{k-1})^*\,R_{k,j}^{k-1}.
+\]
+In graphical terms, this recurrence is precisely what happens when state $q_k$ is \emph{eliminated}: $q_k$ is removed from the graph, and for every pair of remaining states $q_i, q_j$, a shortcut regular expression $R_{i,k}(R_{k,k})^*R_{k,j}$ is added in parallel to the existing edge $R_{i,j}$.
+
+\begin{walkthrough}{State elimination: from DFA to regular expression}
+\wtstep{Base Layer ($k=0$): Direct Steps and Silent Transitions}{
+  We prove by induction on $k$ that each language $R_{i,j}^k$ is denoted by a restricted regular expression.
+
+  For the base case $k=0$, no intermediate states are permitted ($\operatorname{Int} = \emptyset$). Consequently, a valid path from $q_i$ to $q_j$ can only have length 0 or 1:
+  \begin{itemize}[leftmargin=1.2em, nosep]
+    \item If $i = j$, the empty path of length 0 labeled by $\varepsilon$ is always available.
+    \item Any symbol $a \in \Sigma$ such that $\delta(q_i, a) = q_j$ provides a direct one-step transition.
+  \end{itemize}
+  Collecting all direct transitions yields the base formula:
+  \[
+    R_{i,j}^0 = \begin{cases}
+      \varepsilon + \sum_{a: \delta(q_i, a) = q_i} a, & \text{if } i = j, \\
+      \sum_{a: \delta(q_i, a) = q_j} a, & \text{if } i \neq j,
+    \end{cases}
+  \]
+  where an empty sum evaluates to $\emptyset$. Since $\Sigma$ is finite, $R_{i,j}^0$ is a finite union of atomic symbols (and $\varepsilon$)---a restricted regular expression.
 }{
-For example, when $k=1$ in the parity DFA, the expression
-\vspace{-2mm}
-\begin{align*}
-  R_{2,2}^1 &= R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0 \\
-            &= (\varepsilon+b)+a(\varepsilon+b)^*a
-\end{align*}
-describes all words that start and end in $q_2$ using only $q_1$ as an intermediate stop.
+  In the parity DFA (\cref{fig:parity-dfa-elim}), the $2\times 2$ base expressions are immediate by inspection:
+  \begin{align*}
+    R_{1,1}^0 &= \varepsilon + b, & R_{1,2}^0 &= a, \\
+    R_{2,1}^0 &= a,             & R_{2,2}^0 &= \varepsilon + b.
+  \end{align*}
+  With no intermediate state permitted, every non-empty word in $R_{i,j}^0$ has length exactly 1.
 }
 
-\wtstep{Final Union}{
-Finally, the language of the automaton is exactly the union of all paths
-from the initial state to any accepting state, with no restrictions on
-intermediate states ($k=n$):
-\[
-  L(A)=\bigcup_{q_j\in F} R_{1,j}^n,
-\]
-which is denoted by the corresponding finite union of restricted
-regular expressions.
+\Needspace{10\baselineskip}
+\wtstep{Inductive Step: Unlocking State $q_1$ ($k=1$)}{
+  Assuming that $R_{i,j}^{k-1}$ is denoted by a restricted regular expression for all state pairs $(i, j)$, we compute stage $k$ using the recurrence:
+  \[
+    R_{i,j}^k = R_{i,j}^{k-1} + R_{i,k}^{k-1}\,(R_{k,k}^{k-1})^*\,R_{k,j}^{k-1}.
+  \]
+  Because restricted regular expressions are closed under concatenation, union, and Kleene star, $R_{i,j}^k$ is also a valid restricted regular expression.
+
+  This is the precise point where the Kleene star is forced into the language: the star $(R_{k,k}^{k-1})^*$ summarizes all finite iterations around state $q_k$.
 }{
-In the parity example $F=\{q_1\}$, so the constructed expression is $R_{1,1}^2$. After algebraic simplification, one familiar form is $b^*(ab^*ab^*)^*$.
+  For $k=1$ in our parity DFA, state $q_1$ is unlocked. The self-loop term is $(R_{1,1}^0)^* = (\varepsilon+b)^* \equiv b^*$. We compute the complete $k=1$ layer:
+  \begin{align*}
+    R_{1,1}^1 &= R_{1,1}^0 + R_{1,1}^0(R_{1,1}^0)^*R_{1,1}^0 \equiv b^*, \\
+    R_{1,2}^1 &= R_{1,2}^0 + R_{1,1}^0(R_{1,1}^0)^*R_{1,2}^0 \equiv b^*a, \\
+    R_{2,1}^1 &= R_{2,1}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,1}^0 \equiv ab^*, \\
+    R_{2,2}^1 &= R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0 \\
+              &= (\varepsilon+b) + a b^* a \equiv b + ab^*a \text{ (+ $\varepsilon$)}.
+  \end{align*}
+  For example, $R_{2,2}^1$ describes all paths from $q_2$ back to $q_2$ whose internal stops are all $q_1$: staying via $b$, or jumping $q_2 \xrightarrow{a} q_1 \xrightarrow{b^*} q_1 \xrightarrow{a} q_2$.
+}
+
+\wtstep{Final Assembly: Unlocking State $q_2$ ($k=2$) and Extracting $L(A)$}{
+  At stage $k=n$, every state of $Q$ is permitted as an intermediate waypoint. Thus, $R_{1,j}^n$ places no restriction on runs and contains all words driving $q_1$ to $q_j$.
+
+  A word is accepted by $A$ if and only if its run terminates in some accepting state $q_j \in F$. Therefore, the overall language of the automaton is the finite union:
+  \[
+    L(A) = \bigcup_{q_j \in F} R_{1,j}^n.
+  \]
+  Since each $R_{1,j}^n$ is a restricted regular expression and regular expressions are closed under finite unions, $L(A)$ is denoted by an equivalent restricted regular expression.
+}{
+  In the parity DFA, $n=2$ and the only accepting state is $q_1$ ($F = \{q_1\}$). Thus $L(A_{\mathrm{parity}}) = R_{1,1}^2$.
+
+  Applying the recurrence for $k=2$:
+  \[
+    R_{1,1}^2 = R_{1,1}^1 + R_{1,2}^1\,(R_{2,2}^1)^*\,R_{2,1}^1.
+  \]
+  Substituting the $k=1$ expressions:
+  \[
+    R_{1,1}^2 = b^* + (b^*a)\,\big(b + ab^*a\big)^*\,(ab^*).
+  \]
+  Factoring $b^*$ and using $(b + ab^*a)^* = (ab^*a + b)^* \equiv (b^* a b^* a)^* b^*$, this simplifies to the textbook regular expression for even parity:
+  \[
+    b^*\,\big(ab^*ab^*\big)^*.
+  \]
 }
 \end{walkthrough}
 
 \medskip\noindent
-In summary, Kleene's theorem fundamentally unifies the algebraic and operational perspectives on finite-state behaviour. State elimination compiles any finite automaton into an equivalent regular expression, while Thompson's construction compiles any expression into an automaton. Operationally, this means that regular expressions and finite automata are interchangeable: we are free to write specifications in whichever syntax is most natural, and compile them automatically into automata suitable for algorithmic verification.
+In summary, Kleene's theorem fundamentally unifies the operational and algebraic perspectives on finite-state systems. Thompson's construction compiles any regular expression into an automaton, while McNaughton--Yamada state elimination extracts an equivalent regular expression from any automaton. Operationally, this means that regular expressions and finite automata are mathematically interchangeable representations of the same class of languages.
 
 \paragraph{Alternative perspective: deriving the construction backward from the goal.}
-The automaton-to-expression half above built the path expressions $R_{i,j}^k$ upward from $k=0$ and only at the very end assembled $L(\mathcal{A})=\bigcup_{q_j\in F}R_{1,j}^n$. It is pedagogically illuminating to re-examine the same steps starting directly from that target, because the target is exactly what forces every design choice on the way there.
+The derivation above built the path expressions $R_{i,j}^k$ bottom-up from $k=0$ and only at the very end assembled $L(A)=\bigcup_{q_j\in F}R_{1,j}^n$. It is pedagogically illuminating to re-examine the same steps starting directly from that target, because the target is exactly what forces every design choice on the way there.
 
-We want a regular expression for $L(\mathcal{A})$, i.e.\ for the words that take $q_1$ to some $q_j\in F$ with no restriction on which states a run may pass through. ``No restriction on intermediate states'' is not, by itself, something we can peel apart by induction---there is nothing smaller to induct on. So we ask: what is the smallest change that turns this into an inductive problem? Answer: index the restriction by a number $k$ that says how many of the states $q_1,\ldots,q_k$ may appear in the middle of a run. $R_{i,j}^0$ (no intermediate state allowed) is then something we already know how to write down, a single symbol or $\varepsilon$; and $R_{i,j}^n$ (every state allowed, hence no real restriction) is exactly the object the goal asks for. The parameter $k$ is not part of the question we started with---it is the bookkeeping device the goal forces us to invent so that a recursion from $0$ to $n$ becomes possible at all.
+We want a regular expression for $L(A)$, i.e.\ for the words that take $q_1$ to some $q_j\in F$ with no restriction on which states a run may pass through. ``No restriction on intermediate states'' is not, by itself, something we can peel apart by induction---there is nothing smaller to induct on. So we ask: what is the smallest change that turns this into an inductive problem? Answer: index the restriction by a number $k$ that specifies how many of the states $\{q_1,\ldots,q_k\}$ may appear in the middle of a run. The base case $R_{i,j}^0$ (no intermediate state allowed) is then something we can write down immediately as direct transitions; and $R_{i,j}^n$ (every state allowed, hence no real restriction) is exactly the target object. The parameter $k$ is not part of the problem statement---it is the bookkeeping device the inductive goal forces us to invent so that a recursion from $0$ to $n$ becomes possible at all.
 
-Once $k$ is in place, the recurrence follows from asking one question at each step: what changes when $q_k$ becomes an allowed intermediate stop that was not allowed at stage $k-1$? A run either still avoids $q_k$ entirely, which is the case already covered by $R_{i,j}^{k-1}$, or it visits $q_k$ at least once, in which case splitting at every visit gives an entry leg, any finite number of $q_k$-to-$q_k$ loops, and an exit leg. This is exactly
-\[
-  R_{i,j}^k=R_{i,j}^{k-1}+R_{i,k}^{k-1}(R_{k,k}^{k-1})^*R_{k,j}^{k-1},
-\]
-the same formula as before.
-
-So both readings pass through the identical sequence of definitions and land on the identical recurrence; what differs is only which question motivates $k$ first. This second entry point is useful if the step ``why introduce $k$ at all'' felt unmotivated on a first pass---it is a second way in, not a competing proof.
+\paragraph{The algorithmic asymmetry: linear compilation vs.\ exponential extraction.}
+While Kleene's theorem guarantees an algorithmic bijection between regular expressions and finite automata, the computational complexity of the two translation directions is dramatically asymmetric:
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Expression to Automaton (Thompson's construction):} Running in time \textbf{strictly linear} $O(n)$ in the length of the expression, Thompson's construction produces an $\varepsilon$-NFA with at most $2n$ states and $4n$ transitions. The conversion is local, modular, and computationally trivial.
+  \item \textbf{Automaton to Expression (State Elimination / McNaughton--Yamada):} In stark contrast, extracting a regular expression from an automaton suffers from an \textbf{inherent worst-case exponential blowup}.
+  Consider the recurrence:
+  \[
+    R_{i,j}^k = R_{i,j}^{k-1} + R_{i,k}^{k-1}\,(R_{k,k}^{k-1})^*\,R_{k,j}^{k-1}.
+  \]
+  At each stage $k$, writing out $R_{i,j}^k$ requires referencing four sub-expressions from stage $k-1$. Without algebraic simplification, the formula size quadruples at each step, producing an unsimplified regular expression of size
+  \[
+    \Theta(4^n)
+  \]
+  for an automaton with $n$ states. For a modest 10-state DFA, $4^{10} \approx 10^6$ operations; for 20 states, $4^{20} \approx 10^{12}$ symbols.
+\end{itemize}
+Can this exponential blowup be avoided by a cleverer algorithm? In 1976, Andrzej Ehrenfeucht and Paul Zeiger proved that the answer is \textbf{no}: there exists a family of $n$-state DFAs whose shortest equivalent regular expression has length $2^{\Omega(n)}$. While practical implementations employ heuristic state-elimination orders (such as greedily eliminating states with the smallest product of in-degree and out-degree) and aggressively simplify intermediate regular expressions using algebraic rewrites and hash-consing, the exponential gap between the concise operational representation of automata and the rigid hierarchical syntax of regular expressions is fundamental.
 
 A useful consequence of \cref{thm:kleene}, combined with the closure
 constructions we are about to develop in \cref{sec:regular-closure}, is
