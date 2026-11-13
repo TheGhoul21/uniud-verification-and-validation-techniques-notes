@@ -854,7 +854,7 @@ For every stage $0 \le k \le n$ and every pair of states $q_i, q_j \in Q$, the \
 
 \aside{A recurring finite-state technique is to make the state set visible. Writing $Q=\{q_1,\ldots,q_n\}$ does not add structure to the automaton; it only chooses names for the finitely many states. Once the states are named, we can speak about ``the first $k$ states'', build tables indexed by $i,j,k$, and prove statements by induction over that index.}
 
-To visualize how increasing $k$ unlocks additional paths, consider the fragment in \cref{fig:intermediate-state-toy}.
+To visualize how increasing $k$ unlocks additional paths, consider the transition graph fragment with states $S = \{s_1, \ldots, s_5\}$ in \cref{fig:intermediate-state-toy}.
 
 \noindent
 \begin{minipage}{\linewidth}
@@ -864,31 +864,31 @@ To visualize how increasing $k$ unlocks additional paths, consider the fragment 
   state/.style={circle, draw, thick, minimum size=7.5mm, fill=blue!8},
   arr/.style={-Stealth, thick},
 ]
-  \node[state] (q3) {$q_3$};
-  \node[state, above right=0.55cm and 1.1cm of q3] (q1) {$q_1$};
-  \node[state, right=of q1] (q2) {$q_2$};
-  \node[state, below right=0.55cm and 1.1cm of q2] (q5) {$q_5$};
-  \node[state, below=1.25cm of q2] (q4) {$q_4$};
+  \node[state] (s3) {$s_3$};
+  \node[state, above right=0.55cm and 1.1cm of s3] (s1) {$s_1$};
+  \node[state, right=of s1] (s2) {$s_2$};
+  \node[state, below right=0.55cm and 1.1cm of s2] (s5) {$s_5$};
+  \node[state, below=1.25cm of s2] (s4) {$s_4$};
 
-  \draw[arr] (q3) -- node[below, font=\small] {$b$} (q5);
-  \draw[arr] (q3) -- node[above left, font=\small] {$a$} (q1);
-  \draw[arr, loop above] (q1) to node[above, font=\small] {$a$} (q1);
-  \draw[arr] (q1) -- node[above, font=\small] {$b$} (q2);
-  \draw[arr] (q2) -- node[above right, font=\small] {$a$} (q5);
-  \draw[arr] (q2) -- node[right, font=\small] {$b$} (q4);
-  \draw[arr, loop below] (q4) to node[below, font=\small] {$b$} (q4);
-  \draw[arr] (q4) -- node[below right, font=\small] {$a$} (q5);
+  \draw[arr] (s3) -- node[below, font=\small] {$b$} (s5);
+  \draw[arr] (s3) -- node[above left, font=\small] {$a$} (s1);
+  \draw[arr, loop above] (s1) to node[above, font=\small] {$a$} (s1);
+  \draw[arr] (s1) -- node[above, font=\small] {$b$} (s2);
+  \draw[arr] (s2) -- node[above right, font=\small] {$a$} (s5);
+  \draw[arr] (s2) -- node[right, font=\small] {$b$} (s4);
+  \draw[arr, loop below] (s4) to node[below, font=\small] {$b$} (s4);
+  \draw[arr] (s4) -- node[below right, font=\small] {$a$} (s5);
 \end{tikzpicture}
-\captionof{figure}{Unlocking intermediate states. From $q_3$ to $q_5$: with $k=0$, only the direct edge $b$ is available; unlocking $\{q_1, q_2\}$ ($k=2$) adds $aa^*ba$; unlocking $q_4$ ($k=4$) adds $aa^*bb^*a$.}
+\captionof{figure}{Unlocking intermediate states. In a transition network with states $\{s_1, \ldots, s_5\}$, considering paths from $s_3$ to $s_5$: with $k=0$, only the direct edge $b$ is available; unlocking $\{s_1, s_2\}$ ($k=2$) adds $aa^*ba$; unlocking $s_4$ ($k=4$) adds $aa^*bb^*a$.}
 \label{fig:intermediate-state-toy}
 \end{minipage}
 
 \noindent
-From $q_3$ to $q_5$:
+From $s_3$ to $s_5$:
 \begin{itemize}[leftmargin=1.2em, nosep]
   \item At $k=0$, no intermediate states are allowed; the only path is the direct transition $R_{3,5}^0 = b$.
-  \item At $k=2$, states $q_1$ and $q_2$ are unlocked. A run can step $q_3 \to q_1$, loop at $q_1$ on $a^*$, step $q_1 \to q_2$, and exit to $q_5$, giving $R_{3,5}^2 = b + aa^*ba$.
-  \item At $k=4$, state $q_4$ is also unlocked, allowing the branch through $q_4$ with $b^*$, yielding $R_{3,5}^4 = b + aa^*ba + aa^*bb^*a$.
+  \item At $k=2$, states $s_1$ and $s_2$ are unlocked. A run can step $s_3 \to s_1$, loop at $s_1$ on $a^*$, step $s_1 \to s_2$, and exit to $s_5$, giving $R_{3,5}^2 = b + aa^*ba$.
+  \item At $k=4$, state $s_4$ is also unlocked, allowing the branch through $s_4$ with $b^*$, yielding $R_{3,5}^4 = b + aa^*ba + aa^*bb^*a$.
 \end{itemize}
 
 \begin{example}[The parity DFA as a running benchmark]
@@ -973,7 +973,7 @@ Summing these two alternatives yields the celebrated \textbf{McNaughton--Yamada 
 \]
 In graphical terms, this recurrence is precisely what happens when state $q_k$ is \emph{eliminated}: $q_k$ is removed from the graph, and for every pair of remaining states $q_i, q_j$, a shortcut regular expression $R_{i,k}(R_{k,k})^*R_{k,j}$ is added in parallel to the existing edge $R_{i,j}$.
 
-\begin{walkthrough}{State elimination: from DFA to regular expression}
+\begin{walkthrough}{State elimination on the parity DFA (\cref{fig:parity-dfa-elim})}
 \wtstep{Base Layer ($k=0$): Direct Steps and Silent Transitions}{
   We prove by induction on $k$ that each language $R_{i,j}^k$ is denoted by a restricted regular expression.
 
@@ -991,7 +991,7 @@ In graphical terms, this recurrence is precisely what happens when state $q_k$ i
   \]
   where an empty sum evaluates to $\emptyset$. Since $\Sigma$ is finite, $R_{i,j}^0$ is a finite union of atomic symbols (and $\varepsilon$)---a restricted regular expression.
 }{
-  In the parity DFA (\cref{fig:parity-dfa-elim}), the $2\times 2$ base expressions are immediate by inspection:
+  In the parity DFA $A_{\mathrm{parity}}$ (\cref{fig:parity-dfa-elim}, with states $\{q_1, q_2\}$), the $2\times 2$ base expressions are immediate by inspection of the transitions:
   \begin{align*}
     R_{1,1}^0 &= \varepsilon + b, & R_{1,2}^0 &= a, \\
     R_{2,1}^0 &= a,             & R_{2,2}^0 &= \varepsilon + b.
@@ -1009,7 +1009,7 @@ In graphical terms, this recurrence is precisely what happens when state $q_k$ i
 
   This is the precise point where the Kleene star is forced into the language: the star $(R_{k,k}^{k-1})^*$ summarizes all finite iterations around state $q_k$.
 }{
-  For $k=1$ in our parity DFA, state $q_1$ is unlocked. The self-loop term is $(R_{1,1}^0)^* = (\varepsilon+b)^* \equiv b^*$. We compute the complete $k=1$ layer:
+  For $k=1$ in the parity DFA (\cref{fig:parity-dfa-elim}), state $q_1$ is unlocked. The self-loop term is $(R_{1,1}^0)^* = (\varepsilon+b)^* \equiv b^*$. We compute the complete $k=1$ layer:
   \begin{align*}
     R_{1,1}^1 &= R_{1,1}^0 + R_{1,1}^0(R_{1,1}^0)^*R_{1,1}^0 \equiv b^*, \\
     R_{1,2}^1 &= R_{1,2}^0 + R_{1,1}^0(R_{1,1}^0)^*R_{1,2}^0 \equiv b^*a, \\
@@ -1017,7 +1017,7 @@ In graphical terms, this recurrence is precisely what happens when state $q_k$ i
     R_{2,2}^1 &= R_{2,2}^0 + R_{2,1}^0(R_{1,1}^0)^*R_{1,2}^0 \\
               &= (\varepsilon+b) + a b^* a \equiv b + ab^*a \text{ (+ $\varepsilon$)}.
   \end{align*}
-  For example, $R_{2,2}^1$ describes all paths from $q_2$ back to $q_2$ whose internal stops are all $q_1$: staying via $b$, or jumping $q_2 \xrightarrow{a} q_1 \xrightarrow{b^*} q_1 \xrightarrow{a} q_2$.
+  For example, $R_{2,2}^1$ describes all paths from $q_2$ back to $q_2$ in \cref{fig:parity-dfa-elim} whose internal stops are all $q_1$: staying via $b$, or jumping $q_2 \xrightarrow{a} q_1 \xrightarrow{b^*} q_1 \xrightarrow{a} q_2$.
 }
 
 \wtstep{Final Assembly: Unlocking State $q_2$ ($k=2$) and Extracting $L(A)$}{
@@ -1029,7 +1029,7 @@ In graphical terms, this recurrence is precisely what happens when state $q_k$ i
   \]
   Since each $R_{1,j}^n$ is a restricted regular expression and regular expressions are closed under finite unions, $L(A)$ is denoted by an equivalent restricted regular expression.
 }{
-  In the parity DFA, $n=2$ and the only accepting state is $q_1$ ($F = \{q_1\}$). Thus $L(A_{\mathrm{parity}}) = R_{1,1}^2$.
+  In the parity DFA (\cref{fig:parity-dfa-elim}), $n=2$ and the only accepting state is $q_1$ ($F = \{q_1\}$). Thus $L(A_{\mathrm{parity}}) = R_{1,1}^2$.
 
   Applying the recurrence for $k=2$:
   \[
