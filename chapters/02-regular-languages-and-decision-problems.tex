@@ -1616,7 +1616,7 @@ For instance, $a \sim ab$ and $ab \sim b$, but $a \nsim b$. We cannot put them i
 \label{fig:equivalence-classes-examples}
 \end{figure}
 
-For automata, we consider equivalence relations on the set of all finite words $\Sigma^*$. We need them to be compatible with appending symbols and with the language $L$.
+As \cref{fig:equivalence-classes-examples} illustrates, transitivity is what guarantees that these buckets remain disjoint rather than overlapping. For automata, however, an arbitrary partition of $\Sigma^*$ is not yet enough: to behave like automaton states, the buckets must evolve consistently when new symbols are appended and must respect membership in $L$.
 
 \begin{definition}[Right-invariant equivalence compatible with $L$]
 \label{def:right-invariant-equivalence}
@@ -1633,7 +1633,9 @@ Furthermore, $\sim$ is \textbf{compatible with $L$} (or $L$ is a union of some c
 
 In a right-invariant relation, if you append the exact same future suffix $z$ to any two words currently in the same class, the two new words will land together in their destination class. For example, if $x \sim y$ groups words by the parity of $a$'s, appending $z = aba$ (which has two $a$'s) to both will preserve their original parity: if they were both even, they both remain even; if they were both odd, they both remain odd. They move together. Compatibility with $L$ means no equivalence class contains both accepted and rejected words: the relation respects the boundary of the language.
 
-We can now introduce a very specific equivalence relation associated with any given language $L$.
+\Cref{def:right-invariant-equivalence} captures the structural rules that any state-like partition must obey, yet a single language $L$ admits many such relations. Even for $L_{\mathrm{even}}$, grouping words by their number of $a$'s modulo $4$ is right-invariant and compatible with $L_{\mathrm{even}}$, although four classes are twice as many as needed; at the extreme, the equality relation ($x \sim y \iff x = y$) is right-invariant and compatible with every language, yet has infinite index and tells us nothing about finite memory.
+
+When $L$ is given abstractly---say, by a membership predicate, with no DFA in hand---guessing among arbitrarily fine partitions is hopeless. Instead, we turn the question around and ask how aggressively we can merge prefixes without breaking determinism or acceptance: \emph{when are we genuinely forced to keep two prefixes $x, y \in \Sigma^*$ apart?} If some future suffix $z \in \Sigma^*$ puts one of $xz$ and $yz$ in $L$ and the other outside, no right-invariant partition compatible with $L$ can place $x$ and $y$ in the same class, because appending $z$ would move them together while demanding opposite acceptance verdicts. Conversely, if no suffix $z$ can separate $x$ and $y$, no future observation in $L$ distinguishes them, so there is no behavioural reason to keep them in separate states. Turning this indistinguishability condition into a definition yields a canonical relation determined solely by $L$, denoted by $\sim_L$.
 
 \begin{definition}[Myhill--Nerode equivalence of a language]
 \label{def:myhill-nerode-relation}
@@ -1643,9 +1645,11 @@ For a language $L\subseteq\Sigma^*$, its \textbf{Myhill--Nerode equivalence rela
 \]
 \end{definition}
 
-Two prefixes are equivalent under $\sim_L$ when no future suffix can separate them. This is the coarsest (most relaxed) right-invariant equivalence relation that is compatible with $L$. It groups words purely by their future continuations in $L$. 
+Read $x \sim_L y$ as a universal future-continuation test comparing two prefixes $x$ and $y$: for every candidate suffix $z \in \Sigma^*$, extending both prefixes by $z$ must yield the same membership verdict in $L$. Notice that taking the empty suffix $z = \varepsilon$ already forces $x \in L \iff y \in L$, so equivalent prefixes must agree on immediate acceptance before any further input arrives; quantifying over all $z \in \Sigma^*$ ensures they continue to agree after every future extension. Operationally, this gives a sharp separation criterion: to prove $x \not\sim_L y$, it suffices to exhibit \emph{one distinguishing witness suffix} $z \in \Sigma^*$ such that one of $xz, yz$ belongs to $L$ and the other does not. Returning to \cref{ex:myhill-nerode-preview} (words over $\{a,b\}$ ending in~$a$), we have $aa \sim_L ba$ because every suffix $z$ leaves $aaz$ and $baz$ with the same last symbol, whereas $b \not\sim_L ba$ is witnessed immediately by $z = \varepsilon$ ($b\varepsilon \notin L$ while $ba\varepsilon \in L$).
 
-The Myhill--Nerode theorem states that the logical statements connecting regularity, finite-index right-invariant relations, and the specific relation $\sim_L$ are all logically equivalent.
+What makes $\sim_L$ special among all partitions satisfying \cref{def:right-invariant-equivalence}? Suppose $\sim$ is \emph{any} right-invariant equivalence relation compatible with $L$. Whenever $x \sim y$, right-invariance forces $xz \sim yz$ for every suffix $z \in \Sigma^*$, and compatibility with $L$ forces $xz \in L \iff yz \in L$, which means $x \sim_L y$. Thus every $\sim$-class sits entirely inside a single $\sim_L$-class: any right-invariant partition compatible with $L$ can make extra, redundant splits within the $\sim_L$-classes (such as tracking $a$-counts modulo~$4$ rather than modulo~$2$), but can never merge two distinct $\sim_L$-classes. As we will verify formally in \cref{lem:myhill-nerode-right-invariant}, $\sim_L$ itself is an equivalence relation, right-invariant, and compatible with $L$. It is therefore the \emph{coarsest} (most relaxed, fewest-class) right-invariant equivalence compatible with $L$---the grouping that keeps only the prefix distinctions that $L$ genuinely observes through future continuations.
+
+We now have three distinct lenses on the finite memory required by a language $L$: an operational machine (a DFA recognizing $L$), an abstract finite partition (some finite-index right-invariant equivalence compatible with $L$), and the intrinsic relation $\sim_L$ defined purely from $L$ itself. Because any DFA places prefixes reaching the same state into a finite right-invariant partition compatible with $L$, and because $\sim_L$ is coarser than every such partition, the existence of \emph{some} finite-state recognizer immediately forces $\sim_L$ to have finite index. Conversely, once $\sim_L$ has finitely many classes, those classes serve directly as the states of a DFA for $L$ without having to guess a machine in advance---and, because no such partition can use fewer classes, that DFA is minimal. The Myhill--Nerode theorem formalizes this three-way equivalence.
 
 \Needspace{18\baselineskip}
 \begin{theorem}[Myhill--Nerode theorem]
@@ -1668,14 +1672,16 @@ more intrinsic viewpoints:
   the language.
   \item \textbf{Statement 2} asserts the existence of some finite
   right-invariant classification of prefixes that respects membership
-  in $L$.  Its classes can act as states.
-  \item \textbf{Statement 3} uses the classification determined by $L$
-  itself: prefixes are grouped precisely when they admit the same future
-  continuations.  If this coarsest classification is finite, its classes
-  form the states of the minimal DFA.
+  in $L$ (meaning $L$ is a union of some of its classes, so the relation
+  is compatible with $L$).  Its classes can act as states.
+  \item \textbf{Statement 3} drops existential guessing and uses the
+  classification determined by $L$ itself: prefixes are grouped precisely
+  when they admit the same future continuations.  If this coarsest
+  classification is finite, its classes form the states of the minimal
+  DFA.
 \end{itemize}
 
-Before proving this, let us observe that the states of any DFA define a relation satisfying the second statement, and that $\sim_L$ itself satisfies the required properties.
+To prove \cref{thm:myhill-nerode}, we will close a three-step implication cycle: $(1)\implies(2)\implies(3)\implies(1)$. Before walking around that cycle, we prepare its two structural ingredients: first, we extract from any DFA $\mathcal{A}$ the prefix relation $\sim_{\mathcal{A}}$ needed for $(1)\implies(2)$; second, we verify that $\sim_L$ itself is an equivalence relation, right-invariant, and compatible with $L$, which ensures that the quotient construction in $(3)\implies(1)$ is well-defined.
 
 \begin{definition}[The automaton relation]
 \label{def:automaton-right-equivalence}
@@ -1702,6 +1708,8 @@ future computations identical: $\widehat{\delta}(q_0,xz) = \widehat{\delta}(\wid
 It has finite index because the equivalence classes partition the set
 of finite words according to the finite number of states reached. Finally, it is compatible with $L(\mathcal{A})$ because words in the same class reach the same state, so they are either both accepted or both rejected.
 \end{proof}
+
+That settles how any existing DFA induces a finite-index right-invariant relation compatible with its language. Next, we verify the dual, automaton-free side: starting from an arbitrary language $L\subseteq\Sigma^*$ (whether regular or not), the canonical relation $\sim_L$ always satisfies those same three structural properties.
 
 \begin{lemma}[$\sim_L$ is right-invariant]
 \label{lem:myhill-nerode-right-invariant}
@@ -1789,18 +1797,21 @@ $C$.}
 \label{fig:right-invariance-classes}
 \end{figure}
 
-Operationally, right-invariance says that equivalence is preserved by
-appending: if two prefixes look the same to the language now, then
-reading the same suffix cannot make them look different.  This is
-exactly the property that lets an automaton store a single state for
-both prefixes---after the append, both computations still represent the
-same future behaviour.
+As \cref{fig:right-invariance-classes} illustrates, right-invariance says
+operationally that equivalence is preserved by appending: if two prefixes
+$x$ and $y$ start in the same class (sector $C$), then appending any
+common suffix $z$ moves both into the same destination class (sector $D$,
+or back within $C$ for another suffix $z'$). This is precisely what
+allows an automaton to store a single state for both prefixes---after
+the append, both computations still represent the same future behaviour.
+
+With \cref{prop:automaton-relation-properties,lem:myhill-nerode-right-invariant} established, we are ready to prove \cref{thm:myhill-nerode} by tracing the three-implication cycle $(1)\implies(2)\implies(3)\implies(1)$.
 
 \begin{walkthrough}{Myhill--Nerode equivalence cycle}
   \wtstep{(1) $\implies$ (2): Find a finite memory structure}{
     Assume $L$ is regular, so it is recognized by some DFA $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$. By \cref{prop:automaton-relation-properties}, the automaton relation $\sim_{\mathcal{A}}$ is a right-invariant equivalence relation of finite index that is compatible with $L$. Thus $L$ is a union of some classes of $\sim_{\mathcal{A}}$.
   }{
-    Given the parity DFA for "even number of $a$'s", $\sim_{\mathcal{A}}$ cleanly partitions all words into just two classes based on which state they reach: the 'even' class and the 'odd' class.
+    Given the parity DFA for ``even number of $a$'s'', $\sim_{\mathcal{A}}$ cleanly partitions all words into just two classes based on which state they reach: the \emph{even} class and the \emph{odd} class.
   }
 
   \wtstep{(2) $\implies$ (3): Any valid grouping refines $\sim_L$}{
@@ -1808,7 +1819,7 @@ same future behaviour.
 
     Therefore, $x \sim y \implies x \sim_L y$. This means every $\sim$-class is contained in a single $\sim_L$-class. Therefore $\sim_L$ has no more classes than $\sim$, meaning $\sim_L$ also has finite index.
   }{
-    Because 'even' and 'odd' words have strictly different futures in the language, our initial 'even/odd' grouping perfectly matched $\sim_L$. But even if we started with a clunkier relation (like grouping by modulo 4), it would still refine down to $\sim_L$.
+    Because \emph{even} and \emph{odd} words have strictly different futures in the language, our initial even/odd grouping perfectly matched $\sim_L$. But even if we started with a clunkier relation (like grouping by modulo~$4$), it would still refine down to $\sim_L$.
   }
 
   \wtstep{(3) $\implies$ (1): Quotient automaton construction}{
@@ -1820,11 +1831,15 @@ same future behaviour.
     \[
       \delta([w],a)=[wa] \quad\text{and}\quad F_L=\{[w]\mid w\in L\}.
     \]
-    This is well-defined precisely because $\sim_L$ is right-invariant and compatible with $L$. The automaton ends in state $[w]$, meaning it accepts exactly $L$.
+    By \cref{lem:myhill-nerode-right-invariant}, $\sim_L$ is right-invariant (so $\delta$ does not depend on the representative $w$) and compatible with $L$ (so $F_L$ is well-defined). By induction on $|w|$, $\widehat{\delta}([\varepsilon],w)=[w]$, hence $w\in L(A_L)\iff [w]\in F_L\iff w\in L$.
   }{
-    Since there are exactly 2 classes in $\sim_L$, we build a 2-state quotient automaton. We start in $[\varepsilon]$ (the even class). Reading an $a$ takes us to $[a]$ (the odd class).
+    Since $\sim_L$ has two classes, we build a 2-state quotient DFA starting at $[\varepsilon]$ (even), with $F_L=\{[\varepsilon]\}$. Reading $a$ moves between $[\varepsilon]$ and $[a]$ (odd), while $b$ loops in each class.
   }
 \end{walkthrough}
+
+\Cref{thm:myhill-nerode} settles our regularity question in principle and gives us an explicit automaton $A_L$ built directly from $\sim_L$. Two tasks remain to close the section's opening agenda: proving that $A_L$ is actually the \emph{smallest} possible deterministic recognizer for $L$ (and unique up to isomorphism), and showing how the finite-index criterion rules out non-regular predicates such as $P_{=}$ from \cref{ex:predicate-versus-automaton}.
+
+For minimality, the crucial tool already appeared in the $(2)\implies(3)$ step above: any DFA recognizing $L$ induces a prefix partition $\sim_{\mathcal{A}}$ that refines $\sim_L$, so it can never collapse two distinct $\sim_L$-classes into the same state.
 
 \begin{proposition}[Minimality]
 \label{prop:myhill-nerode-minimality}
@@ -1833,9 +1848,14 @@ number of states among all DFAs recognizing $L$.
 \end{proposition}
 
 \begin{proof}
-Let $A$ be any DFA recognizing $L$. If two words reach the same state
-in $A$, they are equivalent under $\sim_{\mathcal{A}}$, which implies they are $\sim_L$-equivalent by the (2) $\implies$ (3) step of the previous proof. Therefore a single state of $A$ can represent only one Myhill--Nerode class. Since every class is reached by some word, $A$ must have at least as many states as there are $\sim_L$-classes. 
+Let $\mathcal{A}=(Q,\Sigma,\delta,q_0,F)$ be any DFA recognizing $L$. If two words reach the same state
+in $\mathcal{A}$, they are equivalent under $\sim_{\mathcal{A}}$, which implies they are $\sim_L$-equivalent by the $(2) \implies (3)$ step of the previous proof. Thus each reachable state of $\mathcal{A}$ corresponds to a single $\sim_L$-class. Since every $\sim_L$-class is non-empty and therefore contains at least one word $w\in\Sigma^*$ reaching some state $\widehat{\delta}(q_0,w)\in Q$, $\mathcal{A}$ must have at least as many states as there are $\sim_L$-classes.
 \end{proof}
+
+Moreover, if a DFA $\mathcal{A}$ recognizing $L$ achieves this exact minimum state count $|\Sigma^*/{\sim_L}|$, then every state in $Q$ must be reachable and the correspondence sending each state $\widehat{\delta}(q_0,w)$ to its class $[w]$ is a bijection that preserves the initial state, transitions, and accepting states; hence any minimal DFA for $L$ is isomorphic to $A_L$.
+
+\paragraph{Settling non-regularity for abstract predicates.}
+The equivalence $(1)\iff(3)$ in \cref{thm:myhill-nerode} is equally decisive in the negative direction: to prove that a language $L$ admits \emph{no} finite-state recognizer, it suffices to exhibit an infinite family of prefixes that are pairwise separated by suffixes in $\Sigma^*$. Returning to the counting predicate $P_{=}(w)$ of \cref{ex:predicate-versus-automaton}---which defines $L_{=}=\{w\in\{a,b\}^*\mid |w|_a=|w|_b\}$---consider the infinite sequence of prefixes $x_n=a^n$ for $n\ge 0$. Whenever $m\neq n$, the suffix $z=b^m$ separates $x_m$ from $x_n$ because $a^m b^m \in L_{=}$ whereas $a^n b^m \notin L_{=}$. Thus the prefixes $a^0, a^1, a^2, \ldots$ lie in pairwise distinct $\sim_{L_{=}}$-classes, proving rigorously that $\sim_{L_{=}}$ has infinite index and that $L_{=}$ is not regular.
 
 \medskip\noindent
 In summary, the Myhill--Nerode theorem provides both a fundamental characterization and a constructive synthesis tool: it removes exactly those distinctions between past prefixes that no future continuation can observe. In other words, its equivalence classes represent the optimal, coarsest memory state that any recognizer must maintain, establishing that the quotient DFA $A_L$ is the unique minimal deterministic automaton for $L$ up to isomorphism.
