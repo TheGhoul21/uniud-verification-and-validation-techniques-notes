@@ -26,34 +26,34 @@
   }
 ]
   \node[mm root] (root) at (0,0) {Chapter 2\\Regular Languages and Decision Problems};
-  \node[mm section, concept color=brightsky] (s1) at (60:5.1cm) {Regular Expressions and Kleene's Theorem};
-  \node[mm topic, concept color=brightsky!44!white] (t1_1) at (80:9.8cm) {Regular Expressions};
-  \node[mm topic, concept color=brightsky!44!white] (t1_2) at (60:9.8cm) {The \ensuremath{\varepsilon}-NFA Model};
-  \node[mm topic, concept color=brightsky!44!white] (t1_3) at (40:9.8cm) {Kleene's Theorem};
-  \node[mm section, concept color=vvteal] (s2) at (10:5.1cm) {Closure Properties};
-  \node[mm topic, concept color=vvteal!44!white] (t2_1) at (20:9.8cm) {Complementation};
-  \node[mm topic, concept color=vvteal!44!white] (t2_2) at (0:9.8cm) {Intersection};
-  \node[mm section, concept color=vvviolet] (s3) at (-20:5.1cm) {Decision Problems};
-  \node[mm topic, concept color=vvviolet!44!white] (t3_1) at (-20:9.8cm) {Reachability as a Fixpoint};
-  \node[mm section, concept color=vvorange] (s4) at (-150:5.1cm) {The Myhill--Nerode View};
-  \node[mm topic, concept color=vvorange!44!white] (t4_1) at (-40:9.8cm) {A predicate is not yet an automaton};
-  \node[mm topic, concept color=vvorange!44!white] (t4_2) at (-60:9.8cm) {Prefixes with the same future};
-  \node[mm topic, concept color=vvorange!44!white] (t4_3) at (-80:9.8cm) {Equivalence relation, classes, and index};
-  \node[mm topic, concept color=vvorange!44!white] (t4_4) at (-100:9.8cm) {Valid: Parity of length};
-  \node[mm topic, concept color=vvorange!44!white] (t4_5) at (-120:9.8cm) {Invalid: Shared letter};
-  \node[mm topic, concept color=vvorange!44!white] (t4_6) at (-140:9.8cm) {Right-invariant equivalence compatible with L};
-  \node[mm topic, concept color=vvorange!44!white] (t4_7) at (-160:9.8cm) {Myhill--Nerode equivalence of a language};
-  \node[mm topic, concept color=vvorange!44!white] (t4_8) at (-180:9.8cm) {Myhill--Nerode theorem};
-  \node[mm topic, concept color=vvorange!44!white] (t4_9) at (-200:9.8cm) {The automaton relation};
-  \node[mm topic, concept color=vvorange!44!white] (t4_10) at (-220:9.8cm) {Properties of \_A};
-  \node[mm topic, concept color=vvorange!44!white] (t4_11) at (-240:9.8cm) {\_L is right-invariant};
-  \node[mm topic, concept color=vvorange!44!white] (t4_12) at (-260:9.8cm) {Minimality};
+  \node[mm section, concept color=brightsky] (s1) at (47.65:5.1cm) {Regular Expressions and Kleene's Theorem};
+  \node[mm topic, concept color=brightsky!44!white] (t1_1) at (79.41:9.8cm) {Regular Expressions};
+  \node[mm topic, concept color=brightsky!44!white] (t1_2) at (58.24:9.8cm) {The Equivalence Goal: Kleene's Theorem};
+  \node[mm topic, concept color=brightsky!44!white] (t1_3) at (37.06:9.8cm) {The Compilation Engine: \ensuremath{\varepsilon}-NFAs and Thompson's Construction};
+  \node[mm topic, concept color=brightsky!44!white] (t1_4) at (15.88:9.8cm) {The Extraction Engine: State Elimination and Path Expressions};
+  \node[mm section, concept color=vvteal] (s2) at (-15.88:5.1cm) {Closure Properties};
+  \node[mm topic, concept color=vvteal!44!white] (t2_1) at (-5.29:9.8cm) {Complementation};
+  \node[mm topic, concept color=vvteal!44!white] (t2_2) at (-26.47:9.8cm) {Intersection};
+  \node[mm section, concept color=vvviolet] (s3) at (-47.65:5.1cm) {Decision Problems};
+  \node[mm topic, concept color=vvviolet!44!white] (t3_1) at (-47.65:9.8cm) {Reachability as a Fixpoint};
+  \node[mm section, concept color=vvorange] (s4) at (-164.12:5.1cm) {The Myhill--Nerode View};
+  \node[mm topic, concept color=vvorange!44!white] (t4_1) at (-68.82:9.8cm) {A predicate is not yet an automaton};
+  \node[mm topic, concept color=vvorange!44!white] (t4_2) at (-90:9.8cm) {Prefixes with the same future};
+  \node[mm topic, concept color=vvorange!44!white] (t4_3) at (-111.18:9.8cm) {Equivalence relation, classes, and index};
+  \node[mm topic, concept color=vvorange!44!white] (t4_4) at (-132.35:9.8cm) {Right-invariant equivalence compatible with L};
+  \node[mm topic, concept color=vvorange!44!white] (t4_5) at (-153.53:9.8cm) {Myhill--Nerode equivalence of a language};
+  \node[mm topic, concept color=vvorange!44!white] (t4_6) at (-174.71:9.8cm) {Myhill--Nerode theorem};
+  \node[mm topic, concept color=vvorange!44!white] (t4_7) at (-195.88:9.8cm) {The automaton relation};
+  \node[mm topic, concept color=vvorange!44!white] (t4_8) at (-217.06:9.8cm) {Properties of \_A};
+  \node[mm topic, concept color=vvorange!44!white] (t4_9) at (-238.24:9.8cm) {\_L is right-invariant};
+  \node[mm topic, concept color=vvorange!44!white] (t4_10) at (-259.41:9.8cm) {Minimality};
 
   \begin{scope}[on background layer, line cap=round]
     \draw[brightsky, line width=11pt] (root) -- (s1);
     \draw[brightsky!60!white, line width=5.5pt] (s1) -- (t1_1);
     \draw[brightsky!60!white, line width=5.5pt] (s1) -- (t1_2);
     \draw[brightsky!60!white, line width=5.5pt] (s1) -- (t1_3);
+    \draw[brightsky!60!white, line width=5.5pt] (s1) -- (t1_4);
     \draw[vvteal, line width=11pt] (root) -- (s2);
     \draw[vvteal!60!white, line width=5.5pt] (s2) -- (t2_1);
     \draw[vvteal!60!white, line width=5.5pt] (s2) -- (t2_2);
@@ -70,7 +70,5 @@
     \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_8);
     \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_9);
     \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_10);
-    \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_11);
-    \draw[vvorange!60!white, line width=5.5pt] (s4) -- (t4_12);
   \end{scope}
 \end{tikzpicture}

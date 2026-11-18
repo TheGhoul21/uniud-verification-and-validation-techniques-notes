@@ -1584,39 +1584,61 @@ What does ``being in the same class'' mean intuitively? Instead of treating ever
 The \textbf{index} of an equivalence relation is simply the number of its equivalence classes (buckets). A relation has \textbf{finite index} if it partitions the set into finitely many classes.
 \end{definition}
 
+\Cref{fig:equivalence-classes-examples} contrasts a valid equivalence relation---which slices $\Sigma^*$ into two disjoint buckets by length parity---with a non-transitive relation (sharing a letter on non-empty words $\Sigma^+$), where $ab$ pulls incompatible words into an overlap.
+
 \begin{figure}[ht]
 \centering
-\begin{minipage}[t]{0.48\textwidth}
-\vspace{0pt}
-\begin{example}[Valid: Parity of length]
-Define $x \sim y \iff |x| \equiv |y| \pmod 2$.
-\begin{itemize}[leftmargin=*,nosep]
-    \item \textbf{Transitive:} Yes.
-    \item \textbf{Classes (Buckets):} Exactly 2.
-    \begin{itemize}[nosep]
-        \item Class 0: $\{\varepsilon, aa, ab, ba, bb, \dots\}$
-        \item Class 1: $\{a, b, aaa, \dots\}$
-    \end{itemize}
-\end{itemize}
-Every word falls neatly into exactly one disjoint bucket.
-\end{example}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-\vspace{0pt}
-\begin{example}[Invalid: Shared letter]
-Define $x \sim y$ if they share at least one letter.
-\begin{itemize}[leftmargin=*,nosep]
-    \item \textbf{Transitive:} \textbf{No!}
-    \item \textbf{Classes (Buckets):} Impossible.
-\end{itemize}
-For instance, $a \sim ab$ and $ab \sim b$, but $a \nsim b$. We cannot put them in disjoint buckets: if $ab$ goes with $a$, and $ab$ goes with $b$, then $a$ and $b$ would be forced into the same bucket despite not sharing a letter.
-\end{example}
-\end{minipage}
+\begin{tikzpicture}[
+  panel/.style={rounded corners=5pt, thick},
+  bucket/.style={rounded corners=6pt, thick},
+  word/.style={font=\small},
+  wbox/.style={font=\small\bfseries, rounded corners=3pt, inner sep=2.5pt, fill=white, draw=tomato!75!black, thick},
+]
+  % --- Left panel: Valid (Parity of length) ---
+  \draw[panel, draw=vvteal!45, fill=vvteal!3] (-6.35,-2.55) rectangle (-0.20,2.40);
+  \node[font=\small\sffamily\bfseries, text=vvteal!80!black] at (-3.275,2.05) {Valid: Parity of length};
+  \node[font=\scriptsize, text=graphite] at (-3.275,1.62) {$x \sim y \iff |x| \equiv |y| \pmod 2$ \ (transitive)};
+
+  \draw[bucket, draw=vvteal!75!black, fill=vvteal!10] (-6.02,-1.55) rectangle (-3.42,1.15);
+  \node[font=\scriptsize\sffamily\bfseries, text=vvteal!80!black] at (-4.72,0.85) {Class 0 (even)};
+  \node[word] at (-4.72,0.28) {$\varepsilon,\; aa,\; ab$};
+  \node[word] at (-4.72,-0.25) {$ba,\; bb,\; \ldots$};
+  \node[font=\scriptsize, text=graphite!80] at (-4.72,-1.05) {$|w|$ even};
+
+  \draw[bucket, draw=brightsky!80!black, fill=brightsky!10] (-3.13,-1.55) rectangle (-0.53,1.15);
+  \node[font=\scriptsize\sffamily\bfseries, text=brightsky!70!black] at (-1.83,0.85) {Class 1 (odd)};
+  \node[word] at (-1.83,0.28) {$a,\; b,\; aaa$};
+  \node[word] at (-1.83,-0.25) {$aab,\; bba,\; \ldots$};
+  \node[font=\scriptsize, text=graphite!80] at (-1.83,-1.05) {$|w|$ odd};
+
+  \node[font=\scriptsize, text=graphite] at (-3.275,-2.12) {Every word falls in \textbf{one} disjoint bucket.};
+
+  % --- Right panel: Invalid (Shared letter) ---
+  \draw[panel, draw=tomato!45, fill=tomato!3] (0.20,-2.55) rectangle (6.35,2.40);
+  \node[font=\small\sffamily\bfseries, text=tomato!80!black] at (3.275,2.05) {Invalid: Shared letter};
+  \node[font=\scriptsize, text=graphite] at (3.275,1.62) {$x \sim y$ if $x,y$ share a letter ($\Sigma^+$, not transitive)};
+
+  \draw[thick, draw=vvorange!85!black, fill=vvorange!16, fill opacity=0.65] (2.375,-0.18) ellipse (1.75cm and 1.12cm);
+  \draw[thick, draw=tomato!85!black, fill=tomato!16, fill opacity=0.65] (4.175,-0.18) ellipse (1.75cm and 1.12cm);
+
+  \node[font=\scriptsize\sffamily, text=vvorange!80!black] at (1.60,1.14) {shares $a$};
+  \node[font=\scriptsize\sffamily, text=tomato!80!black] at (4.95,1.14) {shares $b$};
+
+  \node[word, circle, inner sep=1.5pt, fill=white, fill opacity=0.85, text opacity=1] (wa) at (1.45,0.26) {$a$};
+  \node[wbox] (wab) at (3.275,0.26) {$ab$};
+  \node[word, circle, inner sep=1.5pt, fill=white, fill opacity=0.85, text opacity=1] (wb) at (5.10,0.26) {$b$};
+
+  \draw[thick, graphite!80] (wa) -- node[above, font=\scriptsize] {$\sim$} (wab);
+  \draw[thick, graphite!80] (wab) -- node[above, font=\scriptsize] {$\sim$} (wb);
+  \draw[dashed, thick, tomato!85!black] (wa.south) to[out=-28, in=-152, looseness=0.95] node[below, font=\scriptsize, text=tomato!85!black, inner sep=2pt] {$a \nsim b$} (wb.south);
+
+  \node[font=\scriptsize, text=graphite] at (3.275,-2.12) {Overlap: $ab$ bridges both groups, yet $a \nsim b$.};
+\end{tikzpicture}
 \caption{A valid equivalence relation creates disjoint classes (left), whereas a relation lacking transitivity creates overlapping groups that cannot form classes (right).}
 \label{fig:equivalence-classes-examples}
 \end{figure}
 
-As \cref{fig:equivalence-classes-examples} illustrates, transitivity is what guarantees that these buckets remain disjoint rather than overlapping. For automata, however, an arbitrary partition of $\Sigma^*$ is not yet enough: to behave like automaton states, the buckets must evolve consistently when new symbols are appended and must respect membership in $L$.
+Transitivity is precisely what guarantees that these buckets remain disjoint rather than overlapping. For automata, however, an arbitrary partition of $\Sigma^*$ is not yet enough: to behave like automaton states, the buckets must evolve consistently when new symbols are appended and must respect membership in $L$.
 
 \begin{definition}[Right-invariant equivalence compatible with $L$]
 \label{def:right-invariant-equivalence}
