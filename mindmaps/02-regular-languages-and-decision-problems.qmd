@@ -218,7 +218,7 @@ format:
           "line": 1720
         },
         {
-          "name": "_L is right-invariant",
+          "name": "Properties of _L",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
           "line": 1736
@@ -227,7 +227,7 @@ format:
           "name": "Minimality",
           "kind": "Topic",
           "source": "chapters/02-regular-languages-and-decision-problems.tex",
-          "line": 1866
+          "line": 1886
         }
       ]
     }

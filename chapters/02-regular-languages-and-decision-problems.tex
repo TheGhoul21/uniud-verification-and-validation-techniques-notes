@@ -1733,35 +1733,55 @@ of finite words according to the finite number of states reached. Finally, it is
 
 That settles how any existing DFA induces a finite-index right-invariant relation compatible with its language. Next, we verify the dual, automaton-free side: starting from an arbitrary language $L\subseteq\Sigma^*$ (whether regular or not), the canonical relation $\sim_L$ always satisfies those same three structural properties.
 
-\begin{lemma}[$\sim_L$ is right-invariant]
+\begin{lemma}[Properties of $\sim_L$]
 \label{lem:myhill-nerode-right-invariant}
 For every language $L\subseteq\Sigma^*$, the relation $\sim_L$ is an
 equivalence relation, it is right-invariant, and it is compatible with $L$.
 \end{lemma}
 
+Nothing here assumes that $L$ is regular, so the proof can only use the
+definition of $\sim_L$: ``$x\sim_L y$ means that \emph{for every} suffix
+$z$, the words $xz$ and $yz$ have the same verdict in $L$.''  We check
+the three properties one at a time.  For the running example, take $L$
+to be the words over $\{a,b\}$ ending in~$a$
+(\cref{ex:myhill-nerode-preview}), where $aa\sim_L ba$.
+
 \begin{proof}
-First, $\sim_L$ is an equivalence relation.  Reflexivity is immediate:
-for every suffix $z$, $xz\in L$ iff $xz\in L$.  Symmetry follows by
-reading the biconditional in the definition from right to left.
-Transitivity follows pointwise on suffixes: if $x\sim_L y$ and
-$y\sim_L u$, then for every $z$,
-\[
-  xz\in L \Longleftrightarrow yz\in L
-  \Longleftrightarrow uz\in L,
-\]
-so $x\sim_L u$.
+\textbf{Step 1: $\sim_L$ is an equivalence relation.}
+The definition says ``for every $z$, a biconditional holds'', and
+biconditionals are already reflexive, symmetric, and transitive, so each
+property transfers suffix by suffix.
+\begin{itemize}[nosep]
+  \item \emph{Reflexivity.}  For every $z$, $xz\in L\iff xz\in L$, so
+  $x\sim_L x$.
+  \item \emph{Symmetry.}  If $xz\in L\iff yz\in L$ for every $z$, then
+  also $yz\in L\iff xz\in L$ for every $z$, so $y\sim_L x$.
+  \item \emph{Transitivity.}  Let $x\sim_L y$ and $y\sim_L u$.  Fix any
+  $z$.  The first hypothesis gives $xz\in L\iff yz\in L$ and the second
+  gives $yz\in L\iff uz\in L$.  Chaining them,
+  $xz\in L\iff uz\in L$.  Since $z$ was arbitrary, $x\sim_L u$.
+\end{itemize}
 
-For right-invariance, assume $x\sim_L y$ and let $v\in\Sigma^*$ be
-the word appended on the right.  We must prove $xv\sim_L yv$.  Take
-an arbitrary continuation $z\in\Sigma^*$.  Since $vz$ is itself a
-continuation, the hypothesis $x\sim_L y$ gives
+\textbf{Step 2: $\sim_L$ is right-invariant.}
+Assume $x\sim_L y$ and fix a word $v\in\Sigma^*$ to append.  We must show
+$xv\sim_L yv$, that is, for \emph{every} $z\in\Sigma^*$,
 \[
-  x(vz)\in L \quad\Longleftrightarrow\quad y(vz)\in L.
+  (xv)z\in L \iff (yv)z\in L.
 \]
-Equivalently, $(xv)z\in L$ iff $(yv)z\in L$.  This holds for every
-$z$, hence $xv\sim_L yv$.
+The key observation is that $(xv)z=x(vz)$ and $(yv)z=y(vz)$: appending
+$v$ and then $z$ is the same as appending the single suffix $vz$.  Since
+$x\sim_L y$ holds for \emph{all} suffixes, in particular for the suffix
+$vz$, we get $x(vz)\in L\iff y(vz)\in L$, which is exactly the
+displayed condition.  As $z$ was arbitrary, $xv\sim_L yv$.
 
-For compatibility with $L$, we simply take $z=\varepsilon$ in the definition of $\sim_L$: $x\sim_L y$ implies $x\varepsilon\in L \iff y\varepsilon\in L$, which is exactly $x\in L \iff y\in L$.
+\emph{In the example.}  From $aa\sim_L ba$ and $v=b$ we get
+$aab\sim_L bab$: for any $z$, the words $aabz$ and $babz$ are $aa$ and
+$ba$ followed by the suffix $bz$, and $aa,ba$ agree on every suffix.
+
+\textbf{Step 3: $\sim_L$ is compatible with $L$.}
+The definition holds for every suffix, so it holds for the empty one.
+Taking $z=\varepsilon$ gives $x\varepsilon\in L\iff y\varepsilon\in L$,
+that is, $x\in L\iff y\in L$.
 \end{proof}
 
 \begin{figure}[ht]
